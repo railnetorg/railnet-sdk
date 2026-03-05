@@ -4,7 +4,7 @@ description: React hook to predict the deployment address of a conduit.
 
 # usePredictConduitDeployment
 
-React hook that predicts the deployment address of a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+React hook that predicts the deployment address of a conduit.
 
 ## Import
 
@@ -48,7 +48,7 @@ function PredictAddress() {
 UseQueryResult<Address, ReadContractErrorType>
 ```
 
-A TanStack Query result containing the predicted `Address`.
+Returns the predicted `Address`.
 
 The query is automatically disabled when no public client is available.
 

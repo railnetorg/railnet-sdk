@@ -4,7 +4,7 @@ description: React hook to finalize a conduit deposit.
 
 # useFinalizeConduitDeposit
 
-React mutation hook for finalizing a conduit deposit via the factory. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+React mutation hook for finalizing a conduit deposit via the factory.
 
 ## Import
 
@@ -43,4 +43,4 @@ function Finalize() {
 UseMutationResult<FinalizeConduitDepositReturnType, Error, FinalizeConduitDepositParameters & { account: Address }>
 ```
 
-A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`finalizeConduitDeposit`](/actions/finalizeConduitDeposit) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`finalizeConduitDeposit`](/actions/finalizeConduitDeposit) parameters.

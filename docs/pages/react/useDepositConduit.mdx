@@ -4,7 +4,7 @@ description: React hook to deposit assets into a conduit.
 
 # useDepositConduit
 
-React mutation hook for depositing assets into a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+React mutation hook for depositing assets into a conduit.
 
 ## Import
 
@@ -44,4 +44,4 @@ function Deposit() {
 UseMutationResult<DepositConduitReturnType, Error, DepositConduitParameters & { account: Address }>
 ```
 
-A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`depositConduit`](/actions/depositConduit) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`depositConduit`](/actions/depositConduit) parameters.

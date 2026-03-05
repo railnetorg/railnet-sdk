@@ -4,7 +4,7 @@ description: React hook to redeem shares from a conduit.
 
 # useRedeemConduit
 
-React mutation hook for redeeming shares from a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+React mutation hook for redeeming shares from a conduit.
 
 ## Import
 
@@ -43,4 +43,4 @@ function Redeem() {
 UseMutationResult<RedeemConduitReturnType, Error, RedeemConduitParameters & { account: Address }>
 ```
 
-A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`redeemConduit`](/actions/redeemConduit) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`redeemConduit`](/actions/redeemConduit) parameters.

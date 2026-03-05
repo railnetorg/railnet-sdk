@@ -4,7 +4,7 @@ description: React hook to enable a conduit.
 
 # useEnableConduit
 
-React mutation hook for enabling public access to a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+React mutation hook for enabling public access to a conduit.
 
 ## Import
 
@@ -42,4 +42,4 @@ function Enable() {
 UseMutationResult<EnableConduitReturnType, Error, EnableConduitParameters & { account: Address }>
 ```
 
-A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`enableConduit`](/actions/enableConduit) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`enableConduit`](/actions/enableConduit) parameters.

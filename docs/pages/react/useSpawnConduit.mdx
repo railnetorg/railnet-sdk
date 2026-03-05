@@ -4,7 +4,7 @@ description: React hook to deploy a new conduit.
 
 # useSpawnConduit
 
-React mutation hook for deploying a new conduit via the factory. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+React mutation hook for deploying a new conduit via the factory.
 
 ## Import
 
@@ -55,4 +55,4 @@ function Spawn() {
 UseMutationResult<SpawnConduitReturnType, Error, SpawnConduitParameters & { account: Address }>
 ```
 
-A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`spawnConduit`](/actions/spawnConduit) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`spawnConduit`](/actions/spawnConduit) parameters.

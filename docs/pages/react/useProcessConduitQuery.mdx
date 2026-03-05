@@ -4,7 +4,7 @@ description: React hook to process a query on a conduit.
 
 # useProcessConduitQuery
 
-React mutation hook for processing a query on a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+React mutation hook for processing a query on a conduit.
 
 ## Import
 
@@ -52,4 +52,4 @@ function Process() {
 UseMutationResult<ProcessConduitQueryReturnType, Error, ProcessConduitQueryParameters & { account: Address }>
 ```
 
-A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`processConduitQuery`](/actions/processConduitQuery) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`processConduitQuery`](/actions/processConduitQuery) parameters.

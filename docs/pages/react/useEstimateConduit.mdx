@@ -4,7 +4,7 @@ description: React hook to estimate the output of a conduit operation.
 
 # useEstimateConduit
 
-React hook that estimates the output of a conduit operation. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+React hook that estimates the output of a conduit operation.
 
 ## Import
 
@@ -44,7 +44,7 @@ function Estimate() {
 UseQueryResult<Asset[], ReadContractErrorType>
 ```
 
-A TanStack Query result containing an [`Asset[]`](/types/Asset) array.
+Returns an [`Asset[]`](/types/Asset) array.
 
 The query is automatically disabled when no public client is available.
 

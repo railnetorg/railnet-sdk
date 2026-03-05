@@ -4,7 +4,7 @@ description: React hook to fetch the position of an account in a conduit.
 
 # useConduitPosition
 
-React hook that returns the position (shares and equivalent assets) of an account in a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+React hook that returns the position (shares and equivalent assets) of an account in a conduit.
 
 ## Import
 
@@ -67,7 +67,7 @@ function MyPosition() {
 UseQueryResult<ConduitPosition, ReadContractErrorType>
 ```
 
-A TanStack Query result containing a [`ConduitPosition`](/types/ConduitPosition) object.
+Returns a [`ConduitPosition`](/types/ConduitPosition) object.
 
 The query is automatically disabled when `account` is `undefined` or when no public client is available.
 
