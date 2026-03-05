@@ -1,10 +1,10 @@
 ---
-description: TanStack Query options for fetching a conduit position.
+description: Query options for fetching a conduit position.
 ---
 
 # conduitPositionQueryOptions
 
-Returns [TanStack Query options](https://tanstack.com/query/latest/docs/framework/react/guides/query-options) for fetching a conduit position. Use this when you need full control over the query lifecycle, or when integrating with a custom TanStack Query setup.
+Query options for fetching a conduit position.
 
 ## Import
 
@@ -61,7 +61,7 @@ await queryClient.prefetchQuery(
 QueryOptions<ConduitPosition, ReadContractErrorType, ConduitPosition, ConduitPositionQueryKey>
 ```
 
-TanStack Query options object containing `queryFn` and `queryKey`.
+Options object containing `queryFn` and `queryKey`.
 
 ## Parameters
 
@@ -69,7 +69,7 @@ TanStack Query options object containing `queryFn` and `queryKey`.
 
 - **Type:** `Client<Transport, Chain | undefined> | undefined`
 
-A viem public client. Typically obtained via `usePublicClient()` from wagmi.
+A viem public client.
 
 ### parameters
 

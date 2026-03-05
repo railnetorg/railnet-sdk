@@ -187,7 +187,7 @@ export default defineConfig({
       ],
     },
     {
-      text: 'TanStack Query',
+      text: 'Query Options',
       collapsed: false,
       items: [
         {
