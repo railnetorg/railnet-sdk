@@ -1,13 +1,4 @@
-/**
- * ABI for the Railnet Conduit contract.
- *
- * A Conduit is an ERC-20 wrapper around a STEAM Vehicle that issues its own
- * shares to represent proportional ownership of the underlying vehicle position.
- *
- * Source: contracts/src/conduit/Conduit.sol
- */
 export const conduitAbi = [
-  // ─── ERC-20 (inherited from ERC20Upgradeable) ─────────────────────
   {
     type: 'function',
     name: 'balanceOf',
@@ -43,8 +34,6 @@ export const conduitAbi = [
     outputs: [{ name: '', type: 'string', internalType: 'string' }],
     stateMutability: 'view',
   },
-
-  // ─── Conduit-specific reads ───────────────────────────────────────
   {
     type: 'function',
     name: 'totalAssets',
@@ -114,5 +103,167 @@ export const conduitAbi = [
     inputs: [],
     outputs: [{ name: '', type: 'address', internalType: 'contract IVehicle' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'estimate',
+    inputs: [
+      {
+        name: 'assets',
+        type: 'tuple[]',
+        internalType: 'struct Asset[]',
+        components: [
+          { name: 'asset', type: 'address', internalType: 'address' },
+          { name: 'value', type: 'uint256', internalType: 'uint256' },
+        ],
+      },
+      { name: 'mode', type: 'uint8', internalType: 'enum Mode' },
+      { name: 'estimationType', type: 'uint8', internalType: 'enum EstimationType' },
+    ],
+    outputs: [
+      {
+        name: 'estimations',
+        type: 'tuple[]',
+        internalType: 'struct Asset[]',
+        components: [
+          { name: 'asset', type: 'address', internalType: 'address' },
+          { name: 'value', type: 'uint256', internalType: 'uint256' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'create',
+    inputs: [
+      {
+        name: 'query',
+        type: 'tuple',
+        internalType: 'struct Query',
+        components: [
+          { name: 'owner', type: 'address', internalType: 'address' },
+          { name: 'receiver', type: 'address', internalType: 'address' },
+          {
+            name: 'input',
+            type: 'tuple[]',
+            internalType: 'struct Asset[]',
+            components: [
+              { name: 'asset', type: 'address', internalType: 'address' },
+              { name: 'value', type: 'uint256', internalType: 'uint256' },
+            ],
+          },
+          {
+            name: 'output',
+            type: 'tuple[]',
+            internalType: 'struct Asset[]',
+            components: [
+              { name: 'asset', type: 'address', internalType: 'address' },
+              { name: 'value', type: 'uint256', internalType: 'uint256' },
+            ],
+          },
+          { name: 'mode', type: 'uint8', internalType: 'enum Mode' },
+          { name: 'salt', type: 'bytes32', internalType: 'bytes32' },
+          { name: 'data', type: 'bytes', internalType: 'bytes' },
+        ],
+      },
+      { name: 'receiver', type: 'address', internalType: 'address' },
+    ],
+    outputs: [
+      { name: 'queryId', type: 'bytes32', internalType: 'Id' },
+      { name: 'state', type: 'uint8', internalType: 'enum State' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'createRedeemFromConduitShares',
+    inputs: [
+      { name: 'conduitShares', type: 'uint256', internalType: 'uint256' },
+      {
+        name: 'outputAssets',
+        type: 'tuple[]',
+        internalType: 'struct Asset[]',
+        components: [
+          { name: 'asset', type: 'address', internalType: 'address' },
+          { name: 'value', type: 'uint256', internalType: 'uint256' },
+        ],
+      },
+      { name: 'salt', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'receiver', type: 'address', internalType: 'address' },
+    ],
+    outputs: [
+      { name: 'queryId', type: 'bytes32', internalType: 'Id' },
+      { name: 'state', type: 'uint8', internalType: 'enum State' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'process',
+    inputs: [
+      {
+        name: 'query',
+        type: 'tuple',
+        internalType: 'struct Query',
+        components: [
+          { name: 'owner', type: 'address', internalType: 'address' },
+          { name: 'receiver', type: 'address', internalType: 'address' },
+          {
+            name: 'input',
+            type: 'tuple[]',
+            internalType: 'struct Asset[]',
+            components: [
+              { name: 'asset', type: 'address', internalType: 'address' },
+              { name: 'value', type: 'uint256', internalType: 'uint256' },
+            ],
+          },
+          {
+            name: 'output',
+            type: 'tuple[]',
+            internalType: 'struct Asset[]',
+            components: [
+              { name: 'asset', type: 'address', internalType: 'address' },
+              { name: 'value', type: 'uint256', internalType: 'uint256' },
+            ],
+          },
+          { name: 'mode', type: 'uint8', internalType: 'enum Mode' },
+          { name: 'salt', type: 'bytes32', internalType: 'bytes32' },
+          { name: 'data', type: 'bytes', internalType: 'bytes' },
+        ],
+      },
+    ],
+    outputs: [
+      { name: 'queryId', type: 'bytes32', internalType: 'Id' },
+      { name: 'state', type: 'uint8', internalType: 'enum State' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'enable',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'allowance',
+    inputs: [
+      { name: 'owner', type: 'address', internalType: 'address' },
+      { name: 'spender', type: 'address', internalType: 'address' },
+    ],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'approve',
+    inputs: [
+      { name: 'spender', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'nonpayable',
   },
 ] as const

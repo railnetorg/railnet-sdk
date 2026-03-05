@@ -1,0 +1,45 @@
+---
+description: React hook to enable a conduit.
+---
+
+# useEnableConduit
+
+React mutation hook for enabling public access to a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+
+## Import
+
+```ts
+import { useEnableConduit } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useEnableConduit } from 'railnet-sdk/react'
+
+function Enable() {
+  const { mutate, isPending } = useEnableConduit()
+
+  return (
+    <button
+      disabled={isPending}
+      onClick={() =>
+        mutate({
+          conduit: '0x...',
+          account: '0x...',
+        })
+      }
+    >
+      Enable Conduit
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<EnableConduitReturnType, Error, EnableConduitParameters & { account: Address }>
+```
+
+A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`enableConduit`](/actions/enableConduit) parameters.

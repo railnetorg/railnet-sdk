@@ -1,0 +1,108 @@
+---
+description: Estimates the output of a conduit operation.
+---
+
+# estimateConduit
+
+Estimates the output of a conduit operation given input assets and mode.
+
+## Import
+
+```ts
+import { estimateConduit } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { estimateConduit, ConduitMode, EstimationType } from 'railnet-sdk'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+const estimatedAssets = await estimateConduit(client, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  assets: [{ asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F', value: 1000000000000000000n }],
+  mode: ConduitMode.DEPOSIT,
+  estimationType: EstimationType.OUTPUT,
+})
+```
+
+## Returns
+
+[`Asset[]`](/types/Asset)
+
+The estimated output assets.
+
+```ts
+type Asset = {
+  asset: Address
+  value: bigint
+}
+```
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+```ts
+const estimatedAssets = await estimateConduit(client, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  assets: [...],
+  mode: ConduitMode.DEPOSIT,
+  estimationType: EstimationType.OUTPUT,
+})
+```
+
+### assets
+
+- **Type:** `Asset[]`
+
+The input assets for the estimation. See [`Asset`](/types/Asset).
+
+```ts
+const estimatedAssets = await estimateConduit(client, {
+  conduit: '0x...',
+  assets: [{ asset: '0x...', value: 1000000000000000000n }], // [!code focus]
+  mode: ConduitMode.DEPOSIT,
+  estimationType: EstimationType.OUTPUT,
+})
+```
+
+### mode
+
+- **Type:** `ConduitMode`
+
+The conduit mode for the estimation. See [`Enums`](/types/Enums).
+
+```ts
+const estimatedAssets = await estimateConduit(client, {
+  conduit: '0x...',
+  assets: [...],
+  mode: ConduitMode.DEPOSIT, // [!code focus]
+  estimationType: EstimationType.OUTPUT,
+})
+```
+
+### estimationType
+
+- **Type:** `EstimationType`
+
+The type of estimation to perform. See [`Enums`](/types/Enums).
+
+```ts
+const estimatedAssets = await estimateConduit(client, {
+  conduit: '0x...',
+  assets: [...],
+  mode: ConduitMode.DEPOSIT,
+  estimationType: EstimationType.OUTPUT, // [!code focus]
+})
+```

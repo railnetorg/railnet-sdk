@@ -1,0 +1,58 @@
+---
+description: TypeScript SDK for interacting with the Railnet protocol.
+---
+
+# Railnet SDK
+
+TypeScript SDK for interacting with the Railnet protocol. Built on top of [viem](https://viem.sh), with first-class support for [React](https://react.dev) and [TanStack Query](https://tanstack.com/query).
+
+## Features
+
+- **Viem Actions** — Standalone async functions that work with any viem `Client`.
+- **React Hooks** — Wagmi-powered hooks with automatic re-fetching and caching.
+- **TanStack Query** — Query options for full control over caching and data fetching.
+- **Type-safe** — End-to-end type safety with TypeScript.
+
+## Quick Start
+
+:::code-group
+
+```bash [bun]
+bun add railnet-sdk
+```
+
+```bash [pnpm]
+pnpm add railnet-sdk
+```
+
+```bash [npm]
+npm install railnet-sdk
+```
+
+:::
+
+```ts
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { getConduitPosition } from 'railnet-sdk'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+const position = await getConduitPosition(client, {
+  conduit: '0x...',
+  account: '0x...',
+})
+
+console.log(position.shares) // shares held
+console.log(position.assets) // equivalent asset value
+```
+
+## Packages
+
+| Export | Description |
+| --- | --- |
+| `railnet-sdk` | Core actions, ABIs, types and utilities |
+| `railnet-sdk/react` | React hooks and TanStack Query integrations |

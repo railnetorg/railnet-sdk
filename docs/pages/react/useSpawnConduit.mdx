@@ -1,0 +1,58 @@
+---
+description: React hook to deploy a new conduit.
+---
+
+# useSpawnConduit
+
+React mutation hook for deploying a new conduit via the factory. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+
+## Import
+
+```ts
+import { useSpawnConduit } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useSpawnConduit } from 'railnet-sdk/react'
+import { TransferMode } from 'railnet-sdk'
+
+function Spawn() {
+  const { mutateAsync, isPending } = useSpawnConduit()
+
+  const handleSpawn = async () => {
+    const result = await mutateAsync({
+      factory: '0x...',
+      name: 'My Conduit',
+      symbol: 'COND',
+      vehicle: '0x...',
+      depositAsset: '0x...',
+      initialDepositSize: 1000000000000000000n,
+      initialExpectedSupply: 1000000000000000000n,
+      transferMode: TransferMode.ALLOW_TRANSFER,
+      accessControl: '0x...',
+      feeManager: '0x...',
+      accountList: '0x...',
+      ownerRegistry: '0x...',
+      account: '0x...',
+    })
+
+    console.log(result.conduitAddress)
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleSpawn}>
+      Deploy Conduit
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<SpawnConduitReturnType, Error, SpawnConduitParameters & { account: Address }>
+```
+
+A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`spawnConduit`](/actions/spawnConduit) parameters.

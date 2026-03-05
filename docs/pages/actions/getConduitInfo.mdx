@@ -1,0 +1,64 @@
+---
+description: Retrieves general information about a conduit.
+---
+
+# getConduitInfo
+
+Retrieves general information about a conduit, including its asset, supply metrics, and configuration.
+
+## Import
+
+```ts
+import { getConduitInfo } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { getConduitInfo } from 'railnet-sdk'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+const info = await getConduitInfo(client, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+## Returns
+
+[`ConduitInfo`](/types/ConduitInfo)
+
+General information about the conduit.
+
+```ts
+type ConduitInfo = {
+  conduit: Address
+  asset: Address
+  totalSupply: bigint
+  totalAssets: bigint
+  holdings: bigint
+  decimals: number
+  name: string
+  symbol: string
+  isEnabled: boolean
+}
+```
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+```ts
+const info = await getConduitInfo(client, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+})
+```

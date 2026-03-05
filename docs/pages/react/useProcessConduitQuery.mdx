@@ -1,0 +1,55 @@
+---
+description: React hook to process a query on a conduit.
+---
+
+# useProcessConduitQuery
+
+React mutation hook for processing a query on a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+
+## Import
+
+```ts
+import { useProcessConduitQuery } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useProcessConduitQuery } from 'railnet-sdk/react'
+import { ConduitMode } from 'railnet-sdk'
+
+function Process() {
+  const { mutate, isPending } = useProcessConduitQuery()
+
+  return (
+    <button
+      disabled={isPending}
+      onClick={() =>
+        mutate({
+          conduit: '0x...',
+          account: '0x...',
+          query: {
+            owner: '0x...',
+            receiver: '0x...',
+            input: [{ asset: '0x...', value: 100n }],
+            output: [],
+            mode: ConduitMode.DEPOSIT,
+            salt: '0x...',
+            data: '0x',
+          },
+        })
+      }
+    >
+      Process Query
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<ProcessConduitQueryReturnType, Error, ProcessConduitQueryParameters & { account: Address }>
+```
+
+A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`processConduitQuery`](/actions/processConduitQuery) parameters.

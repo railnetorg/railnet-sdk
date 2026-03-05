@@ -1,0 +1,77 @@
+---
+description: TanStack Query options for predicting a conduit deployment address.
+---
+
+# predictConduitDeploymentQueryOptions
+
+Returns [TanStack Query options](https://tanstack.com/query/latest/docs/framework/react/guides/query-options) for predicting the deployment address of a conduit.
+
+## Import
+
+```ts
+import { predictConduitDeploymentQueryOptions } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```ts
+import { useQuery } from '@tanstack/react-query'
+import { usePublicClient } from 'wagmi'
+import { predictConduitDeploymentQueryOptions } from 'railnet-sdk/react'
+import { TransferMode } from 'railnet-sdk'
+
+function PredictAddress() {
+  const client = usePublicClient()
+
+  const { data: address } = useQuery(
+    predictConduitDeploymentQueryOptions(client, {
+      factory: '0x...',
+      name: 'My Conduit',
+      symbol: 'COND',
+      vehicle: '0x...',
+      depositAsset: '0x...',
+      initialDepositSize: 1000000000000000000n,
+      initialExpectedSupply: 1000000000000000000n,
+      transferMode: TransferMode.ALLOW_TRANSFER,
+      accessControl: '0x...',
+      feeManager: '0x...',
+      accountList: '0x...',
+      ownerRegistry: '0x...',
+      querySalt: '0x...',
+      deploymentSalt: '0x...',
+    }),
+  )
+}
+```
+
+## Returns
+
+```ts
+QueryOptions<Address, ReadContractErrorType, Address, PredictConduitDeploymentQueryKey>
+```
+
+TanStack Query options object containing `queryFn` and `queryKey`.
+
+## Parameters
+
+### client
+
+- **Type:** `Client<Transport, Chain | undefined> | undefined`
+
+A viem public client.
+
+### parameters
+
+Same as [`predictConduitDeployment`](/actions/predictConduitDeployment) parameters.
+
+## Query Key
+
+```ts
+['railnet', 'predictConduitDeployment', parameters] as const
+```
+
+You can use `predictConduitDeploymentQueryKey` to construct the query key manually:
+
+```ts
+import { predictConduitDeploymentQueryKey } from 'railnet-sdk/react'
+```

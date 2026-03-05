@@ -1,7 +1,7 @@
 import type { Address, Chain, Client, Transport } from 'viem'
 import { readContract } from 'viem/actions'
-import { conduitAbi } from '../abi/conduit.js'
-import type { ConduitPosition } from '../types.js'
+import { conduitAbi } from '../../abi/conduit.js'
+import type { ConduitPosition } from './types.js'
 
 export type GetConduitPositionParameters = {
   conduit: Address

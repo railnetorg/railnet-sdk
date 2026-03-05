@@ -1,0 +1,75 @@
+---
+description: React hook to fetch general information about a conduit.
+---
+
+# useConduitInfo
+
+React hook that returns general information about a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+
+## Import
+
+```ts
+import { useConduitInfo } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useConduitInfo } from 'railnet-sdk/react'
+
+function ConduitInfo() {
+  const { data, isLoading, error } = useConduitInfo({
+    conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  })
+
+  if (isLoading) return <div>Loading conduit info...</div>
+  if (error) return <div>Error: {error.message}</div>
+
+  return (
+    <div>
+      <p>Name: {data?.name}</p>
+      <p>Symbol: {data?.symbol}</p>
+      <p>Total Supply: {data?.totalSupply.toString()}</p>
+      <p>Enabled: {data?.isEnabled ? 'Yes' : 'No'}</p>
+    </div>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseQueryResult<ConduitInfo, ReadContractErrorType>
+```
+
+A TanStack Query result containing a [`ConduitInfo`](/types/ConduitInfo) object.
+
+The query is automatically disabled when no public client is available.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+```tsx
+const result = useConduitInfo({
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+})
+```
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether the query should be enabled. Set to `false` to prevent the query from running.
+
+```tsx
+const result = useConduitInfo({
+  conduit: '0x...',
+  enabled: false, // [!code focus]
+})
+```

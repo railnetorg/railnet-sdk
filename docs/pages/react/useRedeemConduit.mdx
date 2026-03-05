@@ -1,0 +1,46 @@
+---
+description: React hook to redeem shares from a conduit.
+---
+
+# useRedeemConduit
+
+React mutation hook for redeeming shares from a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+
+## Import
+
+```ts
+import { useRedeemConduit } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useRedeemConduit } from 'railnet-sdk/react'
+
+function Redeem() {
+  const { mutate, isPending } = useRedeemConduit()
+
+  return (
+    <button
+      disabled={isPending}
+      onClick={() =>
+        mutate({
+          conduit: '0x...',
+          shares: 500000000000000000n,
+          account: '0x...',
+        })
+      }
+    >
+      Redeem
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<RedeemConduitReturnType, Error, RedeemConduitParameters & { account: Address }>
+```
+
+A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`redeemConduit`](/actions/redeemConduit) parameters.

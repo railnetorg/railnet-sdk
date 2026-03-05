@@ -1,0 +1,147 @@
+---
+description: Enum definitions for the Railnet SDK.
+---
+
+# Enums
+
+Enum definitions used throughout the Railnet SDK.
+
+## Import
+
+```ts
+import { ConduitMode, ConduitState, TransferMode, EstimationType } from 'railnet-sdk'
+```
+
+## ConduitMode
+
+Represents the mode of a query.
+
+```ts
+enum ConduitMode {
+  DEPOSIT = 0,
+  REDEEM = 1,
+}
+```
+
+### DEPOSIT
+
+- **Value:** `0`
+
+Deposit mode.
+
+### REDEEM
+
+- **Value:** `1`
+
+Redeem mode.
+
+## ConduitState
+
+Represents the state of a query within the STEAM state machine.
+
+```ts
+enum ConduitState {
+  EMPTY = 0,
+  PROCESSING = 1,
+  WAITING = 2,
+  UNLOCKING = 3,
+  RECOVERING = 4,
+  REJECTED = 5,
+  SETTLED = 6,
+}
+```
+
+### EMPTY
+
+- **Value:** `0`
+
+No query exists for this identifier.
+
+### PROCESSING
+
+- **Value:** `1`
+
+The query is being processed.
+
+### WAITING
+
+- **Value:** `2`
+
+The query is waiting for an external condition.
+
+### UNLOCKING
+
+- **Value:** `3`
+
+The query is ready to be settled.
+
+### RECOVERING
+
+- **Value:** `4`
+
+The query is in a recovery state.
+
+### REJECTED
+
+- **Value:** `5`
+
+The query was rejected.
+
+### SETTLED
+
+- **Value:** `6`
+
+The query has been settled.
+
+## TransferMode
+
+Represents the transfer mode for a conduit.
+
+```ts
+enum TransferMode {
+  ACCOUNT_LIST = 0,
+  ALLOW_TRANSFER = 1,
+  BLOCK_TRANSFER = 2,
+}
+```
+
+### ACCOUNT_LIST
+
+- **Value:** `0`
+
+Transfers are restricted to accounts on a specific list.
+
+### ALLOW_TRANSFER
+
+- **Value:** `1`
+
+Transfers are allowed for all accounts.
+
+### BLOCK_TRANSFER
+
+- **Value:** `2`
+
+Transfers are blocked for all accounts.
+
+## EstimationType
+
+Represents the type of estimation to perform.
+
+```ts
+enum EstimationType {
+  INPUT = 0,
+  OUTPUT = 1,
+}
+```
+
+### INPUT
+
+- **Value:** `0`
+
+Estimate the required input for a desired output.
+
+### OUTPUT
+
+- **Value:** `1`
+
+Estimate the output for a given input.

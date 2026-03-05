@@ -1,7 +1,7 @@
 import type { Address, Chain, Client, Transport } from 'viem'
 import { multicall } from 'viem/actions'
-import { conduitAbi } from '../abi/conduit.js'
-import type { ConduitInfo } from '../types.js'
+import { conduitAbi } from '../../abi/conduit.js'
+import type { ConduitInfo } from './types.js'
 
 export type GetConduitInfoParameters = {
   conduit: Address

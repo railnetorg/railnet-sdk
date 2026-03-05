@@ -1,0 +1,46 @@
+---
+description: React hook to finalize a conduit deposit.
+---
+
+# useFinalizeConduitDeposit
+
+React mutation hook for finalizing a conduit deposit via the factory. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+
+## Import
+
+```ts
+import { useFinalizeConduitDeposit } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useFinalizeConduitDeposit } from 'railnet-sdk/react'
+
+function Finalize() {
+  const { mutate, isPending } = useFinalizeConduitDeposit()
+
+  return (
+    <button
+      disabled={isPending}
+      onClick={() =>
+        mutate({
+          factory: '0x...',
+          conduit: '0x...',
+          account: '0x...',
+        })
+      }
+    >
+      Finalize Deposit
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<FinalizeConduitDepositReturnType, Error, FinalizeConduitDepositParameters & { account: Address }>
+```
+
+A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`finalizeConduitDeposit`](/actions/finalizeConduitDeposit) parameters.

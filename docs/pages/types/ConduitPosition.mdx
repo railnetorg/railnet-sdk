@@ -1,0 +1,50 @@
+---
+description: Type definition for a conduit position.
+---
+
+# ConduitPosition
+
+Represents the position of an account in a conduit — the number of shares held and their equivalent value in the underlying asset.
+
+## Import
+
+```ts
+import type { ConduitPosition } from 'railnet-sdk'
+```
+
+## Definition
+
+```ts
+type ConduitPosition = {
+  shares: bigint
+  assets: bigint
+  conduit: Address
+  account: Address
+}
+```
+
+## Properties
+
+### shares
+
+- **Type:** `bigint`
+
+The number of conduit shares held by the account. Corresponds to the ERC-20 `balanceOf` the conduit token.
+
+### assets
+
+- **Type:** `bigint`
+
+The equivalent value of the shares in the conduit's underlying asset. Computed on-chain via the conduit's `convert` function. Returns `0n` if the account holds no shares.
+
+### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+### account
+
+- **Type:** `Address`
+
+The address of the account that holds the position.

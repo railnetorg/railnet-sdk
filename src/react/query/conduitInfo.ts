@@ -1,6 +1,9 @@
 import type { QueryOptions } from '@tanstack/react-query'
 import type { Address, Chain, Client, ReadContractErrorType, Transport } from 'viem'
-import { type GetConduitInfoReturnType, getConduitInfo } from '../../actions/getConduitInfo.js'
+import {
+  type GetConduitInfoReturnType,
+  getConduitInfo,
+} from '../../actions/conduit/getConduitInfo.js'
 
 export type ConduitInfoParameters = {
   conduit: Address

@@ -1,0 +1,137 @@
+---
+description: Deposits assets into a conduit.
+---
+
+# depositConduit
+
+Deposits assets into a conduit. Requires a `WalletClient` to sign and send the transaction.
+
+## Import
+
+```ts
+import { depositConduit } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { depositConduit } from 'railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+const result = await depositConduit(walletClient, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+  amount: 1000000000000000000n,
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+## Returns
+
+```ts
+type DepositConduitReturnType = {
+  transactionHash: Hash
+}
+```
+
+The transaction hash of the deposit transaction.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+```ts
+const result = await depositConduit(walletClient, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  token: '0x...',
+  amount: 1000000000000000000n,
+  account: '0x...',
+})
+```
+
+### token
+
+- **Type:** `Address`
+
+The address of the token to deposit.
+
+```ts
+const result = await depositConduit(walletClient, {
+  conduit: '0x...',
+  token: '0x6B175474E89094C44Da98b954EedeAC495271d0F', // [!code focus]
+  amount: 1000000000000000000n,
+  account: '0x...',
+})
+```
+
+### amount
+
+- **Type:** `bigint`
+
+The amount of tokens to deposit.
+
+```ts
+const result = await depositConduit(walletClient, {
+  conduit: '0x...',
+  token: '0x...',
+  amount: 1000000000000000000n, // [!code focus]
+  account: '0x...',
+})
+```
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.
+
+```ts
+const result = await depositConduit(walletClient, {
+  conduit: '0x...',
+  token: '0x...',
+  amount: 1000000000000000000n,
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+})
+```
+
+### receiver (optional)
+
+- **Type:** `Address`
+
+The address to receive the output. Defaults to the account address.
+
+```ts
+const result = await depositConduit(walletClient, {
+  conduit: '0x...',
+  token: '0x...',
+  amount: 1000000000000000000n,
+  account: '0x...',
+  receiver: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb', // [!code focus]
+})
+```
+
+### salt (optional)
+
+- **Type:** `Hex`
+
+Optional salt for the deposit operation.
+
+```ts
+const result = await depositConduit(walletClient, {
+  conduit: '0x...',
+  token: '0x...',
+  amount: 1000000000000000000n,
+  account: '0x...',
+  salt: '0x1234...', // [!code focus]
+})
+```

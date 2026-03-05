@@ -1,0 +1,116 @@
+---
+description: TanStack Query options for fetching a conduit position.
+---
+
+# conduitPositionQueryOptions
+
+Returns [TanStack Query options](https://tanstack.com/query/latest/docs/framework/react/guides/query-options) for fetching a conduit position. Use this when you need full control over the query lifecycle, or when integrating with a custom TanStack Query setup.
+
+## Import
+
+```ts
+import { conduitPositionQueryOptions } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```ts
+import { useQuery } from '@tanstack/react-query'
+import { usePublicClient } from 'wagmi'
+import { conduitPositionQueryOptions } from 'railnet-sdk/react'
+
+function Position() {
+  const client = usePublicClient()
+
+  const { data } = useQuery({
+    ...conduitPositionQueryOptions(client, {
+      conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+      account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+    }),
+    staleTime: 30_000, // custom stale time
+  })
+}
+```
+
+### Prefetching
+
+```ts
+import { QueryClient } from '@tanstack/react-query'
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { conduitPositionQueryOptions } from 'railnet-sdk/react'
+
+const queryClient = new QueryClient()
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+await queryClient.prefetchQuery(
+  conduitPositionQueryOptions(client, {
+    conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  }),
+)
+```
+
+## Returns
+
+```ts
+QueryOptions<ConduitPosition, ReadContractErrorType, ConduitPosition, ConduitPositionQueryKey>
+```
+
+TanStack Query options object containing `queryFn` and `queryKey`.
+
+## Parameters
+
+### client
+
+- **Type:** `Client<Transport, Chain | undefined> | undefined`
+
+A viem public client. Typically obtained via `usePublicClient()` from wagmi.
+
+### parameters
+
+#### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+#### account
+
+- **Type:** `Address | undefined`
+
+The address of the account to query the position for.
+
+## Query Key
+
+```ts
+['railnet', 'conduitPosition', { conduit, account }] as const
+```
+
+You can use `conduitPositionQueryKey` to construct the query key manually for cache invalidation:
+
+```ts
+import { useQueryClient } from '@tanstack/react-query'
+import { conduitPositionQueryKey } from 'railnet-sdk/react'
+
+const queryClient = useQueryClient()
+
+queryClient.invalidateQueries({
+  queryKey: conduitPositionQueryKey({
+    conduit: '0x...',
+    account: '0x...',
+  }),
+})
+```
+
+## Action
+
+- [`getConduitPosition`](/actions/getConduitPosition)
+
+## Hook
+
+- [`useConduitPosition`](/react/useConduitPosition)

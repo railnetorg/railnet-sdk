@@ -6,7 +6,10 @@
     "check": "biome check --fix --unsafe",
     "check:types": "tsc",
     "dev": "zile dev",
-    "test": "vitest"
+    "test": "vitest",
+    "docs:dev": "vocs dev",
+    "docs:build": "vocs build",
+    "docs:preview": "vocs preview"
   },
   "devDependencies": {
     "@biomejs/biome": "latest",
@@ -17,6 +20,7 @@
     "react": "^19.2.4",
     "typescript": "latest",
     "vitest": "latest",
+    "vocs": "^1.4.1",
     "wagmi": "^3.5.0",
     "zile": "latest"
   },

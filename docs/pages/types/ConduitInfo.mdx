@@ -1,0 +1,85 @@
+---
+description: Type definition for conduit information.
+---
+
+# ConduitInfo
+
+Represents general information about a conduit, including its asset, supply metrics, and configuration.
+
+## Import
+
+```ts
+import type { ConduitInfo } from 'railnet-sdk'
+```
+
+## Definition
+
+```ts
+type ConduitInfo = {
+  conduit: Address
+  asset: Address
+  totalSupply: bigint
+  totalAssets: bigint
+  holdings: bigint
+  decimals: number
+  name: string
+  symbol: string
+  isEnabled: boolean
+}
+```
+
+## Properties
+
+### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+### asset
+
+- **Type:** `Address`
+
+The address of the underlying asset held by the conduit.
+
+### totalSupply
+
+- **Type:** `bigint`
+
+The total supply of conduit shares.
+
+### totalAssets
+
+- **Type:** `bigint`
+
+The total amount of underlying assets managed by the conduit.
+
+### holdings
+
+- **Type:** `bigint`
+
+The total vehicle shares held by the conduit.
+
+### decimals
+
+- **Type:** `number`
+
+The number of decimal places for the conduit token.
+
+### name
+
+- **Type:** `string`
+
+The name of the conduit token.
+
+### symbol
+
+- **Type:** `string`
+
+The symbol of the conduit token.
+
+### isEnabled
+
+- **Type:** `boolean`
+
+Whether the conduit is enabled for public access.

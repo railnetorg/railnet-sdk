@@ -1,0 +1,74 @@
+---
+description: Retrieves the position (shares and equivalent assets) of an account in a conduit.
+---
+
+# getConduitPosition
+
+Retrieves the position of an account in a conduit. Returns the number of shares held and their equivalent value in the underlying asset.
+
+## Import
+
+```ts
+import { getConduitPosition } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { getConduitPosition } from 'railnet-sdk'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+const position = await getConduitPosition(client, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+## Returns
+
+[`ConduitPosition`](/types/ConduitPosition)
+
+The position of the account in the conduit.
+
+```ts
+type ConduitPosition = {
+  shares: bigint
+  assets: bigint
+  conduit: Address
+  account: Address
+}
+```
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+```ts
+const position = await getConduitPosition(client, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+### account
+
+- **Type:** `Address`
+
+The address of the account to query the position for.
+
+```ts
+const position = await getConduitPosition(client, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+})
+```

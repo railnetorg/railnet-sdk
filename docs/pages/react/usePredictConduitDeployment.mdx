@@ -1,0 +1,64 @@
+---
+description: React hook to predict the deployment address of a conduit.
+---
+
+# usePredictConduitDeployment
+
+React hook that predicts the deployment address of a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+
+## Import
+
+```ts
+import { usePredictConduitDeployment } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictConduitDeployment } from 'railnet-sdk/react'
+import { TransferMode } from 'railnet-sdk'
+
+function PredictAddress() {
+  const { data: address, isLoading } = usePredictConduitDeployment({
+    factory: '0x1234...',
+    name: 'My Conduit',
+    symbol: 'COND',
+    vehicle: '0x5678...',
+    depositAsset: '0x...',
+    initialDepositSize: 1000000000000000000n,
+    initialExpectedSupply: 1000000000000000000n,
+    transferMode: TransferMode.ALLOW_TRANSFER,
+    accessControl: '0x...',
+    feeManager: '0x...',
+    accountList: '0x...',
+    ownerRegistry: '0x...',
+    querySalt: '0xabc...',
+    deploymentSalt: '0xdef...',
+  })
+
+  if (isLoading) return <div>Loading...</div>
+
+  return <p>Predicted address: {address}</p>
+}
+```
+
+## Returns
+
+```ts
+UseQueryResult<Address, ReadContractErrorType>
+```
+
+A TanStack Query result containing the predicted `Address`.
+
+The query is automatically disabled when no public client is available.
+
+## Parameters
+
+Same as [`predictConduitDeployment`](/actions/predictConduitDeployment) parameters.
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether the query should be enabled.

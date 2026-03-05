@@ -1,12 +1,12 @@
 import type { QueryOptions } from '@tanstack/react-query'
 import type { Address, Chain, Client, ReadContractErrorType, Transport } from 'viem'
 import {
+  type GetConduitPositionParameters,
   type GetConduitPositionReturnType,
   getConduitPosition,
-} from '../../actions/getConduitPosition.js'
+} from '../../actions/conduit/getConduitPosition.js'
 
-export type ConduitPositionParameters = {
-  conduit: Address
+export type ConduitPositionParameters = Omit<GetConduitPositionParameters, 'account'> & {
   account: Address | undefined
 }
 

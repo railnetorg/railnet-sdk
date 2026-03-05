@@ -1,0 +1,36 @@
+---
+description: Type definition for an asset with value.
+---
+
+# Asset
+
+Represents an asset with a specific value, used in conduit operations.
+
+## Import
+
+```ts
+import type { Asset } from 'railnet-sdk'
+```
+
+## Definition
+
+```ts
+type Asset = {
+  asset: Address
+  value: bigint
+}
+```
+
+## Properties
+
+### asset
+
+- **Type:** `Address`
+
+The address of the asset contract.
+
+### value
+
+- **Type:** `bigint`
+
+The value or amount of the asset.

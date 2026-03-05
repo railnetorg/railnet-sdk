@@ -1,0 +1,47 @@
+---
+description: React hook to deposit assets into a conduit.
+---
+
+# useDepositConduit
+
+React mutation hook for depositing assets into a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+
+## Import
+
+```ts
+import { useDepositConduit } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useDepositConduit } from 'railnet-sdk/react'
+
+function Deposit() {
+  const { mutate, isPending } = useDepositConduit()
+
+  return (
+    <button
+      disabled={isPending}
+      onClick={() =>
+        mutate({
+          conduit: '0x...',
+          token: '0x...',
+          amount: 1000000000000000000n,
+          account: '0x...',
+        })
+      }
+    >
+      Deposit
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<DepositConduitReturnType, Error, DepositConduitParameters & { account: Address }>
+```
+
+A TanStack Query mutation result. Call `mutate` or `mutateAsync` with [`depositConduit`](/actions/depositConduit) parameters.

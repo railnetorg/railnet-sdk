@@ -1,0 +1,119 @@
+---
+description: React hook to fetch the position of an account in a conduit.
+---
+
+# useConduitPosition
+
+React hook that returns the position (shares and equivalent assets) of an account in a conduit. Built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query).
+
+## Import
+
+```ts
+import { useConduitPosition } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useConduitPosition } from 'railnet-sdk/react'
+
+function Position() {
+  const { data, isLoading, error } = useConduitPosition({
+    conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  })
+
+  if (isLoading) return <div>Loading position...</div>
+  if (error) return <div>Error: {error.message}</div>
+
+  return (
+    <div>
+      <p>Shares: {data?.shares.toString()}</p>
+      <p>Assets: {data?.assets.toString()}</p>
+    </div>
+  )
+}
+```
+
+### With Connected Account
+
+```tsx
+import { useAccount } from 'wagmi'
+import { useConduitPosition } from 'railnet-sdk/react'
+
+function MyPosition() {
+  const { address } = useAccount()
+
+  const { data, isLoading } = useConduitPosition({
+    conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    account: address,
+  })
+
+  if (!address) return <div>Connect your wallet</div>
+  if (isLoading) return <div>Loading...</div>
+
+  return (
+    <div>
+      <p>Shares: {data?.shares.toString()}</p>
+      <p>Assets: {data?.assets.toString()}</p>
+    </div>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseQueryResult<ConduitPosition, ReadContractErrorType>
+```
+
+A TanStack Query result containing a [`ConduitPosition`](/types/ConduitPosition) object.
+
+The query is automatically disabled when `account` is `undefined` or when no public client is available.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+```tsx
+const result = useConduitPosition({
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  account: '0x...',
+})
+```
+
+### account
+
+- **Type:** `Address | undefined`
+
+The address of the account to query the position for. When `undefined`, the query is disabled.
+
+```tsx
+const result = useConduitPosition({
+  conduit: '0x...',
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+})
+```
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether the query should be enabled. Set to `false` to prevent the query from running.
+
+```tsx
+const result = useConduitPosition({
+  conduit: '0x...',
+  account: '0x...',
+  enabled: false, // [!code focus]
+})
+```
+
+## Action
+
+- [`getConduitPosition`](/actions/getConduitPosition)

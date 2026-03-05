@@ -1,0 +1,89 @@
+---
+description: TanStack Query options for estimating a conduit operation.
+---
+
+# estimateConduitQueryOptions
+
+Returns [TanStack Query options](https://tanstack.com/query/latest/docs/framework/react/guides/query-options) for estimating a conduit operation.
+
+## Import
+
+```ts
+import { estimateConduitQueryOptions } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```ts
+import { useQuery } from '@tanstack/react-query'
+import { usePublicClient } from 'wagmi'
+import { estimateConduitQueryOptions } from 'railnet-sdk/react'
+import { ConduitMode, EstimationType } from 'railnet-sdk'
+
+function Estimate() {
+  const client = usePublicClient()
+
+  const { data } = useQuery(
+    estimateConduitQueryOptions(client, {
+      conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+      assets: [{ asset: '0x...', value: 1000000000000000000n }],
+      mode: ConduitMode.DEPOSIT,
+      estimationType: EstimationType.OUTPUT,
+    }),
+  )
+}
+```
+
+## Returns
+
+```ts
+QueryOptions<Asset[], ReadContractErrorType, Asset[], EstimateConduitQueryKey>
+```
+
+TanStack Query options object containing `queryFn` and `queryKey`.
+
+## Parameters
+
+### client
+
+- **Type:** `Client<Transport, Chain | undefined> | undefined`
+
+A viem public client.
+
+### parameters
+
+#### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+#### assets
+
+- **Type:** `Asset[]`
+
+The input assets for the estimation.
+
+#### mode
+
+- **Type:** `ConduitMode`
+
+The mode for the estimation.
+
+#### estimationType
+
+- **Type:** `EstimationType`
+
+The type of estimation.
+
+## Query Key
+
+```ts
+['railnet', 'estimateConduit', { conduit, assets, mode, estimationType }] as const
+```
+
+You can use `estimateConduitQueryKey` to construct the query key manually:
+
+```ts
+import { estimateConduitQueryKey } from 'railnet-sdk/react'
+```
