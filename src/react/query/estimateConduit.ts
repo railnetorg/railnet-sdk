@@ -3,10 +3,10 @@
 import type { QueryOptions } from '@tanstack/react-query'
 import type { Chain, Client, ReadContractErrorType, Transport } from 'viem'
 import {
+  type EstimateConduitParameters,
   type EstimateConduitReturnType,
   estimateConduit,
 } from '../../actions/conduit/estimateConduit.js'
-import type { EstimateConduitParameters } from '../../actions/conduit/types.js'
 
 export function estimateConduitQueryKey(parameters: EstimateConduitParameters) {
   return ['railnet', 'estimateConduit', parameters] as const

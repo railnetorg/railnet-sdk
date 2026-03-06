@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
-import type { EstimateConduitParameters } from '../../actions/conduit/types.js'
+import type { EstimateConduitParameters } from '../../actions/conduit/estimateConduit.js'
 import { estimateConduitQueryOptions } from '../query/estimateConduit.js'
 
 export type UseEstimateConduitParameters = EstimateConduitParameters & {

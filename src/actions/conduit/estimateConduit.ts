@@ -1,7 +1,19 @@
-import type { Chain, Client, Transport } from 'viem'
+import type { Address, Chain, Client, Transport } from 'viem'
 import { readContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
-import type { Asset, EstimateConduitParameters } from './types.js'
+import type { Asset, ConduitMode } from './types.js'
+
+export enum EstimationType {
+  INPUT = 0,
+  OUTPUT = 1,
+}
+
+export type EstimateConduitParameters = {
+  conduit: Address
+  assets: Asset[]
+  mode: ConduitMode
+  estimationType: EstimationType
+}
 
 export type EstimateConduitReturnType = Asset[]
 

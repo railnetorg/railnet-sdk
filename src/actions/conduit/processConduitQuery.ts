@@ -1,7 +1,24 @@
-import type { Address, Chain, Transport, WalletClient } from 'viem'
+import type { Address, Chain, Hash, Hex, Transport, WalletClient } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
-import type { ProcessConduitQueryParameters, ProcessConduitQueryReturnType } from './types.js'
+import type { Asset, ConduitMode } from './types.js'
+
+export type ProcessConduitQueryParameters = {
+  conduit: Address
+  query: {
+    owner: Address
+    receiver: Address
+    input: Asset[]
+    output: Asset[]
+    mode: ConduitMode
+    salt: Hex
+    data: Hex
+  }
+}
+
+export type ProcessConduitQueryReturnType = {
+  transactionHash: Hash
+}
 
 export async function processConduitQuery(
   walletClient: WalletClient<Transport, Chain>,

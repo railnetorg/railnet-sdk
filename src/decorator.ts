@@ -1,4 +1,5 @@
 import type { Address, Chain, Client, Transport } from 'viem'
+import type { EstimateConduitParameters } from './actions/conduit/estimateConduit.js'
 import { estimateConduit } from './actions/conduit/estimateConduit.js'
 import {
   type GetConduitInfoParameters,
@@ -14,7 +15,7 @@ import {
   type PredictConduitDeploymentParameters,
   predictConduitDeployment,
 } from './actions/conduit/predictConduitDeployment.js'
-import type { Asset, EstimateConduitParameters } from './actions/conduit/types.js'
+import type { Asset } from './actions/conduit/types.js'
 
 export type RailnetActions = {
   getConduitPosition: (

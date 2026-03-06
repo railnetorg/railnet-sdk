@@ -1,7 +1,28 @@
-import { type Address, type Chain, keccak256, type Transport, toHex, type WalletClient } from 'viem'
+import {
+  type Address,
+  type Chain,
+  type Hash,
+  type Hex,
+  keccak256,
+  type Transport,
+  toHex,
+  type WalletClient,
+} from 'viem'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
-import type { RedeemConduitParameters, RedeemConduitReturnType } from './types.js'
+import type { Asset } from './types.js'
+
+export type RedeemConduitParameters = {
+  conduit: Address
+  shares: bigint
+  receiver?: Address
+  outputAssets?: Asset[]
+  salt?: Hex
+}
+
+export type RedeemConduitReturnType = {
+  transactionHash: Hash
+}
 
 export async function redeemConduit(
   walletClient: WalletClient<Transport, Chain>,

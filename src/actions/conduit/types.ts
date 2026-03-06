@@ -1,4 +1,4 @@
-import type { Address, Hash, Hex } from 'viem'
+import type { Address, Hex } from 'viem'
 
 export enum TransferMode {
   ACCOUNT_LIST = 0,
@@ -23,25 +23,6 @@ export type SpawnConduitParameters = {
   deploymentSalt?: Hex
 }
 
-export type ConduitPosition = {
-  shares: bigint
-  assets: bigint
-  conduit: Address
-  account: Address
-}
-
-export type ConduitInfo = {
-  conduit: Address
-  asset: Address
-  totalSupply: bigint
-  totalAssets: bigint
-  holdings: bigint
-  decimals: number
-  name: string
-  symbol: string
-  isEnabled: boolean
-}
-
 export enum ConduitMode {
   DEPOSIT = 0,
   REDEEM = 1,
@@ -57,60 +38,7 @@ export enum ConduitState {
   SETTLED = 6,
 }
 
-export enum EstimationType {
-  INPUT = 0,
-  OUTPUT = 1,
-}
-
 export type Asset = {
   asset: Address
   value: bigint
-}
-
-export type DepositConduitParameters = {
-  conduit: Address
-  token: Address
-  amount: bigint
-  receiver?: Address
-  salt?: Hex
-}
-
-export type DepositConduitReturnType = {
-  transactionHash: Hash
-}
-
-export type RedeemConduitParameters = {
-  conduit: Address
-  shares: bigint
-  receiver?: Address
-  outputAssets?: Asset[]
-  salt?: Hex
-}
-
-export type RedeemConduitReturnType = {
-  transactionHash: Hash
-}
-
-export type ProcessConduitQueryParameters = {
-  conduit: Address
-  query: {
-    owner: Address
-    receiver: Address
-    input: Asset[]
-    output: Asset[]
-    mode: ConduitMode
-    salt: Hex
-    data: Hex
-  }
-}
-
-export type ProcessConduitQueryReturnType = {
-  transactionHash: Hash
-}
-
-export type EstimateConduitParameters = {
-  conduit: Address
-  assets: Asset[]
-  mode: ConduitMode
-  estimationType: EstimationType
 }

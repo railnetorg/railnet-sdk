@@ -3,11 +3,11 @@
 import { useMutation } from '@tanstack/react-query'
 import type { Address } from 'viem'
 import { useWalletClient } from 'wagmi'
-import { depositConduit } from '../../actions/conduit/depositConduit.js'
-import type {
-  DepositConduitParameters,
-  DepositConduitReturnType,
-} from '../../actions/conduit/types.js'
+import {
+  type DepositConduitParameters,
+  type DepositConduitReturnType,
+  depositConduit,
+} from '../../actions/conduit/depositConduit.js'
 
 export function useDepositConduit() {
   const { data: walletClient } = useWalletClient()

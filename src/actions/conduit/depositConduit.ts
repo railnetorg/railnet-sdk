@@ -2,6 +2,8 @@ import {
   type Address,
   type Chain,
   erc20Abi,
+  type Hash,
+  type Hex,
   keccak256,
   type Transport,
   toHex,
@@ -9,11 +11,19 @@ import {
 } from 'viem'
 import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
-import {
-  ConduitMode,
-  type DepositConduitParameters,
-  type DepositConduitReturnType,
-} from './types.js'
+import { ConduitMode } from './types.js'
+
+export type DepositConduitParameters = {
+  conduit: Address
+  token: Address
+  amount: bigint
+  receiver?: Address
+  salt?: Hex
+}
+
+export type DepositConduitReturnType = {
+  transactionHash: Hash
+}
 
 export async function depositConduit(
   walletClient: WalletClient<Transport, Chain>,
