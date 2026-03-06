@@ -1,0 +1,39 @@
+---
+description: Check if a chain ID is supported by the SDK.
+---
+
+# isSupportedChain
+
+Type guard that checks whether a chain ID is supported. Narrows the type to `SupportedChainId` when used in a conditional.
+
+## Import
+
+```ts
+import { isSupportedChain } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { isSupportedChain, getAddresses } from 'railnet-sdk'
+
+const chainId: number = 8453
+
+if (isSupportedChain(chainId)) {
+  const addresses = getAddresses(chainId)
+}
+```
+
+## Returns
+
+`chainId is SupportedChainId`
+
+Returns `true` if the chain ID has protocol addresses configured, `false` otherwise.
+
+## Parameters
+
+### chainId
+
+- **Type:** `number`
+
+The chain ID to check.

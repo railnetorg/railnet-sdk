@@ -143,6 +143,20 @@ export default defineConfig({
       ],
     },
     {
+      text: 'Contracts',
+      collapsed: false,
+      items: [
+        {
+          text: 'getAddresses',
+          link: '/contracts/getAddresses',
+        },
+        {
+          text: 'isSupportedChain',
+          link: '/contracts/isSupportedChain',
+        },
+      ],
+    },
+    {
       text: 'React',
       collapsed: false,
       items: [
@@ -214,6 +228,10 @@ export default defineConfig({
       text: 'Types',
       collapsed: false,
       items: [
+        {
+          text: 'ChainAddresses',
+          link: '/types/ChainAddresses',
+        },
         {
           text: 'ConduitPosition',
           link: '/types/ConduitPosition',

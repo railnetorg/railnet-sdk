@@ -1,0 +1,134 @@
+---
+description: Type definition for per-chain contract addresses.
+---
+
+# ChainAddresses
+
+Represents the full set of protocol contract addresses deployed on a supported chain.
+
+## Import
+
+```ts
+import type { ChainAddresses } from 'railnet-sdk'
+```
+
+## Definition
+
+```ts
+type ChainAddresses = {
+  conduitFactory: Address
+  coreFactory: Address
+  multiVehicleFactory: Address
+  aaveV3VehicleFactory: Address
+  compoundV3VehicleFactory: Address
+  erc4626VehicleFactory: Address
+  morphoBlueVehicleFactory: Address
+  wrapperVehicleFactory: Address
+  eacFactory: Address
+  adminEac: Address
+  feeManagerFactory: Address
+  modulesManagerFactory: Address
+  accountListFactory: Address
+  ownerRegistryFactory: Address
+  aavePoolAddressesProvider: Address
+  usdc: Address
+}
+```
+
+## Properties
+
+### conduitFactory
+
+- **Type:** `Address`
+
+The ConduitFactory contract used to spawn new conduits.
+
+### coreFactory
+
+- **Type:** `Address`
+
+The CoreFactory contract for deploying core infrastructure.
+
+### multiVehicleFactory
+
+- **Type:** `Address`
+
+The MultiVehicleFactory contract for spawning multi-vehicle instances.
+
+### aaveV3VehicleFactory
+
+- **Type:** `Address`
+
+The factory contract for spawning Aave V3 vehicle instances.
+
+### compoundV3VehicleFactory
+
+- **Type:** `Address`
+
+The factory contract for spawning Compound V3 vehicle instances.
+
+### erc4626VehicleFactory
+
+- **Type:** `Address`
+
+The factory contract for spawning ERC-4626 vehicle instances.
+
+### morphoBlueVehicleFactory
+
+- **Type:** `Address`
+
+The factory contract for spawning Morpho Blue vehicle instances.
+
+### wrapperVehicleFactory
+
+- **Type:** `Address`
+
+The factory contract for spawning wrapper vehicle instances.
+
+### eacFactory
+
+- **Type:** `Address`
+
+The factory contract for deploying external access control.
+
+### adminEac
+
+- **Type:** `Address`
+
+The default admin external access control contract.
+
+### feeManagerFactory
+
+- **Type:** `Address`
+
+The factory contract for deploying fee managers.
+
+### modulesManagerFactory
+
+- **Type:** `Address`
+
+The factory contract for deploying modules managers.
+
+### accountListFactory
+
+- **Type:** `Address`
+
+The factory contract for deploying account lists.
+
+### ownerRegistryFactory
+
+- **Type:** `Address`
+
+The factory contract for deploying owner registries.
+
+### aavePoolAddressesProvider
+
+- **Type:** `Address`
+
+The Aave V3 pool addresses provider contract.
+
+### usdc
+
+- **Type:** `Address`
+
+The USDC token address on the chain.

@@ -1,0 +1,87 @@
+---
+description: Returns protocol contract addresses for a given chain.
+---
+
+# getAddresses
+
+Returns all protocol contract addresses for a supported chain. Throws if the chain is not supported.
+
+## Import
+
+```ts
+import { getAddresses } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { base } from 'viem/chains'
+import { getAddresses } from 'railnet-sdk'
+
+const { conduitFactory, usdc, aaveV3VehicleFactory } = getAddresses(base.id)
+```
+
+### With spawnConduit
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { getAddresses, spawnConduit, TransferMode } from 'railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const { conduitFactory, usdc } = getAddresses(base.id)
+
+const result = await spawnConduit(walletClient, {
+  factory: conduitFactory,
+  depositAsset: usdc,
+  name: 'My Conduit',
+  symbol: 'COND',
+  vehicle: '0x...',
+  initialDepositSize: 1000000n,
+  initialExpectedSupply: 1000000n,
+  transferMode: TransferMode.ALLOW_TRANSFER,
+  accessControl: '0x...',
+  feeManager: '0x...',
+  accountList: '0x...',
+  ownerRegistry: '0x...',
+  account: '0x...',
+})
+```
+
+## Returns
+
+`ChainAddresses`
+
+An object containing all protocol contract addresses for the chain. See [`ChainAddresses`](/types/ChainAddresses).
+
+## Parameters
+
+### chainId
+
+- **Type:** `number`
+
+The chain ID to look up. Throws an error if the chain is not supported.
+
+## Supported Chains
+
+| Chain | Chain ID |
+| --- | --- |
+| Base | `8453` |
+
+All addresses are defined in [`src/contracts/addresses.ts`](https://github.com/railnetorg/railnet-sdk/blob/main/src/contracts/addresses.ts).
+
+## Error Handling
+
+```ts
+import { getAddresses, isSupportedChain } from 'railnet-sdk'
+
+const chainId = 1
+
+if (isSupportedChain(chainId)) {
+  const addresses = getAddresses(chainId)
+}
+```
