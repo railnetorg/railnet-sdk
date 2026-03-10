@@ -10,11 +10,13 @@ The workflow performs the following steps:
 1. Deploys an ExternalAccessControl (EAC) contract.
 2. Approves the asset for the MultiVehicle factory.
 3. Spawns the MultiVehicle ecosystem.
-4. Grants admin roles on the SectorAccountingEngine (SAE).
-5. Grants admin roles on the QueueStrategyEngine (QSE).
-6. Grants STEAM roles on the vehicle for the MV system contracts.
-7. Authorizes the vehicle in the VehicleRegistry.
-8. Sets the initial queues on the QSE.
+4. Grants `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` role on the SectorAccountingEngine (SAE) to the admin.
+5. Grants `MULTI_VEHICLE_SET_QUEUES` role on the QueueStrategyEngine (QSE) to the admin.
+6. Grants `VEHICLE_STEAM` role on the vehicle to the MultiVehicle contract.
+7. Grants `VEHICLE_STEAM` role on the vehicle to the SectorAccountingEngine.
+8. Grants `VEHICLE_STEAM` role on the vehicle to the SubQueryEngine.
+9. Authorizes the vehicle in the VehicleRegistry.
+10. Sets the initial queues on the QSE.
 
 ## Import
 

@@ -6,6 +6,10 @@ description: Redeems shares from a conduit.
 
 Redeems shares from a conduit. Requires a `WalletClient` to sign and send the transaction.
 
+:::info
+This action automatically checks the conduit share allowance. If the current allowance is insufficient, it will send an **approval transaction** before the redeem, resulting in two transactions total.
+:::
+
 ## Import
 
 ```ts
@@ -16,11 +20,11 @@ import { redeemConduit } from 'railnet-sdk'
 
 ```ts
 import { createWalletClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { base } from 'viem/chains'
 import { redeemConduit } from 'railnet-sdk'
 
 const walletClient = createWalletClient({
-  chain: mainnet,
+  chain: base,
   transport: http(),
 })
 

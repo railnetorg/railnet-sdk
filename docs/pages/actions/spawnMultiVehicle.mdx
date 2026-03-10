@@ -116,11 +116,23 @@ The initial expected supply.
 
 Optional salts for the deployment. Auto-generated if not provided.
 
+```ts
+type MultiVehicleSalts = {
+  multiVehicle: Hex
+  queryRedeemQueue: Hex
+  queueStrategyEngine: Hex
+  sectorAccountingEngine: Hex
+  subQueryEngine: Hex
+  vehicleRegistry: Hex
+  initialDepositQuery: Hex
+}
+```
+
 ### initialInterceptions (optional)
 
-- **Type:** `Address[]`
+- **Type:** `Array<{ asset: Address, recipients: Array<{ target: Address, shareBps: bigint, chainId: bigint }> }>`
 
-Optional initial interceptions. Defaults to `[]`.
+Optional initial interception rules for reward distribution. Each entry specifies an asset and a list of recipients with their share in basis points and target chain. Defaults to `[]`.
 
 ### account
 

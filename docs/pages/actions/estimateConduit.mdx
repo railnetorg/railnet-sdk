@@ -16,11 +16,11 @@ import { estimateConduit } from 'railnet-sdk'
 
 ```ts
 import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { base } from 'viem/chains'
 import { estimateConduit, ConduitMode, EstimationType } from 'railnet-sdk'
 
 const client = createPublicClient({
-  chain: mainnet,
+  chain: base,
   transport: http(),
 })
 
