@@ -1,0 +1,54 @@
+---
+description: React hook to deploy a full MultiVehicle ecosystem.
+---
+
+# useDeployMultiVehicle
+
+React mutation hook for deploying a full MultiVehicle ecosystem via a workflow.
+
+## Import
+
+```ts
+import { useDeployMultiVehicle } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useDeployMultiVehicle } from 'railnet-sdk/react'
+
+function Deploy() {
+  const { mutateAsync, isPending } = useDeployMultiVehicle()
+
+  const handleDeploy = async () => {
+    const result = await mutateAsync({
+      asset: '0x...',
+      name: 'My MultiVehicle',
+      symbol: 'MMV',
+      initialDepositAmount: 1000000000000000000n,
+      vehicle: '0x...', // existing vehicle address
+      factories: {
+        eacFactory: '0x...',
+        multiVehicleFactory: '0x...',
+      },
+      account: '0x...',
+    })
+
+    console.log(result.multiVehicleContracts.multiVehicle)
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleDeploy}>
+      Deploy Full Ecosystem
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<DeployMultiVehicleResult, Error, DeployMultiVehicleParameters & { account: Address }>
+```
+
+Mutation result. Call `mutate` or `mutateAsync` with [`deployMultiVehicle`](/workflows/deployMultiVehicle) parameters.

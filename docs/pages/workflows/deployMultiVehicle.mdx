@@ -1,0 +1,130 @@
+---
+description: Full deployment workflow for a MultiVehicle ecosystem.
+---
+
+# deployMultiVehicle
+
+Full deployment workflow for a MultiVehicle ecosystem. This workflow automates the multi-step process of setting up a complete MultiVehicle environment.
+
+The workflow performs the following steps:
+1. Deploys an ExternalAccessControl (EAC) contract.
+2. Approves the asset for the MultiVehicle factory.
+3. Spawns the MultiVehicle ecosystem.
+4. Grants admin roles on the SectorAccountingEngine (SAE).
+5. Grants admin roles on the QueueStrategyEngine (QSE).
+6. Grants STEAM roles on the vehicle for the MV system contracts.
+7. Authorizes the vehicle in the VehicleRegistry.
+8. Sets the initial queues on the QSE.
+
+## Import
+
+```ts
+import { deployMultiVehicle } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { deployMultiVehicle } from 'railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const result = await deployMultiVehicle(walletClient, {
+  asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+  name: 'My MultiVehicle',
+  symbol: 'MMV',
+  initialDepositAmount: 1000000000000000000n,
+  vehicle: '0x...', // existing vehicle address
+  factories: {
+    eacFactory: '0x...',
+    multiVehicleFactory: '0x...',
+  },
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+## Returns
+
+```ts
+type DeployMultiVehicleResult = {
+  eacAddress: Address
+  multiVehicleContracts: MultiVehicleContracts
+  transactionHashes: Hash[]
+}
+```
+
+The addresses of the deployed contracts and the transaction hashes for each step.
+
+## Parameters
+
+### asset
+
+- **Type:** `Address`
+
+The address of the underlying asset.
+
+### name
+
+- **Type:** `string`
+
+The name of the MultiVehicle.
+
+### symbol
+
+- **Type:** `string`
+
+The symbol of the MultiVehicle token.
+
+### initialDepositAmount
+
+- **Type:** `bigint`
+
+The initial deposit amount.
+
+### factories
+
+- **Type:** `object`
+
+An object containing the addresses of the required factories:
+- `eacFactory`: `Address`
+- `multiVehicleFactory`: `Address`
+### vehicle
+
+- **Type:** `Address`
+
+The address of an already-deployed vehicle contract (e.g. an Aave V3 vehicle).
+
+### adminAddress (optional)
+
+- **Type:** `Address`
+
+The address to be set as the admin. Defaults to the account address.
+
+### initialExpectedSupply (optional)
+
+- **Type:** `bigint`
+
+The initial expected supply. Defaults to `10^18`.
+
+### feeManager (optional)
+
+- **Type:** `Address`
+
+The address of the fee manager contract.
+
+### modulesManager (optional)
+
+- **Type:** `Address`
+
+The address of the modules manager contract.
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.

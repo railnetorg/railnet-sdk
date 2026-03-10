@@ -1,0 +1,81 @@
+---
+description: Grants a scoped role on the ExternalAccessControl.
+---
+
+# grantScopedRole
+
+Grants a scoped role on the ExternalAccessControl contract. Requires a `WalletClient`.
+
+## Import
+
+```ts
+import { grantScopedRole } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { grantScopedRole, VEHICLE_STEAM } from 'railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const result = await grantScopedRole(walletClient, {
+  accessControl: '0x1234...',
+  role: VEHICLE_STEAM,
+  scope: '0x5678...',
+  grantee: '0x9012...',
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+Role constants are available for import:
+```ts
+import { VEHICLE_STEAM, MULTI_VEHICLE_SET_QUEUES } from 'railnet-sdk'
+```
+
+## Returns
+
+```ts
+type GrantScopedRoleReturnType = {
+  transactionHash: Hash
+}
+```
+
+The transaction hash.
+
+## Parameters
+
+### accessControl
+
+- **Type:** `Address`
+
+The address of the ExternalAccessControl contract.
+
+### role
+
+- **Type:** `Hex`
+
+The role to grant.
+
+### scope
+
+- **Type:** `Address`
+
+The scope (contract address) for the role.
+
+### grantee
+
+- **Type:** `Address`
+
+The address receiving the role.
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.

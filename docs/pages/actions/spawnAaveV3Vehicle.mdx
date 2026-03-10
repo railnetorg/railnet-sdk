@@ -1,0 +1,115 @@
+---
+description: Deploys an Aave V3 vehicle via factory.
+---
+
+# spawnAaveV3Vehicle
+
+Deploys an Aave V3 vehicle via the factory contract. Requires a `WalletClient`.
+
+## Import
+
+```ts
+import { spawnAaveV3Vehicle } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { spawnAaveV3Vehicle } from 'railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const result = await spawnAaveV3Vehicle(walletClient, {
+  factory: '0x1234...',
+  asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+  poolAddressesProvider: '0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e',
+  accessControl: '0x...',
+  initialDepositSize: 1000000000000000000n,
+  initialExpectedSupply: 1000000000000000000n,
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+## Returns
+
+```ts
+type SpawnAaveV3VehicleReturnType = {
+  vehicleAddress: Address
+  transactionHash: Hash
+}
+```
+
+The address of the newly deployed Aave V3 vehicle and the transaction hash.
+
+## Parameters
+
+### factory
+
+- **Type:** `Address`
+
+The address of the Aave V3 vehicle factory contract.
+
+### asset
+
+- **Type:** `Address`
+
+The address of the underlying asset.
+
+### poolAddressesProvider
+
+- **Type:** `Address`
+
+The address of the Aave V3 PoolAddressesProvider.
+
+### accessControl
+
+- **Type:** `Address`
+
+The address of the access control contract.
+
+### feeManager (optional)
+
+- **Type:** `Address`
+
+The address of the fee manager contract.
+
+### modulesManager (optional)
+
+- **Type:** `Address`
+
+The address of the modules manager contract.
+
+### initialDepositSize
+
+- **Type:** `bigint`
+
+The initial deposit size.
+
+### initialExpectedSupply
+
+- **Type:** `bigint`
+
+The initial expected supply.
+
+### querySalt (optional)
+
+- **Type:** `Hex`
+
+Optional salt for the query operation.
+
+### deploymentSalt (optional)
+
+- **Type:** `Hex`
+
+Optional salt for the deployment.
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.

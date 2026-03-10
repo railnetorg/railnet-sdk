@@ -1,0 +1,129 @@
+---
+description: Deploys a new MultiVehicle ecosystem via the factory.
+---
+
+# spawnMultiVehicle
+
+Deploys a new MultiVehicle ecosystem via the factory contract. Requires a `WalletClient`.
+
+## Import
+
+```ts
+import { spawnMultiVehicle } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { spawnMultiVehicle } from 'railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const result = await spawnMultiVehicle(walletClient, {
+  factory: '0x1234...',
+  asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+  name: 'My MultiVehicle',
+  symbol: 'MMV',
+  accessControl: '0x...',
+  initialDepositSize: 1000000000000000000n,
+  initialExpectedSupply: 1000000000000000000n,
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+## Returns
+
+```ts
+type SpawnMultiVehicleReturnType = {
+  contracts: {
+    multiVehicle: Address
+    queryRedeemQueue: Address
+    queueStrategyEngine: Address
+    sectorAccountingEngine: Address
+    subQueryEngine: Address
+    vehicleRegistry: Address
+  }
+  transactionHash: Hash
+}
+```
+
+The addresses of the newly deployed MultiVehicle contracts and the transaction hash.
+
+## Parameters
+
+### factory
+
+- **Type:** `Address`
+
+The address of the MultiVehicle factory contract.
+
+### asset
+
+- **Type:** `Address`
+
+The address of the underlying asset.
+
+### name
+
+- **Type:** `string`
+
+The name of the MultiVehicle.
+
+### symbol
+
+- **Type:** `string`
+
+The symbol of the MultiVehicle token.
+
+### accessControl
+
+- **Type:** `Address`
+
+The address of the access control contract.
+
+### feeManager (optional)
+
+- **Type:** `Address`
+
+The address of the fee manager contract. Defaults to `zeroAddress`.
+
+### modulesManager (optional)
+
+- **Type:** `Address`
+
+The address of the modules manager contract. Defaults to `zeroAddress`.
+
+### initialDepositSize
+
+- **Type:** `bigint`
+
+The initial deposit size.
+
+### initialExpectedSupply
+
+- **Type:** `bigint`
+
+The initial expected supply.
+
+### salts (optional)
+
+- **Type:** `MultiVehicleSalts`
+
+Optional salts for the deployment. Auto-generated if not provided.
+
+### initialInterceptions (optional)
+
+- **Type:** `Address[]`
+
+Optional initial interceptions. Defaults to `[]`.
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.

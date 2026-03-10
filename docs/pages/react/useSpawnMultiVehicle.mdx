@@ -1,0 +1,52 @@
+---
+description: React hook to deploy a new MultiVehicle ecosystem.
+---
+
+# useSpawnMultiVehicle
+
+React mutation hook for deploying a new MultiVehicle ecosystem via the factory.
+
+## Import
+
+```ts
+import { useSpawnMultiVehicle } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useSpawnMultiVehicle } from 'railnet-sdk/react'
+
+function Spawn() {
+  const { mutateAsync, isPending } = useSpawnMultiVehicle()
+
+  const handleSpawn = async () => {
+    const result = await mutateAsync({
+      factory: '0x...',
+      asset: '0x...',
+      name: 'My MultiVehicle',
+      symbol: 'MMV',
+      accessControl: '0x...',
+      initialDepositSize: 1000000000000000000n,
+      initialExpectedSupply: 1000000000000000000n,
+      account: '0x...',
+    })
+
+    console.log(result.contracts.multiVehicle)
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleSpawn}>
+      Deploy MultiVehicle
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<SpawnMultiVehicleReturnType, Error, SpawnMultiVehicleParameters & { account: Address }>
+```
+
+Mutation result. Call `mutate` or `mutateAsync` with [`spawnMultiVehicle`](/actions/spawnMultiVehicle) parameters.
