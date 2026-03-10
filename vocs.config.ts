@@ -101,44 +101,102 @@ export default defineConfig({
       collapsed: false,
       items: [
         {
-          text: 'getConduitPosition',
-          link: '/actions/getConduitPosition',
+          text: 'Conduit',
+          items: [
+            {
+              text: 'getConduitPosition',
+              link: '/actions/getConduitPosition',
+            },
+            {
+              text: 'getConduitInfo',
+              link: '/actions/getConduitInfo',
+            },
+            {
+              text: 'depositConduit',
+              link: '/actions/depositConduit',
+            },
+            {
+              text: 'redeemConduit',
+              link: '/actions/redeemConduit',
+            },
+            {
+              text: 'spawnConduit',
+              link: '/actions/spawnConduit',
+            },
+            {
+              text: 'enableConduit',
+              link: '/actions/enableConduit',
+            },
+            {
+              text: 'estimateConduit',
+              link: '/actions/estimateConduit',
+            },
+            {
+              text: 'predictConduitDeployment',
+              link: '/actions/predictConduitDeployment',
+            },
+            {
+              text: 'finalizeConduitDeposit',
+              link: '/actions/finalizeConduitDeposit',
+            },
+            {
+              text: 'processConduitQuery',
+              link: '/actions/processConduitQuery',
+            },
+          ],
         },
         {
-          text: 'getConduitInfo',
-          link: '/actions/getConduitInfo',
+          text: 'MultiVehicle',
+          items: [
+            {
+              text: 'spawnMultiVehicle',
+              link: '/actions/spawnMultiVehicle',
+            },
+            {
+              text: 'authorizeVehicle',
+              link: '/actions/authorizeVehicle',
+            },
+            {
+              text: 'setQueues',
+              link: '/actions/setQueues',
+            },
+          ],
         },
         {
-          text: 'depositConduit',
-          link: '/actions/depositConduit',
+          text: 'Access Control',
+          items: [
+            {
+              text: 'spawnAccessControl',
+              link: '/actions/spawnAccessControl',
+            },
+            {
+              text: 'grantScopedRole',
+              link: '/actions/grantScopedRole',
+            },
+            {
+              text: 'revokeScopedRole',
+              link: '/actions/revokeScopedRole',
+            },
+          ],
         },
         {
-          text: 'redeemConduit',
-          link: '/actions/redeemConduit',
+          text: 'Vehicle',
+          items: [
+            {
+              text: 'spawnAaveV3Vehicle',
+              link: '/actions/spawnAaveV3Vehicle',
+            },
+          ],
         },
+      ],
+    },
+    {
+      text: 'Workflows',
+      collapsed: false,
+      items: [
         {
-          text: 'spawnConduit',
-          link: '/actions/spawnConduit',
-        },
-        {
-          text: 'enableConduit',
-          link: '/actions/enableConduit',
-        },
-        {
-          text: 'estimateConduit',
-          link: '/actions/estimateConduit',
-        },
-        {
-          text: 'predictConduitDeployment',
-          link: '/actions/predictConduitDeployment',
-        },
-        {
-          text: 'finalizeConduitDeposit',
-          link: '/actions/finalizeConduitDeposit',
-        },
-        {
-          text: 'processConduitQuery',
-          link: '/actions/processConduitQuery',
+          text: 'deployMultiVehicle',
+          link: '/workflows/deployMultiVehicle',
         },
       ],
     },
@@ -157,48 +215,110 @@ export default defineConfig({
       ],
     },
     {
+      text: 'Constants',
+      collapsed: false,
+      items: [
+        {
+          text: 'Roles',
+          link: '/constants/roles',
+        },
+      ],
+    },
+    {
       text: 'React',
       collapsed: false,
       items: [
         {
-          text: 'useConduitPosition',
-          link: '/react/useConduitPosition',
+          text: 'Conduit',
+          items: [
+            {
+              text: 'useConduitPosition',
+              link: '/react/useConduitPosition',
+            },
+            {
+              text: 'useConduitInfo',
+              link: '/react/useConduitInfo',
+            },
+            {
+              text: 'useEstimateConduit',
+              link: '/react/useEstimateConduit',
+            },
+            {
+              text: 'usePredictConduitDeployment',
+              link: '/react/usePredictConduitDeployment',
+            },
+            {
+              text: 'useDepositConduit',
+              link: '/react/useDepositConduit',
+            },
+            {
+              text: 'useRedeemConduit',
+              link: '/react/useRedeemConduit',
+            },
+            {
+              text: 'useSpawnConduit',
+              link: '/react/useSpawnConduit',
+            },
+            {
+              text: 'useEnableConduit',
+              link: '/react/useEnableConduit',
+            },
+            {
+              text: 'useFinalizeConduitDeposit',
+              link: '/react/useFinalizeConduitDeposit',
+            },
+            {
+              text: 'useProcessConduitQuery',
+              link: '/react/useProcessConduitQuery',
+            },
+          ],
         },
         {
-          text: 'useConduitInfo',
-          link: '/react/useConduitInfo',
+          text: 'MultiVehicle',
+          items: [
+            {
+              text: 'useSpawnMultiVehicle',
+              link: '/react/useSpawnMultiVehicle',
+            },
+            {
+              text: 'useAuthorizeVehicle',
+              link: '/react/useAuthorizeVehicle',
+            },
+            {
+              text: 'useSetQueues',
+              link: '/react/useSetQueues',
+            },
+            {
+              text: 'useDeployMultiVehicle',
+              link: '/react/useDeployMultiVehicle',
+            },
+          ],
         },
         {
-          text: 'useEstimateConduit',
-          link: '/react/useEstimateConduit',
+          text: 'Access Control',
+          items: [
+            {
+              text: 'useSpawnAccessControl',
+              link: '/react/useSpawnAccessControl',
+            },
+            {
+              text: 'useGrantScopedRole',
+              link: '/react/useGrantScopedRole',
+            },
+            {
+              text: 'useRevokeScopedRole',
+              link: '/react/useRevokeScopedRole',
+            },
+          ],
         },
         {
-          text: 'usePredictConduitDeployment',
-          link: '/react/usePredictConduitDeployment',
-        },
-        {
-          text: 'useDepositConduit',
-          link: '/react/useDepositConduit',
-        },
-        {
-          text: 'useRedeemConduit',
-          link: '/react/useRedeemConduit',
-        },
-        {
-          text: 'useSpawnConduit',
-          link: '/react/useSpawnConduit',
-        },
-        {
-          text: 'useEnableConduit',
-          link: '/react/useEnableConduit',
-        },
-        {
-          text: 'useFinalizeConduitDeposit',
-          link: '/react/useFinalizeConduitDeposit',
-        },
-        {
-          text: 'useProcessConduitQuery',
-          link: '/react/useProcessConduitQuery',
+          text: 'Vehicle',
+          items: [
+            {
+              text: 'useSpawnAaveV3Vehicle',
+              link: '/react/useSpawnAaveV3Vehicle',
+            },
+          ],
         },
       ],
     },

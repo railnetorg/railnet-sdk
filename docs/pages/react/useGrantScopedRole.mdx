@@ -1,0 +1,48 @@
+---
+description: React hook to grant a scoped role.
+---
+
+# useGrantScopedRole
+
+React mutation hook for granting a scoped role on the ExternalAccessControl.
+
+## Import
+
+```ts
+import { useGrantScopedRole } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useGrantScopedRole } from 'railnet-sdk/react'
+import { VEHICLE_STEAM } from 'railnet-sdk'
+
+function GrantRole() {
+  const { mutateAsync, isPending } = useGrantScopedRole()
+
+  const handleGrant = async () => {
+    await mutateAsync({
+      accessControl: '0x...',
+      role: VEHICLE_STEAM,
+      scope: '0x...',
+      grantee: '0x...',
+      account: '0x...',
+    })
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleGrant}>
+      Grant Role
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<GrantScopedRoleReturnType, Error, GrantScopedRoleParameters & { account: Address }>
+```
+
+Mutation result. Call `mutate` or `mutateAsync` with [`grantScopedRole`](/actions/grantScopedRole) parameters.

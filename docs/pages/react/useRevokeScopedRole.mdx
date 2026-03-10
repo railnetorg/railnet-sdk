@@ -1,0 +1,48 @@
+---
+description: React hook to revoke a scoped role.
+---
+
+# useRevokeScopedRole
+
+React mutation hook for revoking a scoped role on the ExternalAccessControl.
+
+## Import
+
+```ts
+import { useRevokeScopedRole } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useRevokeScopedRole } from 'railnet-sdk/react'
+import { VEHICLE_STEAM } from 'railnet-sdk'
+
+function RevokeRole() {
+  const { mutateAsync, isPending } = useRevokeScopedRole()
+
+  const handleRevoke = async () => {
+    await mutateAsync({
+      accessControl: '0x...',
+      role: VEHICLE_STEAM,
+      scope: '0x...',
+      grantee: '0x...',
+      account: '0x...',
+    })
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleRevoke}>
+      Revoke Role
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<RevokeScopedRoleReturnType, Error, RevokeScopedRoleParameters & { account: Address }>
+```
+
+Mutation result. Call `mutate` or `mutateAsync` with [`revokeScopedRole`](/actions/revokeScopedRole) parameters.

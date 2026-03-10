@@ -1,0 +1,47 @@
+---
+description: React hook to deploy an ExternalAccessControl contract.
+---
+
+# useSpawnAccessControl
+
+React mutation hook for deploying an ExternalAccessControl contract via the factory.
+
+## Import
+
+```ts
+import { useSpawnAccessControl } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useSpawnAccessControl } from 'railnet-sdk/react'
+
+function Spawn() {
+  const { mutateAsync, isPending } = useSpawnAccessControl()
+
+  const handleSpawn = async () => {
+    const result = await mutateAsync({
+      factory: '0x...',
+      initialDefaultAdmin: '0x...',
+      account: '0x...',
+    })
+
+    console.log(result.accessControlAddress)
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleSpawn}>
+      Deploy Access Control
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<SpawnAccessControlReturnType, Error, SpawnAccessControlParameters & { account: Address }>
+```
+
+Mutation result. Call `mutate` or `mutateAsync` with [`spawnAccessControl`](/actions/spawnAccessControl) parameters.

@@ -1,0 +1,81 @@
+---
+description: Deploys an ExternalAccessControl contract via factory.
+---
+
+# spawnAccessControl
+
+Deploys an ExternalAccessControl contract via the factory. Requires a `WalletClient`.
+
+## Import
+
+```ts
+import { spawnAccessControl } from 'railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { spawnAccessControl } from 'railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const result = await spawnAccessControl(walletClient, {
+  factory: '0x1234...',
+  initialDefaultAdmin: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+## Returns
+
+```ts
+type SpawnAccessControlReturnType = {
+  accessControlAddress: Address
+  transactionHash: Hash
+}
+```
+
+The address of the newly deployed access control contract and the transaction hash.
+
+## Parameters
+
+### factory
+
+- **Type:** `Address`
+
+The address of the access control factory contract.
+
+### initialDefaultAdmin
+
+- **Type:** `Address`
+
+The address of the initial default admin.
+
+### initialDelay (optional)
+
+- **Type:** `number`
+
+The initial delay for the access control. Defaults to `0`.
+
+### initialRoles (optional)
+
+- **Type:** `Array<{account: Address, role: Hex}>`
+
+Initial roles to grant. Defaults to `[]`.
+
+### deploymentSalt (optional)
+
+- **Type:** `Hex`
+
+Optional salt for the deployment. Auto-generated if not provided.
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.

@@ -1,0 +1,45 @@
+---
+description: React hook to authorize a vehicle.
+---
+
+# useAuthorizeVehicle
+
+React mutation hook for authorizing a vehicle in the VehicleRegistry.
+
+## Import
+
+```ts
+import { useAuthorizeVehicle } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useAuthorizeVehicle } from 'railnet-sdk/react'
+
+function Authorize() {
+  const { mutateAsync, isPending } = useAuthorizeVehicle()
+
+  const handleAuthorize = async () => {
+    await mutateAsync({
+      vehicleRegistry: '0x...',
+      vehicle: '0x...',
+      account: '0x...',
+    })
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleAuthorize}>
+      Authorize Vehicle
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<AuthorizeVehicleReturnType, Error, AuthorizeVehicleParameters & { account: Address }>
+```
+
+Mutation result. Call `mutate` or `mutateAsync` with [`authorizeVehicle`](/actions/authorizeVehicle) parameters.

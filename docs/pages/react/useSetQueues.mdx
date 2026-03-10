@@ -1,0 +1,46 @@
+---
+description: React hook to set deposit and redeem queues.
+---
+
+# useSetQueues
+
+React mutation hook for setting deposit and redeem queues on the QueueStrategyEngine.
+
+## Import
+
+```ts
+import { useSetQueues } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useSetQueues } from 'railnet-sdk/react'
+
+function SetQueues() {
+  const { mutateAsync, isPending } = useSetQueues()
+
+  const handleSetQueues = async () => {
+    await mutateAsync({
+      queueStrategyEngine: '0x...',
+      depositQueue: [],
+      redeemQueue: [],
+      account: '0x...',
+    })
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleSetQueues}>
+      Set Queues
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<SetQueuesReturnType, Error, SetQueuesParameters & { account: Address }>
+```
+
+Mutation result. Call `mutate` or `mutateAsync` with [`setQueues`](/actions/setQueues) parameters.

@@ -1,0 +1,51 @@
+---
+description: React hook to deploy an Aave V3 vehicle.
+---
+
+# useSpawnAaveV3Vehicle
+
+React mutation hook for deploying an Aave V3 vehicle via the factory.
+
+## Import
+
+```ts
+import { useSpawnAaveV3Vehicle } from 'railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useSpawnAaveV3Vehicle } from 'railnet-sdk/react'
+
+function Spawn() {
+  const { mutateAsync, isPending } = useSpawnAaveV3Vehicle()
+
+  const handleSpawn = async () => {
+    const result = await mutateAsync({
+      factory: '0x...',
+      asset: '0x...',
+      poolAddressesProvider: '0x...',
+      accessControl: '0x...',
+      initialDepositSize: 1000000000000000000n,
+      initialExpectedSupply: 1000000000000000000n,
+      account: '0x...',
+    })
+
+    console.log(result.vehicleAddress)
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleSpawn}>
+      Deploy Aave Vehicle
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<SpawnAaveV3VehicleReturnType, Error, SpawnAaveV3VehicleParameters & { account: Address }>
+```
+
+Mutation result. Call `mutate` or `mutateAsync` with [`spawnAaveV3Vehicle`](/actions/spawnAaveV3Vehicle) parameters.

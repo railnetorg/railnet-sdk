@@ -1,0 +1,93 @@
+---
+description: Role constants for access control.
+---
+
+# Roles
+
+Role constants used for access control across the Railnet protocol. These are precomputed `keccak256` hashes that match the roles defined in the Solidity `Roles.sol` contract.
+
+## Import
+
+```ts
+import { VEHICLE_STEAM, MULTI_VEHICLE_SET_QUEUES } from 'railnet-sdk'
+```
+
+## All Constants
+
+### Factory
+
+| Constant | Description |
+| --- | --- |
+| `FACTORY_SPAWN` | Permission to spawn new contracts via a factory |
+| `FACTORY_SET_DEPRECATED` | Permission to deprecate a factory |
+
+### Beacon
+
+| Constant | Description |
+| --- | --- |
+| `BEACON_FREEZE` | Permission to freeze a beacon |
+| `BEACON_PAUSE` | Permission to pause a beacon |
+| `BEACON_UNPAUSE` | Permission to unpause a beacon |
+| `BEACON_UPGRADE` | Permission to upgrade a beacon |
+
+### Vehicle
+
+| Constant | Description |
+| --- | --- |
+| `VEHICLE_STEAM` | Permission to call STEAM functions on a vehicle |
+| `VEHICLE_SET_INTERCEPTIONS` | Permission to set interceptions |
+| `VEHICLE_ALLOW` | Permission to allow operations on a vehicle |
+
+### Fee Manager
+
+| Constant | Description |
+| --- | --- |
+| `FEE_MANAGER_SET_FEES` | Permission to set fee configuration |
+| `FEE_MANAGER_SET_FEE_RECIPIENTS` | Permission to set fee recipients |
+| `FEE_MANAGER_DISPATCH_ERC20` | Permission to dispatch ERC20 tokens |
+| `FEE_MANAGER_REDEEM_VEHICLE_SHARES` | Permission to redeem vehicle shares |
+
+### MultiVehicle
+
+| Constant | Description |
+| --- | --- |
+| `MULTI_VEHICLE_FEED_QUERY_REDEEM_QUEUE` | Permission to feed the query redeem queue |
+| `MULTI_VEHICLE_RETRIEVE_QUERY_REDEEM_QUEUE_ASSETS` | Permission to retrieve query redeem queue assets |
+| `MULTI_VEHICLE_SET_QUEUES` | Permission to set deposit/redeem queues |
+| `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` | Permission to authorize/deauthorize vehicles |
+| `MULTI_VEHICLE_MOVE_ASSETS` | Permission to move assets between sectors |
+| `MULTI_VEHICLE_MOVE_SHARES` | Permission to move shares between sectors |
+| `MULTI_VEHICLE_REBALANCE` | Permission to rebalance between vehicles |
+| `MULTI_VEHICLE_DEPOSIT` | Permission to deposit into the MultiVehicle |
+| `MULTI_VEHICLE_DISPATCH` | Permission to dispatch operations |
+| `MULTI_VEHICLE_PROGRESS_QUERY` | Permission to progress queries |
+| `MULTI_VEHICLE_SET_THRESHOLDS` | Permission to set thresholds |
+
+### Account List
+
+| Constant | Description |
+| --- | --- |
+| `ACCOUNT_LIST_MANAGER` | Permission to manage the account list |
+
+### Job Listing
+
+| Constant | Description |
+| --- | --- |
+| `JOB_LISTING_REGISTER` | Permission to register jobs |
+| `JOB_LISTING_UNREGISTER` | Permission to unregister jobs |
+| `JOB_LISTING_EXECUTE` | Permission to execute jobs |
+
+### Modules
+
+| Constant | Description |
+| --- | --- |
+| `EXEC` | Permission to execute module operations |
+| `MODULE_MANAGER` | Permission to manage modules |
+| `CANCEL_MODULE` | Permission to cancel a module |
+| `UPDATE_TIMELOCK` | Permission to update timelocks |
+
+### Keeper
+
+| Constant | Description |
+| --- | --- |
+| `KEEPER_ON_REPORT` | Permission to report keeper data |
