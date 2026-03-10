@@ -1,34 +1,52 @@
-import type { Abi, Address, TransactionReceipt } from 'viem'
+import type { Address, TransactionReceipt } from 'viem'
 import { decodeEventLog } from 'viem'
+import { aaveV3VehicleFactoryAbi } from '../abi/aaveV3VehicleFactory.js'
+import { accessControlFactoryAbi } from '../abi/accessControlFactory.js'
 import { conduitFactoryAbi } from '../abi/conduitFactory.js'
 import { multiVehicleFactoryAbi } from '../abi/multiVehicleFactory.js'
 
-export function extractEventAddress<TAbi extends Abi>(
+export function extractAccessControlAddress(
   receipt: TransactionReceipt,
-  options: {
-    abi: TAbi
-    eventName: string
-    fromAddress: Address
-    argName: string
-  },
+  factoryAddress: Address,
 ): Address | null {
   for (const log of receipt.logs) {
-    if (log.address.toLowerCase() !== options.fromAddress.toLowerCase()) {
+    if (log.address.toLowerCase() !== factoryAddress.toLowerCase()) {
       continue
     }
 
     try {
       const decoded = decodeEventLog({
-        abi: options.abi,
+        abi: accessControlFactoryAbi,
         data: log.data,
         topics: log.topics,
-        eventName: options.eventName as never,
+        eventName: 'SpawnedExternalAccessControl',
       })
-      const args = decoded.args as unknown as Record<string, unknown>
-      const address = args[options.argName]
-      if (typeof address === 'string') {
-        return address as Address
-      }
+      return decoded.args.eac
+    } catch {
+      /* skip non-matching log */
+    }
+  }
+
+  return null
+}
+
+export function extractAaveV3VehicleAddress(
+  receipt: TransactionReceipt,
+  factoryAddress: Address,
+): Address | null {
+  for (const log of receipt.logs) {
+    if (log.address.toLowerCase() !== factoryAddress.toLowerCase()) {
+      continue
+    }
+
+    try {
+      const decoded = decodeEventLog({
+        abi: aaveV3VehicleFactoryAbi,
+        data: log.data,
+        topics: log.topics,
+        eventName: 'SpawnedAaveV3Vehicle',
+      })
+      return decoded.args.vehicle
     } catch {
       /* skip non-matching log */
     }

@@ -11,7 +11,7 @@ import {
 } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import { aaveV3VehicleFactoryAbi } from '../../abi/aaveV3VehicleFactory.js'
-import { extractEventAddress } from '../../utils/receipt.js'
+import { extractAaveV3VehicleAddress } from '../../utils/receipt.js'
 
 export type SpawnAaveV3VehicleParameters = {
   factory: Address
@@ -67,12 +67,7 @@ export async function spawnAaveV3Vehicle(
     throw new Error('AaveV3 vehicle spawn transaction reverted')
   }
 
-  const vehicleAddress = extractEventAddress(receipt, {
-    abi: aaveV3VehicleFactoryAbi,
-    eventName: 'SpawnedAaveV3Vehicle',
-    fromAddress: parameters.factory,
-    argName: 'vehicle',
-  })
+  const vehicleAddress = extractAaveV3VehicleAddress(receipt, parameters.factory)
 
   if (!vehicleAddress) {
     throw new Error('Could not extract vehicle address from transaction logs')

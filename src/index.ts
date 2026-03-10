@@ -9,8 +9,9 @@ export * from './contracts/index.js'
 export { type RailnetActions, railnetActions } from './decorator.js'
 
 export {
+  extractAaveV3VehicleAddress,
+  extractAccessControlAddress,
   extractConduitDeployedAddress,
-  extractEventAddress,
   extractMultiVehicleContracts,
   type MultiVehicleContracts,
 } from './utils/receipt.js'

@@ -11,7 +11,7 @@ import {
 } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import { accessControlFactoryAbi } from '../../abi/accessControlFactory.js'
-import { extractEventAddress } from '../../utils/receipt.js'
+import { extractAccessControlAddress } from '../../utils/receipt.js'
 
 export type SpawnAccessControlParameters = {
   factory: Address
@@ -57,12 +57,7 @@ export async function spawnAccessControl(
     throw new Error('AccessControl spawn transaction reverted')
   }
 
-  const accessControlAddress = extractEventAddress(receipt, {
-    abi: accessControlFactoryAbi,
-    eventName: 'SpawnedExternalAccessControl',
-    fromAddress: parameters.factory,
-    argName: 'eac',
-  })
+  const accessControlAddress = extractAccessControlAddress(receipt, parameters.factory)
 
   if (!accessControlAddress || accessControlAddress === zeroAddress) {
     throw new Error('Could not extract access control address from transaction logs')
