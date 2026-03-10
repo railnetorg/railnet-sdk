@@ -89,11 +89,6 @@ export async function spawnMultiVehicle(
   })
 
   const receipt = await waitForTransactionReceipt(walletClient, { hash })
-
-  if (receipt.status === 'reverted') {
-    throw new Error('MultiVehicle spawn transaction reverted')
-  }
-
   const contracts = extractMultiVehicleContracts(receipt, parameters.factory)
 
   if (!contracts) {

@@ -91,65 +91,72 @@ export async function deployMultiVehicle(
   const mvResult = await spawnMultiVehicle(walletClient, mvSpawnParams)
   transactionHashes.push(mvResult.transactionHash)
 
-  const grantSaeResult = await grantScopedRole(walletClient, {
-    accessControl: eacResult.accessControlAddress,
-    role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION,
-    scope: mvResult.contracts.sectorAccountingEngine,
-    grantee: adminAddress,
-    account: parameters.account,
-  })
-  transactionHashes.push(grantSaeResult.transactionHash)
+  transactionHashes.push(
+    await grantScopedRole(walletClient, {
+      accessControl: eacResult.accessControlAddress,
+      role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION,
+      scope: mvResult.contracts.sectorAccountingEngine,
+      grantee: adminAddress,
+      account: parameters.account,
+    }),
+  )
 
-  const grantQseResult = await grantScopedRole(walletClient, {
-    accessControl: eacResult.accessControlAddress,
-    role: MULTI_VEHICLE_SET_QUEUES,
-    scope: mvResult.contracts.queueStrategyEngine,
-    grantee: adminAddress,
-    account: parameters.account,
-  })
-  transactionHashes.push(grantQseResult.transactionHash)
+  transactionHashes.push(
+    await grantScopedRole(walletClient, {
+      accessControl: eacResult.accessControlAddress,
+      role: MULTI_VEHICLE_SET_QUEUES,
+      scope: mvResult.contracts.queueStrategyEngine,
+      grantee: adminAddress,
+      account: parameters.account,
+    }),
+  )
 
-  const grantSteamToMvResult = await grantScopedRole(walletClient, {
-    accessControl: eacResult.accessControlAddress,
-    role: VEHICLE_STEAM,
-    scope: parameters.vehicle,
-    grantee: mvResult.contracts.multiVehicle,
-    account: parameters.account,
-  })
-  transactionHashes.push(grantSteamToMvResult.transactionHash)
+  transactionHashes.push(
+    await grantScopedRole(walletClient, {
+      accessControl: eacResult.accessControlAddress,
+      role: VEHICLE_STEAM,
+      scope: parameters.vehicle,
+      grantee: mvResult.contracts.multiVehicle,
+      account: parameters.account,
+    }),
+  )
 
-  const grantSteamToSaeResult = await grantScopedRole(walletClient, {
-    accessControl: eacResult.accessControlAddress,
-    role: VEHICLE_STEAM,
-    scope: parameters.vehicle,
-    grantee: mvResult.contracts.sectorAccountingEngine,
-    account: parameters.account,
-  })
-  transactionHashes.push(grantSteamToSaeResult.transactionHash)
+  transactionHashes.push(
+    await grantScopedRole(walletClient, {
+      accessControl: eacResult.accessControlAddress,
+      role: VEHICLE_STEAM,
+      scope: parameters.vehicle,
+      grantee: mvResult.contracts.sectorAccountingEngine,
+      account: parameters.account,
+    }),
+  )
 
-  const grantSteamToSqeResult = await grantScopedRole(walletClient, {
-    accessControl: eacResult.accessControlAddress,
-    role: VEHICLE_STEAM,
-    scope: parameters.vehicle,
-    grantee: mvResult.contracts.subQueryEngine,
-    account: parameters.account,
-  })
-  transactionHashes.push(grantSteamToSqeResult.transactionHash)
+  transactionHashes.push(
+    await grantScopedRole(walletClient, {
+      accessControl: eacResult.accessControlAddress,
+      role: VEHICLE_STEAM,
+      scope: parameters.vehicle,
+      grantee: mvResult.contracts.subQueryEngine,
+      account: parameters.account,
+    }),
+  )
 
-  const authorizeResult = await authorizeVehicle(walletClient, {
-    vehicleRegistry: mvResult.contracts.vehicleRegistry,
-    vehicle: parameters.vehicle,
-    account: parameters.account,
-  })
-  transactionHashes.push(authorizeResult.transactionHash)
+  transactionHashes.push(
+    await authorizeVehicle(walletClient, {
+      vehicleRegistry: mvResult.contracts.vehicleRegistry,
+      vehicle: parameters.vehicle,
+      account: parameters.account,
+    }),
+  )
 
-  const setQueuesResult = await setQueues(walletClient, {
-    queueStrategyEngine: mvResult.contracts.queueStrategyEngine,
-    depositQueue: [{ vehicle: parameters.vehicle, target: { value: 10n ** 27n, threshold: 0n } }],
-    redeemQueue: [{ vehicle: parameters.vehicle, target: { value: 0n, threshold: 0n } }],
-    account: parameters.account,
-  })
-  transactionHashes.push(setQueuesResult.transactionHash)
+  transactionHashes.push(
+    await setQueues(walletClient, {
+      queueStrategyEngine: mvResult.contracts.queueStrategyEngine,
+      depositQueue: [{ vehicle: parameters.vehicle, target: { value: 10n ** 27n, threshold: 0n } }],
+      redeemQueue: [{ vehicle: parameters.vehicle, target: { value: 0n, threshold: 0n } }],
+      account: parameters.account,
+    }),
+  )
 
   return {
     eacAddress: eacResult.accessControlAddress,

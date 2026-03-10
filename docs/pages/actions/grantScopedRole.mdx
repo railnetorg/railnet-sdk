@@ -24,7 +24,7 @@ const walletClient = createWalletClient({
   transport: http(),
 })
 
-const result = await grantScopedRole(walletClient, {
+const hash = await grantScopedRole(walletClient, {
   accessControl: '0x1234...',
   role: VEHICLE_STEAM,
   scope: '0x5678...',
@@ -40,11 +40,7 @@ import { VEHICLE_STEAM, MULTI_VEHICLE_SET_QUEUES } from 'railnet-sdk'
 
 ## Returns
 
-```ts
-type GrantScopedRoleReturnType = {
-  transactionHash: Hash
-}
-```
+`Hash`
 
 The transaction hash.
 

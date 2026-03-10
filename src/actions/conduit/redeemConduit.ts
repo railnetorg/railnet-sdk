@@ -20,14 +20,10 @@ export type RedeemConduitParameters = {
   salt?: Hex
 }
 
-export type RedeemConduitReturnType = {
-  transactionHash: Hash
-}
-
 export async function redeemConduit(
   walletClient: WalletClient<Transport, Chain>,
   parameters: RedeemConduitParameters & { account: Address },
-): Promise<RedeemConduitReturnType> {
+): Promise<Hash> {
   const { conduit, shares, account } = parameters
   const receiver = parameters.receiver ?? account
   const outputAssets = parameters.outputAssets ?? []
@@ -49,14 +45,10 @@ export async function redeemConduit(
       account,
       chain: walletClient.chain,
     })
-
-    const approveReceipt = await waitForTransactionReceipt(walletClient, { hash: approveHash })
-    if (approveReceipt.status === 'reverted') {
-      throw new Error('Conduit share approval transaction reverted')
-    }
+    await waitForTransactionReceipt(walletClient, { hash: approveHash })
   }
 
-  const hash = await walletClient.writeContract({
+  return walletClient.writeContract({
     address: conduit,
     abi: conduitAbi,
     functionName: 'createRedeemFromConduitShares',
@@ -64,11 +56,4 @@ export async function redeemConduit(
     account,
     chain: walletClient.chain,
   })
-
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
-  if (receipt.status === 'reverted') {
-    throw new Error('Redeem transaction reverted')
-  }
-
-  return { transactionHash: hash }
 }

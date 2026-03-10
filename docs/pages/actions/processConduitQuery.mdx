@@ -24,7 +24,7 @@ const walletClient = createWalletClient({
   transport: http(),
 })
 
-const result = await processConduitQuery(walletClient, {
+const hash = await processConduitQuery(walletClient, {
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
   query: {
@@ -41,11 +41,7 @@ const result = await processConduitQuery(walletClient, {
 
 ## Returns
 
-```ts
-type ProcessConduitQueryReturnType = {
-  transactionHash: Hash
-}
-```
+`Hash`
 
 The transaction hash of the process query transaction.
 
@@ -58,7 +54,7 @@ The transaction hash of the process query transaction.
 The address of the conduit contract.
 
 ```ts
-const result = await processConduitQuery(walletClient, {
+const hash = await processConduitQuery(walletClient, {
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
   account: '0x...',
   query: { ... },
@@ -72,7 +68,7 @@ const result = await processConduitQuery(walletClient, {
 The address of the account executing the transaction.
 
 ```ts
-const result = await processConduitQuery(walletClient, {
+const hash = await processConduitQuery(walletClient, {
   conduit: '0x...',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
   query: { ... },

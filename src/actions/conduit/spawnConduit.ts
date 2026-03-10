@@ -54,11 +54,6 @@ export async function spawnConduit(
   })
 
   const receipt = await waitForTransactionReceipt(walletClient, { hash })
-
-  if (receipt.status === 'reverted') {
-    throw new Error('Conduit spawn transaction reverted')
-  }
-
   const conduitAddress = extractConduitDeployedAddress(receipt, parameters.factory)
 
   if (!conduitAddress) {

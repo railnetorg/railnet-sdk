@@ -1,5 +1,4 @@
 import type { Address, Chain, Hash, Transport, WalletClient } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
 import { conduitFactoryAbi } from '../../abi/conduitFactory.js'
 
 export type FinalizeConduitDepositParameters = {
@@ -7,15 +6,11 @@ export type FinalizeConduitDepositParameters = {
   conduit: Address
 }
 
-export type FinalizeConduitDepositReturnType = {
-  transactionHash: Hash
-}
-
 export async function finalizeConduitDeposit(
   walletClient: WalletClient<Transport, Chain>,
   parameters: FinalizeConduitDepositParameters & { account: Address },
-): Promise<FinalizeConduitDepositReturnType> {
-  const hash = await walletClient.writeContract({
+): Promise<Hash> {
+  return walletClient.writeContract({
     address: parameters.factory,
     abi: conduitFactoryAbi,
     functionName: 'finalizeConduitDeposit',
@@ -23,12 +18,4 @@ export async function finalizeConduitDeposit(
     account: parameters.account,
     chain: walletClient.chain,
   })
-
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
-
-  if (receipt.status === 'reverted') {
-    throw new Error('Finalize conduit deposit transaction reverted')
-  }
-
-  return { transactionHash: hash }
 }

@@ -41,7 +41,7 @@ function Deposit() {
 ## Returns
 
 ```ts
-UseMutationResult<DepositConduitReturnType, Error, DepositConduitParameters & { account: Address }>
+UseMutationResult<Hash, Error, DepositConduitParameters & { account: Address }>
 ```
 
 Mutation result. Call `mutate` or `mutateAsync` with [`depositConduit`](/actions/depositConduit) parameters.

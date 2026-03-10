@@ -24,7 +24,7 @@ const walletClient = createWalletClient({
   transport: http(),
 })
 
-const result = await revokeScopedRole(walletClient, {
+const hash = await revokeScopedRole(walletClient, {
   accessControl: '0x1234...',
   role: VEHICLE_STEAM,
   scope: '0x5678...',
@@ -35,11 +35,7 @@ const result = await revokeScopedRole(walletClient, {
 
 ## Returns
 
-```ts
-type RevokeScopedRoleReturnType = {
-  transactionHash: Hash
-}
-```
+`Hash`
 
 The transaction hash.
 

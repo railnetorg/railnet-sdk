@@ -28,7 +28,7 @@ const walletClient = createWalletClient({
   transport: http(),
 })
 
-const result = await depositConduit(walletClient, {
+const hash = await depositConduit(walletClient, {
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   token: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   amount: 1000000000000000000n,
@@ -38,11 +38,7 @@ const result = await depositConduit(walletClient, {
 
 ## Returns
 
-```ts
-type DepositConduitReturnType = {
-  transactionHash: Hash
-}
-```
+`Hash`
 
 The transaction hash of the deposit transaction.
 
@@ -55,7 +51,7 @@ The transaction hash of the deposit transaction.
 The address of the conduit contract.
 
 ```ts
-const result = await depositConduit(walletClient, {
+const hash = await depositConduit(walletClient, {
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
   token: '0x...',
   amount: 1000000000000000000n,
@@ -70,7 +66,7 @@ const result = await depositConduit(walletClient, {
 The address of the token to deposit.
 
 ```ts
-const result = await depositConduit(walletClient, {
+const hash = await depositConduit(walletClient, {
   conduit: '0x...',
   token: '0x6B175474E89094C44Da98b954EedeAC495271d0F', // [!code focus]
   amount: 1000000000000000000n,
@@ -85,7 +81,7 @@ const result = await depositConduit(walletClient, {
 The amount of tokens to deposit.
 
 ```ts
-const result = await depositConduit(walletClient, {
+const hash = await depositConduit(walletClient, {
   conduit: '0x...',
   token: '0x...',
   amount: 1000000000000000000n, // [!code focus]
@@ -100,7 +96,7 @@ const result = await depositConduit(walletClient, {
 The address of the account executing the transaction.
 
 ```ts
-const result = await depositConduit(walletClient, {
+const hash = await depositConduit(walletClient, {
   conduit: '0x...',
   token: '0x...',
   amount: 1000000000000000000n,
@@ -115,7 +111,7 @@ const result = await depositConduit(walletClient, {
 The address to receive the output. Defaults to the account address.
 
 ```ts
-const result = await depositConduit(walletClient, {
+const hash = await depositConduit(walletClient, {
   conduit: '0x...',
   token: '0x...',
   amount: 1000000000000000000n,
@@ -131,7 +127,7 @@ const result = await depositConduit(walletClient, {
 Optional salt for the deposit operation.
 
 ```ts
-const result = await depositConduit(walletClient, {
+const hash = await depositConduit(walletClient, {
   conduit: '0x...',
   token: '0x...',
   amount: 1000000000000000000n,

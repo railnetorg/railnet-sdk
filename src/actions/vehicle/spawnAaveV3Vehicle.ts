@@ -62,11 +62,6 @@ export async function spawnAaveV3Vehicle(
   })
 
   const receipt = await waitForTransactionReceipt(walletClient, { hash })
-
-  if (receipt.status === 'reverted') {
-    throw new Error('AaveV3 vehicle spawn transaction reverted')
-  }
-
   const vehicleAddress = extractAaveV3VehicleAddress(receipt, parameters.factory)
 
   if (!vehicleAddress) {

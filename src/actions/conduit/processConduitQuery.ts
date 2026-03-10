@@ -1,5 +1,4 @@
 import type { Address, Chain, Hash, Hex, Transport, WalletClient } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { Asset, ConduitMode } from './types.js'
 
@@ -16,17 +15,13 @@ export type ProcessConduitQueryParameters = {
   }
 }
 
-export type ProcessConduitQueryReturnType = {
-  transactionHash: Hash
-}
-
 export async function processConduitQuery(
   walletClient: WalletClient<Transport, Chain>,
   parameters: ProcessConduitQueryParameters & { account: Address },
-): Promise<ProcessConduitQueryReturnType> {
+): Promise<Hash> {
   const { conduit, account, query } = parameters
 
-  const hash = await walletClient.writeContract({
+  return walletClient.writeContract({
     address: conduit,
     abi: conduitAbi,
     functionName: 'process',
@@ -34,11 +29,4 @@ export async function processConduitQuery(
     account,
     chain: walletClient.chain,
   })
-
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
-  if (receipt.status === 'reverted') {
-    throw new Error('Process query transaction reverted')
-  }
-
-  return { transactionHash: hash }
 }

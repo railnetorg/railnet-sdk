@@ -21,14 +21,10 @@ export type DepositConduitParameters = {
   salt?: Hex
 }
 
-export type DepositConduitReturnType = {
-  transactionHash: Hash
-}
-
 export async function depositConduit(
   walletClient: WalletClient<Transport, Chain>,
   parameters: DepositConduitParameters & { account: Address },
-): Promise<DepositConduitReturnType> {
+): Promise<Hash> {
   const { conduit, token, amount, account } = parameters
   const receiver = parameters.receiver ?? account
   const salt = parameters.salt ?? keccak256(toHex(`deposit-${account}-${Date.now()}`))
@@ -49,11 +45,7 @@ export async function depositConduit(
       account,
       chain: walletClient.chain,
     })
-
-    const approveReceipt = await waitForTransactionReceipt(walletClient, { hash: approveHash })
-    if (approveReceipt.status === 'reverted') {
-      throw new Error('Token approval transaction reverted')
-    }
+    await waitForTransactionReceipt(walletClient, { hash: approveHash })
   }
 
   const query = {
@@ -66,7 +58,7 @@ export async function depositConduit(
     data: '0x' as const,
   }
 
-  const hash = await walletClient.writeContract({
+  return walletClient.writeContract({
     address: conduit,
     abi: conduitAbi,
     functionName: 'create',
@@ -74,11 +66,4 @@ export async function depositConduit(
     account,
     chain: walletClient.chain,
   })
-
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
-  if (receipt.status === 'reverted') {
-    throw new Error('Deposit transaction reverted')
-  }
-
-  return { transactionHash: hash }
 }

@@ -24,7 +24,7 @@ const walletClient = createWalletClient({
   transport: http(),
 })
 
-const result = await setQueues(walletClient, {
+const hash = await setQueues(walletClient, {
   queueStrategyEngine: '0x1234...',
   depositQueue: [
     {
@@ -39,11 +39,7 @@ const result = await setQueues(walletClient, {
 
 ## Returns
 
-```ts
-type SetQueuesReturnType = {
-  transactionHash: Hash
-}
-```
+`Hash`
 
 The transaction hash.
 

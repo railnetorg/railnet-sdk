@@ -40,7 +40,7 @@ function Redeem() {
 ## Returns
 
 ```ts
-UseMutationResult<RedeemConduitReturnType, Error, RedeemConduitParameters & { account: Address }>
+UseMutationResult<Hash, Error, RedeemConduitParameters & { account: Address }>
 ```
 
 Mutation result. Call `mutate` or `mutateAsync` with [`redeemConduit`](/actions/redeemConduit) parameters.

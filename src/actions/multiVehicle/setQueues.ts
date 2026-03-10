@@ -1,5 +1,4 @@
 import type { Address, Chain, Hash, Transport, WalletClient } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
 import { queueStrategyEngineAbi } from '../../abi/queueStrategyEngine.js'
 
 export type QueueTarget = {
@@ -18,15 +17,11 @@ export type SetQueuesParameters = {
   redeemQueue: QueueEntry[]
 }
 
-export type SetQueuesReturnType = {
-  transactionHash: Hash
-}
-
 export async function setQueues(
   walletClient: WalletClient<Transport, Chain>,
   parameters: SetQueuesParameters & { account: Address },
-): Promise<SetQueuesReturnType> {
-  const hash = await walletClient.writeContract({
+): Promise<Hash> {
+  return walletClient.writeContract({
     address: parameters.queueStrategyEngine,
     abi: queueStrategyEngineAbi,
     functionName: 'setQueues',
@@ -34,14 +29,4 @@ export async function setQueues(
     account: parameters.account,
     chain: walletClient.chain,
   })
-
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
-
-  if (receipt.status === 'reverted') {
-    throw new Error('Set queues transaction reverted')
-  }
-
-  return {
-    transactionHash: hash,
-  }
 }

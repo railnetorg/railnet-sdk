@@ -24,7 +24,7 @@ const walletClient = createWalletClient({
   transport: http(),
 })
 
-const result = await authorizeVehicle(walletClient, {
+const hash = await authorizeVehicle(walletClient, {
   vehicleRegistry: '0x1234...',
   vehicle: '0x5678...',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -33,11 +33,7 @@ const result = await authorizeVehicle(walletClient, {
 
 ## Returns
 
-```ts
-type AuthorizeVehicleReturnType = {
-  transactionHash: Hash
-}
-```
+`Hash`
 
 The transaction hash.
 

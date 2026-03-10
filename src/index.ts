@@ -8,12 +8,6 @@ export * from './contracts/index.js'
 
 export { type RailnetActions, railnetActions } from './decorator.js'
 
-export {
-  extractAaveV3VehicleAddress,
-  extractAccessControlAddress,
-  extractConduitDeployedAddress,
-  extractMultiVehicleContracts,
-  type MultiVehicleContracts,
-} from './utils/receipt.js'
+export type { MultiVehicleContracts } from './utils/receipt.js'
 
 export * from './workflows/index.js'

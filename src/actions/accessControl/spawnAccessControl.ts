@@ -7,7 +7,6 @@ import {
   type Transport,
   toHex,
   type WalletClient,
-  zeroAddress,
 } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import { accessControlFactoryAbi } from '../../abi/accessControlFactory.js'
@@ -52,14 +51,9 @@ export async function spawnAccessControl(
   })
 
   const receipt = await waitForTransactionReceipt(walletClient, { hash })
-
-  if (receipt.status === 'reverted') {
-    throw new Error('AccessControl spawn transaction reverted')
-  }
-
   const accessControlAddress = extractAccessControlAddress(receipt, parameters.factory)
 
-  if (!accessControlAddress || accessControlAddress === zeroAddress) {
+  if (!accessControlAddress) {
     throw new Error('Could not extract access control address from transaction logs')
   }
 

@@ -24,7 +24,7 @@ const walletClient = createWalletClient({
   transport: http(),
 })
 
-const result = await finalizeConduitDeposit(walletClient, {
+const hash = await finalizeConduitDeposit(walletClient, {
   factory: '0x1234...',
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -33,11 +33,7 @@ const result = await finalizeConduitDeposit(walletClient, {
 
 ## Returns
 
-```ts
-type FinalizeConduitDepositReturnType = {
-  transactionHash: Hash
-}
-```
+`Hash`
 
 The transaction hash of the finalize transaction.
 
@@ -50,7 +46,7 @@ The transaction hash of the finalize transaction.
 The address of the conduit factory contract.
 
 ```ts
-const result = await finalizeConduitDeposit(walletClient, {
+const hash = await finalizeConduitDeposit(walletClient, {
   factory: '0x1234...', // [!code focus]
   conduit: '0x...',
   account: '0x...',
@@ -64,7 +60,7 @@ const result = await finalizeConduitDeposit(walletClient, {
 The address of the conduit contract.
 
 ```ts
-const result = await finalizeConduitDeposit(walletClient, {
+const hash = await finalizeConduitDeposit(walletClient, {
   factory: '0x...',
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
   account: '0x...',
@@ -78,7 +74,7 @@ const result = await finalizeConduitDeposit(walletClient, {
 The address of the account executing the transaction.
 
 ```ts
-const result = await finalizeConduitDeposit(walletClient, {
+const hash = await finalizeConduitDeposit(walletClient, {
   factory: '0x...',
   conduit: '0x...',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
