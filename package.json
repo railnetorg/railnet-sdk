@@ -9,7 +9,9 @@
     "test": "vitest",
     "docs:dev": "vocs dev",
     "docs:build": "vocs build",
-    "docs:preview": "vocs preview"
+    "docs:preview": "vocs preview",
+    "abis:check": "bun scripts/check-abis.ts",
+    "abis:sync": "bun scripts/sync-abis.ts && bunx biome check --write src/abi/"
   },
   "devDependencies": {
     "@biomejs/biome": "latest",

@@ -37,8 +37,7 @@ export const addresses = {
     accountListFactory: '0xE390a2A1B8189B34D5bB00D363DF70904ed729f2',
     ownerRegistryFactory: '0xfDEC8Dc8BB04280d72794B8F18701e3CE6A59136',
     aavePoolAddressesProvider: '0xe20fCBdBfFC4Dd138cE8b2E6FBb6CB49777ad64D',
-    // TODO: fill with deployed Aave V3 vehicle address
-    aaveV3Vehicle: '0x0000000000000000000000000000000000000000',
+    aaveV3Vehicle: '0x2ec94b8979868bf5586f8550733092a77cd77c9e',
     usdc: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   },
 } as const satisfies Record<number, ChainAddresses>

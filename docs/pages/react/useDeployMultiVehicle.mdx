@@ -22,15 +22,17 @@ function Deploy() {
 
   const handleDeploy = async () => {
     const result = await mutateAsync({
-      asset: '0x...',
-      name: 'My MultiVehicle',
-      symbol: 'MMV',
-      initialDepositAmount: 1000000000000000000n,
-      vehicle: '0x...', // existing vehicle address
-      factories: {
-        eacFactory: '0x...',
-        multiVehicleFactory: '0x...',
-      },
+      asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      name: 'Diversified USDC',
+      symbol: 'dUSDC',
+      initialDepositAmount: 1000000n,
+      vehicles: [
+        {
+          address: '0x...',
+          depositTarget: { value: 1000n * 10n ** 18n, threshold: 0n },
+          redeemTarget: { value: 0n, threshold: 0n },
+        },
+      ],
       account: '0x...',
     })
 

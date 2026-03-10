@@ -10,13 +10,11 @@ The workflow performs the following steps:
 1. Deploys an ExternalAccessControl (EAC) contract.
 2. Approves the asset for the MultiVehicle factory.
 3. Spawns the MultiVehicle ecosystem.
-4. Grants `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` role on the SectorAccountingEngine (SAE) to the admin.
+4. Grants `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` role on the VehicleRegistry to the admin.
 5. Grants `MULTI_VEHICLE_SET_QUEUES` role on the QueueStrategyEngine (QSE) to the admin.
-6. Grants `VEHICLE_STEAM` role on the vehicle to the MultiVehicle contract.
-7. Grants `VEHICLE_STEAM` role on the vehicle to the SectorAccountingEngine.
-8. Grants `VEHICLE_STEAM` role on the vehicle to the SubQueryEngine.
-9. Authorizes the vehicle in the VehicleRegistry.
-10. Sets the initial queues on the QSE.
+6. For each vehicle: grants `VEHICLE_STEAM` role to the MultiVehicle, SectorAccountingEngine, and SubQueryEngine.
+7. For each vehicle: authorizes it in the VehicleRegistry.
+8. Sets the deposit and redeem queues on the QSE.
 
 ## Import
 
@@ -37,15 +35,22 @@ const walletClient = createWalletClient({
 })
 
 const result = await deployMultiVehicle(walletClient, {
-  asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-  name: 'My MultiVehicle',
-  symbol: 'MMV',
-  initialDepositAmount: 1000000000000000000n,
-  vehicle: '0x...', // existing vehicle address
-  factories: {
-    eacFactory: '0x...',
-    multiVehicleFactory: '0x...',
-  },
+  asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  name: 'Diversified USDC',
+  symbol: 'dUSDC',
+  initialDepositAmount: 1000000n, // 1 USDC
+  vehicles: [
+    {
+      address: '0x...', // Aave V3 vehicle
+      depositTarget: { value: 1000n * 10n ** 18n, threshold: 0n },
+      redeemTarget: { value: 0n, threshold: 0n },
+    },
+    {
+      address: '0x...', // Compound V3 vehicle
+      depositTarget: { value: 2n ** 256n - 1n, threshold: 0n }, // unlimited
+      redeemTarget: { value: 0n, threshold: 0n },
+    },
+  ],
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
 ```
@@ -88,18 +93,21 @@ The symbol of the MultiVehicle token.
 
 The initial deposit amount.
 
-### factories
+### vehicles
 
-- **Type:** `object`
+- **Type:** `VehicleEntry[]`
 
-An object containing the addresses of the required factories:
-- `eacFactory`: `Address`
-- `multiVehicleFactory`: `Address`
-### vehicle
+Array of vehicles to authorize and configure. Each entry specifies the vehicle address and its queue targets:
 
-- **Type:** `Address`
+```ts
+type VehicleEntry = {
+  address: Address
+  depositTarget: { value: bigint; threshold: bigint }
+  redeemTarget: { value: bigint; threshold: bigint }
+}
+```
 
-The address of an already-deployed vehicle contract (e.g. an Aave V3 vehicle).
+Set `value: 2n ** 256n - 1n` for unlimited targets. Set `value: 0n` for zero targets (drain first on redeem).
 
 ### adminAddress (optional)
 

@@ -22,19 +22,12 @@ export async function getConduitPosition<chain extends Chain | undefined>(
 ): Promise<GetConduitPositionReturnType> {
   const { conduit, account } = parameters
 
-  const [shares, asset] = await Promise.all([
-    readContract(client, {
-      address: conduit,
-      abi: conduitAbi,
-      functionName: 'balanceOf',
-      args: [account],
-    }),
-    readContract(client, {
-      address: conduit,
-      abi: conduitAbi,
-      functionName: 'asset',
-    }),
-  ])
+  const shares = await readContract(client, {
+    address: conduit,
+    abi: conduitAbi,
+    functionName: 'balanceOf',
+    args: [account],
+  })
 
   let assets = 0n
   if (shares > 0n) {
@@ -42,7 +35,7 @@ export async function getConduitPosition<chain extends Chain | undefined>(
       address: conduit,
       abi: conduitAbi,
       functionName: 'convert',
-      args: [[{ asset, value: shares }], true],
+      args: [[{ asset: conduit, value: shares }], true],
     })
     assets = converted[0]?.value ?? 0n
   }

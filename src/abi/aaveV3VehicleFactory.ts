@@ -22,8 +22,41 @@ export const aaveV3VehicleFactoryAbi = [
         type: 'uint256',
         internalType: 'uint256',
       },
+      {
+        name: 'previousFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+      {
+        name: 'feeManagerFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+      {
+        name: 'modulesManagerFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+      {
+        name: 'accessControlFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
     ],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'ACCESS_CONTROL_FACTORY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+    ],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -47,6 +80,32 @@ export const aaveV3VehicleFactoryAbi = [
         name: '',
         type: 'address',
         internalType: 'contract CoreFactory',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'FEE_MANAGER_FACTORY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'MODULES_MANAGER_FACTORY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract FactoryBase',
       },
     ],
     stateMutability: 'view',
@@ -132,6 +191,25 @@ export const aaveV3VehicleFactoryAbi = [
   },
   {
     type: 'function',
+    name: 'isDeployedBy',
+    inputs: [
+      {
+        name: 'addr',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'isDeprecated',
     inputs: [],
     outputs: [
@@ -139,6 +217,19 @@ export const aaveV3VehicleFactoryAbi = [
         name: '',
         type: 'bool',
         internalType: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'previousFactory',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract FactoryBase',
       },
     ],
     stateMutability: 'view',
@@ -257,6 +348,19 @@ export const aaveV3VehicleFactoryAbi = [
         type: 'address',
         indexed: false,
         internalType: 'contract CoreFactory',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'DeploymentRegistered',
+    inputs: [
+      {
+        name: 'deployed',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
       },
     ],
     anonymous: false,
@@ -474,6 +578,22 @@ export const aaveV3VehicleFactoryAbi = [
       },
       {
         name: 'caller',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'NotDeployedByFactory',
+    inputs: [
+      {
+        name: 'factory',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'addr',
         type: 'address',
         internalType: 'address',
       },

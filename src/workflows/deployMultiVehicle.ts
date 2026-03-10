@@ -17,19 +17,22 @@ import {
   MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION,
   VEHICLE_STEAM,
 } from '../constants/roles.js'
+import { getAddresses } from '../contracts/chains.js'
 import type { MultiVehicleContracts } from '../utils/receipt.js'
+
+export type VehicleEntry = {
+  address: Address
+  depositTarget: { value: bigint; threshold: bigint }
+  redeemTarget: { value: bigint; threshold: bigint }
+}
 
 export type DeployMultiVehicleParameters = {
   asset: Address
   name: string
   symbol: string
   initialDepositAmount: bigint
-  vehicle: Address
+  vehicles: VehicleEntry[]
   adminAddress?: Address
-  factories: {
-    eacFactory: Address
-    multiVehicleFactory: Address
-  }
   initialExpectedSupply?: bigint
   feeManager?: Address
   modulesManager?: Address
@@ -45,12 +48,16 @@ export async function deployMultiVehicle(
   walletClient: WalletClient<Transport, Chain>,
   parameters: DeployMultiVehicleParameters & { account: Address },
 ): Promise<DeployMultiVehicleResult> {
+  const chain = walletClient.chain
+  if (!chain) throw new Error('WalletClient must have a chain configured')
+  const { eacFactory, multiVehicleFactory } = getAddresses(chain.id)
+
   const transactionHashes: Hash[] = []
   const adminAddress = parameters.adminAddress ?? parameters.account
   const initialExpectedSupply = parameters.initialExpectedSupply ?? 10n ** 18n
 
   const eacResult = await spawnAccessControl(walletClient, {
-    factory: parameters.factories.eacFactory,
+    factory: eacFactory,
     initialDefaultAdmin: adminAddress,
     initialDelay: 0,
     initialRoles: [],
@@ -62,7 +69,7 @@ export async function deployMultiVehicle(
     address: parameters.asset,
     abi: erc20Abi,
     functionName: 'approve',
-    args: [parameters.factories.multiVehicleFactory, parameters.initialDepositAmount],
+    args: [multiVehicleFactory, parameters.initialDepositAmount],
     account: parameters.account,
     chain: walletClient.chain,
   })
@@ -73,7 +80,7 @@ export async function deployMultiVehicle(
   transactionHashes.push(approveMvHash)
 
   const mvSpawnParams: Parameters<typeof spawnMultiVehicle>[1] = {
-    factory: parameters.factories.multiVehicleFactory,
+    factory: multiVehicleFactory,
     asset: parameters.asset,
     name: parameters.name,
     symbol: parameters.symbol,
@@ -95,7 +102,7 @@ export async function deployMultiVehicle(
     await grantScopedRole(walletClient, {
       accessControl: eacResult.accessControlAddress,
       role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION,
-      scope: mvResult.contracts.sectorAccountingEngine,
+      scope: mvResult.contracts.vehicleRegistry,
       grantee: adminAddress,
       account: parameters.account,
     }),
@@ -111,49 +118,57 @@ export async function deployMultiVehicle(
     }),
   )
 
-  transactionHashes.push(
-    await grantScopedRole(walletClient, {
-      accessControl: eacResult.accessControlAddress,
-      role: VEHICLE_STEAM,
-      scope: parameters.vehicle,
-      grantee: mvResult.contracts.multiVehicle,
-      account: parameters.account,
-    }),
-  )
+  for (const vehicle of parameters.vehicles) {
+    transactionHashes.push(
+      await grantScopedRole(walletClient, {
+        accessControl: eacResult.accessControlAddress,
+        role: VEHICLE_STEAM,
+        scope: vehicle.address,
+        grantee: mvResult.contracts.multiVehicle,
+        account: parameters.account,
+      }),
+    )
 
-  transactionHashes.push(
-    await grantScopedRole(walletClient, {
-      accessControl: eacResult.accessControlAddress,
-      role: VEHICLE_STEAM,
-      scope: parameters.vehicle,
-      grantee: mvResult.contracts.sectorAccountingEngine,
-      account: parameters.account,
-    }),
-  )
+    transactionHashes.push(
+      await grantScopedRole(walletClient, {
+        accessControl: eacResult.accessControlAddress,
+        role: VEHICLE_STEAM,
+        scope: vehicle.address,
+        grantee: mvResult.contracts.sectorAccountingEngine,
+        account: parameters.account,
+      }),
+    )
 
-  transactionHashes.push(
-    await grantScopedRole(walletClient, {
-      accessControl: eacResult.accessControlAddress,
-      role: VEHICLE_STEAM,
-      scope: parameters.vehicle,
-      grantee: mvResult.contracts.subQueryEngine,
-      account: parameters.account,
-    }),
-  )
+    transactionHashes.push(
+      await grantScopedRole(walletClient, {
+        accessControl: eacResult.accessControlAddress,
+        role: VEHICLE_STEAM,
+        scope: vehicle.address,
+        grantee: mvResult.contracts.subQueryEngine,
+        account: parameters.account,
+      }),
+    )
 
-  transactionHashes.push(
-    await authorizeVehicle(walletClient, {
-      vehicleRegistry: mvResult.contracts.vehicleRegistry,
-      vehicle: parameters.vehicle,
-      account: parameters.account,
-    }),
-  )
+    transactionHashes.push(
+      await authorizeVehicle(walletClient, {
+        vehicleRegistry: mvResult.contracts.vehicleRegistry,
+        vehicle: vehicle.address,
+        account: parameters.account,
+      }),
+    )
+  }
 
   transactionHashes.push(
     await setQueues(walletClient, {
       queueStrategyEngine: mvResult.contracts.queueStrategyEngine,
-      depositQueue: [{ vehicle: parameters.vehicle, target: { value: 10n ** 27n, threshold: 0n } }],
-      redeemQueue: [{ vehicle: parameters.vehicle, target: { value: 0n, threshold: 0n } }],
+      depositQueue: parameters.vehicles.map((v) => ({
+        vehicle: v.address,
+        target: v.depositTarget,
+      })),
+      redeemQueue: parameters.vehicles.map((v) => ({
+        vehicle: v.address,
+        target: v.redeemTarget,
+      })),
       account: parameters.account,
     }),
   )

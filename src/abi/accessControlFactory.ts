@@ -3,6 +3,11 @@ export const accessControlFactoryAbi = [
     type: 'constructor',
     inputs: [
       {
+        name: 'previousFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+      {
         name: 'coreFactory',
         type: 'address',
         internalType: 'contract CoreFactory',
@@ -78,6 +83,51 @@ export const accessControlFactoryAbi = [
   },
   {
     type: 'function',
+    name: 'isDeployedBy',
+    inputs: [
+      {
+        name: 'addr',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'isDeprecated',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+        internalType: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'previousFactory',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'spawn',
     inputs: [
       {
@@ -144,6 +194,19 @@ export const accessControlFactoryAbi = [
   },
   {
     type: 'event',
+    name: 'DeploymentRegistered',
+    inputs: [
+      {
+        name: 'deployed',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'SpawnedExternalAccessControl',
     inputs: [
       {
@@ -194,6 +257,11 @@ export const accessControlFactoryAbi = [
       },
     ],
     anonymous: false,
+  },
+  {
+    type: 'error',
+    name: 'FactoryDeprecated',
+    inputs: [],
   },
   {
     type: 'error',

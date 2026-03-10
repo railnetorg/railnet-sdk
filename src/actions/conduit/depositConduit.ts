@@ -49,8 +49,8 @@ export async function depositConduit(
   }
 
   const query = {
-    owner: account,
-    receiver,
+    owner: conduit,
+    receiver: conduit,
     input: [{ asset: token, value: amount }],
     output: [],
     mode: ConduitMode.DEPOSIT,
