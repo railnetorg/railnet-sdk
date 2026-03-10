@@ -1,0 +1,753 @@
+# Protocole Railnet — Vue d'ensemble technique complète
+
+## 1. C'est quoi Railnet ?
+
+Railnet est une **infrastructure DeFi de niveau institutionnel** pour la gestion d'actifs. C'est une manière standardisée de se brancher sur n'importe quelle source de rendement DeFi (Aave, Compound, Morpho, Ethena, vaults ERC4626, Syrup/Maple) via une interface unifiée, puis de composer ces sources en stratégies gérées avec frais, conformité et automatisation.
+
+**L'analogie** : Si les protocoles DeFi sont des gares, Railnet est le réseau ferroviaire. Les Vehicles sont les trains qui vont vers des gares spécifiques. Les Conduits sont les guichets où les passagers montent à bord.
+
+---
+
+## 2. Le Standard STEAM — L'abstraction centrale
+
+Tout dans Railnet est construit sur **STEAM** (State Transition Engine for Asset Management — Moteur de Transitions d'État pour la Gestion d'Actifs). Il remplace le modèle simple "dépose et récupère des tokens" d'ERC-4626 par une **machine à états** qui suit chaque opération individuellement.
+
+### Pourquoi pas juste ERC-4626 ?
+
+ERC-4626 suppose des opérations synchrones : tu déposes, tu reçois instantanément des parts. Mais beaucoup d'opérations DeFi réelles sont **asynchrones** :
+- Ethena a des périodes de cooldown (tu demandes le unstaking, tu attends 7 jours, puis tu récupères)
+- Syrup/Maple a des files d'attente de retrait (le gestionnaire de pool traite par lots)
+- Le rééquilibrage multi-stratégie nécessite plusieurs étapes cross-protocoles
+
+STEAM gère les deux — sync et async — dans une seule interface.
+
+### La Query — L'unité de travail de STEAM
+
+Chaque opération (dépôt ou rachat) est une **Query** :
+
+```typescript
+// À quoi ressemble une Query (représentation TypeScript)
+{
+  owner: "0xConduit...",    // Qui a créé la query (toujours le Conduit dans les flux utilisateur)
+  receiver: "0xConduit...", // Qui reçoit la sortie (toujours le Conduit)
+  mode: 0,                 // 0 = DEPOSIT, 1 = REDEEM
+  input: [                 // Ce qui ENTRE
+    { asset: "0xUSDC...", value: 1000000n }  // 1 USDC (6 décimales)
+  ],
+  output: [],              // Ce qui SORT (souvent laissé vide, le vehicle décide)
+  salt: "0xabc123...",     // Nonce unique (pour que deux dépôts identiques aient des IDs différents)
+  data: "0x"              // Données supplémentaires spécifiques au vehicle (généralement vide)
+}
+```
+
+**ID de Query** = `keccak256(chainId, vehicleAddress, query)` — déterministe, calculable off-chain.
+
+### La Machine à États
+
+Chaque Query passe par ces états :
+
+```
+EMPTY → create() → PROCESSING ou UNLOCKING
+                        │                │
+                        ▼                ▼
+                    WAITING          unlock() → SETTLED ✓
+                        │                │
+                    resume()         (partiel) → PROCESSING
+                        │
+                        ▼
+                   PROCESSING → (succès) → UNLOCKING
+                        │
+                   (échec) → RECOVERING → recover() → REJECTED ✗
+```
+
+**Pour les vehicles sync** (Aave, Compound, ERC4626) : `EMPTY → UNLOCKING → SETTLED` en une seule tx. Ultra simple.
+
+**Pour les vehicles async** (Ethena avec cooldown) : `EMPTY → PROCESSING → (attente du cooldown) → UNLOCKING → SETTLED`. Un bot Keeper surveille et fait avancer l'état.
+
+**Exemple de timeline pour un rachat Ethena avec cooldown de 7 jours** :
+1. L'utilisateur appelle `create()` → état = `PROCESSING`, le cooldown démarre
+2. Jours 1-7 : La Query reste en `PROCESSING`, le Keeper interroge `state()` à chaque bloc
+3. Jour 7 : `state()` retourne `UNLOCKING` (cooldown expiré)
+4. Le Keeper appelle `unlock()` → état = `SETTLED`, l'utilisateur récupère ses USDe
+
+---
+
+## 3. Le Millefeuille — Architecture de bas en haut
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    UTILISATEUR (toi)                      │
+│              dépose des USDC, reçoit des parts           │
+├─────────────────────────────────────────────────────────┤
+│                      CONDUIT                             │
+│         Parts ERC20 + frais + conformité                 │
+│    (AccountList, OwnerRegistry, FeeManager)              │
+├─────────────────────────────────────────────────────────┤
+│                   MULTI VEHICLE                          │
+│        Méta-stratégie orchestrant les sous-vehicles      │
+│   (SectorAccountingEngine, QueueStrategyEngine,          │
+│    SubQueryEngine, QueryRedeemQueue, VehicleRegistry)    │
+├─────────────────────────────────────────────────────────┤
+│                    VEHICLES                               │
+│     Implémentations STEAM spécifiques aux protocoles     │
+│  ┌──────┐ ┌────────┐ ┌───────┐ ┌───────┐ ┌──────────┐  │
+│  │AaveV3│ │Compound│ │Morpho │ │Ethena │ │ERC4626   │  │
+│  │      │ │V3      │ │Blue   │ │       │ │(généric) │  │
+│  └──────┘ └────────┘ └───────┘ └───────┘ └──────────┘  │
+├─────────────────────────────────────────────────────────┤
+│             PROTOCOLES DeFi SOUS-JACENTS                 │
+│        Pools Aave, marchés Compound, etc.                │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 4. Les Vehicles — Intégrations de protocoles
+
+Un Vehicle est un smart contract qui implémente `IVehicle` (l'interface STEAM) pour un protocole DeFi spécifique. C'est aussi un **token ERC20** — les parts du vehicle (vehicle shares).
+
+### Vehicles disponibles
+
+| Vehicle | Protocole | Sync/Async | Ce qu'il fait |
+|---------|----------|------------|-------------|
+| **AaveV3Vehicle** | Aave V3 | Sync/Sync | Dépose l'actif sous-jacent → pool Aave → gagne du rendement aToken |
+| **CompoundV3Vehicle** | Compound V3 | Sync/Sync | Dépose l'actif → marché Compound → gagne le taux d'intérêt |
+| **MorphoBlueVehicle** | Morpho Blue | Sync/Sync | Dépose dans les marchés Morpho Blue |
+| **ERC4626Vehicle** | N'importe quel vault ERC4626 | Sync/Sync | Wrapper générique pour tout vault compatible ERC4626 |
+| **EthenaVehicle** | Ethena (sUSDe) | Sync/**Async** | Dépose USDe → stake en sUSDe. Les rachats peuvent nécessiter un cooldown |
+| **SyrupVehicle** | Maple/Syrup | Sync/**Async** | Dépose dans les pools Syrup. Rachats via file d'attente |
+| **WrapperVehicle** | Wrappe un autre Vehicle | Sync/variable | Enveloppe un vehicle existant avec de la logique additionnelle |
+| **MultiVehicle** | Méta-agrégateur | Sync/**Async** | Orchestre plusieurs sous-vehicles (voir section 6) |
+
+### Exemple de Vehicle — Dépôt Aave V3
+
+Ce qui se passe quand tu déposes 1000 USDC dans un AaveV3Vehicle :
+
+```
+1. create(query) est appelé
+   - Le Vehicle valide : l'input est de l'USDC ✓, le montant > 0 ✓
+   - Le Vehicle fait : USDC.transferFrom(expéditeur, vehicle, 1000)
+   - Le Vehicle fait : USDC.approve(aavePool, 1000)
+   - Le Vehicle fait : aavePool.supply(USDC, 1000, vehicle, 0)
+   - Le Vehicle reçoit : ~1000 aUSDC (qui génère du rendement)
+   - Le Vehicle mint : des vehicleShares pour lui-même
+   - État → UNLOCKING
+
+2. unlock(query) est appelé
+   - Le Vehicle transfère : vehicleShares du vehicle → receveur
+   - État → SETTLED
+```
+
+Les parts du vehicle représentent une propriété proportionnelle du solde croissant d'aTokens. Au fur et à mesure qu'Aave accumule des intérêts, le solde aToken augmente, donc chaque part de vehicle vaut plus d'USDC au fil du temps.
+
+### Prix de la Part du Vehicle
+
+```
+prixDePart = totalAssets / totalSupply
+
+Exemple :
+  - Le Vehicle détient 10 500 aUSDC (a commencé avec 10 000, gagné 500 d'intérêts)
+  - totalSupply = 10 000 parts
+  - prixDePart = 10 500 / 10 000 = 1,05 USDC par part
+```
+
+### Méthodes clés du Vehicle (pour les développeurs SDK)
+
+| Méthode | Type | Rôle |
+|---------|------|------|
+| `create(query)` | Écriture | Démarrer un dépôt ou un rachat |
+| `unlock(query)` | Écriture | Réclamer la sortie après succès |
+| `resume(query)` | Écriture | Reprendre depuis l'état WAITING |
+| `recover(query)` | Écriture | Récupérer les actifs après un échec |
+| `state(query)` | Lecture | Vérifier l'état actuel d'une query |
+| `estimate(assets, mode, type)` | Lecture | Prévisualiser ce que tu obtiendrais (frais inclus) |
+| `convert(assets, sharesToAssets)` | Lecture | Conversion pure parts↔actifs (sans frais) |
+| `asset()` | Lecture | L'actif ERC20 de base (ex : USDC) |
+| `totalAssets()` | Lecture | Valeur totale sous gestion |
+| `maxDeposit(account)` | Lecture | Dépôt maximum autorisé |
+| `maxRedeem(account)` | Lecture | Parts maximum rachetables |
+| `ready()` | Lecture | Le vehicle est-il opérationnel ? |
+| `routes()` | Lecture | Routes d'actifs supportées en dépôt/rachat |
+
+---
+
+## 5. Les Conduits — La couche face à l'utilisateur
+
+Les utilisateurs finaux **n'interagissent jamais directement avec les Vehicles**. Ils interagissent avec les **Conduits**.
+
+Un Conduit c'est :
+- Un **token ERC20** (parts de conduit)
+- Un **wrapper** autour d'un Vehicle
+- Un **gestionnaire de queries STEAM** qui gère toute la complexité de la machine à états
+- Une **couche de conformité** (AccountList, OwnerRegistry, FeeManager optionnels)
+
+### Pourquoi les Conduits ?
+
+Les Vehicles sont des primitives de niveau protocole. Ils nécessitent de construire des structures Query, de gérer les transitions d'état, et de gérer plusieurs transactions. Les Conduits abstraient tout ça :
+
+```
+Sans Conduit (interaction brute avec le Vehicle) :
+  1. Construire la structure Query avec les bons owner/receiver/salt/mode/input/output
+  2. Appeler vehicle.create(query) → obtenir l'État
+  3. Si async : interroger state(), attendre UNLOCKING
+  4. Appeler vehicle.unlock(query) → obtenir les actifs
+
+Avec Conduit :
+  1. conduit.create(query, receiver) → terminé (il traite automatiquement quand possible)
+  ou encore plus simple avec le SDK :
+  1. depositConduit({ conduit, token, amount }) → un seul appel de fonction
+```
+
+### Parts de Conduit vs Parts de Vehicle
+
+**Deux couches de parts**, mais les utilisateurs ne voient que les parts de conduit :
+
+```
+L'utilisateur a 100 USDC
+  ↓ dépose dans le Conduit
+L'utilisateur reçoit 100 parts de conduit (cUSDC)
+  ↓ Le Conduit dépose en interne dans le Vehicle
+Le Conduit détient 100 parts de vehicle (vUSDC)
+
+Taux de change :
+  parts conduit → parts vehicle → actifs sous-jacents
+  100 cUSDC → 100 vUSDC → 100 USDC (au lancement, 1:1:1)
+
+Après accumulation de rendement :
+  100 cUSDC → 100 vUSDC → 105 USDC
+  Chaque part de conduit vaut maintenant 1,05 USDC
+```
+
+### Flux de dépôt dans un Conduit (perspective SDK)
+
+```typescript
+// Ce que depositConduit() fait sous le capot :
+
+// 1. Vérifier l'allowance, approuver si nécessaire
+const allowance = await erc20.allowance(account, conduit)
+if (allowance < amount) {
+  await erc20.approve(conduit, amount)
+}
+
+// 2. Construire la Query (owner & receiver DOIVENT être le conduit)
+const query = {
+  owner: conduit,        // Toujours le conduit
+  receiver: conduit,     // Toujours le conduit
+  mode: 0,               // DEPOSIT
+  input: [{ asset: usdcAddress, value: amount }],
+  output: [],
+  salt: keccak256(...),  // Unique par dépôt
+  data: "0x"
+}
+
+// 3. Appeler conduit.create(query, userAddress)
+//    - Le Conduit tire les USDC de l'utilisateur
+//    - Le Conduit dépose dans le Vehicle
+//    - Le Conduit mint des parts de conduit pour l'utilisateur (paramètre receiver)
+//    - Si vehicle sync : tout se règle dans cette seule tx
+```
+
+### Flux de rachat dans un Conduit
+
+```typescript
+// Ce que redeemConduit() fait sous le capot :
+
+// 1. Approuver le conduit pour dépenser tes parts de conduit
+await conduit.approve(conduit, shares)
+
+// 2. Appeler createRedeemFromConduitShares(shares, outputAssets, salt, receiver)
+//    - Le Conduit brûle tes parts de conduit
+//    - Convertit en parts de vehicle équivalentes
+//    - Crée une query REDEEM sur le Vehicle
+//    - Si sync : tu récupères les USDC dans la même tx
+//    - Si async : la query reste en PROCESSING, tu appelles process() plus tard
+```
+
+### Flux de traitement du Conduit (pour les vehicles async)
+
+Quand le vehicle sous-jacent est async (ex : Ethena), le dépôt ou le rachat ne se règle pas immédiatement :
+
+```typescript
+// Après avoir créé un rachat async, la query est en état PROCESSING
+// Plus tard, quand le cooldown expire :
+
+await processConduitQuery({
+  conduit: "0x...",
+  query: { /* la structure query originale */ }
+})
+// Ça appelle conduit.process(query) qui :
+//   1. Vérifie vehicle.state(query) → si UNLOCKING, appelle vehicle.unlock()
+//   2. Applique les frais
+//   3. Distribue les actifs de sortie au receveur
+```
+
+### Modules du Conduit
+
+| Module | Rôle | Exemple |
+|--------|------|---------|
+| **FeeManager** | Collecte les frais sur les opérations | 2% de frais de gestion, 20% de frais de performance, 0,1% de frais de dépôt |
+| **AccountList** | Liste blanche/noire pour le contrôle d'accès | Seules les adresses KYC peuvent déposer |
+| **OwnerRegistry** | Propriété de query basée sur des NFT | Wrapper des queries async en attente en NFT ERC-721 échangeables |
+
+### Modes de transfert
+
+Chaque Conduit a une politique de transfert pour ses parts ERC20 :
+
+| Mode | Comportement |
+|------|-------------|
+| `ALLOW_TRANSFER` | N'importe qui peut transférer les parts de conduit librement |
+| `ACCOUNT_LIST` | Seules les adresses dans l'AccountList peuvent envoyer/recevoir |
+| `BLOCK_TRANSFER` | Pas de transferts — seulement mint (dépôt) et burn (rachat) |
+
+### OwnerRegistry — NFT de Query
+
+Quand un utilisateur a une query async (ex : un rachat en attente du cooldown Ethena), il peut la **wrapper** en NFT ERC-721 :
+
+```typescript
+// L'utilisateur a une query de rachat en attente (état PROCESSING)
+// Il veut vendre son "droit de réclamation" à quelqu'un d'autre
+
+// 1. Wrapper la query en NFT
+ownerRegistry.wrap(conduitAddress, queryId)
+// → Mint un ERC-721 pour l'utilisateur
+
+// 2. Transférer le NFT (sur OpenSea, ou transfert direct)
+ownerRegistry.transferFrom(utilisateur, acheteur, tokenId)
+
+// 3. Maintenant l'acheteur possède la query et recevra les USDC quand elle se règle
+```
+
+---
+
+## 6. Le MultiVehicle — Le moteur de méta-stratégie
+
+C'est la partie la plus complexe. Un MultiVehicle est lui-même un Vehicle STEAM, mais au lieu de se connecter à un seul protocole, il **orchestre plusieurs sous-vehicles**.
+
+### Cas d'usage
+
+Un gestionnaire d'actifs veut gérer un fonds "Rendement USDC Diversifié" :
+- 40% dans Aave V3 (sûr, rendement plus faible)
+- 40% dans Morpho Blue (risque moyen, rendement plus élevé)
+- 20% dans Compound V3 (diversification)
+
+Le MultiVehicle gère tout ça automatiquement.
+
+### Architecture — 5 composants
+
+```
+┌──────────────────────────────────────────────────┐
+│                 MULTI VEHICLE                     │
+│  Interface STEAM face à l'utilisateur            │
+│  create() / unlock() / state()                   │
+├──────────────────────────────────────────────────┤
+│           SECTOR ACCOUNTING ENGINE                │
+│  Comptable central — suit les actifs par secteur │
+│  deposit() / withdraw() / moveAssets()           │
+│  rebalance() / dispatch()                        │
+├──────────────────────────────────────────────────┤
+│  QUEUE STRATEGY      │     SUB QUERY ENGINE      │
+│  ENGINE              │  Gère les queries STEAM    │
+│  Logique             │  vers les sous-vehicles    │
+│  d'allocation        │  progressQuery()           │
+│  setQueues()         │  createSubQuery()          │
+│  allocate()          │                            │
+│  unallocate()        │                            │
+├──────────────────────┼───────────────────────────┤
+│           QUERY REDEEM QUEUE                      │
+│  File FIFO pour les rachats async                │
+│  Quand il n'y a pas assez de liquidité pour      │
+│  racheter immédiatement                          │
+├──────────────────────────────────────────────────┤
+│  VEHICLE REGISTRY                                 │
+│  Quels sous-vehicles sont autorisés              │
+│  Mode (Automatique/Manuel) + Plafond par vehicle │
+└──────────────────────────────────────────────────┘
+```
+
+### Comptabilité par secteurs — Comment les actifs sont suivis
+
+Le SectorAccountingEngine utilise des **secteurs** (pense à des seaux étiquetés) :
+
+```
+Secteur DEPOSIT :     USDC en attente d'être alloués aux sous-vehicles
+Secteur ALLOCATION :  Parts de sous-vehicles qui ont été déposées avec succès
+Secteur REDEEM :      USDC qui ont été rachetés des sous-vehicles, prêts à retirer
+Secteurs Vehicle :    Zones de transit par vehicle (actifs/parts en attente de création de query)
+```
+
+**Exemple de flux** — L'utilisateur dépose 10 000 USDC :
+
+```
+Étape 1 : L'utilisateur dépose
+  Secteur DEPOSIT : +10 000 USDC
+
+Étape 2 : Le moteur de stratégie alloue (selon la config des files)
+  Secteur DEPOSIT : -6 000 USDC
+  Secteur vehicle Aave : +4 000 USDC
+  Secteur vehicle Morpho : +4 000 USDC
+  Secteur vehicle Compound : +2 000 USDC
+  (DEPOSIT garde 4 000 USDC jusqu'au dispatch)
+
+Étape 3 : Le dispatch crée des sous-queries
+  Secteur vehicle Aave : -4 000 USDC → SubQueryEngine crée une query de dépôt sur AaveV3Vehicle
+  Secteur ALLOCATION : +3 980 aaveShares (après taux de change)
+  (répété pour chaque vehicle)
+
+Étape 4 : totalAssets() = solde DEPOSIT + solde REDEEM + Σ(vehicleShares × prixDePart)
+```
+
+### Files de stratégie
+
+Le QueueStrategyEngine a deux files :
+
+**File de dépôt** (priorité d'allocation) :
+```typescript
+[
+  { vehicle: aaveVehicle, target: { value: 5000e18, threshold: 100e18 } },
+  // "Remplir Aave jusqu'à 5000 parts d'abord (±100 de tolérance)"
+  
+  { vehicle: morphoVehicle, target: unlimited() },
+  // "Puis déverser tout le reste dans Morpho"
+]
+```
+
+**File de rachat** (priorité de désallocation) :
+```typescript
+[
+  { vehicle: morphoVehicle, target: { value: 0, threshold: 0 } },
+  // "Vider Morpho en premier lors des rachats"
+  
+  { vehicle: aaveVehicle, target: { value: 0, threshold: 0 } },
+  // "Puis vider Aave"
+]
+```
+
+### Flux de dépôt MultiVehicle
+
+```
+L'utilisateur dépose 1000 USDC → MultiVehicle.create(depositQuery)
+
+1. Le MultiVehicle reçoit 1000 USDC
+2. Mint des parts MV pour lui-même (basé sur le taux de change actuel)
+3. État → UNLOCKING (les dépôts sont toujours sync pour l'utilisateur)
+4. L'utilisateur appelle unlock() → reçoit les parts MV
+
+En arrière-plan (async, déclenché par l'allocation) :
+5. AccountingEngine.deposit(1000, allocate=true)
+6. StrategyEngine.allocate(1000) → "mettre 1000 dans Aave" (selon la file)
+7. Déplacer 1000 USDC de DEPOSIT → secteur vehicle Aave
+8. dispatch(aaveVehicle) → crée une sous-query : déposer 1000 USDC dans AaveV3Vehicle
+9. AaveV3Vehicle.create() → UNLOCKING → unlock() → SETTLED
+10. Les parts du vehicle Aave vont dans le secteur ALLOCATION
+```
+
+### Flux de rachat MultiVehicle
+
+**Rachat sync** (assez de liquidité dans le secteur REDEEM) :
+```
+L'utilisateur brûle 500 parts MV → reçoit 525 USDC instantanément
+```
+
+**Rachat async** (pas assez de liquidité) :
+```
+1. L'utilisateur brûle 500 parts MV → seulement 200 USDC disponibles
+2. L'utilisateur reçoit 200 USDC immédiatement (partiel)
+3. Les 300 USDC restants vont dans la QueryRedeemQueue comme une "demande"
+4. État → PROCESSING (l'utilisateur attend)
+5. Le gestionnaire d'actifs ou le Keeper appelle feedQueryRedeemQueue()
+6. Le système désalloue depuis les sous-vehicles pour obtenir les 300 USDC
+7. La file satisfait la demande
+8. L'état de la query de l'utilisateur → UNLOCKING
+9. L'utilisateur (ou le Keeper) appelle process/unlock → reçoit les 300 USDC restants
+```
+
+---
+
+## 7. Les Frais — Le FeeManager
+
+Le FeeManager est un contrat autonome qui gère quatre types de frais :
+
+| Frais | Comment ça marche | Exemple |
+|-------|-------------------|---------|
+| **Frais de gestion** | Annualisés, basés sur le temps, appliqués au total des actifs sous gestion | 2% par an → 0,0055% par jour |
+| **Frais de performance** | Appliqués aux gains au-dessus du high-water mark | 20% des nouveaux profits |
+| **Frais de dépôt** | % fixe déduit des paiements de dépôt | 0,1% du montant déposé |
+| **Frais de rachat** | % fixe déduit des paiements de rachat | 0,1% du montant racheté |
+
+**Comment les frais sont collectés** :
+1. À chaque opération, le Conduit appelle `feeManager.onOperations()` → les frais de gestion + performance sont calculés, mintés en parts de conduit pour le FeeManager
+2. Au règlement dépôt/rachat, `feeManager.applyFees()` → les frais de dépôt/rachat sont déduits de la sortie
+3. Le FeeManager accumule des parts de conduit
+4. Le gestionnaire d'actifs appelle `dispatchERC20()` → les parts sont distribuées aux destinataires des frais
+
+**Destinataires des frais** — les frais sont répartis :
+```typescript
+[
+  { target: "0xProtocolTreasury", shareBps: 5000 },  // 50% au protocole
+  { target: "0xAssetManager", shareBps: 5000 }   // 50% au gestionnaire de fonds
+]
+// shareBps doit totaliser 10 000 (100%)
+```
+
+**La configuration des frais a des plafonds max** — définis à l'initialisation, ne peuvent jamais être dépassés :
+```typescript
+maxFees = {
+  performanceFeeBps: 3000,  // Max 30%
+  managementFeeBps: 500,    // Max 5%
+  depositFeeBps: 100,       // Max 1%
+  redeemFeeBps: 100         // Max 1%
+}
+// setFees() ne peut définir que des valeurs ≤ ces maximums
+```
+
+---
+
+## 8. Contrôle d'accès — Le système RBAC
+
+Railnet utilise **ExternalAccessControl** — un seul contrat partagé qui gère les rôles à travers tous les composants du protocole.
+
+### Concept clé : Rôles avec portée (Scoped Roles)
+
+Les rôles ont une portée limitée à des contrats spécifiques :
+
+```typescript
+// Ceci accorde à Alice le rôle MULTI_VEHICLE_REBALANCE,
+// mais UNIQUEMENT sur le SectorAccountingEngine à 0xSAE...
+grantScopedRole({
+  accessControl: "0xEAC...",
+  role: MULTI_VEHICLE_REBALANCE,    // keccak256("MULTI_VEHICLE_REBALANCE")
+  scope: "0xSAE...",                // L'adresse du SectorAccountingEngine
+  grantee: "0xAlice..."
+})
+```
+
+Alice peut maintenant appeler `rebalance()` sur ce SectorAccountingEngine spécifique, mais pas sur un autre contrat.
+
+### Catégories de rôles
+
+| Catégorie | Rôles | Qui les détient typiquement |
+|-----------|-------|---------------------------|
+| **Factory** | `FACTORY_SPAWN`, `CONDUIT_SPAWN` | Déployeur du protocole |
+| **Beacon** | `BEACON_FREEZE`, `BEACON_PAUSE`, `BEACON_UPGRADE` | Admin du protocole (sécurité) |
+| **Vehicle** | `VEHICLE_STEAM`, `VEHICLE_SET_INTERCEPTIONS`, `VEHICLE_ALLOW` | Contrats Conduit, admin du protocole |
+| **FeeManager** | `FEE_MANAGER_SET_FEES`, `FEE_MANAGER_SET_FEE_RECIPIENTS`, `FEE_MANAGER_DISPATCH_ERC20` | Gestionnaire d'actifs |
+| **MultiVehicle** | `MULTI_VEHICLE_REBALANCE`, `MULTI_VEHICLE_DISPATCH`, `MULTI_VEHICLE_MOVE_ASSETS`, etc. | Gestionnaire d'actifs, bots Keeper |
+| **AccountList** | `ACCOUNT_LIST_MANAGER` | Équipe conformité |
+| **Keeper** | `KEEPER_ON_REPORT` | Infrastructure Keeper |
+
+---
+
+## 9. Les Factories — Comment les choses sont déployées
+
+Tout est déployé via des contrats **Factory**. Les Factories :
+1. Déploient via CREATE2 (adresses déterministes, prévisibles avant le déploiement)
+2. Initialisent le contrat
+3. Effectuent un dépôt initial pour protéger contre les attaques d'inflation (parts mortes)
+
+### Factories disponibles
+
+| Factory | Déploie |
+|---------|---------|
+| `CoreFactory` | Registre central, déploie les beacons et proxies |
+| `ConduitFactory` | Conduits (inclut le dépôt initial + activation) |
+| `AaveV3VehicleFactory` | Instances AaveV3Vehicle |
+| `CompoundV3VehicleFactory` | Instances CompoundV3Vehicle |
+| `MorphoBlueVehicleFactory` | Instances MorphoBlueVehicle |
+| `ERC4626VehicleFactory` | Instances ERC4626Vehicle |
+| `EthenaVehicleFactory` | Instances EthenaVehicle |
+| `SyrupVehicleFactory` | Instances SyrupVehicle |
+| `WrapperVehicleFactory` | Instances WrapperVehicle |
+| `MultiVehicleFactory` | Tout l'écosystème MultiVehicle (5 contrats) |
+| `FeeManagerFactory` | Instances FeeManager |
+| `ModulesManagerFactory` | Instances ModulesManager |
+| `AccessControlFactory` | Instances ExternalAccessControl |
+| `AccountListFactory` | Instances AccountList |
+| `OwnerRegistryFactory` | Instances OwnerRegistry |
+
+### Protection anti-inflation
+
+Quand une factory déploie un vehicle ou un conduit, elle fait un dépôt initial et **brûle les parts** à `address(0xdead)`. Ça empêche l'attaque du "premier déposant" où quelqu'un pourrait manipuler le prix des parts.
+
+```
+Factory.spawn() :
+  1. Déployer le proxy → BeaconProxy(beacon)
+  2. Initialiser le contrat
+  3. Déposer initialDepositSize de l'actif de base
+  4. Brûler les parts résultantes (envoyées à 0xdead)
+  5. Activer le conduit (si applicable)
+```
+
+---
+
+## 10. Les Keepers — La couche d'automatisation
+
+Le système Keeper automatise les transitions d'état asynchrones. C'est un service off-chain qui :
+
+1. **Surveille** les queries actives via des appels `state()`
+2. **Déclenche** les transitions quand les conditions sont remplies (ex : cooldown expiré)
+3. **Rapporte** au contrat `Keeper` on-chain qui exécute les opérations par lots
+
+Le flux :
+```
+SubQueryEngine crée une query async → émet un événement KeeperLib.startJob
+    ↓
+Le Keeper off-chain récupère le job
+    ↓
+Le Keeper interroge subqueryStatus(subQuery, query) → retourne POLL ou EXEC
+    ↓
+Quand EXEC : le Keeper appelle progressQuery(subQuery, query)
+    ↓
+La Query avance dans les états STEAM
+    ↓
+Quand SETTLED/REJECTED : émet KeeperLib.stopJob/cancelJob
+```
+
+---
+
+## 11. L'exemple complet de bout en bout
+
+### Scénario : Fonds institutionnel de rendement USDC
+
+**Configuration** (fait une seule fois) :
+1. Déployer ExternalAccessControl
+2. Déployer AaveV3Vehicle (via factory)
+3. Déployer MorphoBlueVehicle (via factory)
+4. Déployer MultiVehicle (via factory → crée 5 contrats)
+5. Accorder les rôles (accès STEAM pour le conduit, rebalance pour le gestionnaire, etc.)
+6. Autoriser les deux sous-vehicles dans le VehicleRegistry
+7. Configurer les files d'allocation (60% Aave, 40% Morpho)
+8. Déployer le FeeManager (2% gestion, 20% performance)
+9. Déployer l'AccountList (liste blanche KYC)
+10. Déployer l'OwnerRegistry (pour les NFT de queries async)
+11. Déployer le Conduit wrappant le MultiVehicle (via factory)
+
+**Dépôt utilisateur final (Alice dépose 10 000 USDC)** :
+```
+1. Alice appelle le SDK : depositConduit({ conduit, token: USDC, amount: 10000e6 })
+2. Le SDK vérifie l'allowance → approuve le Conduit pour dépenser 10 000 USDC
+3. Le SDK construit la structure Query et appelle conduit.create(query, alice)
+4. Le Conduit :
+   a. Vérifie qu'Alice est dans l'AccountList ✓
+   b. Tire 10 000 USDC d'Alice
+   c. Mint les frais opérationnels pour le FeeManager (si du temps s'est écoulé depuis la dernière opération)
+   d. Approuve le Vehicle (MultiVehicle) pour dépenser les USDC
+   e. Appelle multiVehicle.create(depositQuery)
+   f. Le MultiVehicle dépose dans le SectorAccountingEngine
+   g. Le StrategyEngine alloue : 6 000 à Aave, 4 000 à Morpho
+   h. Le Dispatch crée des sous-queries sur les deux vehicles
+   i. État → UNLOCKING
+   j. Le Conduit traite automatiquement : appelle multiVehicle.unlock()
+   k. Récupère les parts MV
+   l. Applique les frais de dépôt (0,1%)
+   m. Convertit les parts MV → parts de conduit
+   n. Mint les parts de conduit pour Alice
+5. Alice détient maintenant des parts de conduit (ERC20)
+```
+
+**Rééquilibrage du gestionnaire d'actifs (déplacer 1000 parts d'Aave vers Morpho)** :
+```
+1. Le gestionnaire appelle le SDK : rebalanceMultiVehicle(aave, morpho, 1000e18)
+2. SectorAccountingEngine :
+   a. Déplace 1000 parts aave de ALLOCATION → secteur vehicle Aave
+   b. Crée une sous-query de rachat sur AaveV3Vehicle
+   c. AaveV3Vehicle rachète → récupère les USDC → SETTLED
+   d. Les USDC arrivent dans le secteur vehicle Morpho
+   e. Crée une sous-query de dépôt sur MorphoBlueVehicle
+   f. MorphoBlueVehicle dépose → obtient des parts morpho → SETTLED
+   g. Les parts Morpho vont dans le secteur ALLOCATION
+```
+
+**Rachat utilisateur final (Alice rachète tout)** :
+```
+1. Alice appelle le SDK : redeemConduit({ conduit, shares: aliceShares })
+2. Le SDK approuve le Conduit pour dépenser les parts d'Alice
+3. Le Conduit convertit les parts de conduit → parts de vehicle
+4. Crée une query REDEEM sur le MultiVehicle
+5. Le MultiVehicle vérifie : y a-t-il assez dans le secteur REDEEM ?
+   - Si oui : rachat instantané, Alice reçoit les USDC dans la même tx
+   - Si non : rachat partiel + demande en file d'attente
+6. Si en file : le Keeper/gestionnaire d'actifs appelle feedQueryRedeemQueue()
+7. Le système désalloue depuis les sous-vehicles
+8. La file satisfait la demande d'Alice
+9. Alice (ou le Keeper) appelle processConduitQuery() → reçoit les USDC restants
+```
+
+---
+
+## 12. Référence des structures de données clés
+
+### Adresses avec lesquelles tu travailleras (chaîne Base)
+
+Le SDK stocke ces infos dans `src/contracts/addresses.ts` :
+- Adresses des factories (conduit, vehicles, access control, etc.)
+- Adresse du EAC admin
+- Aave pool addresses provider
+- Adresse USDC
+
+### Constantes de rôles
+
+30 hachages `keccak256` pré-calculés dans `src/constants/roles.ts`, correspondant à `Roles.sol` :
+```typescript
+FACTORY_SPAWN = keccak256("FACTORY_SPAWN")
+VEHICLE_STEAM = keccak256("VEHICLE_STEAM")
+MULTI_VEHICLE_REBALANCE = keccak256("MULTI_VEHICLE_REBALANCE")
+// etc.
+```
+
+### Enums
+
+```typescript
+// Mode de query
+enum ConduitMode { DEPOSIT = 0, REDEEM = 1 }
+
+// Type d'estimation
+enum EstimationType { INPUT = 0, OUTPUT = 1 }
+
+// Mode de transfert (parts de conduit)
+enum TransferMode { ALLOW_TRANSFER = 0, ACCOUNT_LIST = 1, BLOCK_TRANSFER = 2 }
+
+// États STEAM (on-chain)
+enum State { EMPTY, PROCESSING, WAITING, UNLOCKING, RECOVERING, SETTLED, REJECTED }
+```
+
+---
+
+## 13. Résumé de l'architecture du SDK
+
+Le SDK reflète les couches du protocole :
+
+```
+railnet-sdk/
+├── abi/           # Copies 1:1 des ABI des contrats compilés
+├── actions/
+│   ├── conduit/     # Actions utilisateur final (deposit, redeem, estimate, info, position)
+│   ├── vehicle/     # Déploiement de vehicles (spawnAaveV3Vehicle)
+│   ├── multiVehicle/ # Setup MV (spawn, authorize, setQueues)
+│   └── accessControl/ # RBAC (spawn, grant, revoke)
+├── contracts/     # Adresses déployées par chaîne
+├── constants/     # Hachages de rôles
+├── workflows/     # Orchestrations multi-tx (deployMultiVehicle)
+├── react/         # Hooks React + wrappers TanStack Query
+├── decorator.ts   # Extension du client viem
+└── types.ts       # Types partagés
+```
+
+Chaque action suit ce pattern :
+- **Action de lecture** : `(client, params) → data` (utilise `readContract` / `multicall`)
+- **Action d'écriture** : `(walletClient, params & { account }) → Hash` (utilise `writeContract`)
+- **Action de spawn** : `(walletClient, params & { account }) → adresse déployée` (attend le reçu, extrait des événements)
+
+---
+
+## 14. Ce qu'il faut retenir
+
+1. **Les utilisateurs interagissent avec les Conduits, jamais directement avec les Vehicles**
+2. **Tout est une Query** — les dépôts et rachats sont suivis comme des opérations de machine à états
+3. **Les vehicles sync** (Aave, Compound, Morpho, ERC4626) se règlent en une seule tx
+4. **Les vehicles async** (Ethena, Syrup) nécessitent des Keepers pour faire avancer l'état
+5. **Le MultiVehicle** est un vehicle de vehicles — il gère l'allocation de stratégie automatiquement
+6. **Les frais** sont dans un contrat séparé (FeeManager), pas intégrés dans le vehicle
+7. **Le contrôle d'accès** est partagé (un seul EAC par déploiement), les rôles ont une portée limitée à des contrats spécifiques
+8. **Les Factories** déploient tout, avec une protection anti-inflation intégrée
+9. **Les IDs de Query** sont déterministes : `keccak256(chainId, vehicle, query)` — calculables off-chain
+10. **Parts de conduit ≠ Parts de vehicle** — deux couches, mais les utilisateurs ne voient que les parts de conduit
