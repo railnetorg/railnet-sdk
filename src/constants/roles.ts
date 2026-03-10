@@ -1,15 +1,5 @@
 import { keccak256, toHex } from 'viem'
 
-export const FACTORY_SPAWN = keccak256(toHex('FACTORY_SPAWN'))
-export const FACTORY_SET_DEPRECATED = keccak256(toHex('FACTORY_SET_DEPRECATED'))
-
-export const CONDUIT_SPAWN = keccak256(toHex('CONDUIT_SPAWN'))
-
-export const BEACON_FREEZE = keccak256(toHex('BEACON_FREEZE'))
-export const BEACON_PAUSE = keccak256(toHex('BEACON_PAUSE'))
-export const BEACON_UNPAUSE = keccak256(toHex('BEACON_UNPAUSE'))
-export const BEACON_UPGRADE = keccak256(toHex('BEACON_UPGRADE'))
-
 export const VEHICLE_STEAM = keccak256(toHex('VEHICLE_STEAM'))
 export const VEHICLE_SET_INTERCEPTIONS = keccak256(toHex('VEHICLE_SET_INTERCEPTIONS'))
 export const VEHICLE_ALLOW = keccak256(toHex('VEHICLE_ALLOW'))
@@ -40,14 +30,3 @@ export const MULTI_VEHICLE_PROGRESS_QUERY = keccak256(toHex('MULTI_VEHICLE_PROGR
 export const MULTI_VEHICLE_SET_THRESHOLDS = keccak256(toHex('MULTI_VEHICLE_SET_THRESHOLDS'))
 
 export const ACCOUNT_LIST_MANAGER = keccak256(toHex('ACCOUNT_LIST_MANAGER'))
-
-export const JOB_LISTING_REGISTER = keccak256(toHex('JOB_LISTING_REGISTER'))
-export const JOB_LISTING_UNREGISTER = keccak256(toHex('JOB_LISTING_UNREGISTER'))
-export const JOB_LISTING_EXECUTE = keccak256(toHex('JOB_LISTING_EXECUTE'))
-
-export const EXEC = keccak256(toHex('EXEC'))
-export const MODULE_MANAGER = keccak256(toHex('MODULE_MANAGER'))
-export const CANCEL_MODULE = keccak256(toHex('CANCEL_MODULE'))
-export const UPDATE_TIMELOCK = keccak256(toHex('UPDATE_TIMELOCK'))
-
-export const KEEPER_ON_REPORT = keccak256(toHex('KEEPER_ON_REPORT'))
