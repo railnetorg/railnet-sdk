@@ -5,11 +5,11 @@ import {
   type Hash,
   type Hex,
   keccak256,
+  type PublicClient,
   type Transport,
   toHex,
   type WalletClient,
 } from 'viem'
-import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import { ConduitMode } from './types.js'
 
@@ -22,6 +22,7 @@ export type DepositConduitParameters = {
 }
 
 export async function depositConduit(
+  publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: DepositConduitParameters & { account: Address },
 ): Promise<Hash> {
@@ -29,7 +30,7 @@ export async function depositConduit(
   const receiver = parameters.receiver ?? account
   const salt = parameters.salt ?? keccak256(toHex(`deposit-${account}-${Date.now()}`))
 
-  const allowance = await readContract(walletClient, {
+  const allowance = await publicClient.readContract({
     address: token,
     abi: erc20Abi,
     functionName: 'allowance',
@@ -37,15 +38,15 @@ export async function depositConduit(
   })
 
   if (allowance < amount) {
-    const approveHash = await walletClient.writeContract({
+    const { request: approveRequest } = await publicClient.simulateContract({
       address: token,
       abi: erc20Abi,
       functionName: 'approve',
       args: [conduit, amount],
       account,
-      chain: walletClient.chain,
     })
-    await waitForTransactionReceipt(walletClient, { hash: approveHash })
+    const approveHash = await walletClient.writeContract(approveRequest)
+    await publicClient.waitForTransactionReceipt({ hash: approveHash })
   }
 
   const query = {
@@ -58,12 +59,13 @@ export async function depositConduit(
     data: '0x' as const,
   }
 
-  return walletClient.writeContract({
+  const { request: depositRequest } = await publicClient.simulateContract({
     address: conduit,
     abi: conduitAbi,
     functionName: 'create',
     args: [query, receiver],
     account,
-    chain: walletClient.chain,
   })
+
+  return walletClient.writeContract(depositRequest)
 }
