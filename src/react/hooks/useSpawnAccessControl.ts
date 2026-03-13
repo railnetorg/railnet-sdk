@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query'
 import type { Address } from 'viem'
-import { useWalletClient } from 'wagmi'
+import { usePublicClient, useWalletClient } from 'wagmi'
 import type { SpawnAccessControlParameters } from '../../actions/accessControl/spawnAccessControl.js'
 import {
   type SpawnAccessControlReturnType,
@@ -10,6 +10,7 @@ import {
 } from '../../actions/accessControl/spawnAccessControl.js'
 
 export function useSpawnAccessControl() {
+  const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
 
   return useMutation<
@@ -18,8 +19,9 @@ export function useSpawnAccessControl() {
     SpawnAccessControlParameters & { account: Address }
   >({
     mutationFn: async (parameters) => {
+      if (!publicClient) throw new Error('Public client not available')
       if (!walletClient) throw new Error('Wallet not connected')
-      return spawnAccessControl(walletClient, parameters)
+      return spawnAccessControl(publicClient, walletClient, parameters)
     },
   })
 }

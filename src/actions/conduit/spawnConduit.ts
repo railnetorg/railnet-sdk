@@ -3,11 +3,11 @@ import {
   type Chain,
   type Hash,
   keccak256,
+  type PublicClient,
   type Transport,
   toHex,
   type WalletClient,
 } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
 import { conduitFactoryAbi } from '../../abi/conduitFactory.js'
 import { extractConduitDeployedAddress } from '../../utils/receipt.js'
 import type { SpawnConduitParameters } from './types.js'
@@ -18,6 +18,7 @@ export type SpawnConduitReturnType = {
 }
 
 export async function spawnConduit(
+  publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: SpawnConduitParameters & { account: Address },
 ): Promise<SpawnConduitReturnType> {
@@ -44,16 +45,16 @@ export async function spawnConduit(
     deploymentSalt,
   } as const
 
-  const hash = await walletClient.writeContract({
+  const { request } = await publicClient.simulateContract({
     address: parameters.factory,
     abi: conduitFactoryAbi,
     functionName: 'spawn',
     args: [spawnParams, salt],
     account: parameters.account,
-    chain: walletClient.chain,
   })
 
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
+  const hash = await walletClient.writeContract(request)
+  const receipt = await publicClient.waitForTransactionReceipt({ hash })
   const conduitAddress = extractConduitDeployedAddress(receipt, parameters.factory)
 
   if (!conduitAddress) {

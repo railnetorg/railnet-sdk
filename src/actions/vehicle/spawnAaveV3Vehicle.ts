@@ -4,12 +4,12 @@ import {
   type Hash,
   type Hex,
   keccak256,
+  type PublicClient,
   type Transport,
   toHex,
   type WalletClient,
   zeroAddress,
 } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
 import { aaveV3VehicleFactoryAbi } from '../../abi/aaveV3VehicleFactory.js'
 import { extractAaveV3VehicleAddress } from '../../utils/receipt.js'
 
@@ -32,6 +32,7 @@ export type SpawnAaveV3VehicleReturnType = {
 }
 
 export async function spawnAaveV3Vehicle(
+  publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: SpawnAaveV3VehicleParameters & { account: Address },
 ): Promise<SpawnAaveV3VehicleReturnType> {
@@ -40,7 +41,7 @@ export async function spawnAaveV3Vehicle(
   const deploymentSalt =
     parameters.deploymentSalt ?? keccak256(toHex(`aave-v3-vehicle-deploy-${now}`))
 
-  const hash = await walletClient.writeContract({
+  const { request } = await publicClient.simulateContract({
     address: parameters.factory,
     abi: aaveV3VehicleFactoryAbi,
     functionName: 'spawn',
@@ -58,10 +59,10 @@ export async function spawnAaveV3Vehicle(
       },
     ],
     account: parameters.account,
-    chain: walletClient.chain,
   })
 
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
+  const hash = await walletClient.writeContract(request)
+  const receipt = await publicClient.waitForTransactionReceipt({ hash })
   const vehicleAddress = extractAaveV3VehicleAddress(receipt, parameters.factory)
 
   if (!vehicleAddress) {

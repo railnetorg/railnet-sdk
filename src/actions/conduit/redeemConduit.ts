@@ -4,11 +4,11 @@ import {
   type Hash,
   type Hex,
   keccak256,
+  type PublicClient,
   type Transport,
   toHex,
   type WalletClient,
 } from 'viem'
-import { readContract, waitForTransactionReceipt } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { Asset } from './types.js'
 
@@ -21,6 +21,7 @@ export type RedeemConduitParameters = {
 }
 
 export async function redeemConduit(
+  publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: RedeemConduitParameters & { account: Address },
 ): Promise<Hash> {
@@ -29,7 +30,7 @@ export async function redeemConduit(
   const outputAssets = parameters.outputAssets ?? []
   const salt = parameters.salt ?? keccak256(toHex(`redeem-${account}-${Date.now()}`))
 
-  const allowance = await readContract(walletClient, {
+  const allowance = await publicClient.readContract({
     address: conduit,
     abi: conduitAbi,
     functionName: 'allowance',
@@ -37,23 +38,24 @@ export async function redeemConduit(
   })
 
   if (allowance < shares) {
-    const approveHash = await walletClient.writeContract({
+    const { request: approveRequest } = await publicClient.simulateContract({
       address: conduit,
       abi: conduitAbi,
       functionName: 'approve',
       args: [conduit, shares],
       account,
-      chain: walletClient.chain,
     })
-    await waitForTransactionReceipt(walletClient, { hash: approveHash })
+    const approveHash = await walletClient.writeContract(approveRequest)
+    await publicClient.waitForTransactionReceipt({ hash: approveHash })
   }
 
-  return walletClient.writeContract({
+  const { request: redeemRequest } = await publicClient.simulateContract({
     address: conduit,
     abi: conduitAbi,
     functionName: 'createRedeemFromConduitShares',
     args: [shares, outputAssets, salt, receiver],
     account,
-    chain: walletClient.chain,
   })
+
+  return walletClient.writeContract(redeemRequest)
 }

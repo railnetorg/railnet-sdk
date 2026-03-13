@@ -4,11 +4,11 @@ import {
   type Hash,
   type Hex,
   keccak256,
+  type PublicClient,
   type Transport,
   toHex,
   type WalletClient,
 } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
 import { accessControlFactoryAbi } from '../../abi/accessControlFactory.js'
 import { extractAccessControlAddress } from '../../utils/receipt.js'
 
@@ -26,6 +26,7 @@ export type SpawnAccessControlReturnType = {
 }
 
 export async function spawnAccessControl(
+  publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: SpawnAccessControlParameters & { account: Address },
 ): Promise<SpawnAccessControlReturnType> {
@@ -34,7 +35,7 @@ export async function spawnAccessControl(
   const initialDelay = parameters.initialDelay ?? 0
   const initialRoles = parameters.initialRoles ?? []
 
-  const hash = await walletClient.writeContract({
+  const { request } = await publicClient.simulateContract({
     address: parameters.factory,
     abi: accessControlFactoryAbi,
     functionName: 'spawn',
@@ -47,10 +48,10 @@ export async function spawnAccessControl(
       },
     ],
     account: parameters.account,
-    chain: walletClient.chain,
   })
 
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
+  const hash = await walletClient.writeContract(request)
+  const receipt = await publicClient.waitForTransactionReceipt({ hash })
   const accessControlAddress = extractAccessControlAddress(receipt, parameters.factory)
 
   if (!accessControlAddress) {

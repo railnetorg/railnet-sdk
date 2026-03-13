@@ -4,12 +4,12 @@ import {
   type Hash,
   type Hex,
   keccak256,
+  type PublicClient,
   type Transport,
   toHex,
   type WalletClient,
   zeroAddress,
 } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
 import { multiVehicleFactoryAbi } from '../../abi/multiVehicleFactory.js'
 import { extractMultiVehicleContracts, type MultiVehicleContracts } from '../../utils/receipt.js'
 
@@ -50,6 +50,7 @@ export type SpawnMultiVehicleReturnType = {
 }
 
 export async function spawnMultiVehicle(
+  publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: SpawnMultiVehicleParameters & { account: Address },
 ): Promise<SpawnMultiVehicleReturnType> {
@@ -66,7 +67,7 @@ export async function spawnMultiVehicle(
 
   const initialInterceptions = parameters.initialInterceptions ?? []
 
-  const hash = await walletClient.writeContract({
+  const { request } = await publicClient.simulateContract({
     address: parameters.factory,
     abi: multiVehicleFactoryAbi,
     functionName: 'spawn',
@@ -85,10 +86,10 @@ export async function spawnMultiVehicle(
       },
     ],
     account: parameters.account,
-    chain: walletClient.chain,
   })
 
-  const receipt = await waitForTransactionReceipt(walletClient, { hash })
+  const hash = await walletClient.writeContract(request)
+  const receipt = await publicClient.waitForTransactionReceipt({ hash })
   const contracts = extractMultiVehicleContracts(receipt, parameters.factory)
 
   if (!contracts) {

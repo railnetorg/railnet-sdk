@@ -1,4 +1,4 @@
-import type { Address, Chain, Hash, Transport, WalletClient } from 'viem'
+import type { Address, Chain, Hash, PublicClient, Transport, WalletClient } from 'viem'
 import { queueStrategyEngineAbi } from '../../abi/queueStrategyEngine.js'
 
 export type QueueTarget = {
@@ -18,15 +18,17 @@ export type SetQueuesParameters = {
 }
 
 export async function setQueues(
+  publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: SetQueuesParameters & { account: Address },
 ): Promise<Hash> {
-  return walletClient.writeContract({
+  const { request } = await publicClient.simulateContract({
     address: parameters.queueStrategyEngine,
     abi: queueStrategyEngineAbi,
     functionName: 'setQueues',
     args: [parameters.depositQueue, parameters.redeemQueue],
     account: parameters.account,
-    chain: walletClient.chain,
   })
+
+  return walletClient.writeContract(request)
 }

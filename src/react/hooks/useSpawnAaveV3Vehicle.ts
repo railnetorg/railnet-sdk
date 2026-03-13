@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query'
 import type { Address } from 'viem'
-import { useWalletClient } from 'wagmi'
+import { usePublicClient, useWalletClient } from 'wagmi'
 import type { SpawnAaveV3VehicleParameters } from '../../actions/vehicle/spawnAaveV3Vehicle.js'
 import {
   type SpawnAaveV3VehicleReturnType,
@@ -10,6 +10,7 @@ import {
 } from '../../actions/vehicle/spawnAaveV3Vehicle.js'
 
 export function useSpawnAaveV3Vehicle() {
+  const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
 
   return useMutation<
@@ -18,8 +19,9 @@ export function useSpawnAaveV3Vehicle() {
     SpawnAaveV3VehicleParameters & { account: Address }
   >({
     mutationFn: async (parameters) => {
+      if (!publicClient) throw new Error('Public client not available')
       if (!walletClient) throw new Error('Wallet not connected')
-      return spawnAaveV3Vehicle(walletClient, parameters)
+      return spawnAaveV3Vehicle(publicClient, walletClient, parameters)
     },
   })
 }
