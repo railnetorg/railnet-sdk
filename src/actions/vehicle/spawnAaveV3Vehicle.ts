@@ -11,7 +11,6 @@ import {
   zeroAddress,
 } from 'viem'
 import { aaveV3VehicleFactoryAbi } from '../../abi/aaveV3VehicleFactory.js'
-import { extractAaveV3VehicleAddress } from '../../utils/receipt.js'
 
 export type SpawnAaveV3VehicleParameters = {
   factory: Address
@@ -26,16 +25,16 @@ export type SpawnAaveV3VehicleParameters = {
   deploymentSalt?: Hex
 }
 
-export type SpawnAaveV3VehicleReturnType = {
-  vehicleAddress: Address
-  transactionHash: Hash
-}
-
+/**
+ * Spawns a new Aave V3 Vehicle via the AaveV3VehicleFactory.
+ * Use {@link extractAaveV3VehicleAddress} from `railnet-sdk` to extract the
+ * deployed vehicle address from the transaction receipt.
+ */
 export async function spawnAaveV3Vehicle(
   publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: SpawnAaveV3VehicleParameters & { account: Address },
-): Promise<SpawnAaveV3VehicleReturnType> {
+): Promise<Hash> {
   const now = Date.now()
   const querySalt = parameters.querySalt ?? keccak256(toHex(`aave-v3-vehicle-query-${now}`))
   const deploymentSalt =
@@ -61,16 +60,5 @@ export async function spawnAaveV3Vehicle(
     account: parameters.account,
   })
 
-  const hash = await walletClient.writeContract(request)
-  const receipt = await publicClient.waitForTransactionReceipt({ hash })
-  const vehicleAddress = extractAaveV3VehicleAddress(receipt, parameters.factory)
-
-  if (!vehicleAddress) {
-    throw new Error('Could not extract vehicle address from transaction logs')
-  }
-
-  return {
-    vehicleAddress,
-    transactionHash: hash,
-  }
+  return walletClient.writeContract(request)
 }

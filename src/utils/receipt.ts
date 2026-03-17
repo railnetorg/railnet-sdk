@@ -96,7 +96,7 @@ export function extractMultiVehicleContracts(
   return null
 }
 
-export function extractConduitDeployedAddress(
+export function extractConduitAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
 ): Address | null {

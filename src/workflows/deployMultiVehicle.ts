@@ -19,7 +19,11 @@ import {
   VEHICLE_STEAM,
 } from '../constants/roles.js'
 import { getAddresses } from '../contracts/chains.js'
-import type { MultiVehicleContracts } from '../utils/receipt.js'
+import {
+  extractAccessControlAddress,
+  extractMultiVehicleContracts,
+  type MultiVehicleContracts,
+} from '../utils/receipt.js'
 
 export type VehicleEntry = {
   address: Address
@@ -63,15 +67,20 @@ export async function deployMultiVehicle(
   if (parameters.accessControl) {
     eacAddress = parameters.accessControl
   } else {
-    const eacResult = await spawnAccessControl(publicClient, walletClient, {
+    const eacHash = await spawnAccessControl(publicClient, walletClient, {
       factory: eacFactory,
       initialDefaultAdmin: adminAddress,
       initialDelay: 0,
       initialRoles: [],
       account: parameters.account,
     })
-    eacAddress = eacResult.accessControlAddress
-    transactionHashes.push(eacResult.transactionHash)
+    const eacReceipt = await publicClient.waitForTransactionReceipt({ hash: eacHash })
+    const extractedEac = extractAccessControlAddress(eacReceipt, eacFactory)
+    if (!extractedEac) {
+      throw new Error('Could not extract access control address from transaction logs')
+    }
+    eacAddress = extractedEac
+    transactionHashes.push(eacHash)
   }
 
   const { request: approveRequest } = await publicClient.simulateContract({
@@ -101,14 +110,19 @@ export async function deployMultiVehicle(
   if (parameters.modulesManager !== undefined) {
     mvSpawnParams.modulesManager = parameters.modulesManager
   }
-  const mvResult = await spawnMultiVehicle(publicClient, walletClient, mvSpawnParams)
-  transactionHashes.push(mvResult.transactionHash)
+  const mvHash = await spawnMultiVehicle(publicClient, walletClient, mvSpawnParams)
+  const mvReceipt = await publicClient.waitForTransactionReceipt({ hash: mvHash })
+  const mvContracts = extractMultiVehicleContracts(mvReceipt, multiVehicleFactory)
+  if (!mvContracts) {
+    throw new Error('Could not extract multi-vehicle contracts from transaction logs')
+  }
+  transactionHashes.push(mvHash)
 
   transactionHashes.push(
     await grantScopedRole(publicClient, walletClient, {
       accessControl: eacAddress,
       role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION as Hex,
-      scope: mvResult.contracts.vehicleRegistry,
+      scope: mvContracts.vehicleRegistry,
       grantee: adminAddress,
       account: parameters.account,
     }),
@@ -118,7 +132,7 @@ export async function deployMultiVehicle(
     await grantScopedRole(publicClient, walletClient, {
       accessControl: eacAddress,
       role: MULTI_VEHICLE_SET_QUEUES as Hex,
-      scope: mvResult.contracts.queueStrategyEngine,
+      scope: mvContracts.queueStrategyEngine,
       grantee: adminAddress,
       account: parameters.account,
     }),
@@ -130,7 +144,7 @@ export async function deployMultiVehicle(
         accessControl: eacAddress,
         role: VEHICLE_STEAM as Hex,
         scope: vehicle.address,
-        grantee: mvResult.contracts.multiVehicle,
+        grantee: mvContracts.multiVehicle,
         account: parameters.account,
       }),
     )
@@ -140,7 +154,7 @@ export async function deployMultiVehicle(
         accessControl: eacAddress,
         role: VEHICLE_STEAM as Hex,
         scope: vehicle.address,
-        grantee: mvResult.contracts.sectorAccountingEngine,
+        grantee: mvContracts.sectorAccountingEngine,
         account: parameters.account,
       }),
     )
@@ -150,14 +164,14 @@ export async function deployMultiVehicle(
         accessControl: eacAddress,
         role: VEHICLE_STEAM as Hex,
         scope: vehicle.address,
-        grantee: mvResult.contracts.subQueryEngine,
+        grantee: mvContracts.subQueryEngine,
         account: parameters.account,
       }),
     )
 
     transactionHashes.push(
       await authorizeVehicle(publicClient, walletClient, {
-        vehicleRegistry: mvResult.contracts.vehicleRegistry,
+        vehicleRegistry: mvContracts.vehicleRegistry,
         vehicle: vehicle.address,
         account: parameters.account,
       }),
@@ -166,7 +180,7 @@ export async function deployMultiVehicle(
 
   transactionHashes.push(
     await setQueues(publicClient, walletClient, {
-      queueStrategyEngine: mvResult.contracts.queueStrategyEngine,
+      queueStrategyEngine: mvContracts.queueStrategyEngine,
       depositQueue: parameters.vehicles.map((v) => ({
         vehicle: v.address,
         target: v.depositTarget,
@@ -181,7 +195,7 @@ export async function deployMultiVehicle(
 
   return {
     eacAddress,
-    multiVehicleContracts: mvResult.contracts,
+    multiVehicleContracts: mvContracts,
     transactionHashes,
   }
 }

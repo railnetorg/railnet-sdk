@@ -1,0 +1,184 @@
+---
+description: Helpers to extract deployed contract addresses from transaction receipts.
+---
+
+# Receipt Helpers
+
+Utility functions to extract deployed contract addresses from transaction receipts after a spawn action.
+
+## Import
+
+```ts
+import { 
+  extractConduitAddress, 
+  extractAccessControlAddress, 
+  extractMultiVehicleContracts, 
+  extractAaveV3VehicleAddress 
+} from 'railnet-sdk'
+```
+
+## Usage
+
+The typical flow involves spawning a contract, waiting for the transaction receipt, and then using a helper to extract the deployed address(es).
+
+```ts
+import { createPublicClient, createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { 
+  spawnConduit, 
+  extractConduitAddress,
+  TransferMode 
+} from 'railnet-sdk'
+
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http(),
+})
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const factoryAddress = '0x1234...'
+
+// 1. Spawn the contract
+const hash = await spawnConduit(publicClient, walletClient, {
+  factory: factoryAddress,
+  name: 'My Conduit',
+  symbol: 'COND',
+  vehicle: '0x5678...',
+  depositAsset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+  initialDepositSize: 1000000000000000000n,
+  initialExpectedSupply: 1000000000000000000n,
+  transferMode: TransferMode.ALLOW_TRANSFER,
+  accessControl: '0x...',
+  feeManager: '0x...',
+  accountList: '0x...',
+  ownerRegistry: '0x...',
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+
+// 2. Wait for the receipt
+const receipt = await publicClient.waitForTransactionReceipt({ hash })
+
+// 3. Extract the deployed address
+const conduitAddress = extractConduitAddress(receipt, factoryAddress)
+```
+
+## extractConduitAddress
+
+Extracts the deployed conduit address from a `spawnConduit` transaction receipt.
+
+```ts
+const conduitAddress = extractConduitAddress(receipt, factoryAddress)
+```
+
+### Parameters
+
+#### receipt
+- **Type:** `TransactionReceipt`
+
+The transaction receipt.
+
+#### factoryAddress
+- **Type:** `Address`
+
+The address of the conduit factory.
+
+### Returns
+
+`Address | null`
+
+The deployed conduit address, or `null` if not found.
+
+## extractAccessControlAddress
+
+Extracts the deployed access control address from a `spawnAccessControl` transaction receipt.
+
+```ts
+const accessControlAddress = extractAccessControlAddress(receipt, factoryAddress)
+```
+
+### Parameters
+
+#### receipt
+- **Type:** `TransactionReceipt`
+
+The transaction receipt.
+
+#### factoryAddress
+- **Type:** `Address`
+
+The address of the access control factory.
+
+### Returns
+
+`Address | null`
+
+The deployed access control address, or `null` if not found.
+
+## extractMultiVehicleContracts
+
+Extracts the deployed MultiVehicle contract addresses from a `spawnMultiVehicle` transaction receipt.
+
+```ts
+const contracts = extractMultiVehicleContracts(receipt, factoryAddress)
+```
+
+### Parameters
+
+#### receipt
+- **Type:** `TransactionReceipt`
+
+The transaction receipt.
+
+#### factoryAddress
+- **Type:** `Address`
+
+The address of the MultiVehicle factory.
+
+### Returns
+
+`MultiVehicleContracts | null`
+
+The deployed MultiVehicle contract addresses, or `null` if not found.
+
+#### MultiVehicleContracts
+
+```ts
+type MultiVehicleContracts = {
+  multiVehicle: Address
+  queryRedeemQueue: Address
+  queueStrategyEngine: Address
+  sectorAccountingEngine: Address
+  subQueryEngine: Address
+  vehicleRegistry: Address
+}
+```
+
+## extractAaveV3VehicleAddress
+
+Extracts the deployed Aave V3 vehicle address from a `spawnAaveV3Vehicle` transaction receipt.
+
+```ts
+const vehicleAddress = extractAaveV3VehicleAddress(receipt, factoryAddress)
+```
+
+### Parameters
+
+#### receipt
+- **Type:** `TransactionReceipt`
+
+The transaction receipt.
+
+#### factoryAddress
+- **Type:** `Address`
+
+The address of the Aave V3 vehicle factory.
+
+### Returns
+
+`Address | null`
+
+The deployed Aave V3 vehicle address, or `null` if not found.

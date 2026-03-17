@@ -4,7 +4,7 @@ description: Deploys a new conduit via the factory.
 
 # spawnConduit
 
-Deploys a new conduit via the factory contract. Requires a `WalletClient` to sign and send the transaction.
+Deploys a new conduit via the factory contract. Requires a `PublicClient` and a `WalletClient` to sign and send the transaction.
 
 ## Import
 
@@ -15,16 +15,21 @@ import { spawnConduit } from 'railnet-sdk'
 ## Usage
 
 ```ts
-import { createWalletClient, http } from 'viem'
+import { createPublicClient, createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { spawnConduit, TransferMode } from 'railnet-sdk'
+
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http(),
+})
 
 const walletClient = createWalletClient({
   chain: base,
   transport: http(),
 })
 
-const result = await spawnConduit(walletClient, {
+const hash = await spawnConduit(publicClient, walletClient, {
   factory: '0x1234...',
   name: 'My Conduit',
   symbol: 'COND',
@@ -43,14 +48,13 @@ const result = await spawnConduit(walletClient, {
 
 ## Returns
 
-```ts
-type SpawnConduitReturnType = {
-  conduitAddress: Address
-  transactionHash: Hash
-}
-```
+`Hash`
 
-The address of the newly deployed conduit and the transaction hash.
+The transaction hash.
+
+:::info
+Use [`extractConduitAddress`](/utilities/receiptHelpers#extractconduitaddress) to extract the deployed conduit address from the transaction receipt.
+:::
 
 ## Parameters
 

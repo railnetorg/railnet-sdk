@@ -4,7 +4,7 @@ description: Deploys an Aave V3 vehicle via factory.
 
 # spawnAaveV3Vehicle
 
-Deploys an Aave V3 vehicle via the factory contract. Requires a `WalletClient`.
+Deploys an Aave V3 vehicle via the factory contract. Requires a `PublicClient` and a `WalletClient`.
 
 ## Import
 
@@ -15,16 +15,21 @@ import { spawnAaveV3Vehicle } from 'railnet-sdk'
 ## Usage
 
 ```ts
-import { createWalletClient, http } from 'viem'
+import { createPublicClient, createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { spawnAaveV3Vehicle } from 'railnet-sdk'
+
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http(),
+})
 
 const walletClient = createWalletClient({
   chain: base,
   transport: http(),
 })
 
-const result = await spawnAaveV3Vehicle(walletClient, {
+const hash = await spawnAaveV3Vehicle(publicClient, walletClient, {
   factory: '0x1234...',
   asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   poolAddressesProvider: '0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e',
@@ -37,14 +42,13 @@ const result = await spawnAaveV3Vehicle(walletClient, {
 
 ## Returns
 
-```ts
-type SpawnAaveV3VehicleReturnType = {
-  vehicleAddress: Address
-  transactionHash: Hash
-}
-```
+`Hash`
 
-The address of the newly deployed Aave V3 vehicle and the transaction hash.
+The transaction hash.
+
+:::info
+Use [`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehicleaddress) to extract the deployed Aave V3 vehicle address from the transaction receipt.
+:::
 
 ## Parameters
 

@@ -4,7 +4,7 @@ description: Deploys an ExternalAccessControl contract via factory.
 
 # spawnAccessControl
 
-Deploys an ExternalAccessControl contract via the factory. Requires a `WalletClient`.
+Deploys an ExternalAccessControl contract via the factory. Requires a `PublicClient` and a `WalletClient`.
 
 ## Import
 
@@ -15,16 +15,21 @@ import { spawnAccessControl } from 'railnet-sdk'
 ## Usage
 
 ```ts
-import { createWalletClient, http } from 'viem'
+import { createPublicClient, createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { spawnAccessControl } from 'railnet-sdk'
+
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http(),
+})
 
 const walletClient = createWalletClient({
   chain: base,
   transport: http(),
 })
 
-const result = await spawnAccessControl(walletClient, {
+const hash = await spawnAccessControl(publicClient, walletClient, {
   factory: '0x1234...',
   initialDefaultAdmin: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -33,14 +38,13 @@ const result = await spawnAccessControl(walletClient, {
 
 ## Returns
 
-```ts
-type SpawnAccessControlReturnType = {
-  accessControlAddress: Address
-  transactionHash: Hash
-}
-```
+`Hash`
 
-The address of the newly deployed access control contract and the transaction hash.
+The transaction hash.
+
+:::info
+Use [`extractAccessControlAddress`](/utilities/receiptHelpers#extractaccesscontroladdress) to extract the deployed access control address from the transaction receipt.
+:::
 
 ## Parameters
 

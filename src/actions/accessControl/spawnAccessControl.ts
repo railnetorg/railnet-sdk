@@ -10,7 +10,6 @@ import {
   type WalletClient,
 } from 'viem'
 import { accessControlFactoryAbi } from '../../abi/accessControlFactory.js'
-import { extractAccessControlAddress } from '../../utils/receipt.js'
 
 export type SpawnAccessControlParameters = {
   factory: Address
@@ -20,16 +19,16 @@ export type SpawnAccessControlParameters = {
   deploymentSalt?: Hex
 }
 
-export type SpawnAccessControlReturnType = {
-  accessControlAddress: Address
-  transactionHash: Hash
-}
-
+/**
+ * Spawns a new ExternalAccessControl via the AccessControlFactory.
+ * Use {@link extractAccessControlAddress} from `railnet-sdk` to extract the
+ * deployed address from the transaction receipt.
+ */
 export async function spawnAccessControl(
   publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: SpawnAccessControlParameters & { account: Address },
-): Promise<SpawnAccessControlReturnType> {
+): Promise<Hash> {
   const deploymentSalt =
     parameters.deploymentSalt ?? keccak256(toHex(`access-control-${Date.now()}`))
   const initialDelay = parameters.initialDelay ?? 0
@@ -50,16 +49,5 @@ export async function spawnAccessControl(
     account: parameters.account,
   })
 
-  const hash = await walletClient.writeContract(request)
-  const receipt = await publicClient.waitForTransactionReceipt({ hash })
-  const accessControlAddress = extractAccessControlAddress(receipt, parameters.factory)
-
-  if (!accessControlAddress) {
-    throw new Error('Could not extract access control address from transaction logs')
-  }
-
-  return {
-    accessControlAddress,
-    transactionHash: hash,
-  }
+  return walletClient.writeContract(request)
 }

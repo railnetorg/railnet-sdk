@@ -4,7 +4,7 @@ description: Deploys a new MultiVehicle ecosystem via the factory.
 
 # spawnMultiVehicle
 
-Deploys a new MultiVehicle ecosystem via the factory contract. Requires a `WalletClient`.
+Deploys a new MultiVehicle ecosystem via the factory contract. Requires a `PublicClient` and a `WalletClient`.
 
 ## Import
 
@@ -15,16 +15,21 @@ import { spawnMultiVehicle } from 'railnet-sdk'
 ## Usage
 
 ```ts
-import { createWalletClient, http } from 'viem'
+import { createPublicClient, createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { spawnMultiVehicle } from 'railnet-sdk'
+
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http(),
+})
 
 const walletClient = createWalletClient({
   chain: base,
   transport: http(),
 })
 
-const result = await spawnMultiVehicle(walletClient, {
+const hash = await spawnMultiVehicle(publicClient, walletClient, {
   factory: '0x1234...',
   asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   name: 'My MultiVehicle',
@@ -38,21 +43,13 @@ const result = await spawnMultiVehicle(walletClient, {
 
 ## Returns
 
-```ts
-type SpawnMultiVehicleReturnType = {
-  contracts: {
-    multiVehicle: Address
-    queryRedeemQueue: Address
-    queueStrategyEngine: Address
-    sectorAccountingEngine: Address
-    subQueryEngine: Address
-    vehicleRegistry: Address
-  }
-  transactionHash: Hash
-}
-```
+`Hash`
 
-The addresses of the newly deployed MultiVehicle contracts and the transaction hash.
+The transaction hash.
+
+:::info
+Use [`extractMultiVehicleContracts`](/utilities/receiptHelpers#extractmultivehiclecontracts) to extract the deployed MultiVehicle contract addresses from the transaction receipt.
+:::
 
 ## Parameters
 

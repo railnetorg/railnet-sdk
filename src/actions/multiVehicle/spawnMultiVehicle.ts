@@ -11,7 +11,6 @@ import {
   zeroAddress,
 } from 'viem'
 import { multiVehicleFactoryAbi } from '../../abi/multiVehicleFactory.js'
-import { extractMultiVehicleContracts, type MultiVehicleContracts } from '../../utils/receipt.js'
 
 export type MultiVehicleSalts = {
   multiVehicle: Hex
@@ -44,16 +43,16 @@ export type SpawnMultiVehicleParameters = {
   }>
 }
 
-export type SpawnMultiVehicleReturnType = {
-  contracts: MultiVehicleContracts
-  transactionHash: Hash
-}
-
+/**
+ * Spawns a new MultiVehicle ecosystem via the MultiVehicleFactory.
+ * Use {@link extractMultiVehicleContracts} from `railnet-sdk` to extract the
+ * deployed contract addresses from the transaction receipt.
+ */
 export async function spawnMultiVehicle(
   publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: SpawnMultiVehicleParameters & { account: Address },
-): Promise<SpawnMultiVehicleReturnType> {
+): Promise<Hash> {
   const now = Date.now()
   const salts: MultiVehicleSalts = parameters.salts ?? {
     multiVehicle: keccak256(toHex(`multi-vehicle-${parameters.name}-${now}`)),
@@ -88,16 +87,5 @@ export async function spawnMultiVehicle(
     account: parameters.account,
   })
 
-  const hash = await walletClient.writeContract(request)
-  const receipt = await publicClient.waitForTransactionReceipt({ hash })
-  const contracts = extractMultiVehicleContracts(receipt, parameters.factory)
-
-  if (!contracts) {
-    throw new Error('Could not extract multi-vehicle contracts from transaction logs')
-  }
-
-  return {
-    contracts,
-    transactionHash: hash,
-  }
+  return walletClient.writeContract(request)
 }

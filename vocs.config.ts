@@ -201,6 +201,11 @@ export default defineConfig({
       ],
     },
     {
+      text: 'Utilities',
+      collapsed: false,
+      items: [{ text: 'Receipt Helpers', link: '/utilities/receiptHelpers' }],
+    },
+    {
       text: 'Contracts',
       collapsed: false,
       items: [

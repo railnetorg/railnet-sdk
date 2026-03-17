@@ -9,19 +9,18 @@ import {
   type WalletClient,
 } from 'viem'
 import { conduitFactoryAbi } from '../../abi/conduitFactory.js'
-import { extractConduitDeployedAddress } from '../../utils/receipt.js'
 import type { SpawnConduitParameters } from './types.js'
 
-export type SpawnConduitReturnType = {
-  conduitAddress: Address
-  transactionHash: Hash
-}
-
+/**
+ * Spawns a new Conduit via the ConduitFactory.
+ * Use {@link extractConduitAddress} from `railnet-sdk` to extract the
+ * deployed conduit address from the transaction receipt.
+ */
 export async function spawnConduit(
   publicClient: PublicClient<Transport, Chain>,
   walletClient: WalletClient<Transport, Chain>,
   parameters: SpawnConduitParameters & { account: Address },
-): Promise<SpawnConduitReturnType> {
+): Promise<Hash> {
   const now = Date.now()
   const querySalt =
     parameters.querySalt ?? keccak256(toHex(`conduit-query-${parameters.name}-${now}`))
@@ -53,16 +52,5 @@ export async function spawnConduit(
     account: parameters.account,
   })
 
-  const hash = await walletClient.writeContract(request)
-  const receipt = await publicClient.waitForTransactionReceipt({ hash })
-  const conduitAddress = extractConduitDeployedAddress(receipt, parameters.factory)
-
-  if (!conduitAddress) {
-    throw new Error('Could not extract conduit address from transaction logs')
-  }
-
-  return {
-    conduitAddress,
-    transactionHash: hash,
-  }
+  return walletClient.writeContract(request)
 }
