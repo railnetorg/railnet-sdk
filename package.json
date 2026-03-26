@@ -34,7 +34,9 @@
   "license": "MIT",
   "files": [
     "dist",
-    "src"
+    "src",
+    "skills",
+    "!skills/_artifacts"
   ],
   "exports": {
     ".": "./src/index.ts",

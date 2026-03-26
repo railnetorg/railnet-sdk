@@ -1,0 +1,94 @@
+# skills/_artifacts/skill_tree.yaml
+library:
+  name: 'railnet-sdk'
+  version: '0.0.0'
+  repository: 'https://github.com/railnetorg/railnet-sdk'
+  description: 'TypeScript SDK for the Railnet protocol — conduits, vehicles, multi-vehicle strategies, and access control on Base. Built on viem with React/wagmi hooks.'
+generated_from:
+  domain_map: 'skills/_artifacts/domain_map.yaml'
+  skill_spec: 'skills/_artifacts/skill_spec.md'
+generated_at: '2026-03-23'
+
+skills:
+  - name: 'SDK Setup'
+    slug: 'railnet-core'
+    type: 'core'
+    domain: 'setup'
+    path: 'skills/railnet-core/SKILL.md'
+    description: >
+      Set up railnet-sdk with viem clients, use the railnetActions decorator,
+      understand chain support (Base 8453), contract addresses, ABIs, enums,
+      and types. Load when installing railnet-sdk, creating a client, or
+      importing SDK utilities.
+    sources:
+      - 'railnetorg/railnet-sdk:src/index.ts'
+      - 'railnetorg/railnet-sdk:src/decorator.ts'
+      - 'railnetorg/railnet-sdk:src/contracts/chains.ts'
+      - 'railnetorg/railnet-sdk:src/contracts/addresses.ts'
+      - 'railnetorg/railnet-sdk:src/constants/roles.ts'
+      - 'railnetorg/railnet-sdk:src/actions/conduit/types.ts'
+
+  - name: 'Conduit Operations'
+    slug: 'railnet-conduit'
+    type: 'core'
+    domain: 'conduit'
+    path: 'skills/railnet-conduit/SKILL.md'
+    description: >
+      Interact with Railnet Conduits — deposit assets, redeem shares, read
+      positions and info, estimate outputs, predict deployment addresses,
+      spawn conduits, process async queries, enable and finalize conduits.
+      Load when working with conduit deposits, redemptions, or position data.
+    sources:
+      - 'railnetorg/railnet-sdk:src/actions/conduit/*.ts'
+      - 'railnetorg/railnet-sdk:docs/pages/protocol-overview.mdx'
+    references:
+      - 'references/error-reference.md'
+
+  - name: 'Vehicle Operations'
+    slug: 'railnet-vehicle'
+    type: 'core'
+    domain: 'vehicle'
+    path: 'skills/railnet-vehicle/SKILL.md'
+    description: >
+      Deploy and manage Railnet vehicles and multi-vehicle strategies —
+      spawnAaveV3Vehicle, spawnMultiVehicle, authorizeVehicle, setQueues,
+      deployMultiVehicle workflow, vehicle types (sync vs async), STEAM
+      lifecycle. Load when deploying yield strategies, spawning vehicles,
+      or configuring allocation queues.
+    sources:
+      - 'railnetorg/railnet-sdk:src/actions/vehicle/*.ts'
+      - 'railnetorg/railnet-sdk:src/actions/multiVehicle/*.ts'
+      - 'railnetorg/railnet-sdk:src/workflows/deployMultiVehicle.ts'
+      - 'railnetorg/railnet-sdk:src/utils/receipt.ts'
+
+  - name: 'Access Control'
+    slug: 'railnet-access-control'
+    type: 'core'
+    domain: 'access-control'
+    path: 'skills/railnet-access-control/SKILL.md'
+    description: >
+      Manage Railnet role-based access control — spawn ExternalAccessControl,
+      grant and revoke scoped roles, use precomputed role constants
+      (VEHICLE_STEAM, MULTI_VEHICLE_REBALANCE, etc.), understand scope
+      targeting. Load when setting up permissions or debugging role errors.
+    sources:
+      - 'railnetorg/railnet-sdk:src/actions/accessControl/*.ts'
+      - 'railnetorg/railnet-sdk:src/constants/roles.ts'
+    references:
+      - 'references/role-reference.md'
+
+  - name: 'React Hooks'
+    slug: 'railnet-react'
+    type: 'framework'
+    domain: 'react'
+    path: 'skills/railnet-react/SKILL.md'
+    description: >
+      React hooks and TanStack Query integration for railnet-sdk —
+      useConduitPosition, useDepositConduit, useDeployMultiVehicle, query
+      options pattern, building custom hooks. Requires wagmi + @tanstack/react-query.
+      Load when building React UIs for Railnet.
+    requires:
+      - 'railnet-core'
+    sources:
+      - 'railnetorg/railnet-sdk:src/react/hooks/*.ts'
+      - 'railnetorg/railnet-sdk:src/react/query/*.ts'

@@ -1,0 +1,43 @@
+library:
+  name: 'railnet-sdk'
+  version: '0.0.0'
+  repository: 'https://github.com/railnetorg/railnet-sdk'
+  description: 'TypeScript SDK for the Railnet protocol — conduits, vehicles, multi-vehicle strategies, and access control. Built on viem with React/wagmi hooks.'
+  primary_framework: 'React'
+
+domains:
+  - name: 'SDK setup and client configuration'
+    slug: 'setup'
+  - name: 'Conduit interactions'
+    slug: 'conduit'
+  - name: 'Vehicle deployment and operations'
+    slug: 'vehicle'
+  - name: 'Access control and role management'
+    slug: 'access-control'
+  - name: 'React hooks and query integration'
+    slug: 'react'
+
+tensions:
+  - name: 'Convenience vs control in write actions'
+    skills: ['railnet-conduit', 'railnet-core']
+    description: 'Auto-approval inside write actions hides multi-tx flows from callers'
+  - name: 'deployMultiVehicle workflow vs granular control'
+    skills: ['railnet-vehicle', 'railnet-access-control']
+    description: 'Workflow is opinionated about role grants; custom setups need individual actions'
+  - name: 'Enum ordering mismatch between SDK and protocol docs'
+    skills: ['railnet-conduit', 'railnet-core']
+    description: 'TransferMode enum values differ from protocol doc ordering; always use SDK enum'
+
+cross_references:
+  - from: 'railnet-conduit'
+    to: 'railnet-access-control'
+    reason: 'Spawning conduit requires EAC; operations may fail without VEHICLE_STEAM'
+  - from: 'railnet-vehicle'
+    to: 'railnet-access-control'
+    reason: 'deployMultiVehicle auto-grants roles; manual setup needs role scoping knowledge'
+  - from: 'railnet-react'
+    to: 'railnet-conduit'
+    reason: 'React hooks wrap core actions; understanding action signatures explains hook behavior'
+  - from: 'railnet-react'
+    to: 'railnet-core'
+    reason: 'Hooks require wagmi configured with Base chain'
