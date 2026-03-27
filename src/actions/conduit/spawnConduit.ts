@@ -42,26 +42,13 @@ export async function spawnConduit(
     deploymentSalt,
   } as const
 
-  const simulateArgs = {
+  const { request } = await publicClient.simulateContract({
     address: parameters.factory,
     abi: conduitFactoryAbi,
-    functionName: 'spawn' as const,
-    args: [spawnParams, deploymentSalt] as const,
+    functionName: 'spawn',
+    args: [spawnParams, deploymentSalt],
     account: parameters.account,
-  }
+  })
 
-  let lastError: unknown
-  for (let attempt = 0; attempt < 5; attempt++) {
-    try {
-      const { request } = await publicClient.simulateContract(simulateArgs)
-      return walletClient.writeContract(request)
-    } catch (error) {
-      lastError = error
-      if (attempt < 4) {
-        await new Promise((resolve) => setTimeout(resolve, 1_000 * 2 ** attempt))
-      }
-    }
-  }
-
-  throw lastError
+  return walletClient.writeContract(request)
 }
