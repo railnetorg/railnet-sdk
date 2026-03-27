@@ -8,6 +8,7 @@ import {
   type Transport,
   type WalletClient,
 } from 'viem'
+import { externalAccessControlAbi } from '../abi/externalAccessControl.js'
 import { grantScopedRole } from '../actions/accessControl/grantScopedRole.js'
 import { spawnAccessControl } from '../actions/accessControl/spawnAccessControl.js'
 import { authorizeVehicle } from '../actions/multiVehicle/authorizeVehicle.js'
@@ -139,35 +140,44 @@ export async function deployMultiVehicle(
   )
 
   for (const vehicle of parameters.vehicles) {
-    transactionHashes.push(
-      await grantScopedRole(publicClient, walletClient, {
-        accessControl: eacAddress,
-        role: VEHICLE_STEAM as Hex,
-        scope: vehicle.address,
-        grantee: mvContracts.multiVehicle,
-        account: parameters.account,
-      }),
-    )
+    const isPublic = await publicClient.readContract({
+      address: eacAddress,
+      abi: externalAccessControlAbi,
+      functionName: 'isScopedRolePublic',
+      args: [VEHICLE_STEAM, vehicle.address],
+    })
 
-    transactionHashes.push(
-      await grantScopedRole(publicClient, walletClient, {
-        accessControl: eacAddress,
-        role: VEHICLE_STEAM as Hex,
-        scope: vehicle.address,
-        grantee: mvContracts.sectorAccountingEngine,
-        account: parameters.account,
-      }),
-    )
+    if (!isPublic) {
+      transactionHashes.push(
+        await grantScopedRole(publicClient, walletClient, {
+          accessControl: eacAddress,
+          role: VEHICLE_STEAM as Hex,
+          scope: vehicle.address,
+          grantee: mvContracts.multiVehicle,
+          account: parameters.account,
+        }),
+      )
 
-    transactionHashes.push(
-      await grantScopedRole(publicClient, walletClient, {
-        accessControl: eacAddress,
-        role: VEHICLE_STEAM as Hex,
-        scope: vehicle.address,
-        grantee: mvContracts.subQueryEngine,
-        account: parameters.account,
-      }),
-    )
+      transactionHashes.push(
+        await grantScopedRole(publicClient, walletClient, {
+          accessControl: eacAddress,
+          role: VEHICLE_STEAM as Hex,
+          scope: vehicle.address,
+          grantee: mvContracts.sectorAccountingEngine,
+          account: parameters.account,
+        }),
+      )
+
+      transactionHashes.push(
+        await grantScopedRole(publicClient, walletClient, {
+          accessControl: eacAddress,
+          role: VEHICLE_STEAM as Hex,
+          scope: vehicle.address,
+          grantee: mvContracts.subQueryEngine,
+          account: parameters.account,
+        }),
+      )
+    }
 
     transactionHashes.push(
       await authorizeVehicle(publicClient, walletClient, {

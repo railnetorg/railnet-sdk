@@ -26,8 +26,6 @@ export async function spawnConduit(
     parameters.querySalt ?? keccak256(toHex(`conduit-query-${parameters.name}-${now}`))
   const deploymentSalt =
     parameters.deploymentSalt ?? keccak256(toHex(`conduit-deploy-${parameters.symbol}-${now}`))
-  const salt = keccak256(toHex(`conduit-salt-${parameters.name}-${now}`))
-
   const spawnParams = {
     name: parameters.name,
     symbol: parameters.symbol,
@@ -44,13 +42,26 @@ export async function spawnConduit(
     deploymentSalt,
   } as const
 
-  const { request } = await publicClient.simulateContract({
+  const simulateArgs = {
     address: parameters.factory,
     abi: conduitFactoryAbi,
-    functionName: 'spawn',
-    args: [spawnParams, salt],
+    functionName: 'spawn' as const,
+    args: [spawnParams, deploymentSalt] as const,
     account: parameters.account,
-  })
+  }
 
-  return walletClient.writeContract(request)
+  let lastError: unknown
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      const { request } = await publicClient.simulateContract(simulateArgs)
+      return walletClient.writeContract(request)
+    } catch (error) {
+      lastError = error
+      if (attempt < 4) {
+        await new Promise((resolve) => setTimeout(resolve, 1_000 * 2 ** attempt))
+      }
+    }
+  }
+
+  throw lastError
 }
