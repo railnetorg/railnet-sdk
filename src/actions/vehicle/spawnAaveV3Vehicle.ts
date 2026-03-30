@@ -1,13 +1,5 @@
-import {
-  type Address,
-  type Hash,
-  type Hex,
-  keccak256,
-  type PublicClient,
-  toHex,
-  type WalletClient,
-  zeroAddress,
-} from 'viem'
+import { type Address, type Client, type Hash, type Hex, keccak256, toHex, zeroAddress } from 'viem'
+import { simulateContract, writeContract } from 'viem/actions'
 import { aaveV3VehicleFactoryAbi } from '../../abi/aaveV3VehicleFactory.js'
 
 export type SpawnAaveV3VehicleParameters = {
@@ -29,8 +21,8 @@ export type SpawnAaveV3VehicleParameters = {
  * deployed vehicle address from the transaction receipt.
  */
 export async function spawnAaveV3Vehicle(
-  publicClient: PublicClient,
-  walletClient: WalletClient,
+  publicClient: Client,
+  walletClient: Client,
   parameters: SpawnAaveV3VehicleParameters & { account: Address },
 ): Promise<Hash> {
   const now = Date.now()
@@ -38,7 +30,7 @@ export async function spawnAaveV3Vehicle(
   const deploymentSalt =
     parameters.deploymentSalt ?? keccak256(toHex(`aave-v3-vehicle-deploy-${now}`))
 
-  const { request } = await publicClient.simulateContract({
+  const { request } = await simulateContract(publicClient, {
     address: parameters.factory,
     abi: aaveV3VehicleFactoryAbi,
     functionName: 'spawn',
@@ -58,5 +50,5 @@ export async function spawnAaveV3Vehicle(
     account: parameters.account,
   })
 
-  return walletClient.writeContract(request)
+  return writeContract(walletClient, request)
 }

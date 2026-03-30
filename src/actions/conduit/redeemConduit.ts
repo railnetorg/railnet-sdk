@@ -1,12 +1,10 @@
+import { type Address, type Client, type Hash, type Hex, keccak256, toHex } from 'viem'
 import {
-  type Address,
-  type Hash,
-  type Hex,
-  keccak256,
-  type PublicClient,
-  toHex,
-  type WalletClient,
-} from 'viem'
+  readContract,
+  simulateContract,
+  waitForTransactionReceipt,
+  writeContract,
+} from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { Asset } from './types.js'
 
@@ -19,8 +17,8 @@ export type RedeemConduitParameters = {
 }
 
 export async function redeemConduit(
-  publicClient: PublicClient,
-  walletClient: WalletClient,
+  publicClient: Client,
+  walletClient: Client,
   parameters: RedeemConduitParameters & { account: Address },
 ): Promise<Hash> {
   const { conduit, shares, account } = parameters
@@ -28,7 +26,7 @@ export async function redeemConduit(
   const outputAssets = parameters.outputAssets ?? []
   const salt = parameters.salt ?? keccak256(toHex(`redeem-${account}-${Date.now()}`))
 
-  const allowance = await publicClient.readContract({
+  const allowance = await readContract(publicClient, {
     address: conduit,
     abi: conduitAbi,
     functionName: 'allowance',
@@ -36,18 +34,18 @@ export async function redeemConduit(
   })
 
   if (allowance < shares) {
-    const { request: approveRequest } = await publicClient.simulateContract({
+    const { request: approveRequest } = await simulateContract(publicClient, {
       address: conduit,
       abi: conduitAbi,
       functionName: 'approve',
       args: [conduit, shares],
       account,
     })
-    const approveHash = await walletClient.writeContract(approveRequest)
-    await publicClient.waitForTransactionReceipt({ hash: approveHash })
+    const approveHash = await writeContract(walletClient, approveRequest)
+    await waitForTransactionReceipt(publicClient, { hash: approveHash })
   }
 
-  const { request: redeemRequest } = await publicClient.simulateContract({
+  const { request: redeemRequest } = await simulateContract(publicClient, {
     address: conduit,
     abi: conduitAbi,
     functionName: 'createRedeemFromConduitShares',
@@ -55,5 +53,5 @@ export async function redeemConduit(
     account,
   })
 
-  return walletClient.writeContract(redeemRequest)
+  return writeContract(walletClient, redeemRequest)
 }

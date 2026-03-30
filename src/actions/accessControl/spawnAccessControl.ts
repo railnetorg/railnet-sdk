@@ -1,12 +1,5 @@
-import {
-  type Address,
-  type Hash,
-  type Hex,
-  keccak256,
-  type PublicClient,
-  toHex,
-  type WalletClient,
-} from 'viem'
+import { type Address, type Client, type Hash, type Hex, keccak256, toHex } from 'viem'
+import { simulateContract, writeContract } from 'viem/actions'
 import { accessControlFactoryAbi } from '../../abi/accessControlFactory.js'
 
 export type SpawnAccessControlParameters = {
@@ -23,8 +16,8 @@ export type SpawnAccessControlParameters = {
  * deployed address from the transaction receipt.
  */
 export async function spawnAccessControl(
-  publicClient: PublicClient,
-  walletClient: WalletClient,
+  publicClient: Client,
+  walletClient: Client,
   parameters: SpawnAccessControlParameters & { account: Address },
 ): Promise<Hash> {
   const deploymentSalt =
@@ -32,7 +25,7 @@ export async function spawnAccessControl(
   const initialDelay = parameters.initialDelay ?? 0
   const initialRoles = parameters.initialRoles ?? []
 
-  const { request } = await publicClient.simulateContract({
+  const { request } = await simulateContract(publicClient, {
     address: parameters.factory,
     abi: accessControlFactoryAbi,
     functionName: 'spawn',
@@ -47,5 +40,5 @@ export async function spawnAccessControl(
     account: parameters.account,
   })
 
-  return walletClient.writeContract(request)
+  return writeContract(walletClient, request)
 }

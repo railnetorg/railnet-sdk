@@ -1,13 +1,10 @@
+import { type Address, type Client, erc20Abi, type Hash, type Hex, keccak256, toHex } from 'viem'
 import {
-  type Address,
-  erc20Abi,
-  type Hash,
-  type Hex,
-  keccak256,
-  type PublicClient,
-  toHex,
-  type WalletClient,
-} from 'viem'
+  readContract,
+  simulateContract,
+  waitForTransactionReceipt,
+  writeContract,
+} from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import { ConduitMode } from './types.js'
 
@@ -20,15 +17,15 @@ export type DepositConduitParameters = {
 }
 
 export async function depositConduit(
-  publicClient: PublicClient,
-  walletClient: WalletClient,
+  publicClient: Client,
+  walletClient: Client,
   parameters: DepositConduitParameters & { account: Address },
 ): Promise<Hash> {
   const { conduit, token, amount, account } = parameters
   const receiver = parameters.receiver ?? account
   const salt = parameters.salt ?? keccak256(toHex(`deposit-${account}-${Date.now()}`))
 
-  const allowance = await publicClient.readContract({
+  const allowance = await readContract(publicClient, {
     address: token,
     abi: erc20Abi,
     functionName: 'allowance',
@@ -36,15 +33,15 @@ export async function depositConduit(
   })
 
   if (allowance < amount) {
-    const { request: approveRequest } = await publicClient.simulateContract({
+    const { request: approveRequest } = await simulateContract(publicClient, {
       address: token,
       abi: erc20Abi,
       functionName: 'approve',
       args: [conduit, amount],
       account,
     })
-    const approveHash = await walletClient.writeContract(approveRequest)
-    await publicClient.waitForTransactionReceipt({ hash: approveHash })
+    const approveHash = await writeContract(walletClient, approveRequest)
+    await waitForTransactionReceipt(publicClient, { hash: approveHash })
   }
 
   const query = {
@@ -57,7 +54,7 @@ export async function depositConduit(
     data: '0x' as const,
   }
 
-  const { request: depositRequest } = await publicClient.simulateContract({
+  const { request: depositRequest } = await simulateContract(publicClient, {
     address: conduit,
     abi: conduitAbi,
     functionName: 'create',
@@ -65,5 +62,5 @@ export async function depositConduit(
     account,
   })
 
-  return walletClient.writeContract(depositRequest)
+  return writeContract(walletClient, depositRequest)
 }

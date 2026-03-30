@@ -1,4 +1,5 @@
-import type { Address, Hash, Hex, PublicClient, WalletClient } from 'viem'
+import type { Address, Client, Hash, Hex } from 'viem'
+import { simulateContract, writeContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { Asset, ConduitMode } from './types.js'
 
@@ -16,13 +17,13 @@ export type ProcessConduitQueryParameters = {
 }
 
 export async function processConduitQuery(
-  publicClient: PublicClient,
-  walletClient: WalletClient,
+  publicClient: Client,
+  walletClient: Client,
   parameters: ProcessConduitQueryParameters & { account: Address },
 ): Promise<Hash> {
   const { conduit, account, query } = parameters
 
-  const { request } = await publicClient.simulateContract({
+  const { request } = await simulateContract(publicClient, {
     address: conduit,
     abi: conduitAbi,
     functionName: 'process',
@@ -30,5 +31,5 @@ export async function processConduitQuery(
     account,
   })
 
-  return walletClient.writeContract(request)
+  return writeContract(walletClient, request)
 }

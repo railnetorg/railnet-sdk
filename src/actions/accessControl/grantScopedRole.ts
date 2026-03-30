@@ -1,4 +1,5 @@
-import type { Address, Hash, Hex, PublicClient, WalletClient } from 'viem'
+import type { Address, Client, Hash, Hex } from 'viem'
+import { simulateContract, writeContract } from 'viem/actions'
 import { externalAccessControlAbi } from '../../abi/externalAccessControl.js'
 
 export type GrantScopedRoleParameters = {
@@ -9,11 +10,11 @@ export type GrantScopedRoleParameters = {
 }
 
 export async function grantScopedRole(
-  publicClient: PublicClient,
-  walletClient: WalletClient,
+  publicClient: Client,
+  walletClient: Client,
   parameters: GrantScopedRoleParameters & { account: Address },
 ): Promise<Hash> {
-  const { request } = await publicClient.simulateContract({
+  const { request } = await simulateContract(publicClient, {
     address: parameters.accessControl,
     abi: externalAccessControlAbi,
     functionName: 'grantScopedRole',
@@ -21,5 +22,5 @@ export async function grantScopedRole(
     account: parameters.account,
   })
 
-  return walletClient.writeContract(request)
+  return writeContract(walletClient, request)
 }

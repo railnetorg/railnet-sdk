@@ -1,4 +1,5 @@
-import type { Address, Hash, PublicClient, WalletClient } from 'viem'
+import type { Address, Client, Hash } from 'viem'
+import { simulateContract, writeContract } from 'viem/actions'
 import { vehicleRegistryAbi } from '../../abi/vehicleRegistry.js'
 
 export type AuthorizeVehicleParameters = {
@@ -7,11 +8,11 @@ export type AuthorizeVehicleParameters = {
 }
 
 export async function authorizeVehicle(
-  publicClient: PublicClient,
-  walletClient: WalletClient,
+  publicClient: Client,
+  walletClient: Client,
   parameters: AuthorizeVehicleParameters & { account: Address },
 ): Promise<Hash> {
-  const { request } = await publicClient.simulateContract({
+  const { request } = await simulateContract(publicClient, {
     address: parameters.vehicleRegistry,
     abi: vehicleRegistryAbi,
     functionName: 'authorize',
@@ -19,5 +20,5 @@ export async function authorizeVehicle(
     account: parameters.account,
   })
 
-  return walletClient.writeContract(request)
+  return writeContract(walletClient, request)
 }

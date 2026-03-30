@@ -1,13 +1,5 @@
-import {
-  type Address,
-  type Hash,
-  type Hex,
-  keccak256,
-  type PublicClient,
-  toHex,
-  type WalletClient,
-  zeroAddress,
-} from 'viem'
+import { type Address, type Client, type Hash, type Hex, keccak256, toHex, zeroAddress } from 'viem'
+import { simulateContract, writeContract } from 'viem/actions'
 import { multiVehicleFactoryAbi } from '../../abi/multiVehicleFactory.js'
 
 export type MultiVehicleSalts = {
@@ -47,8 +39,8 @@ export type SpawnMultiVehicleParameters = {
  * deployed contract addresses from the transaction receipt.
  */
 export async function spawnMultiVehicle(
-  publicClient: PublicClient,
-  walletClient: WalletClient,
+  publicClient: Client,
+  walletClient: Client,
   parameters: SpawnMultiVehicleParameters & { account: Address },
 ): Promise<Hash> {
   const now = Date.now()
@@ -64,7 +56,7 @@ export async function spawnMultiVehicle(
 
   const initialInterceptions = parameters.initialInterceptions ?? []
 
-  const { request } = await publicClient.simulateContract({
+  const { request } = await simulateContract(publicClient, {
     address: parameters.factory,
     abi: multiVehicleFactoryAbi,
     functionName: 'spawn',
@@ -85,5 +77,5 @@ export async function spawnMultiVehicle(
     account: parameters.account,
   })
 
-  return walletClient.writeContract(request)
+  return writeContract(walletClient, request)
 }
