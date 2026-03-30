@@ -1,12 +1,10 @@
 import {
   type Address,
-  type Chain,
   erc20Abi,
   type Hash,
   type Hex,
   keccak256,
   type PublicClient,
-  type Transport,
   toHex,
   type WalletClient,
 } from 'viem'
@@ -22,8 +20,8 @@ export type DepositConduitParameters = {
 }
 
 export async function depositConduit(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: DepositConduitParameters & { account: Address },
 ): Promise<Hash> {
   const { conduit, token, amount, account } = parameters

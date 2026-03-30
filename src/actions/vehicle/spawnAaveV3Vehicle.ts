@@ -1,11 +1,9 @@
 import {
   type Address,
-  type Chain,
   type Hash,
   type Hex,
   keccak256,
   type PublicClient,
-  type Transport,
   toHex,
   type WalletClient,
   zeroAddress,
@@ -31,8 +29,8 @@ export type SpawnAaveV3VehicleParameters = {
  * deployed vehicle address from the transaction receipt.
  */
 export async function spawnAaveV3Vehicle(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: SpawnAaveV3VehicleParameters & { account: Address },
 ): Promise<Hash> {
   const now = Date.now()

@@ -1,11 +1,9 @@
 import {
   type Address,
-  type Chain,
   type Hash,
   type Hex,
   keccak256,
   type PublicClient,
-  type Transport,
   toHex,
   type WalletClient,
 } from 'viem'
@@ -25,8 +23,8 @@ export type SpawnAccessControlParameters = {
  * deployed address from the transaction receipt.
  */
 export async function spawnAccessControl(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: SpawnAccessControlParameters & { account: Address },
 ): Promise<Hash> {
   const deploymentSalt =

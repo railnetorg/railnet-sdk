@@ -1,11 +1,9 @@
 import {
   type Address,
-  type Chain,
   erc20Abi,
   type Hash,
   type Hex,
   type PublicClient,
-  type Transport,
   type WalletClient,
 } from 'viem'
 import { externalAccessControlAbi } from '../abi/externalAccessControl.js'
@@ -52,8 +50,8 @@ export type DeployMultiVehicleResult = {
 }
 
 export async function deployMultiVehicle(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: DeployMultiVehicleParameters & { account: Address },
 ): Promise<DeployMultiVehicleResult> {
   const chain = publicClient.chain

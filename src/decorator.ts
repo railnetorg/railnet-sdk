@@ -1,4 +1,4 @@
-import type { Address, Chain, Client, Transport } from 'viem'
+import type { Address, Client } from 'viem'
 import type { EstimateConduitParameters } from './actions/conduit/estimateConduit.js'
 import { estimateConduit } from './actions/conduit/estimateConduit.js'
 import {
@@ -26,10 +26,7 @@ export type RailnetActions = {
   estimateConduit: (parameters: EstimateConduitParameters) => Promise<Asset[]>
 }
 
-export function railnetActions<
-  transport extends Transport = Transport,
-  chain extends Chain | undefined = Chain | undefined,
->(client: Client<transport, chain>): RailnetActions {
+export function railnetActions(client: Client): RailnetActions {
   return {
     getConduitPosition: (args) => getConduitPosition(client, args),
     getConduitInfo: (args) => getConduitInfo(client, args),

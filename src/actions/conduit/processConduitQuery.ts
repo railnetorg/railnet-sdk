@@ -1,4 +1,4 @@
-import type { Address, Chain, Hash, Hex, PublicClient, Transport, WalletClient } from 'viem'
+import type { Address, Hash, Hex, PublicClient, WalletClient } from 'viem'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { Asset, ConduitMode } from './types.js'
 
@@ -16,8 +16,8 @@ export type ProcessConduitQueryParameters = {
 }
 
 export async function processConduitQuery(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: ProcessConduitQueryParameters & { account: Address },
 ): Promise<Hash> {
   const { conduit, account, query } = parameters

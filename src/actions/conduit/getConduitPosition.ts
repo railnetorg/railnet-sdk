@@ -1,4 +1,4 @@
-import type { Address, Chain, Client, Transport } from 'viem'
+import type { Address, Client } from 'viem'
 import { readContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 
@@ -16,8 +16,8 @@ export type GetConduitPositionParameters = {
 
 export type GetConduitPositionReturnType = ConduitPosition
 
-export async function getConduitPosition<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
+export async function getConduitPosition(
+  client: Client,
   parameters: GetConduitPositionParameters,
 ): Promise<GetConduitPositionReturnType> {
   const { conduit, account } = parameters

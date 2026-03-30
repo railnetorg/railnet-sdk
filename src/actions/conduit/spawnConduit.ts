@@ -1,10 +1,8 @@
 import {
   type Address,
-  type Chain,
   type Hash,
   keccak256,
   type PublicClient,
-  type Transport,
   toHex,
   type WalletClient,
 } from 'viem'
@@ -17,8 +15,8 @@ import type { SpawnConduitParameters } from './types.js'
  * deployed conduit address from the transaction receipt.
  */
 export async function spawnConduit(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: SpawnConduitParameters & { account: Address },
 ): Promise<Hash> {
   const now = Date.now()

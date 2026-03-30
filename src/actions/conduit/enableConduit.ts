@@ -1,4 +1,4 @@
-import type { Address, Chain, Hash, PublicClient, Transport, WalletClient } from 'viem'
+import type { Address, Hash, PublicClient, WalletClient } from 'viem'
 import { conduitAbi } from '../../abi/conduit.js'
 
 export type EnableConduitParameters = {
@@ -6,8 +6,8 @@ export type EnableConduitParameters = {
 }
 
 export async function enableConduit(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: EnableConduitParameters & { account: Address },
 ): Promise<Hash> {
   const { request } = await publicClient.simulateContract({

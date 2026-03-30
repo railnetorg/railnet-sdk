@@ -1,4 +1,4 @@
-import type { Address, Chain, Client, Transport } from 'viem'
+import type { Address, Client } from 'viem'
 import { readContract } from 'viem/actions'
 import { conduitFactoryAbi } from '../../abi/conduitFactory.js'
 import type { SpawnConduitParameters } from './types.js'
@@ -10,8 +10,8 @@ export type PredictConduitDeploymentParameters = Required<
 
 export type PredictConduitDeploymentReturnType = Address
 
-export async function predictConduitDeployment<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
+export async function predictConduitDeployment(
+  client: Client,
   parameters: PredictConduitDeploymentParameters,
 ): Promise<PredictConduitDeploymentReturnType> {
   const spawnParams = {

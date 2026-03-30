@@ -1,4 +1,4 @@
-import type { Address, Chain, Hash, PublicClient, Transport, WalletClient } from 'viem'
+import type { Address, Hash, PublicClient, WalletClient } from 'viem'
 import { conduitFactoryAbi } from '../../abi/conduitFactory.js'
 
 export type FinalizeConduitDepositParameters = {
@@ -7,8 +7,8 @@ export type FinalizeConduitDepositParameters = {
 }
 
 export async function finalizeConduitDeposit(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: FinalizeConduitDepositParameters & { account: Address },
 ): Promise<Hash> {
   const { request } = await publicClient.simulateContract({

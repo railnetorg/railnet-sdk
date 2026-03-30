@@ -1,11 +1,9 @@
 import {
   type Address,
-  type Chain,
   type Hash,
   type Hex,
   keccak256,
   type PublicClient,
-  type Transport,
   toHex,
   type WalletClient,
 } from 'viem'
@@ -21,8 +19,8 @@ export type RedeemConduitParameters = {
 }
 
 export async function redeemConduit(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: RedeemConduitParameters & { account: Address },
 ): Promise<Hash> {
   const { conduit, shares, account } = parameters

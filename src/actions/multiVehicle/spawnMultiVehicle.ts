@@ -1,11 +1,9 @@
 import {
   type Address,
-  type Chain,
   type Hash,
   type Hex,
   keccak256,
   type PublicClient,
-  type Transport,
   toHex,
   type WalletClient,
   zeroAddress,
@@ -49,8 +47,8 @@ export type SpawnMultiVehicleParameters = {
  * deployed contract addresses from the transaction receipt.
  */
 export async function spawnMultiVehicle(
-  publicClient: PublicClient<Transport, Chain>,
-  walletClient: WalletClient<Transport, Chain>,
+  publicClient: PublicClient,
+  walletClient: WalletClient,
   parameters: SpawnMultiVehicleParameters & { account: Address },
 ): Promise<Hash> {
   const now = Date.now()
