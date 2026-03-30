@@ -10,6 +10,7 @@
       "railnet-sdk": ["./src/index.ts"],
       "railnet-sdk/react": ["./src/react/index.ts"]
     },
+    "rootDir": "./src",
     "types": ["node", "vitest/globals"],
 
     // Other Outputs
@@ -38,5 +39,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
+  "include": ["src"],
   "exclude": ["vocs.config.ts"]
 }

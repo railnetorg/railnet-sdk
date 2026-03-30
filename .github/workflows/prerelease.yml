@@ -1,5 +1,7 @@
 name: Prerelease
-on: [push, pull_request]
+# TODO: Re-enable when ready to publish publicly
+on:
+  workflow_dispatch:
 
 jobs:
   build:
