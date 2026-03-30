@@ -10,11 +10,10 @@ export type RevokeScopedRoleParameters = {
 }
 
 export async function revokeScopedRole(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: RevokeScopedRoleParameters & { account: Address },
 ): Promise<Hash> {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.accessControl,
     abi: externalAccessControlAbi,
     functionName: 'revokeScopedRole',
@@ -22,5 +21,5 @@ export async function revokeScopedRole(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

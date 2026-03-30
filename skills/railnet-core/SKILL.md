@@ -94,27 +94,25 @@ const balance = await client.readContract({
 ```
 
 ### Write Operations (Simulate + Write)
-Always simulate before writing to catch reverts early.
+All write actions take a single `client: Client` and use tree-shakable viem action imports (`simulateContract`, `writeContract` from `viem/actions`) internally. The client must have both read and write capabilities.
 
 ```typescript
-import { createPublicClient, createWalletClient, http } from 'viem'
+import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { base } from 'viem/chains'
-import { conduitAbi } from 'railnet-sdk'
+import { publicActions } from 'viem'
+import { depositConduit } from 'railnet-sdk'
 
 const account = privateKeyToAccount('0x...')
-const publicClient = createPublicClient({ chain: base, transport: http() })
-const walletClient = createWalletClient({ account, chain: base, transport: http() })
+const client = createWalletClient({ account, chain: base, transport: http() })
+  .extend(publicActions)
 
-const { request } = await publicClient.simulateContract({
-  address: '0x1234567890123456789012345678901234567890',
-  abi: conduitAbi,
-  functionName: 'deposit',
-  args: [1000000n],
-  account,
+const hash = await depositConduit(client, {
+  conduit: '0x...',
+  token: '0x...',
+  amount: 1_000_000n,
+  account: account.address,
 })
-
-const hash = await walletClient.writeContract(request)
 ```
 
 ## Common Mistakes
@@ -184,7 +182,7 @@ Source: package.json peerDependencies
 Wrong:
 
 ```typescript
-const hash = await depositConduit(publicClient, walletClient, {
+const hash = await depositConduit(client, {
   conduit, token, amount: 1000000n, account: myAddress,
 })
 // Assumes one transaction for gas estimation
@@ -193,7 +191,7 @@ const hash = await depositConduit(publicClient, walletClient, {
 Correct:
 
 ```typescript
-const hash = await depositConduit(publicClient, walletClient, {
+const hash = await depositConduit(client, {
   conduit, token, amount: 1000000n, account: myAddress,
 })
 // depositConduit checks allowance and sends approve tx if needed,

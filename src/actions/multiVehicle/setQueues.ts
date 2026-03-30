@@ -19,11 +19,10 @@ export type SetQueuesParameters = {
 }
 
 export async function setQueues(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: SetQueuesParameters & { account: Address },
 ): Promise<Hash> {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.queueStrategyEngine,
     abi: queueStrategyEngineAbi,
     functionName: 'setQueues',
@@ -31,5 +30,5 @@ export async function setQueues(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

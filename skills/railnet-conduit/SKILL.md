@@ -19,21 +19,23 @@ sources:
 ## Setup
 
 ```typescript
-import { createPublicClient, createWalletClient, http } from 'viem'
+import { createPublicClient, createWalletClient, http, publicActions } from 'viem'
 import { base } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
+// Read-only client (for getConduitInfo, getConduitPosition, etc.)
 const publicClient = createPublicClient({
   chain: base,
   transport: http(),
 })
 
+// Read+write client (for depositConduit, redeemConduit, spawnConduit, etc.)
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
-const walletClient = createWalletClient({
+const client = createWalletClient({
   account,
   chain: base,
   transport: http(),
-})
+}).extend(publicActions)
 ```
 
 ## Core Patterns
@@ -87,15 +89,15 @@ async function deployNewConduit() {
   };
 
   const predicted = await predictConduitDeployment(publicClient, params);
-  const hash = await spawnConduit(publicClient, walletClient, params);
+  const hash = await spawnConduit(client, params);
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
   
   const conduit = extractConduitAddress(receipt, factory);
   
   if (conduit) {
-    await enableConduit(publicClient, walletClient, { 
+    await enableConduit(client, { 
       conduit, 
-      account: walletClient.account.address 
+      account: client.account.address 
     });
   }
 }
@@ -109,7 +111,7 @@ import type { Address } from 'viem'
 
 // Deposit: Auto-checks allowance and sends approve if needed.
 // Internally calls conduit.create() with a DEPOSIT query.
-const depositHash = await depositConduit(publicClient, walletClient, {
+const depositHash = await depositConduit(client, {
   conduit: conduitAddress,
   token: usdcAddress,
   amount: 1_000_000n, // 1 USDC (6 decimals)
@@ -118,7 +120,7 @@ const depositHash = await depositConduit(publicClient, walletClient, {
 
 // Redeem: Auto-checks allowance on conduit shares.
 // Internally calls conduit.createRedeemFromConduitShares().
-const redeemHash = await redeemConduit(publicClient, walletClient, {
+const redeemHash = await redeemConduit(client, {
   conduit: conduitAddress,
   shares: 500_000n,
   // outputAssets is optional — defaults to [].
@@ -150,7 +152,7 @@ const query = {
 }
 
 // Call once the vehicle reaches UNLOCKING state
-const hash = await processConduitQuery(publicClient, walletClient, {
+const hash = await processConduitQuery(client, {
   conduit: conduitAddress,
   query,
   account: account.address,
@@ -168,7 +170,7 @@ import { finalizeConduitDeposit, getAddresses } from 'railnet-sdk'
 
 const addresses = getAddresses(base.id)
 
-const hash = await finalizeConduitDeposit(publicClient, walletClient, {
+const hash = await finalizeConduitDeposit(client, {
   factory: addresses.conduitFactory,
   conduit: conduitAddress,
   account: account.address,
@@ -179,38 +181,45 @@ Source: src/actions/conduit/finalizeConduitDeposit.ts
 
 ## Common Mistakes
 
-### CRITICAL Write actions need both publicClient and walletClient
+### CRITICAL Write actions need a client with both read and write capabilities
 
 Wrong:
 
 ```typescript
+import { createPublicClient, http } from 'viem'
 import { depositConduit } from 'railnet-sdk'
+
+const client = createPublicClient({ chain: base, transport: http() })
+const hash = await depositConduit(client, {
+  conduit: '0x...', token: '0x...', amount: 1000000n, account: '0x...',
+})
+// Fails at runtime — publicClient has no wallet/signing capabilities
+```
+
+Correct:
+
+```typescript
+import { createWalletClient, http, publicActions } from 'viem'
+import { depositConduit } from 'railnet-sdk'
+
+const client = createWalletClient({ account, chain: base, transport: http() })
+  .extend(publicActions)
 
 const hash = await depositConduit(client, {
   conduit: '0x...', token: '0x...', amount: 1000000n, account: '0x...',
 })
 ```
 
-Correct:
+All write actions take `(client, params)` — the client must support both simulation (read) and signing (write).
 
-```typescript
-import { depositConduit } from 'railnet-sdk'
-
-const hash = await depositConduit(publicClient, walletClient, {
-  conduit: '0x...', token: '0x...', amount: 1000000n, account: '0x...',
-})
-```
-
-All write actions take `(publicClient, walletClient, params)` — publicClient for simulation, walletClient for signing.
-
-Source: src/actions/conduit/depositConduit.ts:24-28
+Source: src/actions/conduit/depositConduit.ts:19-21
 
 ### CRITICAL Forgetting account parameter on write actions
 
 Wrong:
 
 ```typescript
-await depositConduit(publicClient, walletClient, {
+await depositConduit(client, {
   conduit: '0x...', token: '0x...', amount: 1000000n,
 })
 ```
@@ -218,7 +227,7 @@ await depositConduit(publicClient, walletClient, {
 Correct:
 
 ```typescript
-await depositConduit(publicClient, walletClient, {
+await depositConduit(client, {
   conduit: '0x...', token: '0x...', amount: 1000000n, account: '0xYourAddress',
 })
 ```
@@ -258,7 +267,7 @@ Source: Protocol docs — estimate() vs convert()
 Wrong:
 
 ```typescript
-const hash = await depositConduit(publicClient, walletClient, {
+const hash = await depositConduit(client, {
   conduit, token, amount: 1000000n, account,
 })
 // Assumes deposit is settled immediately
@@ -267,13 +276,13 @@ const hash = await depositConduit(publicClient, walletClient, {
 Correct:
 
 ```typescript
-const hash = await depositConduit(publicClient, walletClient, {
+const hash = await depositConduit(client, {
   conduit, token, amount: 1000000n, account,
 })
 // For async vehicles (Ethena, Syrup): deposit enters PROCESSING state.
 // Monitor vehicle Updated events or poll vehicle.state(query).
 // When state reaches UNLOCKING, call:
-await processConduitQuery(publicClient, walletClient, { conduit, query, account })
+await processConduitQuery(client, { conduit, query, account })
 ```
 
 When the underlying vehicle is async, the deposit/redeem creates a query in PROCESSING state. Settlement requires calling `processConduitQuery` after the vehicle reaches UNLOCKING.

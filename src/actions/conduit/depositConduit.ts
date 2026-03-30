@@ -17,15 +17,14 @@ export type DepositConduitParameters = {
 }
 
 export async function depositConduit(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: DepositConduitParameters & { account: Address },
 ): Promise<Hash> {
   const { conduit, token, amount, account } = parameters
   const receiver = parameters.receiver ?? account
   const salt = parameters.salt ?? keccak256(toHex(`deposit-${account}-${Date.now()}`))
 
-  const allowance = await readContract(publicClient, {
+  const allowance = await readContract(client, {
     address: token,
     abi: erc20Abi,
     functionName: 'allowance',
@@ -33,15 +32,15 @@ export async function depositConduit(
   })
 
   if (allowance < amount) {
-    const { request: approveRequest } = await simulateContract(publicClient, {
+    const { request: approveRequest } = await simulateContract(client, {
       address: token,
       abi: erc20Abi,
       functionName: 'approve',
       args: [conduit, amount],
       account,
     })
-    const approveHash = await writeContract(walletClient, approveRequest)
-    await waitForTransactionReceipt(publicClient, { hash: approveHash })
+    const approveHash = await writeContract(client, approveRequest)
+    await waitForTransactionReceipt(client, { hash: approveHash })
   }
 
   const query = {
@@ -54,7 +53,7 @@ export async function depositConduit(
     data: '0x' as const,
   }
 
-  const { request: depositRequest } = await simulateContract(publicClient, {
+  const { request: depositRequest } = await simulateContract(client, {
     address: conduit,
     abi: conduitAbi,
     functionName: 'create',
@@ -62,5 +61,5 @@ export async function depositConduit(
     account,
   })
 
-  return writeContract(walletClient, depositRequest)
+  return writeContract(client, depositRequest)
 }

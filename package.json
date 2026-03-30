@@ -39,8 +39,16 @@
     "!skills/_artifacts"
   ],
   "exports": {
-    ".": "./src/index.ts",
-    "./react": "./src/react/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "src": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "src": "./src/react/index.ts",
+      "default": "./dist/react/index.js"
+    }
   },
   "peerDependencies": {
     "viem": ">=2.0.0",
@@ -58,5 +66,9 @@
     "wagmi": {
       "optional": true
     }
-  }
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts"
 }

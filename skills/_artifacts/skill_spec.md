@@ -18,7 +18,7 @@ TanStack Query options, and React/wagmi hooks.
 ## Architecture
 
 Three API layers:
-1. **Standalone viem actions** — `(publicClient, walletClient, params) => Hash` for writes, `(client, params) => Data` for reads
+1. **Standalone viem actions** — `(client, params) => Hash` for writes, `(client, params) => Data` for reads
 2. **TanStack Query options** — `queryOptions({ queryKey, queryFn })` for framework-agnostic caching
 3. **React hooks** — wagmi-based hooks wrapping the above two layers
 
@@ -28,7 +28,7 @@ Base (chain ID 8453) only. All contract addresses are hardcoded for Base.
 
 ## Key Design Decisions
 
-- Write actions take *both* publicClient and walletClient (simulate then sign)
+- Write actions take a single `client: Client` (must have both read and write capabilities)
 - Write actions auto-handle ERC20 allowance checks and approvals
 - Account parameter is always explicit (never auto-injected from wallet)
 - Role constants are precomputed keccak256 hashes exported as `Hex` strings

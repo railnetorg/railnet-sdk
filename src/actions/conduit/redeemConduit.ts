@@ -17,8 +17,7 @@ export type RedeemConduitParameters = {
 }
 
 export async function redeemConduit(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: RedeemConduitParameters & { account: Address },
 ): Promise<Hash> {
   const { conduit, shares, account } = parameters
@@ -26,7 +25,7 @@ export async function redeemConduit(
   const outputAssets = parameters.outputAssets ?? []
   const salt = parameters.salt ?? keccak256(toHex(`redeem-${account}-${Date.now()}`))
 
-  const allowance = await readContract(publicClient, {
+  const allowance = await readContract(client, {
     address: conduit,
     abi: conduitAbi,
     functionName: 'allowance',
@@ -34,18 +33,18 @@ export async function redeemConduit(
   })
 
   if (allowance < shares) {
-    const { request: approveRequest } = await simulateContract(publicClient, {
+    const { request: approveRequest } = await simulateContract(client, {
       address: conduit,
       abi: conduitAbi,
       functionName: 'approve',
       args: [conduit, shares],
       account,
     })
-    const approveHash = await writeContract(walletClient, approveRequest)
-    await waitForTransactionReceipt(publicClient, { hash: approveHash })
+    const approveHash = await writeContract(client, approveRequest)
+    await waitForTransactionReceipt(client, { hash: approveHash })
   }
 
-  const { request: redeemRequest } = await simulateContract(publicClient, {
+  const { request: redeemRequest } = await simulateContract(client, {
     address: conduit,
     abi: conduitAbi,
     functionName: 'createRedeemFromConduitShares',
@@ -53,5 +52,5 @@ export async function redeemConduit(
     account,
   })
 
-  return writeContract(walletClient, redeemRequest)
+  return writeContract(client, redeemRequest)
 }

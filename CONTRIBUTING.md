@@ -40,7 +40,7 @@ ABI (conduitAbi)
 
 **Actions** follow the viem pattern:
 - Read: `(client: Client, params) → Promise<result>`
-- Write: `(walletClient: WalletClient, params & { account: Address }) → Promise<result>`
+- Write: `(client: Client, params & { account: Address }) → Promise<result>`
 
 **Naming** — `{verb}{Domain}.ts`: `depositConduit`, `getConduitPosition`, `estimateConduit`
 

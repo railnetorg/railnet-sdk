@@ -10,11 +10,10 @@ export type SetScopedRolePublicParameters = {
 }
 
 export async function setScopedRolePublic(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: SetScopedRolePublicParameters & { account: Address },
 ): Promise<Hash> {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.accessControl,
     abi: externalAccessControlAbi,
     functionName: 'setScopedRolePublic',
@@ -22,5 +21,5 @@ export async function setScopedRolePublic(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

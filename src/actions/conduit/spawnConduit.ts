@@ -9,8 +9,7 @@ import type { SpawnConduitParameters } from './types.js'
  * deployed conduit address from the transaction receipt.
  */
 export async function spawnConduit(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: SpawnConduitParameters & { account: Address },
 ): Promise<Hash> {
   const now = Date.now()
@@ -34,7 +33,7 @@ export async function spawnConduit(
     deploymentSalt,
   } as const
 
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.factory,
     abi: conduitFactoryAbi,
     functionName: 'spawn',
@@ -42,5 +41,5 @@ export async function spawnConduit(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

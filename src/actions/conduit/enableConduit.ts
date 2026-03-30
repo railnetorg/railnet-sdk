@@ -7,11 +7,10 @@ export type EnableConduitParameters = {
 }
 
 export async function enableConduit(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: EnableConduitParameters & { account: Address },
 ): Promise<Hash> {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.conduit,
     abi: conduitAbi,
     functionName: 'enable',
@@ -19,5 +18,5 @@ export async function enableConduit(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

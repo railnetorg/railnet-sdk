@@ -22,12 +22,14 @@ ExternalAccessControl (EAC) is the central permissioning system for Railnet. It 
 ## Setup
 
 ```typescript
-import { createPublicClient, createWalletClient, http, type Hex, type Address } from 'viem';
+import { createWalletClient, http, publicActions, type Hex, type Address } from 'viem';
 import { base } from 'viem/chains';
+import { privateKeyToAccount } from 'viem/accounts';
 import { getAddresses } from 'railnet-sdk';
 
-const publicClient = createPublicClient({ chain: base, transport: http() });
-const walletClient = createWalletClient({ chain: base, transport: http() });
+const account = privateKeyToAccount('0x...');
+const client = createWalletClient({ account, chain: base, transport: http() })
+  .extend(publicActions);
 const addresses = getAddresses(base.id);
 ```
 
@@ -42,17 +44,17 @@ import { VEHICLE_STEAM } from 'railnet-sdk';
 
 const account = '0x...'; // Deployer
 
-const hash = await spawnAccessControl(publicClient, walletClient, {
+const hash = await spawnAccessControl(client, {
   factory: addresses.accessControlFactory,
-  initialDefaultAdmin: account,
+  initialDefaultAdmin: account.address,
   initialDelay: 0,
   initialRoles: [
     { account: '0x...', role: VEHICLE_STEAM as Hex }
   ],
-  account,
+  account: account.address,
 });
 
-const receipt = await publicClient.waitForTransactionReceipt({ hash });
+const receipt = await client.waitForTransactionReceipt({ hash });
 const accessControlAddress = extractAccessControlAddress(receipt, addresses.accessControlFactory);
 ```
 
@@ -62,7 +64,7 @@ Roles in Railnet are almost always "scoped" to a specific contract. Granting a r
 ```typescript
 import { grantScopedRole, MULTI_VEHICLE_DISPATCH } from 'railnet-sdk';
 
-const hash = await grantScopedRole(publicClient, walletClient, {
+const hash = await grantScopedRole(client, {
   accessControl: '0x...', // EAC address
   role: MULTI_VEHICLE_DISPATCH as Hex,
   scope: '0x...', // MUST be the SectorAccountingEngine address for this role
@@ -77,7 +79,7 @@ Revoking permissions follows the same scoped pattern.
 ```typescript
 import { revokeScopedRole, VEHICLE_STEAM } from 'railnet-sdk';
 
-await revokeScopedRole(publicClient, walletClient, {
+await revokeScopedRole(client, {
   accessControl: '0x...',
   role: VEHICLE_STEAM as Hex,
   scope: '0x...', // Vehicle or Multi-Vehicle address

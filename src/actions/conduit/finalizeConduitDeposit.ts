@@ -8,11 +8,10 @@ export type FinalizeConduitDepositParameters = {
 }
 
 export async function finalizeConduitDeposit(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: FinalizeConduitDepositParameters & { account: Address },
 ): Promise<Hash> {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.factory,
     abi: conduitFactoryAbi,
     functionName: 'finalizeConduitDeposit',
@@ -20,5 +19,5 @@ export async function finalizeConduitDeposit(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

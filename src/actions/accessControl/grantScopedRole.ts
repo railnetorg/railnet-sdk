@@ -10,11 +10,10 @@ export type GrantScopedRoleParameters = {
 }
 
 export async function grantScopedRole(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: GrantScopedRoleParameters & { account: Address },
 ): Promise<Hash> {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.accessControl,
     abi: externalAccessControlAbi,
     functionName: 'grantScopedRole',
@@ -22,5 +21,5 @@ export async function grantScopedRole(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

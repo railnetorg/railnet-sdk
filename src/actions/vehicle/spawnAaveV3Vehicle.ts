@@ -21,8 +21,7 @@ export type SpawnAaveV3VehicleParameters = {
  * deployed vehicle address from the transaction receipt.
  */
 export async function spawnAaveV3Vehicle(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: SpawnAaveV3VehicleParameters & { account: Address },
 ): Promise<Hash> {
   const now = Date.now()
@@ -30,7 +29,7 @@ export async function spawnAaveV3Vehicle(
   const deploymentSalt =
     parameters.deploymentSalt ?? keccak256(toHex(`aave-v3-vehicle-deploy-${now}`))
 
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.factory,
     abi: aaveV3VehicleFactoryAbi,
     functionName: 'spawn',
@@ -50,5 +49,5 @@ export async function spawnAaveV3Vehicle(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

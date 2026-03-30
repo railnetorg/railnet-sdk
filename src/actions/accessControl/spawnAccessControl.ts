@@ -16,8 +16,7 @@ export type SpawnAccessControlParameters = {
  * deployed address from the transaction receipt.
  */
 export async function spawnAccessControl(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: SpawnAccessControlParameters & { account: Address },
 ): Promise<Hash> {
   const deploymentSalt =
@@ -25,7 +24,7 @@ export async function spawnAccessControl(
   const initialDelay = parameters.initialDelay ?? 0
   const initialRoles = parameters.initialRoles ?? []
 
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.factory,
     abi: accessControlFactoryAbi,
     functionName: 'spawn',
@@ -40,5 +39,5 @@ export async function spawnAccessControl(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

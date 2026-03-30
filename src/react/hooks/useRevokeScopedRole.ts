@@ -2,21 +2,19 @@
 
 import { useMutation } from '@tanstack/react-query'
 import type { Address, Hash } from 'viem'
-import { usePublicClient, useWalletClient } from 'wagmi'
+import { useWalletClient } from 'wagmi'
 import {
   type RevokeScopedRoleParameters,
   revokeScopedRole,
 } from '../../actions/accessControl/revokeScopedRole.js'
 
 export function useRevokeScopedRole() {
-  const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
 
   return useMutation<Hash, Error, RevokeScopedRoleParameters & { account: Address }>({
     mutationFn: async (parameters) => {
-      if (!publicClient) throw new Error('Public client not available')
       if (!walletClient) throw new Error('Wallet not connected')
-      return revokeScopedRole(publicClient, walletClient, parameters)
+      return revokeScopedRole(walletClient, parameters)
     },
   })
 }

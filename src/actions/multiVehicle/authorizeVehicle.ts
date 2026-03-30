@@ -8,11 +8,10 @@ export type AuthorizeVehicleParameters = {
 }
 
 export async function authorizeVehicle(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: AuthorizeVehicleParameters & { account: Address },
 ): Promise<Hash> {
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.vehicleRegistry,
     abi: vehicleRegistryAbi,
     functionName: 'authorize',
@@ -20,5 +19,5 @@ export async function authorizeVehicle(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

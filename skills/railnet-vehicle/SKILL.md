@@ -23,14 +23,14 @@ sources:
 ## Setup
 
 ```typescript
-import { createPublicClient, createWalletClient, http, type Hex } from 'viem'
+import { createWalletClient, http, publicActions, type Hex } from 'viem'
 import { base } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getAddresses } from 'railnet-sdk'
 
-const publicClient = createPublicClient({ chain: base, transport: http() })
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
-const walletClient = createWalletClient({ account, chain: base, transport: http() })
+const client = createWalletClient({ account, chain: base, transport: http() })
+  .extend(publicActions)
 
 const addresses = getAddresses(base.id)
 ```
@@ -57,7 +57,7 @@ import {
 
 const addresses = getAddresses(base.id)
 
-const hash = await spawnAaveV3Vehicle(publicClient, walletClient, {
+const hash = await spawnAaveV3Vehicle(client, {
   factory: addresses.aaveV3VehicleFactory,
   asset: addresses.usdc,
   poolAddressesProvider: addresses.aavePoolAddressesProvider,
@@ -67,7 +67,7 @@ const hash = await spawnAaveV3Vehicle(publicClient, walletClient, {
   account: account.address,
 })
 
-const receipt = await publicClient.waitForTransactionReceipt({ hash })
+const receipt = await client.waitForTransactionReceipt({ hash })
 const vehicleAddress = extractAaveV3VehicleAddress(receipt, addresses.aaveV3VehicleFactory)
 ```
 
@@ -96,7 +96,7 @@ const vehicles: VehicleEntry[] = [
   },
 ]
 
-const result = await deployMultiVehicle(publicClient, walletClient, {
+const result = await deployMultiVehicle(client, {
   asset: addresses.usdc,
   name: 'My Strategy',
   symbol: 'MSTRAT',
@@ -128,7 +128,7 @@ const addresses = getAddresses(base.id)
 // (must be done before spawnMultiVehicle)
 
 // Step 2: Spawn
-const hash = await spawnMultiVehicle(publicClient, walletClient, {
+const hash = await spawnMultiVehicle(client, {
   factory: addresses.multiVehicleFactory,
   asset: addresses.usdc,
   name: 'My Strategy',
@@ -139,7 +139,7 @@ const hash = await spawnMultiVehicle(publicClient, walletClient, {
   account: account.address,
 })
 
-const receipt = await publicClient.waitForTransactionReceipt({ hash })
+const receipt = await client.waitForTransactionReceipt({ hash })
 const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFactory)
 // contracts.multiVehicle
 // contracts.queueStrategyEngine
@@ -154,7 +154,7 @@ const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFa
 ```typescript
 import { authorizeVehicle } from 'railnet-sdk'
 
-await authorizeVehicle(publicClient, walletClient, {
+await authorizeVehicle(client, {
   vehicleRegistry: contracts.vehicleRegistry,
   vehicle: aaveV3VehicleAddress,
   account: account.address,
@@ -180,7 +180,7 @@ const redeemQueue: QueueEntry[] = [
   },
 ]
 
-await setQueues(publicClient, walletClient, {
+await setQueues(client, {
   queueStrategyEngine: contracts.queueStrategyEngine,
   depositQueue,
   redeemQueue,
@@ -195,7 +195,7 @@ await setQueues(publicClient, walletClient, {
 Wrong:
 
 ```typescript
-const hash = await spawnMultiVehicle(publicClient, walletClient, {
+const hash = await spawnMultiVehicle(client, {
   factory: addresses.multiVehicleFactory,
   asset: addresses.usdc,
   initialDepositSize: 1_000_000n,
@@ -212,14 +212,16 @@ Correct:
 
 ```typescript
 // Approve factory FIRST
-const { request } = await publicClient.simulateContract({
+import { simulateContract, writeContract } from 'viem/actions'
+
+const { request } = await simulateContract(client, {
   address: addresses.usdc,
   abi: erc20Abi,
   functionName: 'approve',
   args: [addresses.multiVehicleFactory, 1_000_000n],
   account: account.address,
 })
-await walletClient.writeContract(request)
+await writeContract(client, request)
 // Then spawn — or just use deployMultiVehicle which handles this
 ```
 
@@ -243,7 +245,7 @@ Source: src/workflows/deployMultiVehicle.ts
 Wrong:
 
 ```typescript
-const result = await deployMultiVehicle(publicClient, walletClient, {
+const result = await deployMultiVehicle(client, {
   asset: addresses.usdc,
   name: 'Strategy',
   symbol: 'STRAT',
@@ -257,12 +259,12 @@ Correct:
 
 ```typescript
 // 1. Spawn vehicles first
-const vehicleHash = await spawnAaveV3Vehicle(publicClient, walletClient, { ... })
-const vehicleReceipt = await publicClient.waitForTransactionReceipt({ hash: vehicleHash })
+const vehicleHash = await spawnAaveV3Vehicle(client, { ... })
+const vehicleReceipt = await client.waitForTransactionReceipt({ hash: vehicleHash })
 const vehicleAddress = extractAaveV3VehicleAddress(vehicleReceipt, addresses.aaveV3VehicleFactory)
 
 // 2. Then deploy MV with pre-deployed addresses
-const result = await deployMultiVehicle(publicClient, walletClient, {
+const result = await deployMultiVehicle(client, {
   asset: addresses.usdc,
   name: 'Strategy',
   symbol: 'STRAT',
@@ -293,15 +295,15 @@ Source: Protocol docs — manage-multi-vehicle queue semantics
 Wrong:
 
 ```typescript
-const hash = await spawnMultiVehicle(publicClient, walletClient, params)
+const hash = await spawnMultiVehicle(client, params)
 // hash is just a tx hash — where are the deployed contracts?
 ```
 
 Correct:
 
 ```typescript
-const hash = await spawnMultiVehicle(publicClient, walletClient, params)
-const receipt = await publicClient.waitForTransactionReceipt({ hash })
+const hash = await spawnMultiVehicle(client, params)
+const receipt = await client.waitForTransactionReceipt({ hash })
 const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFactory)
 // contracts.multiVehicle, .vehicleRegistry, .queueStrategyEngine, etc.
 ```

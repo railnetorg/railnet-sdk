@@ -39,8 +39,7 @@ export type SpawnMultiVehicleParameters = {
  * deployed contract addresses from the transaction receipt.
  */
 export async function spawnMultiVehicle(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: SpawnMultiVehicleParameters & { account: Address },
 ): Promise<Hash> {
   const now = Date.now()
@@ -56,7 +55,7 @@ export async function spawnMultiVehicle(
 
   const initialInterceptions = parameters.initialInterceptions ?? []
 
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: parameters.factory,
     abi: multiVehicleFactoryAbi,
     functionName: 'spawn',
@@ -77,5 +76,5 @@ export async function spawnMultiVehicle(
     account: parameters.account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }

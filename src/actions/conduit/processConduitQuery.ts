@@ -17,13 +17,12 @@ export type ProcessConduitQueryParameters = {
 }
 
 export async function processConduitQuery(
-  publicClient: Client,
-  walletClient: Client,
+  client: Client,
   parameters: ProcessConduitQueryParameters & { account: Address },
 ): Promise<Hash> {
   const { conduit, account, query } = parameters
 
-  const { request } = await simulateContract(publicClient, {
+  const { request } = await simulateContract(client, {
     address: conduit,
     abi: conduitAbi,
     functionName: 'process',
@@ -31,5 +30,5 @@ export async function processConduitQuery(
     account,
   })
 
-  return writeContract(walletClient, request)
+  return writeContract(client, request)
 }
