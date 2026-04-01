@@ -1,7 +1,7 @@
 'use client'
 
 import type { QueryOptions } from '@tanstack/react-query'
-import type { Chain, Client, ReadContractErrorType, Transport } from 'viem'
+import type { Client, ReadContractErrorType } from 'viem'
 import {
   type EstimateConduitParameters,
   type EstimateConduitReturnType,
@@ -14,8 +14,8 @@ export function estimateConduitQueryKey(parameters: EstimateConduitParameters) {
 
 export type EstimateConduitQueryKey = ReturnType<typeof estimateConduitQueryKey>
 
-export function estimateConduitQueryOptions<chain extends Chain | undefined>(
-  client: Client<Transport, chain> | undefined,
+export function estimateConduitQueryOptions(
+  client: Client | undefined,
   parameters: EstimateConduitParameters,
 ) {
   return {

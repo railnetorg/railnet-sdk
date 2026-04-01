@@ -1,5 +1,5 @@
 import type { QueryOptions } from '@tanstack/react-query'
-import type { Address, Chain, Client, ReadContractErrorType, Transport } from 'viem'
+import type { Address, Client, ReadContractErrorType } from 'viem'
 import {
   type GetConduitInfoReturnType,
   getConduitInfo,
@@ -15,8 +15,8 @@ export function conduitInfoQueryKey(parameters: ConduitInfoParameters) {
 
 export type ConduitInfoQueryKey = ReturnType<typeof conduitInfoQueryKey>
 
-export function conduitInfoQueryOptions<chain extends Chain | undefined>(
-  client: Client<Transport, chain> | undefined,
+export function conduitInfoQueryOptions(
+  client: Client | undefined,
   parameters: ConduitInfoParameters,
 ) {
   return {

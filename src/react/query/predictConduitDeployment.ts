@@ -1,7 +1,7 @@
 'use client'
 
 import type { QueryOptions } from '@tanstack/react-query'
-import type { Address, Chain, Client, ReadContractErrorType, Transport } from 'viem'
+import type { Address, Client, ReadContractErrorType } from 'viem'
 import type { PredictConduitDeploymentParameters } from '../../actions/conduit/predictConduitDeployment.js'
 import { predictConduitDeployment } from '../../actions/conduit/predictConduitDeployment.js'
 
@@ -11,8 +11,8 @@ export function predictConduitDeploymentQueryKey(parameters: PredictConduitDeplo
 
 export type PredictConduitDeploymentQueryKey = ReturnType<typeof predictConduitDeploymentQueryKey>
 
-export function predictConduitDeploymentQueryOptions<chain extends Chain | undefined>(
-  client: Client<Transport, chain> | undefined,
+export function predictConduitDeploymentQueryOptions(
+  client: Client | undefined,
   parameters: PredictConduitDeploymentParameters,
 ) {
   return {
