@@ -1,6 +1,7 @@
 import { type Address, type Client, type Hash, keccak256, toHex } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { conduitFactoryAbi } from '../../abi/conduitFactory.js'
+import type { ContractCallOptions } from '../../types.js'
 import type { SpawnConduitParameters } from './types.js'
 
 /**
@@ -11,6 +12,7 @@ import type { SpawnConduitParameters } from './types.js'
 export async function spawnConduit(
   client: Client,
   parameters: SpawnConduitParameters & { account: Address },
+  options?: ContractCallOptions,
 ): Promise<Hash> {
   const now = Date.now()
   const querySalt =
@@ -34,6 +36,7 @@ export async function spawnConduit(
   } as const
 
   const { request } = await simulateContract(client, {
+    ...options,
     address: parameters.factory,
     abi: conduitFactoryAbi,
     functionName: 'spawn',

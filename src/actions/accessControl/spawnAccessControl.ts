@@ -1,6 +1,7 @@
 import { type Address, type Client, type Hash, type Hex, keccak256, toHex } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { accessControlFactoryAbi } from '../../abi/accessControlFactory.js'
+import type { ContractCallOptions } from '../../types.js'
 
 export type SpawnAccessControlParameters = {
   factory: Address
@@ -18,6 +19,7 @@ export type SpawnAccessControlParameters = {
 export async function spawnAccessControl(
   client: Client,
   parameters: SpawnAccessControlParameters & { account: Address },
+  options?: ContractCallOptions,
 ): Promise<Hash> {
   const deploymentSalt =
     parameters.deploymentSalt ?? keccak256(toHex(`access-control-${Date.now()}`))
@@ -25,6 +27,7 @@ export async function spawnAccessControl(
   const initialRoles = parameters.initialRoles ?? []
 
   const { request } = await simulateContract(client, {
+    ...options,
     address: parameters.factory,
     abi: accessControlFactoryAbi,
     functionName: 'spawn',

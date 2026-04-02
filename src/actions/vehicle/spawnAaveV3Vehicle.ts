@@ -1,6 +1,7 @@
 import { type Address, type Client, type Hash, type Hex, keccak256, toHex, zeroAddress } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { aaveV3VehicleFactoryAbi } from '../../abi/aaveV3VehicleFactory.js'
+import type { ContractCallOptions } from '../../types.js'
 
 export type SpawnAaveV3VehicleParameters = {
   factory: Address
@@ -23,6 +24,7 @@ export type SpawnAaveV3VehicleParameters = {
 export async function spawnAaveV3Vehicle(
   client: Client,
   parameters: SpawnAaveV3VehicleParameters & { account: Address },
+  options?: ContractCallOptions,
 ): Promise<Hash> {
   const now = Date.now()
   const querySalt = parameters.querySalt ?? keccak256(toHex(`aave-v3-vehicle-query-${now}`))
@@ -30,6 +32,7 @@ export async function spawnAaveV3Vehicle(
     parameters.deploymentSalt ?? keccak256(toHex(`aave-v3-vehicle-deploy-${now}`))
 
   const { request } = await simulateContract(client, {
+    ...options,
     address: parameters.factory,
     abi: aaveV3VehicleFactoryAbi,
     functionName: 'spawn',

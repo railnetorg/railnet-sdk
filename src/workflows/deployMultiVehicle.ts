@@ -17,6 +17,7 @@ import {
   VEHICLE_STEAM,
 } from '../constants/roles.js'
 import { getAddresses } from '../contracts/chains.js'
+import type { ContractCallOptions } from '../types.js'
 import {
   extractAccessControlAddress,
   extractMultiVehicleContracts,
@@ -51,6 +52,7 @@ export type DeployMultiVehicleResult = {
 export async function deployMultiVehicle(
   client: Client,
   parameters: DeployMultiVehicleParameters & { account: Address },
+  options?: ContractCallOptions,
 ): Promise<DeployMultiVehicleResult> {
   const chain = client.chain
   if (!chain) throw new Error('Client must have a chain configured')
@@ -64,13 +66,17 @@ export async function deployMultiVehicle(
   if (parameters.accessControl) {
     eacAddress = parameters.accessControl
   } else {
-    const eacHash = await spawnAccessControl(client, {
-      factory: eacFactory,
-      initialDefaultAdmin: adminAddress,
-      initialDelay: 0,
-      initialRoles: [],
-      account: parameters.account,
-    })
+    const eacHash = await spawnAccessControl(
+      client,
+      {
+        factory: eacFactory,
+        initialDefaultAdmin: adminAddress,
+        initialDelay: 0,
+        initialRoles: [],
+        account: parameters.account,
+      },
+      options,
+    )
     const eacReceipt = await waitForTransactionReceipt(client, { hash: eacHash })
     const extractedEac = extractAccessControlAddress(eacReceipt, eacFactory)
     if (!extractedEac) {
@@ -81,6 +87,7 @@ export async function deployMultiVehicle(
   }
 
   const { request: approveRequest } = await simulateContract(client, {
+    ...options,
     address: parameters.asset,
     abi: erc20Abi,
     functionName: 'approve',
@@ -107,7 +114,7 @@ export async function deployMultiVehicle(
   if (parameters.modulesManager !== undefined) {
     mvSpawnParams.modulesManager = parameters.modulesManager
   }
-  const mvHash = await spawnMultiVehicle(client, mvSpawnParams)
+  const mvHash = await spawnMultiVehicle(client, mvSpawnParams, options)
   const mvReceipt = await waitForTransactionReceipt(client, { hash: mvHash })
   const mvContracts = extractMultiVehicleContracts(mvReceipt, multiVehicleFactory)
   if (!mvContracts) {
@@ -116,23 +123,31 @@ export async function deployMultiVehicle(
   transactionHashes.push(mvHash)
 
   transactionHashes.push(
-    await grantScopedRole(client, {
-      accessControl: eacAddress,
-      role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION as Hex,
-      scope: mvContracts.vehicleRegistry,
-      grantee: adminAddress,
-      account: parameters.account,
-    }),
+    await grantScopedRole(
+      client,
+      {
+        accessControl: eacAddress,
+        role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION as Hex,
+        scope: mvContracts.vehicleRegistry,
+        grantee: adminAddress,
+        account: parameters.account,
+      },
+      options,
+    ),
   )
 
   transactionHashes.push(
-    await grantScopedRole(client, {
-      accessControl: eacAddress,
-      role: MULTI_VEHICLE_SET_QUEUES as Hex,
-      scope: mvContracts.queueStrategyEngine,
-      grantee: adminAddress,
-      account: parameters.account,
-    }),
+    await grantScopedRole(
+      client,
+      {
+        accessControl: eacAddress,
+        role: MULTI_VEHICLE_SET_QUEUES as Hex,
+        scope: mvContracts.queueStrategyEngine,
+        grantee: adminAddress,
+        account: parameters.account,
+      },
+      options,
+    ),
   )
 
   for (const vehicle of parameters.vehicles) {
@@ -145,58 +160,78 @@ export async function deployMultiVehicle(
 
     if (!isPublic) {
       transactionHashes.push(
-        await grantScopedRole(client, {
-          accessControl: eacAddress,
-          role: VEHICLE_STEAM as Hex,
-          scope: vehicle.address,
-          grantee: mvContracts.multiVehicle,
-          account: parameters.account,
-        }),
+        await grantScopedRole(
+          client,
+          {
+            accessControl: eacAddress,
+            role: VEHICLE_STEAM as Hex,
+            scope: vehicle.address,
+            grantee: mvContracts.multiVehicle,
+            account: parameters.account,
+          },
+          options,
+        ),
       )
 
       transactionHashes.push(
-        await grantScopedRole(client, {
-          accessControl: eacAddress,
-          role: VEHICLE_STEAM as Hex,
-          scope: vehicle.address,
-          grantee: mvContracts.sectorAccountingEngine,
-          account: parameters.account,
-        }),
+        await grantScopedRole(
+          client,
+          {
+            accessControl: eacAddress,
+            role: VEHICLE_STEAM as Hex,
+            scope: vehicle.address,
+            grantee: mvContracts.sectorAccountingEngine,
+            account: parameters.account,
+          },
+          options,
+        ),
       )
 
       transactionHashes.push(
-        await grantScopedRole(client, {
-          accessControl: eacAddress,
-          role: VEHICLE_STEAM as Hex,
-          scope: vehicle.address,
-          grantee: mvContracts.subQueryEngine,
-          account: parameters.account,
-        }),
+        await grantScopedRole(
+          client,
+          {
+            accessControl: eacAddress,
+            role: VEHICLE_STEAM as Hex,
+            scope: vehicle.address,
+            grantee: mvContracts.subQueryEngine,
+            account: parameters.account,
+          },
+          options,
+        ),
       )
     }
 
     transactionHashes.push(
-      await authorizeVehicle(client, {
-        vehicleRegistry: mvContracts.vehicleRegistry,
-        vehicle: vehicle.address,
-        account: parameters.account,
-      }),
+      await authorizeVehicle(
+        client,
+        {
+          vehicleRegistry: mvContracts.vehicleRegistry,
+          vehicle: vehicle.address,
+          account: parameters.account,
+        },
+        options,
+      ),
     )
   }
 
   transactionHashes.push(
-    await setQueues(client, {
-      queueStrategyEngine: mvContracts.queueStrategyEngine,
-      depositQueue: parameters.vehicles.map((v) => ({
-        vehicle: v.address,
-        target: v.depositTarget,
-      })),
-      redeemQueue: parameters.vehicles.map((v) => ({
-        vehicle: v.address,
-        target: v.redeemTarget,
-      })),
-      account: parameters.account,
-    }),
+    await setQueues(
+      client,
+      {
+        queueStrategyEngine: mvContracts.queueStrategyEngine,
+        depositQueue: parameters.vehicles.map((v) => ({
+          vehicle: v.address,
+          target: v.depositTarget,
+        })),
+        redeemQueue: parameters.vehicles.map((v) => ({
+          vehicle: v.address,
+          target: v.redeemTarget,
+        })),
+        account: parameters.account,
+      },
+      options,
+    ),
   )
 
   return {

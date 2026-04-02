@@ -6,6 +6,7 @@ import {
   writeContract,
 } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
+import type { ContractCallOptions } from '../../types.js'
 import { ConduitMode } from './types.js'
 
 export type DepositConduitParameters = {
@@ -19,6 +20,7 @@ export type DepositConduitParameters = {
 export async function depositConduit(
   client: Client,
   parameters: DepositConduitParameters & { account: Address },
+  options?: ContractCallOptions,
 ): Promise<Hash> {
   const { conduit, token, amount, account } = parameters
   const receiver = parameters.receiver ?? account
@@ -33,6 +35,7 @@ export async function depositConduit(
 
   if (allowance < amount) {
     const { request: approveRequest } = await simulateContract(client, {
+      ...options,
       address: token,
       abi: erc20Abi,
       functionName: 'approve',
@@ -54,6 +57,7 @@ export async function depositConduit(
   }
 
   const { request: depositRequest } = await simulateContract(client, {
+    ...options,
     address: conduit,
     abi: conduitAbi,
     functionName: 'create',

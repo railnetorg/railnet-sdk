@@ -1,6 +1,7 @@
 import { type Address, type Client, type Hash, type Hex, keccak256, toHex, zeroAddress } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { multiVehicleFactoryAbi } from '../../abi/multiVehicleFactory.js'
+import type { ContractCallOptions } from '../../types.js'
 
 export type MultiVehicleSalts = {
   multiVehicle: Hex
@@ -41,6 +42,7 @@ export type SpawnMultiVehicleParameters = {
 export async function spawnMultiVehicle(
   client: Client,
   parameters: SpawnMultiVehicleParameters & { account: Address },
+  options?: ContractCallOptions,
 ): Promise<Hash> {
   const now = Date.now()
   const salts: MultiVehicleSalts = parameters.salts ?? {
@@ -56,6 +58,7 @@ export async function spawnMultiVehicle(
   const initialInterceptions = parameters.initialInterceptions ?? []
 
   const { request } = await simulateContract(client, {
+    ...options,
     address: parameters.factory,
     abi: multiVehicleFactoryAbi,
     functionName: 'spawn',
