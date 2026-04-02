@@ -1,7 +1,7 @@
 ---
 name: railnet-vehicle
 description: >
-  Deploy and manage Railnet vehicles and multi-vehicle strategies —
+  Deploy and manage Railnet vehicles and multi-vehicle strategies -
   spawnAaveV3Vehicle, spawnMultiVehicle, authorizeVehicle, setQueues,
   deployMultiVehicle workflow, extractMultiVehicleContracts,
   extractAaveV3VehicleAddress, VehicleEntry, QueueEntry, QueueTarget,
@@ -42,7 +42,7 @@ Vehicles wrap yield sources with the STEAM interface. Two flavors:
 - **Sync**: Deposits and redeems settle in a single transaction (Aave V3, Compound V3, Morpho Blue, ERC4626). State: EMPTY → UNLOCKING → SETTLED.
 - **Async**: Redeems require multiple transactions due to cooldowns (Ethena, Syrup). State: EMPTY → PROCESSING → UNLOCKING → SETTLED.
 
-Multi-Vehicles are also vehicles — they implement STEAM and aggregate multiple sub-vehicles into a single entry point.
+Multi-Vehicles are also vehicles - they implement STEAM and aggregate multiple sub-vehicles into a single entry point.
 
 ## Core Patterns
 
@@ -105,10 +105,10 @@ const result = await deployMultiVehicle(client, {
   account: account.address,
 })
 
-// result.eacAddress — the ExternalAccessControl address
-// result.multiVehicleContracts — { multiVehicle, queryRedeemQueue,
+// result.eacAddress - the ExternalAccessControl address
+// result.multiVehicleContracts - { multiVehicle, queryRedeemQueue,
 //   queueStrategyEngine, sectorAccountingEngine, subQueryEngine, vehicleRegistry }
-// result.transactionHashes — all tx hashes in order
+// result.transactionHashes - all tx hashes in order
 ```
 
 ### Spawn Multi-Vehicle Manually
@@ -222,7 +222,7 @@ const { request } = await simulateContract(client, {
   account: account.address,
 })
 await writeContract(client, request)
-// Then spawn — or just use deployMultiVehicle which handles this
+// Then spawn - or just use deployMultiVehicle which handles this
 ```
 
 The factory pulls an initial deposit during spawn to protect against share inflation attacks. Without approval, the transaction reverts. The `deployMultiVehicle` workflow handles this automatically.
@@ -288,7 +288,7 @@ Wrong assumption: `target.value: 5000e18` means "maintain 50% allocation".
 
 Correct understanding: `target.value: 5000e18` means "fill up to 5000 shares". Once a vehicle hits its target from yield growth, new deposits skip it and flow to the next entry. Targets are absolute ceilings (deposit queue) or floors (redeem queue), not ongoing ratios.
 
-Source: Protocol docs — manage-multi-vehicle queue semantics
+Source: Protocol docs - manage-multi-vehicle queue semantics
 
 ### HIGH Not extracting addresses from transaction receipts
 
@@ -296,7 +296,7 @@ Wrong:
 
 ```typescript
 const hash = await spawnMultiVehicle(client, params)
-// hash is just a tx hash — where are the deployed contracts?
+// hash is just a tx hash - where are the deployed contracts?
 ```
 
 Correct:
@@ -322,4 +322,4 @@ Source: src/workflows/deployMultiVehicle.ts:121-170
 
 See also: railnet-access-control/SKILL.md
 
-See also: railnet-access-control/references/role-reference.md — full role-to-scope mapping
+See also: railnet-access-control/references/role-reference.md - full role-to-scope mapping

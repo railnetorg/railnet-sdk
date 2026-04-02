@@ -1,7 +1,7 @@
 ---
 name: railnet-access-control
 description: >
-  Manage Railnet role-based access control — spawnAccessControl,
+  Manage Railnet role-based access control - spawnAccessControl,
   grantScopedRole, revokeScopedRole, extractAccessControlAddress,
   role constants (VEHICLE_STEAM, MULTI_VEHICLE_DISPATCH,
   MULTI_VEHICLE_REBALANCE, MULTI_VEHICLE_SET_QUEUES, etc.),

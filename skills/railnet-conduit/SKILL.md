@@ -1,7 +1,7 @@
 ---
 name: railnet-conduit
 description: >
-  Interact with Railnet Conduits — depositConduit, redeemConduit,
+  Interact with Railnet Conduits - depositConduit, redeemConduit,
   getConduitPosition, getConduitInfo, estimateConduit,
   predictConduitDeployment, spawnConduit, enableConduit,
   finalizeConduitDeposit, processConduitQuery. Covers deposits,
@@ -123,7 +123,7 @@ const depositHash = await depositConduit(client, {
 const redeemHash = await redeemConduit(client, {
   conduit: conduitAddress,
   shares: 500_000n,
-  // outputAssets is optional — defaults to [].
+  // outputAssets is optional - defaults to [].
   // Pass specific assets to control which tokens you receive back.
   account: account.address,
 })
@@ -133,7 +133,7 @@ const redeemHash = await redeemConduit(client, {
 
 When the underlying vehicle is async, `create()` returns state PROCESSING (not UNLOCKING). The query must be processed later once the vehicle settles.
 
-Note: `create()` never produces REJECTED or RECOVERING — validation failures always revert. If `create()` succeeds, the query is in PROCESSING or UNLOCKING.
+Note: `create()` never produces REJECTED or RECOVERING - validation failures always revert. If `create()` succeeds, the query is in PROCESSING or UNLOCKING.
 
 ```typescript
 import { processConduitQuery, type ConduitMode } from 'railnet-sdk'
@@ -193,7 +193,7 @@ const client = createPublicClient({ chain: base, transport: http() })
 const hash = await depositConduit(client, {
   conduit: '0x...', token: '0x...', amount: 1000000n, account: '0x...',
 })
-// Fails at runtime — publicClient has no wallet/signing capabilities
+// Fails at runtime - publicClient has no wallet/signing capabilities
 ```
 
 Correct:
@@ -210,7 +210,7 @@ const hash = await depositConduit(client, {
 })
 ```
 
-All write actions take `(client, params)` — the client must support both simulation (read) and signing (write).
+All write actions take `(client, params)` - the client must support both simulation (read) and signing (write).
 
 Source: src/actions/conduit/depositConduit.ts:19-21
 
@@ -260,7 +260,7 @@ console.log(position.assets)
 
 `estimateConduit` includes fees in its calculation. For fee-free share-to-asset conversion, use `getConduitPosition` which calls `convert()` internally.
 
-Source: Protocol docs — estimate() vs convert()
+Source: Protocol docs - estimate() vs convert()
 
 ### HIGH Not handling async conduit queries
 
@@ -325,6 +325,6 @@ See also: railnet-core/SKILL.md § Common Mistakes
 
 - [Error Reference](references/error-reference.md)
 
-See also: railnet-access-control/SKILL.md — spawning a conduit requires an EAC address, and conduit operations may fail with `MissingRole` if `VEHICLE_STEAM` is not granted.
+See also: railnet-access-control/SKILL.md - spawning a conduit requires an EAC address, and conduit operations may fail with `MissingRole` if `VEHICLE_STEAM` is not granted.
 
-See also: railnet-react/SKILL.md — React hooks wrap these core actions.
+See also: railnet-react/SKILL.md - React hooks wrap these core actions.

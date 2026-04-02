@@ -59,7 +59,7 @@ const addresses = getAddresses(base.id)
 // addresses.conduitFactory
 // addresses.multiVehicleFactory
 // addresses.aaveV3VehicleFactory
-// addresses.eacFactory              — ExternalAccessControl factory
+// addresses.eacFactory              - ExternalAccessControl factory
 // addresses.compoundV3VehicleFactory
 // addresses.erc4626VehicleFactory
 // addresses.morphoBlueVehicleFactory
@@ -69,7 +69,7 @@ const addresses = getAddresses(base.id)
 // addresses.accountListFactory
 // addresses.ownerRegistryFactory
 // addresses.aavePoolAddressesProvider
-// addresses.usdc                    — USDC on Base
+// addresses.usdc                    - USDC on Base
 ```
 
 ### Direct ABI Usage

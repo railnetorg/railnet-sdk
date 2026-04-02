@@ -1,4 +1,4 @@
-# Protocole Railnet — Vue d'ensemble technique complète
+# Protocole Railnet - Vue d'ensemble technique complète
 
 ## 1. C'est quoi Railnet ?
 
@@ -8,9 +8,9 @@ Railnet est une **infrastructure DeFi de niveau institutionnel** pour la gestion
 
 ---
 
-## 2. Le Standard STEAM — L'abstraction centrale
+## 2. Le Standard STEAM - L'abstraction centrale
 
-Tout dans Railnet est construit sur **STEAM** (State Transition Engine for Asset Management — Moteur de Transitions d'État pour la Gestion d'Actifs). Il remplace le modèle simple "dépose et récupère des tokens" d'ERC-4626 par une **machine à états** qui suit chaque opération individuellement.
+Tout dans Railnet est construit sur **STEAM** (State Transition Engine for Asset Management - Moteur de Transitions d'État pour la Gestion d'Actifs). Il remplace le modèle simple "dépose et récupère des tokens" d'ERC-4626 par une **machine à états** qui suit chaque opération individuellement.
 
 ### Pourquoi pas juste ERC-4626 ?
 
@@ -19,9 +19,9 @@ ERC-4626 suppose des opérations synchrones : tu déposes, tu reçois instantan�
 - Syrup/Maple a des files d'attente de retrait (le gestionnaire de pool traite par lots)
 - Le rééquilibrage multi-stratégie nécessite plusieurs étapes cross-protocoles
 
-STEAM gère les deux — sync et async — dans une seule interface.
+STEAM gère les deux - sync et async - dans une seule interface.
 
-### La Query — L'unité de travail de STEAM
+### La Query - L'unité de travail de STEAM
 
 Chaque opération (dépôt ou rachat) est une **Query** :
 
@@ -40,7 +40,7 @@ Chaque opération (dépôt ou rachat) est une **Query** :
 }
 ```
 
-**ID de Query** = `keccak256(chainId, vehicleAddress, query)` — déterministe, calculable off-chain.
+**ID de Query** = `keccak256(chainId, vehicleAddress, query)` - déterministe, calculable off-chain.
 
 ### La Machine à États
 
@@ -72,7 +72,7 @@ EMPTY → create() → PROCESSING ou UNLOCKING
 
 ---
 
-## 3. Le Millefeuille — Architecture de bas en haut
+## 3. Le Millefeuille - Architecture de bas en haut
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -102,9 +102,9 @@ EMPTY → create() → PROCESSING ou UNLOCKING
 
 ---
 
-## 4. Les Vehicles — Intégrations de protocoles
+## 4. Les Vehicles - Intégrations de protocoles
 
-Un Vehicle est un smart contract qui implémente `IVehicle` (l'interface STEAM) pour un protocole DeFi spécifique. C'est aussi un **token ERC20** — les parts du vehicle (vehicle shares).
+Un Vehicle est un smart contract qui implémente `IVehicle` (l'interface STEAM) pour un protocole DeFi spécifique. C'est aussi un **token ERC20** - les parts du vehicle (vehicle shares).
 
 ### Vehicles disponibles
 
@@ -119,7 +119,7 @@ Un Vehicle est un smart contract qui implémente `IVehicle` (l'interface STEAM) 
 | **WrapperVehicle** | Wrappe un autre Vehicle | Sync/variable | Enveloppe un vehicle existant avec de la logique additionnelle |
 | **MultiVehicle** | Méta-agrégateur | Sync/**Async** | Orchestre plusieurs sous-vehicles (voir section 6) |
 
-### Exemple de Vehicle — Dépôt Aave V3
+### Exemple de Vehicle - Dépôt Aave V3
 
 Ce qui se passe quand tu déposes 1000 USDC dans un AaveV3Vehicle :
 
@@ -171,7 +171,7 @@ Exemple :
 
 ---
 
-## 5. Les Conduits — La couche face à l'utilisateur
+## 5. Les Conduits - La couche face à l'utilisateur
 
 Les utilisateurs finaux **n'interagissent jamais directement avec les Vehicles**. Ils interagissent avec les **Conduits**.
 
@@ -297,9 +297,9 @@ Chaque Conduit a une politique de transfert pour ses parts ERC20 :
 |------|-------------|
 | `ALLOW_TRANSFER` | N'importe qui peut transférer les parts de conduit librement |
 | `ACCOUNT_LIST` | Seules les adresses dans l'AccountList peuvent envoyer/recevoir |
-| `BLOCK_TRANSFER` | Pas de transferts — seulement mint (dépôt) et burn (rachat) |
+| `BLOCK_TRANSFER` | Pas de transferts - seulement mint (dépôt) et burn (rachat) |
 
-### OwnerRegistry — NFT de Query
+### OwnerRegistry - NFT de Query
 
 Quand un utilisateur a une query async (ex : un rachat en attente du cooldown Ethena), il peut la **wrapper** en NFT ERC-721 :
 
@@ -319,7 +319,7 @@ ownerRegistry.transferFrom(utilisateur, acheteur, tokenId)
 
 ---
 
-## 6. Le MultiVehicle — Le moteur de méta-stratégie
+## 6. Le MultiVehicle - Le moteur de méta-stratégie
 
 C'est la partie la plus complexe. Un MultiVehicle est lui-même un Vehicle STEAM, mais au lieu de se connecter à un seul protocole, il **orchestre plusieurs sous-vehicles**.
 
@@ -332,7 +332,7 @@ Un gestionnaire d'actifs veut gérer un fonds "Rendement USDC Diversifié" :
 
 Le MultiVehicle gère tout ça automatiquement.
 
-### Architecture — 5 composants
+### Architecture - 5 composants
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -341,7 +341,7 @@ Le MultiVehicle gère tout ça automatiquement.
 │  create() / unlock() / state()                   │
 ├──────────────────────────────────────────────────┤
 │           SECTOR ACCOUNTING ENGINE                │
-│  Comptable central — suit les actifs par secteur │
+│  Comptable central - suit les actifs par secteur │
 │  deposit() / withdraw() / moveAssets()           │
 │  rebalance() / dispatch()                        │
 ├──────────────────────────────────────────────────┤
@@ -364,7 +364,7 @@ Le MultiVehicle gère tout ça automatiquement.
 └──────────────────────────────────────────────────┘
 ```
 
-### Comptabilité par secteurs — Comment les actifs sont suivis
+### Comptabilité par secteurs - Comment les actifs sont suivis
 
 Le SectorAccountingEngine utilise des **secteurs** (pense à des seaux étiquetés) :
 
@@ -375,7 +375,7 @@ Secteur REDEEM :      USDC qui ont été rachetés des sous-vehicles, prêts à 
 Secteurs Vehicle :    Zones de transit par vehicle (actifs/parts en attente de création de query)
 ```
 
-**Exemple de flux** — L'utilisateur dépose 10 000 USDC :
+**Exemple de flux** - L'utilisateur dépose 10 000 USDC :
 
 ```
 Étape 1 : L'utilisateur dépose
@@ -463,7 +463,7 @@ L'utilisateur brûle 500 parts MV → reçoit 525 USDC instantanément
 
 ---
 
-## 7. Les Frais — Le FeeManager
+## 7. Les Frais - Le FeeManager
 
 Le FeeManager est un contrat autonome qui gère quatre types de frais :
 
@@ -480,7 +480,7 @@ Le FeeManager est un contrat autonome qui gère quatre types de frais :
 3. Le FeeManager accumule des parts de conduit
 4. Le gestionnaire d'actifs appelle `dispatchERC20()` → les parts sont distribuées aux destinataires des frais
 
-**Destinataires des frais** — les frais sont répartis :
+**Destinataires des frais** - les frais sont répartis :
 ```typescript
 [
   { target: "0xProtocolTreasury", shareBps: 5000 },  // 50% au protocole
@@ -489,7 +489,7 @@ Le FeeManager est un contrat autonome qui gère quatre types de frais :
 // shareBps doit totaliser 10 000 (100%)
 ```
 
-**La configuration des frais a des plafonds max** — définis à l'initialisation, ne peuvent jamais être dépassés :
+**La configuration des frais a des plafonds max** - définis à l'initialisation, ne peuvent jamais être dépassés :
 ```typescript
 maxFees = {
   performanceFeeBps: 3000,  // Max 30%
@@ -502,9 +502,9 @@ maxFees = {
 
 ---
 
-## 8. Contrôle d'accès — Le système RBAC
+## 8. Contrôle d'accès - Le système RBAC
 
-Railnet utilise **ExternalAccessControl** — un seul contrat partagé qui gère les rôles à travers tous les composants du protocole.
+Railnet utilise **ExternalAccessControl** - un seul contrat partagé qui gère les rôles à travers tous les composants du protocole.
 
 ### Concept clé : Rôles avec portée (Scoped Roles)
 
@@ -537,7 +537,7 @@ Alice peut maintenant appeler `rebalance()` sur ce SectorAccountingEngine spéci
 
 ---
 
-## 9. Les Factories — Comment les choses sont déployées
+## 9. Les Factories - Comment les choses sont déployées
 
 Tout est déployé via des contrats **Factory**. Les Factories :
 1. Déploient via CREATE2 (adresses déterministes, prévisibles avant le déploiement)
@@ -579,7 +579,7 @@ Factory.spawn() :
 
 ---
 
-## 10. Les Keepers — La couche d'automatisation
+## 10. Les Keepers - La couche d'automatisation
 
 Le système Keeper automatise les transitions d'état asynchrones. C'est un service off-chain qui :
 
@@ -742,12 +742,12 @@ Chaque action suit ce pattern :
 ## 14. Ce qu'il faut retenir
 
 1. **Les utilisateurs interagissent avec les Conduits, jamais directement avec les Vehicles**
-2. **Tout est une Query** — les dépôts et rachats sont suivis comme des opérations de machine à états
+2. **Tout est une Query** - les dépôts et rachats sont suivis comme des opérations de machine à états
 3. **Les vehicles sync** (Aave, Compound, Morpho, ERC4626) se règlent en une seule tx
 4. **Les vehicles async** (Ethena, Syrup) nécessitent des Keepers pour faire avancer l'état
-5. **Le MultiVehicle** est un vehicle de vehicles — il gère l'allocation de stratégie automatiquement
+5. **Le MultiVehicle** est un vehicle de vehicles - il gère l'allocation de stratégie automatiquement
 6. **Les frais** sont dans un contrat séparé (FeeManager), pas intégrés dans le vehicle
 7. **Le contrôle d'accès** est partagé (un seul EAC par déploiement), les rôles ont une portée limitée à des contrats spécifiques
 8. **Les Factories** déploient tout, avec une protection anti-inflation intégrée
-9. **Les IDs de Query** sont déterministes : `keccak256(chainId, vehicle, query)` — calculables off-chain
-10. **Parts de conduit ≠ Parts de vehicle** — deux couches, mais les utilisateurs ne voient que les parts de conduit
+9. **Les IDs de Query** sont déterministes : `keccak256(chainId, vehicle, query)` - calculables off-chain
+10. **Parts de conduit ≠ Parts de vehicle** - deux couches, mais les utilisateurs ne voient que les parts de conduit

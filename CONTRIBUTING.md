@@ -42,7 +42,7 @@ ABI (conduitAbi)
 - Read: `(client: Client, params) → Promise<result>`
 - Write: `(client: Client, params & { account: Address }) → Promise<result>`
 
-**Naming** — `{verb}{Domain}.ts`: `depositConduit`, `getConduitPosition`, `estimateConduit`
+**Naming** - `{verb}{Domain}.ts`: `depositConduit`, `getConduitPosition`, `estimateConduit`
 
 ## Adding a New Action
 
@@ -55,7 +55,7 @@ ABI (conduitAbi)
 
 ## Build & Publish
 
-Built with [zile](https://github.com/wevm/zile). `bun run build` (= `zile`) transpiles via tsc and rewrites `package.json` for publish. Don't run build locally — use `bun run dev` instead. The CI handles build + publish via changesets:
+Built with [zile](https://github.com/wevm/zile). `bun run build` (= `zile`) transpiles via tsc and rewrites `package.json` for publish. Don't run build locally - use `bun run dev` instead. The CI handles build + publish via changesets:
 
 ```
 zile publish:prepare → changeset publish → zile publish:post
@@ -68,7 +68,7 @@ zile publish:prepare → changeset publish → zile publish:post
 Never publish from a local terminal. All releases go through CI.
 
 ```
-1. bunx changeset                        # in your feature branch — pick patch/minor/major
+1. bunx changeset                        # in your feature branch - pick patch/minor/major
 2. git add .changeset/ && git commit     # commit the generated .changeset/*.md file
 3. push branch → open PR                 # CI runs verify + prerelease preview
 4. merge PR into main                    # CI creates a "chore: version packages" PR

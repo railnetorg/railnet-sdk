@@ -1,4 +1,4 @@
-# check-skills.yml — Drop this into your library repo's .github/workflows/
+# check-skills.yml - Drop this into your library repo's .github/workflows/
 #
 # Checks for stale intent skills after a release and opens a review PR
 # if any skills need attention. The PR body includes a prompt you can
@@ -7,7 +7,7 @@
 # Triggers: new release published, or manual workflow_dispatch.
 #
 # Template variables (replaced by `intent setup`):
-#   railnet-sdk — e.g. @tanstack/query or my-workspace workspace
+#   railnet-sdk - e.g. @tanstack/query or my-workspace workspace
 
 name: Check Skills
 

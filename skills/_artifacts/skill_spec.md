@@ -1,8 +1,8 @@
-# Skill Specification — railnet-sdk
+# Skill Specification - railnet-sdk
 
 ## Library Overview
 
-railnet-sdk is a TypeScript SDK for the Railnet protocol — institutional-grade DeFi
+railnet-sdk is a TypeScript SDK for the Railnet protocol - institutional-grade DeFi
 infrastructure for yield structuring and distribution. It wraps on-chain smart contracts
 (Conduits, Vehicles, Multi-Vehicles, ExternalAccessControl) with typed viem actions,
 TanStack Query options, and React/wagmi hooks.
@@ -18,9 +18,9 @@ TanStack Query options, and React/wagmi hooks.
 ## Architecture
 
 Three API layers:
-1. **Standalone viem actions** — `(client, params) => Hash` for writes, `(client, params) => Data` for reads
-2. **TanStack Query options** — `queryOptions({ queryKey, queryFn })` for framework-agnostic caching
-3. **React hooks** — wagmi-based hooks wrapping the above two layers
+1. **Standalone viem actions** - `(client, params) => Hash` for writes, `(client, params) => Data` for reads
+2. **TanStack Query options** - `queryOptions({ queryKey, queryFn })` for framework-agnostic caching
+3. **React hooks** - wagmi-based hooks wrapping the above two layers
 
 ## Chain Support
 

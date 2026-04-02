@@ -1,7 +1,7 @@
 ---
 name: railnet-react
 description: >
-  React hooks and TanStack Query integration for railnet-sdk —
+  React hooks and TanStack Query integration for railnet-sdk -
   useConduitPosition, useConduitInfo, useEstimateConduit,
   useDepositConduit, useRedeemConduit, useSpawnConduit,
   useDeployMultiVehicle, useGrantScopedRole, conduitPositionQueryOptions,
@@ -175,5 +175,5 @@ export function useDepositWithRefresh() {
 4. **BigInt Serialization in DevTools**: Passing `bigint` values in query parameters (like `amount` in some estimations). While TanStack Query handles `bigint` in query keys for equality checks, the standard JSON-based DevTools might fail to serialize them, leading to confusing "cannot serialize BigInt" errors in the console during development.
 
 ---
-See also: railnet-conduit/SKILL.md — hooks wrap these core actions
-See also: railnet-core/SKILL.md — chain and client setup
+See also: railnet-conduit/SKILL.md - hooks wrap these core actions
+See also: railnet-core/SKILL.md - chain and client setup
