@@ -9,7 +9,7 @@ Grants a scoped role on the ExternalAccessControl contract. Requires a `WalletCl
 ## Import
 
 ```ts
-import { grantScopedRole } from 'railnet-sdk'
+import { grantScopedRole } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ import { grantScopedRole } from 'railnet-sdk'
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { grantScopedRole, VEHICLE_STEAM } from 'railnet-sdk'
+import { grantScopedRole, VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,
@@ -35,7 +35,7 @@ const hash = await grantScopedRole(walletClient, {
 
 Role constants are available for import:
 ```ts
-import { VEHICLE_STEAM, MULTI_VEHICLE_SET_QUEUES } from 'railnet-sdk'
+import { VEHICLE_STEAM, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/railnet-sdk'
 ```
 
 ## Returns

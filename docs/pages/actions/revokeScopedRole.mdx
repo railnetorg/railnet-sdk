@@ -9,7 +9,7 @@ Revokes a scoped role on the ExternalAccessControl contract. Requires a `WalletC
 ## Import
 
 ```ts
-import { revokeScopedRole } from 'railnet-sdk'
+import { revokeScopedRole } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ import { revokeScopedRole } from 'railnet-sdk'
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { revokeScopedRole, VEHICLE_STEAM } from 'railnet-sdk'
+import { revokeScopedRole, VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,

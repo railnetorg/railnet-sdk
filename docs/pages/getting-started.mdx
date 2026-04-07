@@ -9,15 +9,15 @@ description: Get started with the Railnet SDK.
 :::code-group
 
 ```bash [bun]
-bun add railnet-sdk viem
+bun add @railnetorg/railnet-sdk viem
 ```
 
 ```bash [pnpm]
-pnpm add railnet-sdk viem
+pnpm add @railnetorg/railnet-sdk viem
 ```
 
 ```bash [npm]
-npm install railnet-sdk viem
+npm install @railnetorg/railnet-sdk viem
 ```
 
 :::
@@ -53,7 +53,7 @@ Actions are standalone async functions that take a viem `Client` as first argume
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { getConduitPosition } from 'railnet-sdk'
+import { getConduitPosition } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: base,
@@ -73,7 +73,7 @@ You can also extend a viem client with all Railnet actions using the `railnetAct
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { railnetActions } from 'railnet-sdk'
+import { railnetActions } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: base,
@@ -91,7 +91,7 @@ const position = await client.getConduitPosition({
 Hooks are built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query). They handle caching, re-fetching, and loading states automatically.
 
 ```tsx
-import { useConduitPosition } from 'railnet-sdk/react'
+import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
 
 function Position() {
   const { data, isLoading } = useConduitPosition({

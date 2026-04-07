@@ -9,14 +9,14 @@ React mutation hook for revoking a scoped role on the ExternalAccessControl.
 ## Import
 
 ```ts
-import { useRevokeScopedRole } from 'railnet-sdk/react'
+import { useRevokeScopedRole } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
 
 ```tsx
-import { useRevokeScopedRole } from 'railnet-sdk/react'
-import { VEHICLE_STEAM } from 'railnet-sdk'
+import { useRevokeScopedRole } from '@railnetorg/railnet-sdk/react'
+import { VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
 
 function RevokeRole() {
   const { mutateAsync, isPending } = useRevokeScopedRole()

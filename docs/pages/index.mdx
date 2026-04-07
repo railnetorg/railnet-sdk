@@ -18,15 +18,15 @@ TypeScript SDK for interacting with the Railnet protocol. Built on top of [viem]
 :::code-group
 
 ```bash [bun]
-bun add railnet-sdk viem
+bun add @railnetorg/railnet-sdk viem
 ```
 
 ```bash [pnpm]
-pnpm add railnet-sdk viem
+pnpm add @railnetorg/railnet-sdk viem
 ```
 
 ```bash [npm]
-npm install railnet-sdk viem
+npm install @railnetorg/railnet-sdk viem
 ```
 
 :::
@@ -34,7 +34,7 @@ npm install railnet-sdk viem
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { getConduitPosition } from 'railnet-sdk'
+import { getConduitPosition } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: base,
@@ -54,5 +54,5 @@ console.log(position.assets) // equivalent asset value
 
 | Export | Description |
 | --- | --- |
-| `railnet-sdk` | Core actions, ABIs, types and utilities |
-| `railnet-sdk/react` | React hooks and TanStack Query integrations |
+| `@railnetorg/railnet-sdk` | Core actions, ABIs, types and utilities |
+| `@railnetorg/railnet-sdk/react` | React hooks and TanStack Query integrations |

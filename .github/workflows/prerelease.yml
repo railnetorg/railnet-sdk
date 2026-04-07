@@ -1,23 +1,4 @@
 name: Prerelease
-# TODO: Re-enable when ready to publish publicly
+# Disabled — pkg-pr-new not used for private GitHub Packages
 on:
   workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Install dependencies
-        run: bun install
-
-      - name: Prerelease
-        run: | 
-          bun run build
-          bunx pkg-pr-new publish --bun

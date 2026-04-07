@@ -9,14 +9,14 @@ React hook that predicts the deployment address of a conduit.
 ## Import
 
 ```ts
-import { usePredictConduitDeployment } from 'railnet-sdk/react'
+import { usePredictConduitDeployment } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
 
 ```tsx
-import { usePredictConduitDeployment } from 'railnet-sdk/react'
-import { TransferMode } from 'railnet-sdk'
+import { usePredictConduitDeployment } from '@railnetorg/railnet-sdk/react'
+import { TransferMode } from '@railnetorg/railnet-sdk'
 
 function PredictAddress() {
   const { data: address, isLoading } = usePredictConduitDeployment({

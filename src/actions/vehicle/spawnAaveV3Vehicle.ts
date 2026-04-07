@@ -18,7 +18,7 @@ export type SpawnAaveV3VehicleParameters = {
 
 /**
  * Spawns a new Aave V3 Vehicle via the AaveV3VehicleFactory.
- * Use {@link extractAaveV3VehicleAddress} from `railnet-sdk` to extract the
+ * Use {@link extractAaveV3VehicleAddress} from `@railnetorg/railnet-sdk` to extract the
  * deployed vehicle address from the transaction receipt.
  */
 export async function spawnAaveV3Vehicle(

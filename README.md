@@ -12,8 +12,23 @@ TypeScript SDK for interacting with the Railnet protocol. Built on [viem](https:
 
 ## Installation
 
+This package is published on [GitHub Packages](https://github.com/railnetorg/railnet-sdk/packages). Configure npm to use the GitHub Packages registry for the `@railnetorg` scope.
+
+**1. Authenticate with GitHub Packages**
+
+Create a `.npmrc` in your project root (or `~/.npmrc` globally):
+
+```
+@railnetorg:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
+```
+
+The token needs the `read:packages` scope. [Create one here](https://github.com/settings/tokens/new?scopes=read:packages).
+
+**2. Install**
+
 ```bash
-npm install railnet-sdk viem
+npm install @railnetorg/railnet-sdk viem
 ```
 
 For React hooks, also install:
@@ -29,7 +44,7 @@ npm install wagmi @tanstack/react-query
 ```ts
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { getConduitPosition } from 'railnet-sdk'
+import { getConduitPosition } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: mainnet,
@@ -47,7 +62,7 @@ const position = await getConduitPosition(client, {
 ```ts
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { railnetActions } from 'railnet-sdk'
+import { railnetActions } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: mainnet,
@@ -63,7 +78,7 @@ const position = await client.getConduitPosition({
 ### React Hooks
 
 ```tsx
-import { useConduitPosition } from 'railnet-sdk/react'
+import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
 
 function Position() {
   const { data, isLoading } = useConduitPosition({
@@ -86,8 +101,8 @@ function Position() {
 
 | Export | Description |
 |---|---|
-| `railnet-sdk` | Core actions, ABIs, types and utilities |
-| `railnet-sdk/react` | React hooks and TanStack Query integrations |
+| `@railnetorg/railnet-sdk` | Core actions, ABIs, types and utilities |
+| `@railnetorg/railnet-sdk/react` | React hooks and TanStack Query integrations |
 
 ## Contributing
 

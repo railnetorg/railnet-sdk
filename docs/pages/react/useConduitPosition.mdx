@@ -9,13 +9,13 @@ React hook that returns the position (shares and equivalent assets) of an accoun
 ## Import
 
 ```ts
-import { useConduitPosition } from 'railnet-sdk/react'
+import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
 
 ```tsx
-import { useConduitPosition } from 'railnet-sdk/react'
+import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
 
 function Position() {
   const { data, isLoading, error } = useConduitPosition({
@@ -39,7 +39,7 @@ function Position() {
 
 ```tsx
 import { useAccount } from 'wagmi'
-import { useConduitPosition } from 'railnet-sdk/react'
+import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
 
 function MyPosition() {
   const { address } = useAccount()

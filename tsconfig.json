@@ -7,8 +7,8 @@
     "moduleResolution": "nodenext",
     "target": "esnext",
     "paths": {
-      "railnet-sdk": ["./src/index.ts"],
-      "railnet-sdk/react": ["./src/react/index.ts"]
+      "@railnetorg/railnet-sdk": ["./src/index.ts"],
+      "@railnetorg/railnet-sdk/react": ["./src/react/index.ts"]
     },
     "rootDir": "./src",
     "types": ["bun-types"],

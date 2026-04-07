@@ -6,7 +6,7 @@ import type { SpawnConduitParameters } from './types.js'
 
 /**
  * Spawns a new Conduit via the ConduitFactory.
- * Use {@link extractConduitAddress} from `railnet-sdk` to extract the
+ * Use {@link extractConduitAddress} from `@railnetorg/railnet-sdk` to extract the
  * deployed conduit address from the transaction receipt.
  */
 export async function spawnConduit(

@@ -9,7 +9,7 @@ Query options for fetching a conduit position.
 ## Import
 
 ```ts
-import { conduitPositionQueryOptions } from 'railnet-sdk/react'
+import { conduitPositionQueryOptions } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ import { conduitPositionQueryOptions } from 'railnet-sdk/react'
 ```ts
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
-import { conduitPositionQueryOptions } from 'railnet-sdk/react'
+import { conduitPositionQueryOptions } from '@railnetorg/railnet-sdk/react'
 
 function Position() {
   const client = usePublicClient()
@@ -38,7 +38,7 @@ function Position() {
 import { QueryClient } from '@tanstack/react-query'
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { conduitPositionQueryOptions } from 'railnet-sdk/react'
+import { conduitPositionQueryOptions } from '@railnetorg/railnet-sdk/react'
 
 const queryClient = new QueryClient()
 
@@ -95,7 +95,7 @@ You can use `conduitPositionQueryKey` to construct the query key manually for ca
 
 ```ts
 import { useQueryClient } from '@tanstack/react-query'
-import { conduitPositionQueryKey } from 'railnet-sdk/react'
+import { conduitPositionQueryKey } from '@railnetorg/railnet-sdk/react'
 
 const queryClient = useQueryClient()
 

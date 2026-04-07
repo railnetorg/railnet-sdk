@@ -9,7 +9,7 @@ Query options for predicting the deployment address of a conduit.
 ## Import
 
 ```ts
-import { predictConduitDeploymentQueryOptions } from 'railnet-sdk/react'
+import { predictConduitDeploymentQueryOptions } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
@@ -17,8 +17,8 @@ import { predictConduitDeploymentQueryOptions } from 'railnet-sdk/react'
 ```ts
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
-import { predictConduitDeploymentQueryOptions } from 'railnet-sdk/react'
-import { TransferMode } from 'railnet-sdk'
+import { predictConduitDeploymentQueryOptions } from '@railnetorg/railnet-sdk/react'
+import { TransferMode } from '@railnetorg/railnet-sdk'
 
 function PredictAddress() {
   const client = usePublicClient()
@@ -73,5 +73,5 @@ Same as [`predictConduitDeployment`](/actions/predictConduitDeployment) paramete
 You can use `predictConduitDeploymentQueryKey` to construct the query key manually:
 
 ```ts
-import { predictConduitDeploymentQueryKey } from 'railnet-sdk/react'
+import { predictConduitDeploymentQueryKey } from '@railnetorg/railnet-sdk/react'
 ```

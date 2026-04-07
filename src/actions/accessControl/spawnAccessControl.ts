@@ -13,7 +13,7 @@ export type SpawnAccessControlParameters = {
 
 /**
  * Spawns a new ExternalAccessControl via the AccessControlFactory.
- * Use {@link extractAccessControlAddress} from `railnet-sdk` to extract the
+ * Use {@link extractAccessControlAddress} from `@railnetorg/railnet-sdk` to extract the
  * deployed address from the transaction receipt.
  */
 export async function spawnAccessControl(

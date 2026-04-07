@@ -9,7 +9,7 @@ Predicts the address of a conduit before deployment using the factory's determin
 ## Import
 
 ```ts
-import { predictConduitDeployment } from 'railnet-sdk'
+import { predictConduitDeployment } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ import { predictConduitDeployment } from 'railnet-sdk'
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { predictConduitDeployment, TransferMode } from 'railnet-sdk'
+import { predictConduitDeployment, TransferMode } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: base,

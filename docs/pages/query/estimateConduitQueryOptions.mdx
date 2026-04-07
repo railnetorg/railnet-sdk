@@ -9,7 +9,7 @@ Query options for estimating a conduit operation.
 ## Import
 
 ```ts
-import { estimateConduitQueryOptions } from 'railnet-sdk/react'
+import { estimateConduitQueryOptions } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
@@ -17,8 +17,8 @@ import { estimateConduitQueryOptions } from 'railnet-sdk/react'
 ```ts
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
-import { estimateConduitQueryOptions } from 'railnet-sdk/react'
-import { ConduitMode, EstimationType } from 'railnet-sdk'
+import { estimateConduitQueryOptions } from '@railnetorg/railnet-sdk/react'
+import { ConduitMode, EstimationType } from '@railnetorg/railnet-sdk'
 
 function Estimate() {
   const client = usePublicClient()
@@ -85,5 +85,5 @@ The type of estimation.
 You can use `estimateConduitQueryKey` to construct the query key manually:
 
 ```ts
-import { estimateConduitQueryKey } from 'railnet-sdk/react'
+import { estimateConduitQueryKey } from '@railnetorg/railnet-sdk/react'
 ```

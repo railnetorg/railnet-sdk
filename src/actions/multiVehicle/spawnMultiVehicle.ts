@@ -36,7 +36,7 @@ export type SpawnMultiVehicleParameters = {
 
 /**
  * Spawns a new MultiVehicle ecosystem via the MultiVehicleFactory.
- * Use {@link extractMultiVehicleContracts} from `railnet-sdk` to extract the
+ * Use {@link extractMultiVehicleContracts} from `@railnetorg/railnet-sdk` to extract the
  * deployed contract addresses from the transaction receipt.
  */
 export async function spawnMultiVehicle(

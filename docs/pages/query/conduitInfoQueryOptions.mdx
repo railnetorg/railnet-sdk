@@ -9,7 +9,7 @@ Query options for fetching conduit information.
 ## Import
 
 ```ts
-import { conduitInfoQueryOptions } from 'railnet-sdk/react'
+import { conduitInfoQueryOptions } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ import { conduitInfoQueryOptions } from 'railnet-sdk/react'
 ```ts
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
-import { conduitInfoQueryOptions } from 'railnet-sdk/react'
+import { conduitInfoQueryOptions } from '@railnetorg/railnet-sdk/react'
 
 function ConduitInfo() {
   const client = usePublicClient()
@@ -37,7 +37,7 @@ function ConduitInfo() {
 import { QueryClient } from '@tanstack/react-query'
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { conduitInfoQueryOptions } from 'railnet-sdk/react'
+import { conduitInfoQueryOptions } from '@railnetorg/railnet-sdk/react'
 
 const queryClient = new QueryClient()
 
@@ -87,7 +87,7 @@ You can use `conduitInfoQueryKey` to construct the query key manually for cache 
 
 ```ts
 import { useQueryClient } from '@tanstack/react-query'
-import { conduitInfoQueryKey } from 'railnet-sdk/react'
+import { conduitInfoQueryKey } from '@railnetorg/railnet-sdk/react'
 
 const queryClient = useQueryClient()
 

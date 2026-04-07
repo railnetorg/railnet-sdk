@@ -29,10 +29,17 @@
   },
   "packageManager": "bun@1.3.10",
   "[!start-pkg]": "",
-  "name": "railnet-sdk",
+  "name": "@railnetorg/railnet-sdk",
   "type": "module",
   "version": "0.0.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/railnetorg/railnet-sdk.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "files": [
     "dist",
     "src",

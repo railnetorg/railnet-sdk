@@ -9,14 +9,14 @@ React mutation hook for granting a scoped role on the ExternalAccessControl.
 ## Import
 
 ```ts
-import { useGrantScopedRole } from 'railnet-sdk/react'
+import { useGrantScopedRole } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
 
 ```tsx
-import { useGrantScopedRole } from 'railnet-sdk/react'
-import { VEHICLE_STEAM } from 'railnet-sdk'
+import { useGrantScopedRole } from '@railnetorg/railnet-sdk/react'
+import { VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
 
 function GrantRole() {
   const { mutateAsync, isPending } = useGrantScopedRole()

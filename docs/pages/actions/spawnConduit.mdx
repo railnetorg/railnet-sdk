@@ -9,7 +9,7 @@ Deploys a new conduit via the factory contract. Requires a `PublicClient` and a 
 ## Import
 
 ```ts
-import { spawnConduit } from 'railnet-sdk'
+import { spawnConduit } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ import { spawnConduit } from 'railnet-sdk'
 ```ts
 import { createPublicClient, createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { spawnConduit, TransferMode } from 'railnet-sdk'
+import { spawnConduit, TransferMode } from '@railnetorg/railnet-sdk'
 
 const publicClient = createPublicClient({
   chain: base,

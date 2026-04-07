@@ -9,14 +9,14 @@ React mutation hook for deploying a new conduit via the factory.
 ## Import
 
 ```ts
-import { useSpawnConduit } from 'railnet-sdk/react'
+import { useSpawnConduit } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
 
 ```tsx
-import { useSpawnConduit } from 'railnet-sdk/react'
-import { TransferMode } from 'railnet-sdk'
+import { useSpawnConduit } from '@railnetorg/railnet-sdk/react'
+import { TransferMode } from '@railnetorg/railnet-sdk'
 
 function Spawn() {
   const { mutateAsync, isPending } = useSpawnConduit()

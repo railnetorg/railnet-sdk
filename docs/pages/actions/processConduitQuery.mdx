@@ -9,7 +9,7 @@ Processes a query on a conduit. Requires a `WalletClient` to sign and send the t
 ## Import
 
 ```ts
-import { processConduitQuery } from 'railnet-sdk'
+import { processConduitQuery } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ import { processConduitQuery } from 'railnet-sdk'
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { processConduitQuery, ConduitMode } from 'railnet-sdk'
+import { processConduitQuery, ConduitMode } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,
