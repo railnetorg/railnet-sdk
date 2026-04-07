@@ -17,6 +17,13 @@ export type RedeemConduitParameters = {
   salt?: Hex
 }
 
+/**
+ * Redeems conduit shares by calling `conduit.createRedeemFromConduitShares()`. On synchronous vehicles the redeem executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves conduit shares if the current allowance is insufficient.
+ * @param client - Viem client instance
+ * @param parameters - Conduit address, shares amount. Optional: receiver (defaults to caller), outputAssets (Asset[]), salt (auto-generated)
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash
+ */
 export async function redeemConduit(
   client: Client,
   parameters: RedeemConduitParameters & { account: Address },

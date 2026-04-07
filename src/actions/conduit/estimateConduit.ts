@@ -17,6 +17,12 @@ export type EstimateConduitParameters = {
 
 export type EstimateConduitReturnType = Asset[]
 
+/**
+ * Estimates the output assets for a deposit or redeem operation on a conduit.
+ * @param client - Viem client instance
+ * @param parameters - Conduit address, input assets, mode (deposit/redeem), and estimation type (input/output)
+ * @returns Array of estimated output assets with their values
+ */
 export async function estimateConduit(
   client: Client,
   parameters: EstimateConduitParameters,

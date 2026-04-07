@@ -5,9 +5,12 @@ import type { ContractCallOptions } from '../../types.js'
 import type { SpawnConduitParameters } from './types.js'
 
 /**
- * Spawns a new Conduit via the ConduitFactory.
- * Use {@link extractConduitAddress} from `@railnetorg/railnet-sdk` to extract the
- * deployed conduit address from the transaction receipt.
+ * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams, salt)`. Generates deterministic salts (querySalt, deploymentSalt) if not provided.
+ * Use {@link extractConduitAddress} to extract the deployed conduit address from the transaction receipt.
+ * @param client - Viem client instance
+ * @param parameters - Factory address, name, symbol, vehicle, depositAsset, initialDepositSize, initialExpectedSupply, transferMode, accessControl, feeManager, accountList, ownerRegistry. Optional: querySalt, deploymentSalt
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash of the spawn
  */
 export async function spawnConduit(
   client: Client,

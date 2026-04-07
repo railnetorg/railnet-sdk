@@ -17,6 +17,13 @@ export type ProcessConduitQueryParameters = {
   }
 }
 
+/**
+ * Processes a query on a conduit by calling `conduit.process()`, advancing its state. Used for async (STEAM) vehicles where queries go through multiple state transitions.
+ * @param client - Viem client instance
+ * @param parameters - Conduit address and the full Query struct (owner, receiver, input Asset[], output Asset[], mode, salt, data)
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash
+ */
 export async function processConduitQuery(
   client: Client,
   parameters: ProcessConduitQueryParameters & { account: Address },

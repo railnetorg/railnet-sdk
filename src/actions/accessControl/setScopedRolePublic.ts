@@ -10,6 +10,13 @@ export type SetScopedRolePublicParameters = {
   isPublic: boolean
 }
 
+/**
+ * Sets whether a scoped role is public (callable by any address) or restricted. The caller must be the default admin.
+ * @param client - Viem client instance
+ * @param parameters - Access control address, role hash, scope, and isPublic flag
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash
+ */
 export async function setScopedRolePublic(
   client: Client,
   parameters: SetScopedRolePublicParameters & { account: Address },

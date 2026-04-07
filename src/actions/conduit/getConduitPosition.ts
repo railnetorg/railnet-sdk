@@ -16,6 +16,12 @@ export type GetConduitPositionParameters = {
 
 export type GetConduitPositionReturnType = ConduitPosition
 
+/**
+ * Reads an account's position in a conduit: share balance and the equivalent asset value.
+ * @param client - Viem client instance
+ * @param parameters - Conduit address and account address to query
+ * @returns Position with shares, assets, conduit, and account addresses
+ */
 export async function getConduitPosition(
   client: Client,
   parameters: GetConduitPositionParameters,

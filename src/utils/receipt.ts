@@ -5,6 +5,12 @@ import { accessControlFactoryAbi } from '../abi/accessControlFactory.js'
 import { conduitFactoryAbi } from '../abi/conduitFactory.js'
 import { multiVehicleFactoryAbi } from '../abi/multiVehicleFactory.js'
 
+/**
+ * Extracts the deployed ExternalAccessControl address from a {@link spawnAccessControl} transaction receipt.
+ * @param receipt - The transaction receipt from the spawn call
+ * @param factoryAddress - The AccessControlFactory address used for the spawn
+ * @returns The deployed EAC address, or `null` if the event is not found
+ */
 export function extractAccessControlAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
@@ -30,6 +36,12 @@ export function extractAccessControlAddress(
   return null
 }
 
+/**
+ * Extracts the deployed Aave V3 Vehicle address from a {@link spawnAaveV3Vehicle} transaction receipt.
+ * @param receipt - The transaction receipt from the spawn call
+ * @param factoryAddress - The AaveV3VehicleFactory address used for the spawn
+ * @returns The deployed vehicle address, or `null` if the event is not found
+ */
 export function extractAaveV3VehicleAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
@@ -64,6 +76,12 @@ export type MultiVehicleContracts = {
   vehicleRegistry: Address
 }
 
+/**
+ * Extracts all deployed multi-vehicle contract addresses from a {@link spawnMultiVehicle} transaction receipt.
+ * @param receipt - The transaction receipt from the spawn call
+ * @param factoryAddress - The MultiVehicleFactory address used for the spawn
+ * @returns All deployed contract addresses (multiVehicle, queryRedeemQueue, queueStrategyEngine, etc.), or `null` if the event is not found
+ */
 export function extractMultiVehicleContracts(
   receipt: TransactionReceipt,
   factoryAddress: Address,
@@ -96,6 +114,12 @@ export function extractMultiVehicleContracts(
   return null
 }
 
+/**
+ * Extracts the deployed conduit address from a {@link spawnConduit} transaction receipt.
+ * @param receipt - The transaction receipt from the spawn call
+ * @param factoryAddress - The ConduitFactory address used for the spawn
+ * @returns The deployed conduit address, or `null` if the event is not found
+ */
 export function extractConduitAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,

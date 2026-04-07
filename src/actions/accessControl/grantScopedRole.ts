@@ -10,6 +10,13 @@ export type GrantScopedRoleParameters = {
   grantee: Address
 }
 
+/**
+ * Grants a role to an address, scoped to a specific contract. The caller must be the default admin of the access control.
+ * @param client - Viem client instance
+ * @param parameters - Access control address, role hash, scope (target contract), and grantee address
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash
+ */
 export async function grantScopedRole(
   client: Client,
   parameters: GrantScopedRoleParameters & { account: Address },

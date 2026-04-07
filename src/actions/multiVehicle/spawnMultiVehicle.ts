@@ -36,8 +36,11 @@ export type SpawnMultiVehicleParameters = {
 
 /**
  * Spawns a new MultiVehicle ecosystem via the MultiVehicleFactory.
- * Use {@link extractMultiVehicleContracts} from `@railnetorg/railnet-sdk` to extract the
- * deployed contract addresses from the transaction receipt.
+ * Use {@link extractMultiVehicleContracts} to extract the deployed contract addresses from the transaction receipt.
+ * @param client - Viem client instance
+ * @param parameters - Factory address, asset, name, symbol, accessControl, vehicles config, and optional salts
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash of the spawn
  */
 export async function spawnMultiVehicle(
   client: Client,

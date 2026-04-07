@@ -13,8 +13,11 @@ export type SpawnAccessControlParameters = {
 
 /**
  * Spawns a new ExternalAccessControl via the AccessControlFactory.
- * Use {@link extractAccessControlAddress} from `@railnetorg/railnet-sdk` to extract the
- * deployed address from the transaction receipt.
+ * Use {@link extractAccessControlAddress} to extract the deployed address from the transaction receipt.
+ * @param client - Viem client instance
+ * @param parameters - Factory address, initial admin, optional delay, initial roles, and deployment salt
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash of the spawn
  */
 export async function spawnAccessControl(
   client: Client,

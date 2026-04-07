@@ -10,6 +10,13 @@ export type RevokeScopedRoleParameters = {
   grantee: Address
 }
 
+/**
+ * Revokes a previously granted scoped role from an address. The caller must be the default admin of the access control.
+ * @param client - Viem client instance
+ * @param parameters - Access control address, role hash, scope (target contract), and grantee address
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash
+ */
 export async function revokeScopedRole(
   client: Client,
   parameters: RevokeScopedRoleParameters & { account: Address },

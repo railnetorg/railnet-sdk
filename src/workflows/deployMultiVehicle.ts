@@ -49,6 +49,13 @@ export type DeployMultiVehicleResult = {
   transactionHashes: Hash[]
 }
 
+/**
+ * Deploys a complete multi-vehicle ecosystem in a single workflow: spawns access control, approves tokens, spawns the multi-vehicle, grants required roles (VEHICLE_STEAM, SET_QUEUES, SET_VEHICLE_AUTHORIZATION), authorizes sub-vehicles, and configures allocation queues.
+ * @param client - Viem client instance with a chain configured
+ * @param parameters - Asset, name, symbol, vehicles array with allocation targets, and optional accessControl/feeManager
+ * @param options - Optional contract call overrides
+ * @returns The deployed EAC address, multi-vehicle contract addresses, and all transaction hashes
+ */
 export async function deployMultiVehicle(
   client: Client,
   parameters: DeployMultiVehicleParameters & { account: Address },

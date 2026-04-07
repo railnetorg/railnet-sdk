@@ -18,8 +18,11 @@ export type SpawnAaveV3VehicleParameters = {
 
 /**
  * Spawns a new Aave V3 Vehicle via the AaveV3VehicleFactory.
- * Use {@link extractAaveV3VehicleAddress} from `@railnetorg/railnet-sdk` to extract the
- * deployed vehicle address from the transaction receipt.
+ * Use {@link extractAaveV3VehicleAddress} to extract the deployed vehicle address from the transaction receipt.
+ * @param client - Viem client instance
+ * @param parameters - Factory address, asset, poolAddressesProvider, accessControl, and optional salts
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash of the spawn
  */
 export async function spawnAaveV3Vehicle(
   client: Client,

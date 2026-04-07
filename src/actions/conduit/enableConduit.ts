@@ -7,6 +7,13 @@ export type EnableConduitParameters = {
   conduit: Address
 }
 
+/**
+ * Enables a conduit, transitioning it to an operational state. Can only be called by the conduit factory.
+ * @param client - Viem client instance
+ * @param parameters - The conduit address and caller account
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash
+ */
 export async function enableConduit(
   client: Client,
   parameters: EnableConduitParameters & { account: Address },

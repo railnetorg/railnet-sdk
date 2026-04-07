@@ -19,6 +19,12 @@ export type GetConduitInfoParameters = {
 
 export type GetConduitInfoReturnType = ConduitInfo
 
+/**
+ * Reads on-chain metadata for a conduit via a single multicall: name, symbol, decimals, asset, totalSupply, totalAssets, and holdings.
+ * @param client - Viem client instance
+ * @param parameters - The conduit address to query
+ * @returns Conduit metadata including supply, assets, and holdings
+ */
 export async function getConduitInfo(
   client: Client,
   parameters: GetConduitInfoParameters,

@@ -10,6 +10,12 @@ export type PredictConduitDeploymentParameters = Required<
 
 export type PredictConduitDeploymentReturnType = Address
 
+/**
+ * Predicts the address a conduit will be deployed to, given the spawn parameters. Uses CREATE2 deterministic deployment.
+ * @param client - Viem client instance
+ * @param parameters - Full spawn parameters with required querySalt and deploymentSalt
+ * @returns The predicted conduit address
+ */
 export async function predictConduitDeployment(
   client: Client,
   parameters: PredictConduitDeploymentParameters,

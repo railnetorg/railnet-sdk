@@ -8,6 +8,13 @@ export type AuthorizeVehicleParameters = {
   vehicle: Address
 }
 
+/**
+ * Authorizes a vehicle in a multi-vehicle's VehicleRegistry, allowing it to receive allocations.
+ * @param client - Viem client instance
+ * @param parameters - VehicleRegistry address and the vehicle address to authorize
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash
+ */
 export async function authorizeVehicle(
   client: Client,
   parameters: AuthorizeVehicleParameters & { account: Address },

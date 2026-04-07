@@ -17,6 +17,13 @@ export type DepositConduitParameters = {
   salt?: Hex
 }
 
+/**
+ * Deposits into a Conduit by calling `conduit.create()`. On synchronous vehicles (Aave V3, Compound, etc.) the deposit executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves the deposit token if the current allowance is insufficient.
+ * @param client - Viem client instance
+ * @param parameters - Conduit address, deposit token, amount. Optional: receiver (defaults to caller), salt (auto-generated)
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash
+ */
 export async function depositConduit(
   client: Client,
   parameters: DepositConduitParameters & { account: Address },

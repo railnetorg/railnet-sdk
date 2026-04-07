@@ -8,6 +8,13 @@ export type FinalizeConduitDepositParameters = {
   conduit: Address
 }
 
+/**
+ * Finalizes the initial deposit on a conduit with an async vehicle (e.g. Ethena, Syrup). Called via the ConduitFactory after the vehicle's async query resolves.
+ * @param client - Viem client instance
+ * @param parameters - Factory and conduit addresses, plus caller account
+ * @param options - Optional contract call overrides
+ * @returns Transaction hash
+ */
 export async function finalizeConduitDeposit(
   client: Client,
   parameters: FinalizeConduitDepositParameters & { account: Address },
