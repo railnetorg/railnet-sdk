@@ -1,7 +1,7 @@
+import { describe, expect, it } from 'bun:test'
 import { base, sepolia } from 'viem/chains'
-import { describe, expect, it } from 'vitest'
-import { addresses } from './addresses.js'
-import { getAddresses, isSupportedChain } from './chains.js'
+import { addresses } from '../src/contracts/addresses.js'
+import { getAddresses, isSupportedChain } from '../src/contracts/chains.js'
 
 describe('isSupportedChain', () => {
   it('returns true for Base', () => {

@@ -65,38 +65,53 @@ export async function deployMultiVehicle(
   let eacAddress: Address
   if (parameters.accessControl) {
     eacAddress = parameters.accessControl
+
+    const { request: approveRequest } = await simulateContract(client, {
+      ...options,
+      address: parameters.asset,
+      abi: erc20Abi,
+      functionName: 'approve',
+      args: [multiVehicleFactory, parameters.initialDepositAmount],
+      account: parameters.account,
+    })
+    const approveHash = await writeContract(client, approveRequest)
+    await waitForTransactionReceipt(client, { hash: approveHash })
+    transactionHashes.push(approveHash)
   } else {
-    const eacHash = await spawnAccessControl(
-      client,
-      {
-        factory: eacFactory,
-        initialDefaultAdmin: adminAddress,
-        initialDelay: 0,
-        initialRoles: [],
+    const [eacHash, approveHash] = await Promise.all([
+      spawnAccessControl(
+        client,
+        {
+          factory: eacFactory,
+          initialDefaultAdmin: adminAddress,
+          initialDelay: 0,
+          initialRoles: [],
+          account: parameters.account,
+        },
+        options,
+      ),
+      simulateContract(client, {
+        ...options,
+        address: parameters.asset,
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [multiVehicleFactory, parameters.initialDepositAmount],
         account: parameters.account,
-      },
-      options,
-    )
-    const eacReceipt = await waitForTransactionReceipt(client, { hash: eacHash })
+      }).then(({ request }) => writeContract(client, request)),
+    ])
+
+    const [eacReceipt] = await Promise.all([
+      waitForTransactionReceipt(client, { hash: eacHash }),
+      waitForTransactionReceipt(client, { hash: approveHash }),
+    ])
+
     const extractedEac = extractAccessControlAddress(eacReceipt, eacFactory)
     if (!extractedEac) {
       throw new Error('Could not extract access control address from transaction logs')
     }
     eacAddress = extractedEac
-    transactionHashes.push(eacHash)
+    transactionHashes.push(eacHash, approveHash)
   }
-
-  const { request: approveRequest } = await simulateContract(client, {
-    ...options,
-    address: parameters.asset,
-    abi: erc20Abi,
-    functionName: 'approve',
-    args: [multiVehicleFactory, parameters.initialDepositAmount],
-    account: parameters.account,
-  })
-  const approveHash = await writeContract(client, approveRequest)
-  await waitForTransactionReceipt(client, { hash: approveHash })
-  transactionHashes.push(approveHash)
 
   const mvSpawnParams: Parameters<typeof spawnMultiVehicle>[1] = {
     factory: multiVehicleFactory,
@@ -122,98 +137,100 @@ export async function deployMultiVehicle(
   }
   transactionHashes.push(mvHash)
 
-  transactionHashes.push(
-    await grantScopedRole(
-      client,
-      {
-        accessControl: eacAddress,
-        role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION as Hex,
-        scope: mvContracts.vehicleRegistry,
-        grantee: adminAddress,
-        account: parameters.account,
-      },
-      options,
-    ),
-  )
-
-  transactionHashes.push(
-    await grantScopedRole(
-      client,
-      {
-        accessControl: eacAddress,
-        role: MULTI_VEHICLE_SET_QUEUES as Hex,
-        scope: mvContracts.queueStrategyEngine,
-        grantee: adminAddress,
-        account: parameters.account,
-      },
-      options,
-    ),
-  )
-
-  for (const vehicle of parameters.vehicles) {
-    const isPublic = await readContract(client, {
-      address: eacAddress,
-      abi: externalAccessControlAbi,
-      functionName: 'isScopedRolePublic',
-      args: [VEHICLE_STEAM, vehicle.address],
-    })
-
-    if (!isPublic) {
-      transactionHashes.push(
-        await grantScopedRole(
-          client,
-          {
-            accessControl: eacAddress,
-            role: VEHICLE_STEAM as Hex,
-            scope: vehicle.address,
-            grantee: mvContracts.multiVehicle,
-            account: parameters.account,
-          },
-          options,
-        ),
-      )
-
-      transactionHashes.push(
-        await grantScopedRole(
-          client,
-          {
-            accessControl: eacAddress,
-            role: VEHICLE_STEAM as Hex,
-            scope: vehicle.address,
-            grantee: mvContracts.sectorAccountingEngine,
-            account: parameters.account,
-          },
-          options,
-        ),
-      )
-
-      transactionHashes.push(
-        await grantScopedRole(
-          client,
-          {
-            accessControl: eacAddress,
-            role: VEHICLE_STEAM as Hex,
-            scope: vehicle.address,
-            grantee: mvContracts.subQueryEngine,
-            account: parameters.account,
-          },
-          options,
-        ),
-      )
-    }
-
-    transactionHashes.push(
-      await authorizeVehicle(
+  const [adminRoleHashes, vehicleHashes] = await Promise.all([
+    Promise.all([
+      grantScopedRole(
         client,
         {
-          vehicleRegistry: mvContracts.vehicleRegistry,
-          vehicle: vehicle.address,
+          accessControl: eacAddress,
+          role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION as Hex,
+          scope: mvContracts.vehicleRegistry,
+          grantee: adminAddress,
           account: parameters.account,
         },
         options,
       ),
-    )
-  }
+      grantScopedRole(
+        client,
+        {
+          accessControl: eacAddress,
+          role: MULTI_VEHICLE_SET_QUEUES as Hex,
+          scope: mvContracts.queueStrategyEngine,
+          grantee: adminAddress,
+          account: parameters.account,
+        },
+        options,
+      ),
+    ]),
+
+    Promise.all(
+      parameters.vehicles.map(async (vehicle): Promise<Hash[]> => {
+        const hashes: Hash[] = []
+
+        const isPublic = await readContract(client, {
+          address: eacAddress,
+          abi: externalAccessControlAbi,
+          functionName: 'isScopedRolePublic',
+          args: [VEHICLE_STEAM, vehicle.address],
+        })
+
+        if (!isPublic) {
+          const steamHashes = await Promise.all([
+            grantScopedRole(
+              client,
+              {
+                accessControl: eacAddress,
+                role: VEHICLE_STEAM as Hex,
+                scope: vehicle.address,
+                grantee: mvContracts.multiVehicle,
+                account: parameters.account,
+              },
+              options,
+            ),
+            grantScopedRole(
+              client,
+              {
+                accessControl: eacAddress,
+                role: VEHICLE_STEAM as Hex,
+                scope: vehicle.address,
+                grantee: mvContracts.sectorAccountingEngine,
+                account: parameters.account,
+              },
+              options,
+            ),
+            grantScopedRole(
+              client,
+              {
+                accessControl: eacAddress,
+                role: VEHICLE_STEAM as Hex,
+                scope: vehicle.address,
+                grantee: mvContracts.subQueryEngine,
+                account: parameters.account,
+              },
+              options,
+            ),
+          ])
+          hashes.push(...steamHashes)
+        }
+
+        hashes.push(
+          await authorizeVehicle(
+            client,
+            {
+              vehicleRegistry: mvContracts.vehicleRegistry,
+              vehicle: vehicle.address,
+              account: parameters.account,
+            },
+            options,
+          ),
+        )
+
+        return hashes
+      }),
+    ),
+  ])
+
+  transactionHashes.push(...adminRoleHashes, ...vehicleHashes.flat())
 
   transactionHashes.push(
     await setQueues(

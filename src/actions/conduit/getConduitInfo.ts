@@ -11,7 +11,6 @@ export type ConduitInfo = {
   decimals: number
   name: string
   symbol: string
-  ready: boolean
 }
 
 export type GetConduitInfoParameters = {
@@ -35,7 +34,6 @@ export async function getConduitInfo(
       { address: conduit, abi: conduitAbi, functionName: 'decimals' },
       { address: conduit, abi: conduitAbi, functionName: 'name' },
       { address: conduit, abi: conduitAbi, functionName: 'symbol' },
-      { address: conduit, abi: conduitAbi, functionName: 'ready' },
     ] as const,
     allowFailure: false,
   })
@@ -49,6 +47,5 @@ export async function getConduitInfo(
     decimals: results[4],
     name: results[5],
     symbol: results[6],
-    ready: results[7],
   }
 }

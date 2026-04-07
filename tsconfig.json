@@ -11,7 +11,7 @@
       "railnet-sdk/react": ["./src/react/index.ts"]
     },
     "rootDir": "./src",
-    "types": ["node", "vitest/globals"],
+    "types": ["bun-types"],
 
     // Other Outputs
     "sourceMap": true,
