@@ -15,11 +15,11 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Check code
-        run: bun check
+      - name: Lint
+        run: bun run format
 
-      - name: Check types
-        run: bun check:types
+      - name: Typecheck
+        run: bun run lint
 
   test:
     name: Test Runtime
