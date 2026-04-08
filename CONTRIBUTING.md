@@ -87,5 +87,4 @@ Package is published as `@railnetorg/railnet-sdk` on GitHub Packages (private re
 | `pull-request.yml` | PR opened/updated | Runs verify |
 | `main.yml` | Push to `main` | Runs verify → changesets (version PR or publish) |
 | `validate-skills.yml` | PR touching `skills/` | Validates skill file format |
-| `notify-intent.yml` | Push to `main` (docs/src changes) | Triggers skill staleness check |
-| `check-skills.yml` | New release or manual | Opens PR if skills need update |
+| `check-skills.yml` | Release, docs/src changes on `main`, or manual | Opens PR if skills need update |

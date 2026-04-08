@@ -14,6 +14,11 @@ name: Check Skills
 on:
   release:
     types: [published]
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'src/**'
   workflow_dispatch: {}
 
 permissions:
@@ -39,10 +44,9 @@ jobs:
       - name: Check staleness
         id: stale
         run: |
-          OUTPUT=$(bunx @tanstack/intent stale --json 2>&1) || true
+          OUTPUT=$(bunx @tanstack/intent stale --json 2>/dev/null) || true
           echo "$OUTPUT"
 
-          # Check if any skills need review
           NEEDS_REVIEW=$(echo "$OUTPUT" | node -e "
             const input = require('fs').readFileSync('/dev/stdin','utf8');
             try {
