@@ -1,4 +1,10 @@
 name: Prerelease
-# Disabled — pkg-pr-new not used for private GitHub Packages
 on:
   workflow_dispatch:
+
+jobs:
+  noop:
+    name: Disabled
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Prerelease disabled — using GitHub Packages"
