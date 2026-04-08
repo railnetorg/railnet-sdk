@@ -78,3 +78,14 @@ Never publish from a local terminal. All releases go through CI → GitHub Packa
 No changeset = no publish. You can push to main freely without triggering a release.
 
 Package is published as `@railnetorg/railnet-sdk` on GitHub Packages (private registry).
+
+## CI Workflows
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| `verify.yml` | Called by other workflows | Lint, typecheck, tests |
+| `pull-request.yml` | PR opened/updated | Runs verify |
+| `main.yml` | Push to `main` | Runs verify → changesets (version PR or publish) |
+| `validate-skills.yml` | PR touching `skills/` | Validates skill file format |
+| `notify-intent.yml` | Push to `main` (docs/src changes) | Triggers skill staleness check |
+| `check-skills.yml` | New release or manual | Opens PR if skills need update |

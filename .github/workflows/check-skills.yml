@@ -39,7 +39,7 @@ jobs:
       - name: Check staleness
         id: stale
         run: |
-          OUTPUT=$(bunx intent stale --json 2>&1) || true
+          OUTPUT=$(bunx @tanstack/intent stale --json 2>&1) || true
           echo "$OUTPUT"
 
           # Check if any skills need review
