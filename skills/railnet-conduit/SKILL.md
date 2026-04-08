@@ -1,7 +1,7 @@
 ---
 name: railnet-conduit
 description: >
-  Interact with Railnet Conduits - depositConduit, redeemConduit,
+  Interact with Railnet Conduits — depositConduit, redeemConduit,
   getConduitPosition, getConduitInfo, estimateConduit,
   predictConduitDeployment, spawnConduit, enableConduit,
   finalizeConduitDeposit, processConduitQuery. Covers deposits,
@@ -9,7 +9,7 @@ description: >
   and conduit deployment. Load when working with conduit operations.
 type: core
 library: railnet-sdk
-library_version: '0.0.0'
+library_version: '0.1.0'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/conduit/*.ts'
 ---
@@ -19,23 +19,23 @@ sources:
 ## Setup
 
 ```typescript
-import { createPublicClient, createWalletClient, http, publicActions } from 'viem'
+import { createPublicClient, createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
-// Read-only client (for getConduitInfo, getConduitPosition, etc.)
+// Read-only client for queries
 const publicClient = createPublicClient({
   chain: base,
   transport: http(),
 })
 
-// Read+write client (for depositConduit, redeemConduit, spawnConduit, etc.)
+// Wallet client for write actions (handles both simulation and signing)
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
-const client = createWalletClient({
+const walletClient = createWalletClient({
   account,
   chain: base,
   transport: http(),
-}).extend(publicActions)
+})
 ```
 
 ## Core Patterns
@@ -43,19 +43,23 @@ const client = createWalletClient({
 ### Reading Conduit State
 
 ```typescript
-import { getConduitInfo, getConduitPosition } from 'railnet-sdk';
-import type { Address } from 'viem';
+import { getConduitInfo, getConduitPosition } from '@railnetorg/railnet-sdk'
+import type { Address } from 'viem'
 
 async function checkPosition(conduit: Address, user: Address) {
-  const info = await getConduitInfo(publicClient, { conduit });
+  const info = await getConduitInfo(publicClient, { conduit })
   const position = await getConduitPosition(publicClient, { 
     conduit, 
     account: user 
-  });
+  })
 
-  console.log(`Conduit: ${info.name} (${info.symbol})`);
-  console.log(`User Shares: ${position.shares}`);
-  console.log(`User Assets: ${position.assets}`);
+  console.log(`Conduit: ${info.name} (${info.symbol})`)
+  console.log(`Decimals: ${info.decimals}`)
+  console.log(`Total Supply: ${info.totalSupply}`)
+  console.log(`Total Assets: ${info.totalAssets}`)
+  console.log(`Holdings: ${info.holdings}`)
+  console.log(`User Shares: ${position.shares}`)
+  console.log(`User Assets: ${position.assets}`)
 }
 ```
 
@@ -68,10 +72,10 @@ import {
   predictConduitDeployment, 
   extractConduitAddress,
   TransferMode 
-} from 'railnet-sdk';
+} from '@railnetorg/railnet-sdk'
 
 async function deployNewConduit() {
-  const factory = '0x...';
+  const factory = '0x...'
   const params = {
     factory,
     name: 'My Conduit',
@@ -86,19 +90,19 @@ async function deployNewConduit() {
     initialExpectedSupply: 1000000n,
     depositAsset: '0x...',
     account: walletClient.account.address,
-  };
+  }
 
-  const predicted = await predictConduitDeployment(publicClient, params);
-  const hash = await spawnConduit(client, params);
-  const receipt = await publicClient.waitForTransactionReceipt({ hash });
+  // spawnConduit auto-generates querySalt and deploymentSalt if not provided
+  const hash = await spawnConduit(walletClient, params)
+  const receipt = await publicClient.waitForTransactionReceipt({ hash })
   
-  const conduit = extractConduitAddress(receipt, factory);
+  const conduit = extractConduitAddress(receipt, factory)
   
   if (conduit) {
-    await enableConduit(client, { 
+    await enableConduit(walletClient, { 
       conduit, 
-      account: client.account.address 
-    });
+      account: walletClient.account.address 
+    })
   }
 }
 ```
@@ -106,25 +110,28 @@ async function deployNewConduit() {
 ### Depositing and Redeeming
 
 ```typescript
-import { depositConduit, redeemConduit } from 'railnet-sdk'
+import { depositConduit, redeemConduit } from '@railnetorg/railnet-sdk'
 import type { Address } from 'viem'
 
 // Deposit: Auto-checks allowance and sends approve if needed.
 // Internally calls conduit.create() with a DEPOSIT query.
-const depositHash = await depositConduit(client, {
+const depositHash = await depositConduit(walletClient, {
   conduit: conduitAddress,
   token: usdcAddress,
   amount: 1_000_000n, // 1 USDC (6 decimals)
   account: account.address,
+  // receiver is optional — defaults to account
+  // salt is optional — auto-generated
 })
 
 // Redeem: Auto-checks allowance on conduit shares.
 // Internally calls conduit.createRedeemFromConduitShares().
-const redeemHash = await redeemConduit(client, {
+const redeemHash = await redeemConduit(walletClient, {
   conduit: conduitAddress,
   shares: 500_000n,
-  // outputAssets is optional - defaults to [].
+  // outputAssets is optional — defaults to [].
   // Pass specific assets to control which tokens you receive back.
+  // receiver is optional — defaults to account
   account: account.address,
 })
 ```
@@ -133,10 +140,10 @@ const redeemHash = await redeemConduit(client, {
 
 When the underlying vehicle is async, `create()` returns state PROCESSING (not UNLOCKING). The query must be processed later once the vehicle settles.
 
-Note: `create()` never produces REJECTED or RECOVERING - validation failures always revert. If `create()` succeeds, the query is in PROCESSING or UNLOCKING.
+Note: `create()` never produces REJECTED or RECOVERING — validation failures always revert. If `create()` succeeds, the query is in PROCESSING or UNLOCKING.
 
 ```typescript
-import { processConduitQuery, type ConduitMode } from 'railnet-sdk'
+import { processConduitQuery, type ConduitMode } from '@railnetorg/railnet-sdk'
 import type { Address, Hex } from 'viem'
 
 // The query struct must match exactly what was used to create the query.
@@ -152,7 +159,7 @@ const query = {
 }
 
 // Call once the vehicle reaches UNLOCKING state
-const hash = await processConduitQuery(client, {
+const hash = await processConduitQuery(walletClient, {
   conduit: conduitAddress,
   query,
   account: account.address,
@@ -166,11 +173,11 @@ await publicClient.waitForTransactionReceipt({ hash })
 When spawning a conduit on an async vehicle, the initial deposit remains pending. After the vehicle settles the initial query, call `finalizeConduitDeposit` on the **factory** (not the conduit) to burn initial shares and enable public access.
 
 ```typescript
-import { finalizeConduitDeposit, getAddresses } from 'railnet-sdk'
+import { finalizeConduitDeposit, getAddresses } from '@railnetorg/railnet-sdk'
 
 const addresses = getAddresses(base.id)
 
-const hash = await finalizeConduitDeposit(client, {
+const hash = await finalizeConduitDeposit(walletClient, {
   factory: addresses.conduitFactory,
   conduit: conduitAddress,
   account: account.address,
@@ -181,45 +188,38 @@ Source: src/actions/conduit/finalizeConduitDeposit.ts
 
 ## Common Mistakes
 
-### CRITICAL Write actions need a client with both read and write capabilities
+### CRITICAL Write actions take a single client, not two
 
 Wrong:
 
 ```typescript
-import { createPublicClient, http } from 'viem'
-import { depositConduit } from 'railnet-sdk'
+import { depositConduit } from '@railnetorg/railnet-sdk'
 
-const client = createPublicClient({ chain: base, transport: http() })
-const hash = await depositConduit(client, {
+const hash = await depositConduit(publicClient, walletClient, {
   conduit: '0x...', token: '0x...', amount: 1000000n, account: '0x...',
 })
-// Fails at runtime - publicClient has no wallet/signing capabilities
 ```
 
 Correct:
 
 ```typescript
-import { createWalletClient, http, publicActions } from 'viem'
-import { depositConduit } from 'railnet-sdk'
+import { depositConduit } from '@railnetorg/railnet-sdk'
 
-const client = createWalletClient({ account, chain: base, transport: http() })
-  .extend(publicActions)
-
-const hash = await depositConduit(client, {
+const hash = await depositConduit(walletClient, {
   conduit: '0x...', token: '0x...', amount: 1000000n, account: '0x...',
 })
 ```
 
-All write actions take `(client, params)` - the client must support both simulation (read) and signing (write).
+All write actions take `(client, parameters, options?)` — a single viem client (typically a wallet client) that handles both simulation and signing internally via `simulateContract` + `writeContract`.
 
-Source: src/actions/conduit/depositConduit.ts:19-21
+Source: src/actions/conduit/depositConduit.ts:27-31
 
 ### CRITICAL Forgetting account parameter on write actions
 
 Wrong:
 
 ```typescript
-await depositConduit(client, {
+await depositConduit(walletClient, {
   conduit: '0x...', token: '0x...', amount: 1000000n,
 })
 ```
@@ -227,21 +227,21 @@ await depositConduit(client, {
 Correct:
 
 ```typescript
-await depositConduit(client, {
+await depositConduit(walletClient, {
   conduit: '0x...', token: '0x...', amount: 1000000n, account: '0xYourAddress',
 })
 ```
 
 Write actions require `{ account: Address }` merged into params. Without it, simulation fails with a cryptic viem error about missing account.
 
-Source: src/actions/conduit/depositConduit.ts:27
+Source: src/actions/conduit/depositConduit.ts:29
 
 ### HIGH Using estimate for share valuation instead of position
 
 Wrong:
 
 ```typescript
-import { estimateConduit, ConduitMode, EstimationType } from 'railnet-sdk'
+import { estimateConduit, ConduitMode, EstimationType } from '@railnetorg/railnet-sdk'
 
 const estimated = await estimateConduit(client, {
   conduit, assets: [{ asset: conduit, value: shares }],
@@ -252,7 +252,7 @@ const estimated = await estimateConduit(client, {
 Correct:
 
 ```typescript
-import { getConduitPosition } from 'railnet-sdk'
+import { getConduitPosition } from '@railnetorg/railnet-sdk'
 
 const position = await getConduitPosition(client, { conduit, account })
 console.log(position.assets)
@@ -260,14 +260,14 @@ console.log(position.assets)
 
 `estimateConduit` includes fees in its calculation. For fee-free share-to-asset conversion, use `getConduitPosition` which calls `convert()` internally.
 
-Source: Protocol docs - estimate() vs convert()
+Source: Protocol docs — estimate() vs convert()
 
 ### HIGH Not handling async conduit queries
 
 Wrong:
 
 ```typescript
-const hash = await depositConduit(client, {
+const hash = await depositConduit(walletClient, {
   conduit, token, amount: 1000000n, account,
 })
 // Assumes deposit is settled immediately
@@ -276,13 +276,13 @@ const hash = await depositConduit(client, {
 Correct:
 
 ```typescript
-const hash = await depositConduit(client, {
+const hash = await depositConduit(walletClient, {
   conduit, token, amount: 1000000n, account,
 })
 // For async vehicles (Ethena, Syrup): deposit enters PROCESSING state.
 // Monitor vehicle Updated events or poll vehicle.state(query).
 // When state reaches UNLOCKING, call:
-await processConduitQuery(client, { conduit, query, account })
+await processConduitQuery(walletClient, { conduit, query, account })
 ```
 
 When the underlying vehicle is async, the deposit/redeem creates a query in PROCESSING state. Settlement requires calling `processConduitQuery` after the vehicle reaches UNLOCKING.
@@ -302,7 +302,7 @@ const params = {
 Correct:
 
 ```typescript
-import { TransferMode } from 'railnet-sdk'
+import { TransferMode } from '@railnetorg/railnet-sdk'
 
 const params = {
   transferMode: TransferMode.ALLOW_TRANSFER,
@@ -317,7 +317,7 @@ Source: src/actions/conduit/types.ts:3-7
 
 `depositConduit` checks ERC20 allowance and sends an approve transaction before the deposit if needed. A single SDK call can produce two on-chain transactions. Account for this in gas estimation and UI loading states.
 
-Source: src/actions/conduit/depositConduit.ts:33-49
+Source: src/actions/conduit/depositConduit.ts:36-54
 
 See also: railnet-core/SKILL.md § Common Mistakes
 
@@ -325,6 +325,6 @@ See also: railnet-core/SKILL.md § Common Mistakes
 
 - [Error Reference](references/error-reference.md)
 
-See also: railnet-access-control/SKILL.md - spawning a conduit requires an EAC address, and conduit operations may fail with `MissingRole` if `VEHICLE_STEAM` is not granted.
+See also: railnet-access-control/SKILL.md — spawning a conduit requires an EAC address, and conduit operations may fail with `MissingRole` if `VEHICLE_STEAM` is not granted.
 
-See also: railnet-react/SKILL.md - React hooks wrap these core actions.
+See also: railnet-react/SKILL.md — React hooks wrap these core actions.

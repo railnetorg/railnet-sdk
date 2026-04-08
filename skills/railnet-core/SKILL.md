@@ -5,13 +5,15 @@ description: >
   understand chain support (Base 8453 only), contract addresses via
   getAddresses, ABIs (conduitAbi, conduitFactoryAbi,
   multiVehicleFactoryAbi, aaveV3VehicleFactoryAbi,
-  accessControlFactoryAbi), enums (ConduitMode, ConduitState,
+  accessControlFactoryAbi, externalAccessControlAbi,
+  queueStrategyEngineAbi, sectorAccountingEngineAbi,
+  vehicleRegistryAbi), enums (ConduitMode, ConduitState,
   TransferMode, EstimationType), types (Asset, ConduitInfo,
   ChainAddresses), and role constants. Load when installing railnet-sdk,
   creating a client, or importing SDK utilities.
 type: core
 library: railnet-sdk
-library_version: '0.0.0'
+library_version: '0.1.0'
 sources:
   - 'railnetorg/railnet-sdk:src/index.ts'
   - 'railnetorg/railnet-sdk:src/decorator.ts'
@@ -24,52 +26,57 @@ sources:
 Install the SDK and its required peer dependency:
 
 ```bash
-npm install railnet-sdk viem
+npm install @railnetorg/railnet-sdk viem
 ```
 
 ## Core Patterns
 
 ### Client Setup with railnetActions
-The SDK extends viem clients with specialized actions for Railnet contracts.
+The SDK extends viem clients with specialized read actions for Railnet contracts.
 
 ```typescript
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { railnetActions } from 'railnet-sdk'
+import { railnetActions } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: base,
   transport: http(),
 }).extend(railnetActions)
 
-// Usage
+// Usage — read-only actions via decorator
 const info = await client.getConduitInfo({
   conduit: '0x1234567890123456789012345678901234567890'
 })
 ```
 
+The decorator exposes four read actions: `getConduitPosition`, `getConduitInfo`, `predictConduitDeployment`, and `estimateConduit`. Write actions (deposit, redeem, spawn, etc.) are standalone functions — see railnet-conduit and railnet-vehicle skills.
+
 ### Contract Address Lookup
 Retrieve factory and registry addresses for the supported Base chain.
 
 ```typescript
-import { getAddresses } from 'railnet-sdk'
+import { getAddresses } from '@railnetorg/railnet-sdk'
 import { base } from 'viem/chains'
 
 const addresses = getAddresses(base.id)
 // addresses.conduitFactory
+// addresses.coreFactory
 // addresses.multiVehicleFactory
 // addresses.aaveV3VehicleFactory
-// addresses.eacFactory              - ExternalAccessControl factory
 // addresses.compoundV3VehicleFactory
 // addresses.erc4626VehicleFactory
 // addresses.morphoBlueVehicleFactory
 // addresses.wrapperVehicleFactory
+// addresses.eacFactory              — ExternalAccessControl factory
+// addresses.adminEac                — Admin ExternalAccessControl
 // addresses.feeManagerFactory
 // addresses.modulesManagerFactory
 // addresses.accountListFactory
 // addresses.ownerRegistryFactory
 // addresses.aavePoolAddressesProvider
-// addresses.usdc                    - USDC on Base
+// addresses.aaveV3Vehicle           — Pre-deployed Aave V3 Vehicle
+// addresses.usdc                    — USDC on Base
 ```
 
 ### Direct ABI Usage
@@ -78,7 +85,7 @@ Use exported ABIs for custom viem calls or event listening.
 ```typescript
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { conduitAbi } from 'railnet-sdk'
+import { conduitAbi } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: base,
@@ -93,26 +100,40 @@ const balance = await client.readContract({
 })
 ```
 
-### Write Operations (Simulate + Write)
-All write actions take a single `client: Client` and use tree-shakable viem action imports (`simulateContract`, `writeContract` from `viem/actions`) internally. The client must have both read and write capabilities.
+Nine ABIs are exported: `conduitAbi`, `conduitFactoryAbi`, `multiVehicleFactoryAbi`, `aaveV3VehicleFactoryAbi`, `accessControlFactoryAbi`, `externalAccessControlAbi`, `queueStrategyEngineAbi`, `sectorAccountingEngineAbi`, `vehicleRegistryAbi`.
+
+### Write Operations (Single-Client Pattern)
+All write actions use a single-client pattern: pass a wallet client that handles both simulation and signing internally.
 
 ```typescript
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { base } from 'viem/chains'
-import { publicActions } from 'viem'
-import { depositConduit } from 'railnet-sdk'
+import { depositConduit } from '@railnetorg/railnet-sdk'
 
 const account = privateKeyToAccount('0x...')
 const client = createWalletClient({ account, chain: base, transport: http() })
-  .extend(publicActions)
 
 const hash = await depositConduit(client, {
-  conduit: '0x...',
-  token: '0x...',
+  conduit: '0x1234567890123456789012345678901234567890',
+  token: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   amount: 1_000_000n,
   account: account.address,
 })
+```
+
+All write actions accept an optional third `options` parameter of type `ContractCallOptions` for gas, nonce, and other overrides:
+
+```typescript
+type ContractCallOptions = {
+  gas?: bigint
+  nonce?: number
+  maxFeePerGas?: bigint
+  maxPriorityFeePerGas?: bigint
+  accessList?: AccessList
+  stateOverride?: StateOverride
+  dataSuffix?: Hex
+}
 ```
 
 ## Common Mistakes
@@ -123,7 +144,7 @@ Wrong:
 
 ```typescript
 import { mainnet } from 'viem/chains'
-import { getAddresses } from 'railnet-sdk'
+import { getAddresses } from '@railnetorg/railnet-sdk'
 
 const addresses = getAddresses(mainnet.id)
 ```
@@ -132,12 +153,12 @@ Correct:
 
 ```typescript
 import { base } from 'viem/chains'
-import { getAddresses } from 'railnet-sdk'
+import { getAddresses } from '@railnetorg/railnet-sdk'
 
 const addresses = getAddresses(base.id)
 ```
 
-`getAddresses` throws on any chain other than Base (8453). The SDK only supports Base.
+`getAddresses` throws on any chain other than Base (8453). The SDK only supports Base. Use `isSupportedChain(chainId)` to check before calling.
 
 Source: src/contracts/chains.ts
 
@@ -146,16 +167,16 @@ Source: src/contracts/chains.ts
 Wrong:
 
 ```typescript
-import { useConduitPosition } from 'railnet-sdk'
+import { useConduitPosition } from '@railnetorg/railnet-sdk'
 ```
 
 Correct:
 
 ```typescript
-import { useConduitPosition } from 'railnet-sdk/react'
+import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
 ```
 
-React hooks are exported from the `railnet-sdk/react` subpath. The main entry point only exports core actions, ABIs, and utilities.
+React hooks are exported from the `@railnetorg/railnet-sdk/react` subpath. The main entry point only exports core actions, ABIs, and utilities.
 
 Source: package.json exports field
 
@@ -164,13 +185,13 @@ Source: package.json exports field
 Wrong:
 
 ```bash
-npm install railnet-sdk
+npm install @railnetorg/railnet-sdk
 ```
 
 Correct:
 
 ```bash
-npm install railnet-sdk viem
+npm install @railnetorg/railnet-sdk viem
 ```
 
 `viem` is a required peer dependency. All SDK functions depend on viem types and utilities. Without it, imports fail at runtime.
@@ -182,6 +203,8 @@ Source: package.json peerDependencies
 Wrong:
 
 ```typescript
+import { depositConduit } from '@railnetorg/railnet-sdk'
+
 const hash = await depositConduit(client, {
   conduit, token, amount: 1000000n, account: myAddress,
 })
@@ -191,6 +214,8 @@ const hash = await depositConduit(client, {
 Correct:
 
 ```typescript
+import { depositConduit } from '@railnetorg/railnet-sdk'
+
 const hash = await depositConduit(client, {
   conduit, token, amount: 1000000n, account: myAddress,
 })
@@ -201,6 +226,32 @@ const hash = await depositConduit(client, {
 
 Write actions like `depositConduit` and `redeemConduit` auto-check ERC20 allowance and send an approval transaction before the main operation if needed. This means a single SDK call can produce two on-chain transactions.
 
-Source: src/actions/conduit/depositConduit.ts:33-49
+Source: src/actions/conduit/depositConduit.ts:36-54
+
+### CRITICAL Write actions use a single client, not two
+
+Wrong:
+
+```typescript
+import { depositConduit } from '@railnetorg/railnet-sdk'
+
+const hash = await depositConduit(publicClient, walletClient, {
+  conduit, token, amount: 1000000n, account: myAddress,
+})
+```
+
+Correct:
+
+```typescript
+import { depositConduit } from '@railnetorg/railnet-sdk'
+
+const hash = await depositConduit(walletClient, {
+  conduit, token, amount: 1000000n, account: myAddress,
+})
+```
+
+All write actions take `(client, parameters, options?)` — a single viem client (typically a wallet client) that handles both simulation and signing. Do not pass two separate clients.
+
+Source: src/actions/conduit/depositConduit.ts:27-30
 
 See also: railnet-conduit/SKILL.md

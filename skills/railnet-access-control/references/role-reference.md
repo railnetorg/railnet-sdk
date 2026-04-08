@@ -27,8 +27,9 @@ This reference provides the complete mapping of roles to their required scopes w
 
 ## Role Constants
 
-All role constants are precomputed as `keccak256(toHex('ROLE_NAME'))`. Use the constants exported from `railnet-sdk` to avoid typos.
+All role constants are precomputed as `keccak256(toHex('ROLE_NAME'))`. Use the constants exported from `@railnetorg/railnet-sdk` to avoid typos.
 
+- `DEFAULT_ADMIN_ROLE` — `0x0000...0000` (not keccak256, hardcoded zero bytes32)
 - `VEHICLE_STEAM`
 - `VEHICLE_SET_INTERCEPTIONS`
 - `VEHICLE_ALLOW`

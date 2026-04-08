@@ -1,6 +1,6 @@
 library:
   name: "railnet-sdk"
-  version: "0.0.0"
+  version: "0.1.0"
   repository: "https://github.com/railnetorg/railnet-sdk"
   description: "TypeScript SDK for the Railnet protocol - conduits, vehicles, multi-vehicle strategies, and access control. Built on viem with React/wagmi hooks."
   primary_framework: "React"

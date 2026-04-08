@@ -1,16 +1,22 @@
 ---
 name: railnet-react
 description: >
-  React hooks and TanStack Query integration for railnet-sdk -
+  React hooks and TanStack Query integration for railnet-sdk —
   useConduitPosition, useConduitInfo, useEstimateConduit,
-  useDepositConduit, useRedeemConduit, useSpawnConduit,
-  useDeployMultiVehicle, useGrantScopedRole, conduitPositionQueryOptions,
-  conduitInfoQueryOptions, query key pattern. Requires wagmi +
-  @tanstack/react-query. Load when building React UIs for Railnet.
+  usePredictConduitDeployment, useDepositConduit, useRedeemConduit,
+  useSpawnConduit, useEnableConduit, useFinalizeConduitDeposit,
+  useProcessConduitQuery, useDeployMultiVehicle, useSpawnMultiVehicle,
+  useSpawnAaveV3Vehicle, useAuthorizeVehicle, useSetQueues,
+  useGrantScopedRole, useRevokeScopedRole, useSetScopedRolePublic,
+  useSpawnAccessControl, conduitPositionQueryOptions,
+  conduitInfoQueryOptions, estimateConduitQueryOptions,
+  predictConduitDeploymentQueryOptions, query key pattern.
+  Requires wagmi + @tanstack/react-query. Load when building
+  React UIs for Railnet.
 type: framework
 library: railnet-sdk
 framework: react
-library_version: '0.0.0'
+library_version: '0.1.0'
 requires:
   - railnet-core
 sources:
@@ -22,7 +28,7 @@ This skill builds on railnet-core. Read it first for foundational concepts.
 
 ## Setup
 
-`railnet-sdk/react` requires `wagmi` and `@tanstack/react-query`. Ensure your application is wrapped in both `WagmiProvider` and `QueryClientProvider`. The SDK is optimized for the Base chain.
+`@railnetorg/railnet-sdk/react` requires `wagmi` and `@tanstack/react-query`. Ensure your application is wrapped in both `WagmiProvider` and `QueryClientProvider`. The SDK is optimized for the Base chain.
 
 ```tsx
 import { WagmiProvider, createConfig, http } from 'wagmi'
@@ -49,6 +55,50 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
+## Available Hooks
+
+### Query Hooks (read-only, return TanStack Query result)
+
+| Hook | Parameters | Returns |
+|------|-----------|---------|
+| `useConduitPosition` | `{ conduit, account, enabled? }` | `ConduitPosition` (shares, assets) |
+| `useConduitInfo` | `{ conduit, enabled? }` | `ConduitInfo` (name, symbol, totalSupply, totalAssets, holdings, decimals) |
+| `useEstimateConduit` | `{ conduit, assets, mode, estimationType, enabled? }` | `Asset[]` |
+| `usePredictConduitDeployment` | `{ factory, ..., querySalt, deploymentSalt, enabled? }` | `Address` |
+
+### Mutation Hooks (write, return TanStack Mutation result)
+
+| Hook | Mutate Parameters | Returns |
+|------|------------------|---------|
+| `useDepositConduit` | `{ conduit, token, amount, account, receiver?, salt? }` | `Hash` |
+| `useRedeemConduit` | `{ conduit, shares, account, receiver?, outputAssets?, salt? }` | `Hash` |
+| `useSpawnConduit` | `SpawnConduitParameters & { account }` | `Hash` |
+| `useEnableConduit` | `{ conduit, account }` | `Hash` |
+| `useFinalizeConduitDeposit` | `{ factory, conduit, account }` | `Hash` |
+| `useProcessConduitQuery` | `{ conduit, query, account }` | `Hash` |
+| `useSpawnAaveV3Vehicle` | `SpawnAaveV3VehicleParameters & { account }` | `Hash` |
+| `useSpawnMultiVehicle` | `SpawnMultiVehicleParameters & { account }` | `Hash` |
+| `useAuthorizeVehicle` | `{ vehicleRegistry, vehicle, account }` | `Hash` |
+| `useSetQueues` | `{ queueStrategyEngine, depositQueue, redeemQueue, account }` | `Hash` |
+| `useDeployMultiVehicle` | `DeployMultiVehicleParameters & { account }` | `DeployMultiVehicleResult` |
+| `useGrantScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |
+| `useRevokeScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |
+| `useSetScopedRolePublic` | `{ accessControl, role, scope, isPublic, account }` | `Hash` |
+| `useSpawnAccessControl` | `SpawnAccessControlParameters & { account }` | `Hash` |
+
+All mutation hooks internally use `useWalletClient()` from wagmi and pass the wallet client to the underlying SDK action.
+
+## Query Options (for custom query composition)
+
+| Function | Query Key Pattern |
+|----------|-------------------|
+| `conduitPositionQueryOptions(client, { conduit, account })` | `['railnet', 'conduitPosition', { conduit, account }]` |
+| `conduitInfoQueryOptions(client, { conduit })` | `['railnet', 'conduitInfo', { conduit }]` |
+| `estimateConduitQueryOptions(client, { conduit, assets, mode, estimationType })` | `['railnet', 'estimateConduit', { ... }]` |
+| `predictConduitDeploymentQueryOptions(client, params)` | `['railnet', 'predictConduitDeployment', { ... }]` |
+
+Query key functions are also exported: `conduitPositionQueryKey`, `conduitInfoQueryKey`, `estimateConduitQueryKey`, `predictConduitDeploymentQueryKey`.
+
 ## Hooks and Components
 
 ### Reading Conduit Data
@@ -56,7 +106,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 Use `useConduitPosition` to fetch user shares and assets. It returns a standard TanStack Query result.
 
 ```tsx
-import { useConduitPosition } from 'railnet-sdk/react'
+import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
 import { formatUnits } from 'viem'
 import type { Address } from 'viem'
 
@@ -80,7 +130,7 @@ export function ConduitBalance({ conduit, account }: { conduit: Address, account
 Write hooks like `useDepositConduit` return TanStack Mutation objects. You must explicitly provide the `account` from wagmi's `useAccount`.
 
 ```tsx
-import { useDepositConduit } from 'railnet-sdk/react'
+import { useDepositConduit } from '@railnetorg/railnet-sdk/react'
 import { useAccount } from 'wagmi'
 import { parseUnits } from 'viem'
 import type { Address } from 'viem'
@@ -115,7 +165,7 @@ Use `queryOptions` to customize caching behavior or compose multiple queries.
 ```tsx
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
-import { conduitInfoQueryOptions } from 'railnet-sdk/react'
+import { conduitInfoQueryOptions } from '@railnetorg/railnet-sdk/react'
 import type { Address } from 'viem'
 
 export function useLongLivedConduitInfo(conduit: Address) {
@@ -134,7 +184,7 @@ export function useLongLivedConduitInfo(conduit: Address) {
 After a successful mutation, invalidate relevant queries to refresh the UI.
 
 ```tsx
-import { useDepositConduit } from 'railnet-sdk/react'
+import { useDepositConduit } from '@railnetorg/railnet-sdk/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAccount } from 'wagmi'
 import type { Address } from 'viem'
@@ -175,5 +225,5 @@ export function useDepositWithRefresh() {
 4. **BigInt Serialization in DevTools**: Passing `bigint` values in query parameters (like `amount` in some estimations). While TanStack Query handles `bigint` in query keys for equality checks, the standard JSON-based DevTools might fail to serialize them, leading to confusing "cannot serialize BigInt" errors in the console during development.
 
 ---
-See also: railnet-conduit/SKILL.md - hooks wrap these core actions
-See also: railnet-core/SKILL.md - chain and client setup
+See also: railnet-conduit/SKILL.md — hooks wrap these core actions
+See also: railnet-core/SKILL.md — chain and client setup

@@ -1,15 +1,16 @@
 ---
 name: railnet-access-control
 description: >
-  Manage Railnet role-based access control - spawnAccessControl,
-  grantScopedRole, revokeScopedRole, extractAccessControlAddress,
-  role constants (VEHICLE_STEAM, MULTI_VEHICLE_DISPATCH,
-  MULTI_VEHICLE_REBALANCE, MULTI_VEHICLE_SET_QUEUES, etc.),
+  Manage Railnet role-based access control — spawnAccessControl,
+  grantScopedRole, revokeScopedRole, setScopedRolePublic,
+  extractAccessControlAddress, role constants (VEHICLE_STEAM,
+  MULTI_VEHICLE_DISPATCH, MULTI_VEHICLE_REBALANCE,
+  MULTI_VEHICLE_SET_QUEUES, DEFAULT_ADMIN_ROLE, etc.),
   scope targeting rules. Load when setting up permissions, granting
   roles, or debugging MissingRole revert errors.
 type: core
 library: railnet-sdk
-library_version: '0.0.0'
+library_version: '0.1.0'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/accessControl/*.ts'
   - 'railnetorg/railnet-sdk:src/constants/roles.ts'
@@ -22,15 +23,15 @@ ExternalAccessControl (EAC) is the central permissioning system for Railnet. It 
 ## Setup
 
 ```typescript
-import { createWalletClient, http, publicActions, type Hex, type Address } from 'viem';
-import { base } from 'viem/chains';
-import { privateKeyToAccount } from 'viem/accounts';
-import { getAddresses } from 'railnet-sdk';
+import { createWalletClient, createPublicClient, http, type Hex, type Address } from 'viem'
+import { base } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+import { getAddresses } from '@railnetorg/railnet-sdk'
 
-const account = privateKeyToAccount('0x...');
-const client = createWalletClient({ account, chain: base, transport: http() })
-  .extend(publicActions);
-const addresses = getAddresses(base.id);
+const publicClient = createPublicClient({ chain: base, transport: http() })
+const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
+const walletClient = createWalletClient({ account, chain: base, transport: http() })
+const addresses = getAddresses(base.id)
 ```
 
 ## Core Patterns
@@ -39,77 +40,101 @@ const addresses = getAddresses(base.id);
 Spawning a new EAC instance defines the initial admin and optional roles.
 
 ```typescript
-import { spawnAccessControl, extractAccessControlAddress } from 'railnet-sdk';
-import { VEHICLE_STEAM } from 'railnet-sdk';
+import { spawnAccessControl, extractAccessControlAddress } from '@railnetorg/railnet-sdk'
+import { VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
 
-const account = '0x...'; // Deployer
-
-const hash = await spawnAccessControl(client, {
-  factory: addresses.accessControlFactory,
+const hash = await spawnAccessControl(walletClient, {
+  factory: addresses.eacFactory,
   initialDefaultAdmin: account.address,
-  initialDelay: 0,
+  // initialDelay is optional — defaults to 0
+  // initialRoles is optional — defaults to []
+  // deploymentSalt is optional — auto-generated
   initialRoles: [
     { account: '0x...', role: VEHICLE_STEAM as Hex }
   ],
   account: account.address,
-});
+})
 
-const receipt = await client.waitForTransactionReceipt({ hash });
-const accessControlAddress = extractAccessControlAddress(receipt, addresses.accessControlFactory);
+const receipt = await publicClient.waitForTransactionReceipt({ hash })
+const accessControlAddress = extractAccessControlAddress(receipt, addresses.eacFactory)
 ```
 
 ### 2. Granting Scoped Roles
 Roles in Railnet are almost always "scoped" to a specific contract. Granting a role without the correct scope will result in `MissingRole` reverts during protocol operations.
 
 ```typescript
-import { grantScopedRole, MULTI_VEHICLE_DISPATCH } from 'railnet-sdk';
+import { grantScopedRole, MULTI_VEHICLE_DISPATCH } from '@railnetorg/railnet-sdk'
 
-const hash = await grantScopedRole(client, {
+const hash = await grantScopedRole(walletClient, {
   accessControl: '0x...', // EAC address
   role: MULTI_VEHICLE_DISPATCH as Hex,
   scope: '0x...', // MUST be the SectorAccountingEngine address for this role
   grantee: '0x...', // Address receiving the permission
-  account: '0x...', // Caller must have DEFAULT_ADMIN_ROLE
-});
+  account: account.address, // Caller must have DEFAULT_ADMIN_ROLE
+})
 ```
 
 ### 3. Revoking Scoped Roles
 Revoking permissions follows the same scoped pattern.
 
 ```typescript
-import { revokeScopedRole, VEHICLE_STEAM } from 'railnet-sdk';
+import { revokeScopedRole, VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
 
-await revokeScopedRole(client, {
+await revokeScopedRole(walletClient, {
   accessControl: '0x...',
   role: VEHICLE_STEAM as Hex,
   scope: '0x...', // Vehicle or Multi-Vehicle address
   grantee: '0x...',
-  account: '0x...',
-});
+  account: account.address,
+})
 ```
+
+### 4. Setting Roles as Public
+Make a scoped role callable by any address, or restrict it back to specific grantees.
+
+```typescript
+import { setScopedRolePublic, VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
+
+// Make VEHICLE_STEAM public on a specific vehicle scope
+const hash = await setScopedRolePublic(walletClient, {
+  accessControl: '0x...',
+  role: VEHICLE_STEAM as Hex,
+  scope: vehicleAddress, // The vehicle scope to make public
+  isPublic: true,
+  account: account.address, // Caller must have DEFAULT_ADMIN_ROLE
+})
+```
+
+Note: The `deployMultiVehicle` workflow checks `isScopedRolePublic` before granting `VEHICLE_STEAM` per vehicle. If the role is already public on a vehicle's scope, it skips the individual grants.
 
 ## Common Mistakes
 
 1. **CRITICAL: Scoping role to wrong contract address**
 Most Multi-Vehicle (MV) roles must be scoped to the `SectorAccountingEngine`, NOT the `MultiVehicle` contract itself. For example, `MULTI_VEHICLE_SET_QUEUES` must be scoped to the `QueueStrategyEngine`. Granting to the wrong scope succeeds silently but operations will revert with `MissingRole`.
-*   **Wrong**: `grantScopedRole(..., { role: MULTI_VEHICLE_DISPATCH, scope: multiVehicleAddress, ... })`
-*   **Correct**: `grantScopedRole(..., { role: MULTI_VEHICLE_DISPATCH, scope: sectorAccountingEngineAddress, ... })`
+*   **Wrong**: `grantScopedRole(walletClient, { role: MULTI_VEHICLE_DISPATCH, scope: multiVehicleAddress, ... })`
+*   **Correct**: `grantScopedRole(walletClient, { role: MULTI_VEHICLE_DISPATCH, scope: sectorAccountingEngineAddress, ... })`
 
-2. **HIGH: Using raw keccak256 strings instead of SDK constants**
+2. **CRITICAL: Write actions take a single client, not two**
+*   **Wrong**: `grantScopedRole(publicClient, walletClient, { ... })`
+*   **Correct**: `grantScopedRole(walletClient, { ... })`
+
+All write actions take `(client, parameters, options?)` — a single viem client that handles both simulation and signing internally.
+
+3. **HIGH: Using raw keccak256 strings instead of SDK constants**
 Manual computation of role hashes (e.g., `keccak256(toHex('VEHICLE_STEAM'))`) risks typos that produce valid but incorrect role hashes. Always use the precomputed constants exported by the SDK.
 *   **Wrong**: `const role = keccak256(toHex('VEHICLE_STEAM'))`
-*   **Correct**: `import { VEHICLE_STEAM } from 'railnet-sdk'`
+*   **Correct**: `import { VEHICLE_STEAM } from '@railnetorg/railnet-sdk'`
 
-3. **MEDIUM: Role constants type mismatch**
+4. **MEDIUM: Role constants type mismatch**
 SDK role constants are exported as strings, but `grantScopedRole` and `revokeScopedRole` expect the `Hex` type. You must cast them to avoid TypeScript errors.
 *   **Wrong**: `{ role: VEHICLE_STEAM }`
 *   **Correct**: `{ role: VEHICLE_STEAM as Hex }`
 
-4. **HIGH: Not extracting EAC address from receipt**
+5. **HIGH: Not extracting EAC address from receipt**
 `spawnAccessControl` returns a transaction hash, not the contract address. You must use `extractAccessControlAddress` on the transaction receipt to get the address for subsequent configuration or for use in `spawnConduit`.
 
-5. **HIGH: Tension with `deployMultiVehicle` auto-grants**
-The `deployMultiVehicle` workflow automatically grants a specific set of roles (like `VEHICLE_STEAM` to the public). If your security model requires custom role hierarchies or private steaming, you must avoid the workflow and use individual `grantScopedRole` calls with correct scopes.
+6. **HIGH: Misunderstanding `deployMultiVehicle` auto-grants**
+The `deployMultiVehicle` workflow checks if `VEHICLE_STEAM` is already public on each vehicle scope. If not, it grants `VEHICLE_STEAM` to three specific addresses per vehicle (multiVehicle, sectorAccountingEngine, subQueryEngine). If your security model requires custom role hierarchies, skip the workflow and use individual `grantScopedRole` / `setScopedRolePublic` calls with correct scopes.
 
 ## References
 
