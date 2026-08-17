@@ -40,7 +40,7 @@ skills:
       Load when working with conduit deposits, redemptions, or position data.
     sources:
       - 'railnetorg/railnet-sdk:src/actions/conduit/*.ts'
-      - 'railnetorg/railnet-sdk:docs/pages/protocol-overview.mdx'
+      - 'railnetorg/railnet-sdk:protocol-overview.md'
     references:
       - 'references/error-reference.md'
 

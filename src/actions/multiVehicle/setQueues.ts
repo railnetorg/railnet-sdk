@@ -19,6 +19,15 @@ export type SetQueuesParameters = {
   redeemQueue: QueueEntry[]
 }
 
+export function prepareSetQueues(parameters: SetQueuesParameters) {
+  return {
+    address: parameters.queueStrategyEngine,
+    abi: queueStrategyEngineAbi,
+    functionName: 'setQueues',
+    args: [parameters.depositQueue, parameters.redeemQueue],
+  } as const
+}
+
 /**
  * Configures the deposit and redeem allocation queues on a multi-vehicle's QueueStrategyEngine. Each queue entry maps a vehicle to a target allocation and threshold.
  * @param client - Viem client instance
@@ -33,10 +42,7 @@ export async function setQueues(
 ): Promise<Hash> {
   const { request } = await simulateContract(client, {
     ...options,
-    address: parameters.queueStrategyEngine,
-    abi: queueStrategyEngineAbi,
-    functionName: 'setQueues',
-    args: [parameters.depositQueue, parameters.redeemQueue],
+    ...prepareSetQueues(parameters),
     account: parameters.account,
   })
 

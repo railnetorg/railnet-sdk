@@ -24,9 +24,12 @@ tensions:
   - name: "deployMultiVehicle workflow vs granular control"
     skills: ["railnet-vehicle", "railnet-access-control"]
     description: "Workflow is opinionated about role grants; custom setups need individual actions"
-  - name: "Enum ordering mismatch between SDK and protocol docs"
+  - name: "Conduit transfer policy is a boolean"
     skills: ["railnet-conduit", "railnet-core"]
-    description: "TransferMode enum values differ from protocol doc ordering; always use SDK enum"
+    description: "spawnConduit takes transferEnabled: boolean; the old TransferMode enum and depositAsset/initialDepositSize were removed"
+  - name: "Initial deposit size is on-chain, not a parameter"
+    skills: ["railnet-vehicle", "railnet-conduit"]
+    description: "Factories pull AssetRegistry.getInitialDepositAmount(asset) from the caller on spawn; approve that amount, do not guess one"
 
 cross_references:
   - from: "railnet-conduit"

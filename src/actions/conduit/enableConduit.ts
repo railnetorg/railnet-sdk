@@ -7,6 +7,15 @@ export type EnableConduitParameters = {
   conduit: Address
 }
 
+export function prepareEnableConduit(parameters: EnableConduitParameters) {
+  return {
+    address: parameters.conduit,
+    abi: conduitAbi,
+    functionName: 'enable',
+    args: [],
+  } as const
+}
+
 /**
  * Enables a conduit, transitioning it to an operational state. Can only be called by the conduit factory.
  * @param client - Viem client instance
@@ -21,10 +30,7 @@ export async function enableConduit(
 ): Promise<Hash> {
   const { request } = await simulateContract(client, {
     ...options,
-    address: parameters.conduit,
-    abi: conduitAbi,
-    functionName: 'enable',
-    args: [],
+    ...prepareEnableConduit(parameters),
     account: parameters.account,
   })
 

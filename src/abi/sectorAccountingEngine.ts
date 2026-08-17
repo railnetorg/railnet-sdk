@@ -14,9 +14,9 @@ export const sectorAccountingEngineAbi = [
         internalType: 'Sector',
       },
       {
-        name: 'assets',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        name: 'asset_',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',
@@ -83,28 +83,35 @@ export const sectorAccountingEngineAbi = [
     name: 'dispatch',
     inputs: [
       {
-        name: 'vehicle',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'dispatch',
-    inputs: [
-      {
-        name: 'vehicle',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'depositParams',
+        name: 'params',
         type: 'tuple',
         internalType: 'struct ISectorAccountingEngine.DispatchParams',
         components: [
+          {
+            name: 'vehicle',
+            type: 'address',
+            internalType: 'contract IBaseVehicle',
+          },
+          {
+            name: 'mode',
+            type: 'uint8',
+            internalType: 'enum Mode',
+          },
+          {
+            name: 'amount',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'settledDestination',
+            type: 'bytes32',
+            internalType: 'Sector',
+          },
+          {
+            name: 'rejectedDestination',
+            type: 'bytes32',
+            internalType: 'Sector',
+          },
           {
             name: 'minOutput',
             type: 'uint256',
@@ -115,17 +122,73 @@ export const sectorAccountingEngineAbi = [
             type: 'bytes',
             internalType: 'bytes',
           },
+          {
+            name: 'operationId',
+            type: 'bytes32',
+            internalType: 'bytes32',
+          },
         ],
       },
+    ],
+    outputs: [
       {
-        name: 'redeemParams',
+        name: 'query',
         type: 'tuple',
-        internalType: 'struct ISectorAccountingEngine.DispatchParams',
+        internalType: 'struct Query',
         components: [
           {
-            name: 'minOutput',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'owner',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'receiver',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'input',
+            type: 'tuple[]',
+            internalType: 'struct Asset[]',
+            components: [
+              {
+                name: 'asset',
+                type: 'address',
+                internalType: 'address',
+              },
+              {
+                name: 'value',
+                type: 'uint256',
+                internalType: 'uint256',
+              },
+            ],
+          },
+          {
+            name: 'output',
+            type: 'tuple[]',
+            internalType: 'struct Asset[]',
+            components: [
+              {
+                name: 'asset',
+                type: 'address',
+                internalType: 'address',
+              },
+              {
+                name: 'value',
+                type: 'uint256',
+                internalType: 'uint256',
+              },
+            ],
+          },
+          {
+            name: 'mode',
+            type: 'uint8',
+            internalType: 'enum Mode',
+          },
+          {
+            name: 'salt',
+            type: 'bytes32',
+            internalType: 'bytes32',
           },
           {
             name: 'data',
@@ -134,8 +197,12 @@ export const sectorAccountingEngineAbi = [
           },
         ],
       },
+      {
+        name: 'dispatchState',
+        type: 'uint8',
+        internalType: 'enum State',
+      },
     ],
-    outputs: [],
     stateMutability: 'nonpayable',
   },
   {
@@ -176,12 +243,12 @@ export const sectorAccountingEngineAbi = [
       {
         name: '',
         type: 'tuple',
-        internalType: 'struct VehicleRegistry.VehicleConfig',
+        internalType: 'struct VehicleManagerStore.VehicleConfig',
         components: [
           {
             name: 'mode',
             type: 'uint8',
-            internalType: 'enum VehicleRegistry.VehicleMode',
+            internalType: 'enum VehicleManagerStore.VehicleMode',
           },
           {
             name: 'cap',
@@ -210,11 +277,6 @@ export const sectorAccountingEngineAbi = [
     name: 'initialize',
     inputs: [
       {
-        name: 'owner_',
-        type: 'address',
-        internalType: 'address',
-      },
-      {
         name: 'asset_',
         type: 'address',
         internalType: 'contract IERC20',
@@ -235,9 +297,9 @@ export const sectorAccountingEngineAbi = [
         internalType: 'contract ISubQueryEngine',
       },
       {
-        name: 'vehicleRegistry_',
+        name: 'vehicleManager_',
         type: 'address',
-        internalType: 'contract IVehicleRegistry',
+        internalType: 'contract IVehicleManager',
       },
     ],
     outputs: [],
@@ -382,22 +444,39 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'function',
-    name: 'moveAssets',
+    name: 'move',
     inputs: [
       {
-        name: 'from',
-        type: 'bytes32',
-        internalType: 'Sector',
-      },
-      {
-        name: 'to',
-        type: 'bytes32',
-        internalType: 'Sector',
-      },
-      {
-        name: 'amount',
-        type: 'uint256',
-        internalType: 'uint256',
+        name: 'params',
+        type: 'tuple',
+        internalType: 'struct ISectorAccountingEngine.MoveParams',
+        components: [
+          {
+            name: 'from',
+            type: 'bytes32',
+            internalType: 'Sector',
+          },
+          {
+            name: 'to',
+            type: 'bytes32',
+            internalType: 'Sector',
+          },
+          {
+            name: 'asset',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'amount',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'operationId',
+            type: 'bytes32',
+            internalType: 'bytes32',
+          },
+        ],
       },
     ],
     outputs: [],
@@ -418,9 +497,9 @@ export const sectorAccountingEngineAbi = [
         internalType: 'Sector',
       },
       {
-        name: 'assets',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        name: 'asset_',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',
@@ -440,31 +519,16 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'function',
-    name: 'moveShares',
-    inputs: [
+    name: 'multiVehicle',
+    inputs: [],
+    outputs: [
       {
-        name: 'from',
-        type: 'bytes32',
-        internalType: 'Sector',
-      },
-      {
-        name: 'to',
-        type: 'bytes32',
-        internalType: 'Sector',
-      },
-      {
-        name: 'vehicle',
+        name: '',
         type: 'address',
         internalType: 'contract IBaseVehicle',
       },
-      {
-        name: 'amount',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
     ],
-    outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -500,86 +564,6 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'function',
-    name: 'rebalance',
-    inputs: [
-      {
-        name: 'from',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'to',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'amount',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'rebalance',
-    inputs: [
-      {
-        name: 'from',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'to',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'amount',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-      {
-        name: 'redeemParams',
-        type: 'tuple',
-        internalType: 'struct ISectorAccountingEngine.DispatchParams',
-        components: [
-          {
-            name: 'minOutput',
-            type: 'uint256',
-            internalType: 'uint256',
-          },
-          {
-            name: 'data',
-            type: 'bytes',
-            internalType: 'bytes',
-          },
-        ],
-      },
-      {
-        name: 'depositParams',
-        type: 'tuple',
-        internalType: 'struct ISectorAccountingEngine.DispatchParams',
-        components: [
-          {
-            name: 'minOutput',
-            type: 'uint256',
-            internalType: 'uint256',
-          },
-          {
-            name: 'data',
-            type: 'bytes',
-            internalType: 'bytes',
-          },
-        ],
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
     name: 'removeFromSector',
     inputs: [
       {
@@ -588,9 +572,9 @@ export const sectorAccountingEngineAbi = [
         internalType: 'Sector',
       },
       {
-        name: 'assets',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        name: 'asset_',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',
@@ -656,11 +640,6 @@ export const sectorAccountingEngineAbi = [
         type: 'address',
         internalType: 'contract IBaseVehicle',
       },
-      {
-        name: 'active',
-        type: 'bool',
-        internalType: 'bool',
-      },
     ],
     outputs: [],
     stateMutability: 'nonpayable',
@@ -672,6 +651,25 @@ export const sectorAccountingEngineAbi = [
     outputs: [
       {
         name: 'total',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'vehicleEstimatedShares',
+    inputs: [
+      {
+        name: 'vehicle',
+        type: 'address',
+        internalType: 'contract IBaseVehicle',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
         type: 'uint256',
         internalType: 'uint256',
       },
@@ -719,6 +717,38 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'function',
+    name: 'vehicleManager',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract IVehicleManager',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'vehicleSettledShares',
+    inputs: [
+      {
+        name: 'vehicle',
+        type: 'address',
+        internalType: 'contract IBaseVehicle',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'withdraw',
     inputs: [
       {
@@ -745,7 +775,45 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'event',
-    name: 'DepositLimitedByCap',
+    name: 'BaseAssetInitialized',
+    inputs: [
+      {
+        name: 'asset',
+        type: 'address',
+        indexed: true,
+        internalType: 'contract IERC20',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'DepositPartiallyAllocated',
+    inputs: [
+      {
+        name: 'totalAmount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'allocatedAmount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'residualIdle',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'DispatchSkipped',
     inputs: [
       {
         name: 'vehicle',
@@ -754,22 +822,28 @@ export const sectorAccountingEngineAbi = [
         internalType: 'contract IBaseVehicle',
       },
       {
-        name: 'requestedAmount',
+        name: 'mode',
+        type: 'uint8',
+        indexed: false,
+        internalType: 'enum Mode',
+      },
+      {
+        name: 'stagedAmount',
         type: 'uint256',
         indexed: false,
         internalType: 'uint256',
       },
       {
-        name: 'actualAmount',
-        type: 'uint256',
+        name: 'reason',
+        type: 'uint8',
         indexed: false,
-        internalType: 'uint256',
+        internalType: 'enum SectorAccountingEngine.SkipReason',
       },
       {
-        name: 'cap',
-        type: 'uint256',
+        name: 'operationId',
+        type: 'bytes32',
         indexed: false,
-        internalType: 'uint256',
+        internalType: 'bytes32',
       },
     ],
     anonymous: false,
@@ -869,6 +943,12 @@ export const sectorAccountingEngineAbi = [
         indexed: false,
         internalType: 'enum State',
       },
+      {
+        name: 'operationId',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
     ],
     anonymous: false,
   },
@@ -887,7 +967,87 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'event',
-    name: 'MovedAssets',
+    name: 'LimitedDeposit',
+    inputs: [
+      {
+        name: 'vehicle',
+        type: 'address',
+        indexed: true,
+        internalType: 'contract IBaseVehicle',
+      },
+      {
+        name: 'requestedAmount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'actualAmount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'cap',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'maxDeposit',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'operationId',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'LimitedRedeem',
+    inputs: [
+      {
+        name: 'vehicle',
+        type: 'address',
+        indexed: true,
+        internalType: 'contract IBaseVehicle',
+      },
+      {
+        name: 'requestedAmount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'actualAmount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'maxRedeem',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'operationId',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Moved',
     inputs: [
       {
         name: 'from',
@@ -900,12 +1060,6 @@ export const sectorAccountingEngineAbi = [
         type: 'bytes32',
         indexed: true,
         internalType: 'Sector',
-      },
-      {
-        name: 'amount',
-        type: 'uint256',
-        indexed: false,
-        internalType: 'uint256',
       },
       {
         name: 'asset',
@@ -913,48 +1067,29 @@ export const sectorAccountingEngineAbi = [
         indexed: true,
         internalType: 'address',
       },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'MovedShares',
-    inputs: [
-      {
-        name: 'from',
-        type: 'bytes32',
-        indexed: true,
-        internalType: 'Sector',
-      },
-      {
-        name: 'to',
-        type: 'bytes32',
-        indexed: true,
-        internalType: 'Sector',
-      },
-      {
-        name: 'vehicle',
-        type: 'address',
-        indexed: true,
-        internalType: 'address',
-      },
       {
         name: 'amount',
         type: 'uint256',
         indexed: false,
         internalType: 'uint256',
       },
+      {
+        name: 'operationId',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
     ],
     anonymous: false,
   },
   {
     type: 'event',
-    name: 'MultiVehicleInitialized',
+    name: 'ParentMultiVehicleInitialized',
     inputs: [
       {
         name: 'multiVehicle',
         type: 'address',
-        indexed: false,
+        indexed: true,
         internalType: 'contract IBaseVehicle',
       },
     ],
@@ -962,184 +1097,25 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'event',
-    name: 'OwnerInitialized',
+    name: 'RequestWithdrawableShortfall',
     inputs: [
       {
-        name: 'owner',
-        type: 'address',
-        indexed: true,
-        internalType: 'address',
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: 'event',
-    name: 'Rebalanced',
-    inputs: [
-      {
-        name: 'from',
-        type: 'address',
-        indexed: true,
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'to',
-        type: 'address',
-        indexed: true,
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'amount',
+        name: 'requestedAmount',
         type: 'uint256',
         indexed: false,
         internalType: 'uint256',
       },
       {
-        name: 'redeemQuery',
-        type: 'tuple',
+        name: 'plannedUnallocation',
+        type: 'uint256',
         indexed: false,
-        internalType: 'struct Query',
-        components: [
-          {
-            name: 'owner',
-            type: 'address',
-            internalType: 'address',
-          },
-          {
-            name: 'receiver',
-            type: 'address',
-            internalType: 'address',
-          },
-          {
-            name: 'input',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
-            components: [
-              {
-                name: 'asset',
-                type: 'address',
-                internalType: 'address',
-              },
-              {
-                name: 'value',
-                type: 'uint256',
-                internalType: 'uint256',
-              },
-            ],
-          },
-          {
-            name: 'output',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
-            components: [
-              {
-                name: 'asset',
-                type: 'address',
-                internalType: 'address',
-              },
-              {
-                name: 'value',
-                type: 'uint256',
-                internalType: 'uint256',
-              },
-            ],
-          },
-          {
-            name: 'mode',
-            type: 'uint8',
-            internalType: 'enum Mode',
-          },
-          {
-            name: 'salt',
-            type: 'bytes32',
-            internalType: 'bytes32',
-          },
-          {
-            name: 'data',
-            type: 'bytes',
-            internalType: 'bytes',
-          },
-        ],
+        internalType: 'uint256',
       },
       {
-        name: 'redeemQueryState',
-        type: 'uint8',
+        name: 'manualShortfall',
+        type: 'uint256',
         indexed: false,
-        internalType: 'enum State',
-      },
-      {
-        name: 'depositQuery',
-        type: 'tuple',
-        indexed: false,
-        internalType: 'struct Query',
-        components: [
-          {
-            name: 'owner',
-            type: 'address',
-            internalType: 'address',
-          },
-          {
-            name: 'receiver',
-            type: 'address',
-            internalType: 'address',
-          },
-          {
-            name: 'input',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
-            components: [
-              {
-                name: 'asset',
-                type: 'address',
-                internalType: 'address',
-              },
-              {
-                name: 'value',
-                type: 'uint256',
-                internalType: 'uint256',
-              },
-            ],
-          },
-          {
-            name: 'output',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
-            components: [
-              {
-                name: 'asset',
-                type: 'address',
-                internalType: 'address',
-              },
-              {
-                name: 'value',
-                type: 'uint256',
-                internalType: 'uint256',
-              },
-            ],
-          },
-          {
-            name: 'mode',
-            type: 'uint8',
-            internalType: 'enum Mode',
-          },
-          {
-            name: 'salt',
-            type: 'bytes32',
-            internalType: 'bytes32',
-          },
-          {
-            name: 'data',
-            type: 'bytes',
-            internalType: 'bytes',
-          },
-        ],
-      },
-      {
-        name: 'depositQueryState',
-        type: 'uint8',
-        indexed: false,
-        internalType: 'enum State',
+        internalType: 'uint256',
       },
     ],
     anonymous: false,
@@ -1224,7 +1200,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'strategyEngine',
         type: 'address',
-        indexed: false,
+        indexed: true,
         internalType: 'contract IQueueStrategyEngine',
       },
     ],
@@ -1237,8 +1213,21 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'subQueryEngine',
         type: 'address',
-        indexed: false,
+        indexed: true,
         internalType: 'contract ISubQueryEngine',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'VehicleManagerInitialized',
+    inputs: [
+      {
+        name: 'vehicleManager',
+        type: 'address',
+        indexed: true,
+        internalType: 'contract IVehicleManager',
       },
     ],
     anonymous: false,
@@ -1369,7 +1358,7 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'error',
-    name: 'CapExceeded',
+    name: 'DepositLimitedByCap',
     inputs: [
       {
         name: 'vehicle',
@@ -1395,53 +1384,91 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'error',
-    name: 'FailedCall',
-    inputs: [],
+    name: 'DispatchDepositAmountTooHigh',
+    inputs: [
+      {
+        name: 'vehicle',
+        type: 'address',
+        internalType: 'contract IBaseVehicle',
+      },
+      {
+        name: 'requestedAmount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'sectorBalance',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'maxDeposit',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'cap',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
   },
   {
     type: 'error',
-    name: 'IncompatibleVehicle',
+    name: 'DispatchRedeemAmountTooHigh',
     inputs: [
       {
-        name: 'vehicleAsset',
+        name: 'vehicle',
         type: 'address',
-        internalType: 'address',
+        internalType: 'contract IBaseVehicle',
       },
       {
-        name: 'depositRoutes',
-        type: 'tuple[]',
-        internalType: 'struct Route[]',
-        components: [
-          {
-            name: 'input',
-            type: 'address[]',
-            internalType: 'address[]',
-          },
-          {
-            name: 'output',
-            type: 'address[]',
-            internalType: 'address[]',
-          },
-        ],
+        name: 'requestedAmount',
+        type: 'uint256',
+        internalType: 'uint256',
       },
       {
-        name: 'redeemRoutes',
-        type: 'tuple[]',
-        internalType: 'struct Route[]',
-        components: [
-          {
-            name: 'input',
-            type: 'address[]',
-            internalType: 'address[]',
-          },
-          {
-            name: 'output',
-            type: 'address[]',
-            internalType: 'address[]',
-          },
-        ],
+        name: 'sectorBalance',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'maxRedeem',
+        type: 'uint256',
+        internalType: 'uint256',
       },
     ],
+  },
+  {
+    type: 'error',
+    name: 'EmptyStrictDispatch',
+    inputs: [
+      {
+        name: 'vehicle',
+        type: 'address',
+        internalType: 'contract IBaseVehicle',
+      },
+      {
+        name: 'mode',
+        type: 'uint8',
+        internalType: 'enum Mode',
+      },
+      {
+        name: 'requestedAmount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'sectorBalance',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'FailedCall',
+    inputs: [],
   },
   {
     type: 'error',
@@ -1456,45 +1483,6 @@ export const sectorAccountingEngineAbi = [
         name: 'to',
         type: 'bytes32',
         internalType: 'Sector',
-      },
-    ],
-  },
-  {
-    type: 'error',
-    name: 'IneffectiveRebalance',
-    inputs: [
-      {
-        name: 'from',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'to',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-    ],
-  },
-  {
-    type: 'error',
-    name: 'InvalidConvertedAssets',
-    inputs: [
-      {
-        name: 'invalidAssets',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
-        components: [
-          {
-            name: 'asset',
-            type: 'address',
-            internalType: 'address',
-          },
-          {
-            name: 'value',
-            type: 'uint256',
-            internalType: 'uint256',
-          },
-        ],
       },
     ],
   },
@@ -1525,22 +1513,6 @@ export const sectorAccountingEngineAbi = [
     type: 'error',
     name: 'InvalidInitialization',
     inputs: [],
-  },
-  {
-    type: 'error',
-    name: 'InvalidPendingVehicleSector',
-    inputs: [
-      {
-        name: 'sector',
-        type: 'bytes32',
-        internalType: 'Sector',
-      },
-      {
-        name: 'source',
-        type: 'bool',
-        internalType: 'bool',
-      },
-    ],
   },
   {
     type: 'error',
@@ -1603,17 +1575,6 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'error',
-    name: 'InvalidValue',
-    inputs: [
-      {
-        name: 'value',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-    ],
-  },
-  {
-    type: 'error',
     name: 'InvalidVehicle',
     inputs: [
       {
@@ -1636,6 +1597,22 @@ export const sectorAccountingEngineAbi = [
         name: 'source',
         type: 'bool',
         internalType: 'bool',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'MinOutputRequiresPinnedAmount',
+    inputs: [
+      {
+        name: 'vehicle',
+        type: 'address',
+        internalType: 'contract IBaseVehicle',
+      },
+      {
+        name: 'minOutput',
+        type: 'uint256',
+        internalType: 'uint256',
       },
     ],
   },
@@ -1667,29 +1644,8 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'error',
-    name: 'RebalanceQueryRejection',
-    inputs: [
-      {
-        name: 'from',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'to',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'failingVehicle',
-        type: 'address',
-        internalType: 'contract IBaseVehicle',
-      },
-      {
-        name: 'errorData',
-        type: 'bytes',
-        internalType: 'bytes',
-      },
-    ],
+    name: 'OnlyMultiVehicleOrManager',
+    inputs: [],
   },
   {
     type: 'error',
@@ -1725,8 +1681,35 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'error',
+    name: 'UnauthorizedVehicle',
+    inputs: [
+      {
+        name: 'vehicle',
+        type: 'address',
+        internalType: 'contract IBaseVehicle',
+      },
+    ],
+  },
+  {
+    type: 'error',
     name: 'ZeroAddress',
     inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'ZeroBalance',
+    inputs: [
+      {
+        name: 'sector',
+        type: 'bytes32',
+        internalType: 'Sector',
+      },
+      {
+        name: 'asset',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
   },
   {
     type: 'error',

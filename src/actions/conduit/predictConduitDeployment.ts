@@ -28,10 +28,9 @@ export async function predictConduitDeployment(
     accountList: parameters.accountList,
     ownerRegistry: parameters.ownerRegistry,
     accessControl: parameters.accessControl,
-    transferMode: parameters.transferMode,
-    initialDepositSize: parameters.initialDepositSize,
+    transferEnabled: parameters.transferEnabled,
+    initialInterceptions: parameters.initialInterceptions ?? [],
     initialExpectedSupply: parameters.initialExpectedSupply,
-    depositAsset: parameters.depositAsset,
     querySalt: parameters.querySalt,
     deploymentSalt: parameters.deploymentSalt,
   } as const

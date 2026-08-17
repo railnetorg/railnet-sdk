@@ -50,7 +50,7 @@ Chaque Query passe par ces états :
 EMPTY → create() → PROCESSING ou UNLOCKING
                         │                │
                         ▼                ▼
-                    WAITING          unlock() → SETTLED ✓
+                    PAUSED           unlock() → SETTLED ✓
                         │                │
                     resume()         (partiel) → PROCESSING
                         │
@@ -86,7 +86,7 @@ EMPTY → create() → PROCESSING ou UNLOCKING
 │                   MULTI VEHICLE                          │
 │        Méta-stratégie orchestrant les sous-vehicles      │
 │   (SectorAccountingEngine, QueueStrategyEngine,          │
-│    SubQueryEngine, QueryRedeemQueue, VehicleRegistry)    │
+│    SubQueryEngine, QueryRedeemQueue, VehicleManager)     │
 ├─────────────────────────────────────────────────────────┤
 │                    VEHICLES                               │
 │     Implémentations STEAM spécifiques aux protocoles     │
@@ -157,7 +157,7 @@ Exemple :
 |---------|------|------|
 | `create(query)` | Écriture | Démarrer un dépôt ou un rachat |
 | `unlock(query)` | Écriture | Réclamer la sortie après succès |
-| `resume(query)` | Écriture | Reprendre depuis l'état WAITING |
+| `resume(query)` | Écriture | Reprendre depuis l'état PAUSED |
 | `recover(query)` | Écriture | Récupérer les actifs après un échec |
 | `state(query)` | Lecture | Vérifier l'état actuel d'une query |
 | `estimate(assets, mode, type)` | Lecture | Prévisualiser ce que tu obtiendrais (frais inclus) |
@@ -529,7 +529,7 @@ Alice peut maintenant appeler `rebalance()` sur ce SectorAccountingEngine spéci
 |-----------|-------|---------------------------|
 | **Factory** | `FACTORY_SPAWN`, `CONDUIT_SPAWN` | Déployeur du protocole |
 | **Beacon** | `BEACON_FREEZE`, `BEACON_PAUSE`, `BEACON_UPGRADE` | Admin du protocole (sécurité) |
-| **Vehicle** | `VEHICLE_STEAM`, `VEHICLE_SET_INTERCEPTIONS`, `VEHICLE_ALLOW` | Contrats Conduit, admin du protocole |
+| **Vehicle** | `VEHICLE_STEAM_DEPOSIT`, `VEHICLE_STEAM_REDEEM`, `VEHICLE_SET_INTERCEPTIONS`, `VEHICLE_ALLOW` | Contrats Conduit, admin du protocole |
 | **FeeManager** | `FEE_MANAGER_SET_FEES`, `FEE_MANAGER_SET_FEE_RECIPIENTS`, `FEE_MANAGER_DISPATCH_ERC20` | Gestionnaire d'actifs |
 | **MultiVehicle** | `MULTI_VEHICLE_REBALANCE`, `MULTI_VEHICLE_DISPATCH`, `MULTI_VEHICLE_MOVE_ASSETS`, etc. | Gestionnaire d'actifs, bots Keeper |
 | **AccountList** | `ACCOUNT_LIST_MANAGER` | Équipe conformité |
@@ -572,7 +572,7 @@ Quand une factory déploie un vehicle ou un conduit, elle fait un dépôt initia
 Factory.spawn() :
   1. Déployer le proxy → BeaconProxy(beacon)
   2. Initialiser le contrat
-  3. Déposer initialDepositSize de l'actif de base
+  3. Déposer le dépôt initial de l'actif de base
   4. Brûler les parts résultantes (envoyées à 0xdead)
   5. Activer le conduit (si applicable)
 ```
@@ -614,7 +614,7 @@ Quand SETTLED/REJECTED : émet KeeperLib.stopJob/cancelJob
 3. Déployer MorphoBlueVehicle (via factory)
 4. Déployer MultiVehicle (via factory → crée 5 contrats)
 5. Accorder les rôles (accès STEAM pour le conduit, rebalance pour le gestionnaire, etc.)
-6. Autoriser les deux sous-vehicles dans le VehicleRegistry
+6. Autoriser les deux sous-vehicles dans le VehicleManager
 7. Configurer les files d'allocation (60% Aave, 40% Morpho)
 8. Déployer le FeeManager (2% gestion, 20% performance)
 9. Déployer l'AccountList (liste blanche KYC)
@@ -689,7 +689,8 @@ Le SDK stocke ces infos dans `src/contracts/addresses.ts` :
 30 hachages `keccak256` pré-calculés dans `src/constants/roles.ts`, correspondant à `Roles.sol` :
 ```typescript
 FACTORY_SPAWN = keccak256("FACTORY_SPAWN")
-VEHICLE_STEAM = keccak256("VEHICLE_STEAM")
+VEHICLE_STEAM_DEPOSIT = keccak256("VEHICLE_STEAM_DEPOSIT")
+VEHICLE_STEAM_REDEEM  = keccak256("VEHICLE_STEAM_REDEEM")
 MULTI_VEHICLE_REBALANCE = keccak256("MULTI_VEHICLE_REBALANCE")
 // etc.
 ```
@@ -703,11 +704,8 @@ enum ConduitMode { DEPOSIT = 0, REDEEM = 1 }
 // Type d'estimation
 enum EstimationType { INPUT = 0, OUTPUT = 1 }
 
-// Mode de transfert (parts de conduit)
-enum TransferMode { ALLOW_TRANSFER = 0, ACCOUNT_LIST = 1, BLOCK_TRANSFER = 2 }
-
 // États STEAM (on-chain)
-enum State { EMPTY, PROCESSING, WAITING, UNLOCKING, RECOVERING, SETTLED, REJECTED }
+enum State { EMPTY, PROCESSING, PAUSED, UNLOCKING, RECOVERING, REJECTED, SETTLED }
 ```
 
 ---

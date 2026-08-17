@@ -71,8 +71,9 @@ import {
   enableConduit, 
   predictConduitDeployment, 
   extractConduitAddress,
-  TransferMode 
+  getInitialDepositAmount,
 } from '@railnetorg/railnet-sdk'
+import { erc20Abi } from 'viem'
 
 async function deployNewConduit() {
   const factory = '0x...'
@@ -85,12 +86,25 @@ async function deployNewConduit() {
     accountList: '0x...',
     ownerRegistry: '0x...',
     accessControl: '0x...',
-    transferMode: TransferMode.ACCOUNT_LIST,
-    initialDepositSize: 1000000n,
+    transferEnabled: false,
     initialExpectedSupply: 1000000n,
-    depositAsset: '0x...',
     account: walletClient.account.address,
+    // Optional: initialInterceptions — Array<{ asset, recipients:
+    //   Array<{ target, shareBps, chainId }> }>
   }
+
+  // The factory pulls an initial deposit sized by the AssetRegistry — approve it first
+  const initialDepositAmount = await getInitialDepositAmount(walletClient, {
+    assetRegistry: addresses.assetRegistry,
+    asset: vehicleAsset,
+  })
+  await walletClient.writeContract({
+    address: vehicleAsset,
+    abi: erc20Abi,
+    functionName: 'approve',
+    args: [factory, initialDepositAmount],
+    account: walletClient.account.address,
+  })
 
   // spawnConduit auto-generates querySalt and deploymentSalt if not provided
   const hash = await spawnConduit(walletClient, params)
@@ -144,17 +158,25 @@ Note: `create()` never produces REJECTED or RECOVERING — validation failures a
 
 ```typescript
 import { processConduitQuery, type ConduitMode } from '@railnetorg/railnet-sdk'
+import { encodeAbiParameters, keccak256 } from 'viem'
 import type { Address, Hex } from 'viem'
 
 // The query struct must match exactly what was used to create the query.
 // Save these values from the original depositConduit/redeemConduit call.
+// query.salt is not the salt you passed in: the conduit derives it as
+// keccak256(abi.encode(depositor, sourceSalt)). Rebuild it the same way.
 const query = {
   owner: conduitAddress as Address,
   receiver: conduitAddress as Address,
   input: [{ asset: tokenAddress, value: depositAmount }],
   output: [] as { asset: Address; value: bigint }[],
   mode: 0 as ConduitMode, // ConduitMode.DEPOSIT
-  salt: originalSalt as Hex,
+  salt: keccak256(
+    encodeAbiParameters(
+      [{ type: 'address' }, { type: 'bytes32' }],
+      [account.address, originalSalt as Hex],
+    ),
+  ),
   data: '0x' as Hex,
 }
 
@@ -289,7 +311,7 @@ When the underlying vehicle is async, the deposit/redeem creates a query in PROC
 
 Source: src/actions/conduit/processConduitQuery.ts
 
-### HIGH Using raw TransferMode numbers instead of SDK enum
+### HIGH Using the removed transferMode enum instead of transferEnabled
 
 Wrong:
 
@@ -302,16 +324,14 @@ const params = {
 Correct:
 
 ```typescript
-import { TransferMode } from '@railnetorg/railnet-sdk'
-
 const params = {
-  transferMode: TransferMode.ALLOW_TRANSFER,
+  transferEnabled: true,
 }
 ```
 
-TransferMode enum ordering (ACCOUNT_LIST=0, ALLOW_TRANSFER=1, BLOCK_TRANSFER=2) differs from what protocol docs may suggest. Always use the SDK enum to avoid silent misconfiguration.
+`spawnConduit` takes a `transferEnabled: boolean` — share transfers are either on or off. The old `transferMode` enum (`ACCOUNT_LIST`/`ALLOW_TRANSFER`/`BLOCK_TRANSFER`) and the `depositAsset`/`initialDepositSize` fields have been removed.
 
-Source: src/actions/conduit/types.ts:3-7
+Source: src/actions/conduit/types.ts
 
 ### HIGH depositConduit sends two transactions silently
 
@@ -325,6 +345,6 @@ See also: railnet-core/SKILL.md § Common Mistakes
 
 - [Error Reference](references/error-reference.md)
 
-See also: railnet-access-control/SKILL.md — spawning a conduit requires an EAC address, and conduit operations may fail with `MissingRole` if `VEHICLE_STEAM` is not granted.
+See also: railnet-access-control/SKILL.md — spawning a conduit requires an EAC address, and conduit operations may fail with `MissingRole` if `VEHICLE_STEAM_DEPOSIT` or `VEHICLE_STEAM_REDEEM` is not granted.
 
 See also: railnet-react/SKILL.md — React hooks wrap these core actions.

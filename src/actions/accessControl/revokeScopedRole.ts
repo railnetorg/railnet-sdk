@@ -10,6 +10,15 @@ export type RevokeScopedRoleParameters = {
   grantee: Address
 }
 
+export function prepareRevokeScopedRole(parameters: RevokeScopedRoleParameters) {
+  return {
+    address: parameters.accessControl,
+    abi: externalAccessControlAbi,
+    functionName: 'revokeScopedRole',
+    args: [parameters.role, parameters.scope, parameters.grantee],
+  } as const
+}
+
 /**
  * Revokes a previously granted scoped role from an address. The caller must be the default admin of the access control.
  * @param client - Viem client instance
@@ -24,10 +33,7 @@ export async function revokeScopedRole(
 ): Promise<Hash> {
   const { request } = await simulateContract(client, {
     ...options,
-    address: parameters.accessControl,
-    abi: externalAccessControlAbi,
-    functionName: 'revokeScopedRole',
-    args: [parameters.role, parameters.scope, parameters.grantee],
+    ...prepareRevokeScopedRole(parameters),
     account: parameters.account,
   })
 

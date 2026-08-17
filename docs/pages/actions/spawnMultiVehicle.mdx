@@ -6,6 +6,13 @@ description: Deploys a new MultiVehicle ecosystem via the factory.
 
 Deploys a new MultiVehicle ecosystem via the factory contract. Requires a `PublicClient` and a `WalletClient`.
 
+:::warning
+The factory pulls an initial deposit from the caller. Approve the factory for at least
+[`getInitialDepositAmount`](/actions/getInitialDepositAmount) of `asset` first, and hold at least
+that much — this action sends no approval of its own. The
+[`deployMultiVehicle`](/workflows/deployMultiVehicle) workflow does it for you.
+:::
+
 ## Import
 
 ```ts
@@ -35,8 +42,7 @@ const hash = await spawnMultiVehicle(publicClient, walletClient, {
   name: 'My MultiVehicle',
   symbol: 'MMV',
   accessControl: '0x...',
-  initialDepositSize: 1000000000000000000n,
-  initialExpectedSupply: 1000000000000000000n,
+  queryRegistry: '0x...',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
 ```
@@ -83,6 +89,12 @@ The symbol of the MultiVehicle token.
 
 The address of the access control contract.
 
+### queryRegistry
+
+- **Type:** `Address`
+
+The address of the query registry contract.
+
 ### feeManager (optional)
 
 - **Type:** `Address`
@@ -95,17 +107,11 @@ The address of the fee manager contract. Defaults to `zeroAddress`.
 
 The address of the modules manager contract. Defaults to `zeroAddress`.
 
-### initialDepositSize
+### forbiddenAddresses (optional)
 
-- **Type:** `bigint`
+- **Type:** `Address[]`
 
-The initial deposit size.
-
-### initialExpectedSupply
-
-- **Type:** `bigint`
-
-The initial expected supply.
+Optional list of addresses forbidden from interacting with the MultiVehicle.
 
 ### salts (optional)
 
@@ -120,16 +126,16 @@ type MultiVehicleSalts = {
   queueStrategyEngine: Hex
   sectorAccountingEngine: Hex
   subQueryEngine: Hex
-  vehicleRegistry: Hex
+  vehicleManager: Hex
   initialDepositQuery: Hex
 }
 ```
 
 ### initialInterceptions (optional)
 
-- **Type:** `Array<{ asset: Address, recipients: Array<{ target: Address, shareBps: bigint, chainId: bigint }> }>`
+- **Type:** [`Interception[]`](/types/Interception) (same shape, declared inline on this action)
 
-Optional initial interception rules for reward distribution. Each entry specifies an asset and a list of recipients with their share in basis points and target chain. Defaults to `[]`.
+Optional initial interception rules for reward distribution. Defaults to `[]`.
 
 ### account
 

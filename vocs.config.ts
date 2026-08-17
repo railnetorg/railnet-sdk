@@ -101,6 +101,10 @@ export default defineConfig({
       collapsed: false,
       items: [
         {
+          text: 'prepare* (Prepared Writes)',
+          link: '/actions/preparedWrites',
+        },
+        {
           text: 'Conduit',
           items: [
             {
@@ -185,6 +189,15 @@ export default defineConfig({
             {
               text: 'spawnAaveV3Vehicle',
               link: '/actions/spawnAaveV3Vehicle',
+            },
+          ],
+        },
+        {
+          text: 'Asset Registry',
+          items: [
+            {
+              text: 'getInitialDepositAmount',
+              link: '/actions/getInitialDepositAmount',
             },
           ],
         },
@@ -368,6 +381,10 @@ export default defineConfig({
         {
           text: 'Asset',
           link: '/types/Asset',
+        },
+        {
+          text: 'Interception',
+          link: '/types/Interception',
         },
         {
           text: 'Enums',

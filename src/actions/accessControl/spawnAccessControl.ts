@@ -11,6 +11,27 @@ export type SpawnAccessControlParameters = {
   deploymentSalt?: Hex
 }
 
+export function prepareSpawnAccessControl(parameters: SpawnAccessControlParameters) {
+  const deploymentSalt =
+    parameters.deploymentSalt ?? keccak256(toHex(`access-control-${Date.now()}`))
+  const initialDelay = parameters.initialDelay ?? 0
+  const initialRoles = parameters.initialRoles ?? []
+
+  return {
+    address: parameters.factory,
+    abi: accessControlFactoryAbi,
+    functionName: 'spawn',
+    args: [
+      {
+        initialDelay,
+        initialDefaultAdmin: parameters.initialDefaultAdmin,
+        initialRoles,
+        deploymentSalt,
+      },
+    ],
+  } as const
+}
+
 /**
  * Spawns a new ExternalAccessControl via the AccessControlFactory.
  * Use {@link extractAccessControlAddress} to extract the deployed address from the transaction receipt.
@@ -24,24 +45,9 @@ export async function spawnAccessControl(
   parameters: SpawnAccessControlParameters & { account: Address },
   options?: ContractCallOptions,
 ): Promise<Hash> {
-  const deploymentSalt =
-    parameters.deploymentSalt ?? keccak256(toHex(`access-control-${Date.now()}`))
-  const initialDelay = parameters.initialDelay ?? 0
-  const initialRoles = parameters.initialRoles ?? []
-
   const { request } = await simulateContract(client, {
     ...options,
-    address: parameters.factory,
-    abi: accessControlFactoryAbi,
-    functionName: 'spawn',
-    args: [
-      {
-        initialDelay,
-        initialDefaultAdmin: parameters.initialDefaultAdmin,
-        initialRoles,
-        deploymentSalt,
-      },
-    ],
+    ...prepareSpawnAccessControl(parameters),
     account: parameters.account,
   })
 

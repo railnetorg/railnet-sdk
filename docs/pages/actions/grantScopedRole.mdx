@@ -17,7 +17,7 @@ import { grantScopedRole } from '@railnetorg/railnet-sdk'
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { grantScopedRole, VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
+import { grantScopedRole, VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,
@@ -26,7 +26,7 @@ const walletClient = createWalletClient({
 
 const hash = await grantScopedRole(walletClient, {
   accessControl: '0x1234...',
-  role: VEHICLE_STEAM,
+  role: VEHICLE_STEAM_DEPOSIT,
   scope: '0x5678...',
   grantee: '0x9012...',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -35,7 +35,7 @@ const hash = await grantScopedRole(walletClient, {
 
 Role constants are available for import:
 ```ts
-import { VEHICLE_STEAM, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/railnet-sdk'
+import { VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/railnet-sdk'
 ```
 
 ## Returns

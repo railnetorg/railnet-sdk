@@ -44,7 +44,7 @@ Vehicles wrap yield sources with the STEAM interface. Two flavors:
 
 Multi-Vehicles are also vehicles — they implement STEAM and aggregate multiple sub-vehicles into a single entry point.
 
-Note: Factory addresses exist for Compound V3, ERC4626, Morpho Blue, and Wrapper vehicles (`addresses.compoundV3VehicleFactory`, etc.), but only `spawnAaveV3Vehicle` is currently exported as a spawn action.
+Note: Factory addresses exist for ERC4626, Morpho Blue, and Wrapper vehicles (`addresses.erc4626VehicleFactory`, etc.), but only `spawnAaveV3Vehicle` is currently exported as a spawn action.
 
 ## Core Patterns
 
@@ -64,10 +64,10 @@ const hash = await spawnAaveV3Vehicle(walletClient, {
   asset: addresses.usdc,
   poolAddressesProvider: addresses.aavePoolAddressesProvider,
   accessControl: eacAddress,
-  initialDepositSize: 1_000_000n, // 1 USDC (6 decimals)
+  queryRegistry: queryRegistryAddress,
   initialExpectedSupply: 10n ** 18n,
   account: account.address,
-  // Optional: feeManager, modulesManager, querySalt, deploymentSalt
+  // Optional: feeManager, modulesManager, forbiddenAddresses, querySalt, deploymentSalt
 })
 
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -81,9 +81,9 @@ The `deployMultiVehicle` workflow orchestrates the entire setup in sequence:
 1. Spawn ExternalAccessControl (or use existing via `accessControl` param)
 2. Approve factory for initial deposit
 3. Spawn MultiVehicle (deploys 6 contracts)
-4. Grant `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` (scoped to VehicleRegistry)
+4. Grant `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` (scoped to VehicleManager)
 5. Grant `MULTI_VEHICLE_SET_QUEUES` (scoped to QueueStrategyEngine)
-6. Per vehicle: check if `VEHICLE_STEAM` is public on vehicle scope, and if not grant ×3 (to MV, SectorAccountingEngine, SubQueryEngine) + authorize
+6. Per vehicle: for each of `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM`, check if it is public on the vehicle scope, and if not grant it x3 (to MV, SectorAccountingEngine, SubQueryEngine) + authorize
 7. Set deposit/redeem queues
 
 **Vehicles must be deployed before calling this workflow.**
@@ -103,18 +103,18 @@ const result = await deployMultiVehicle(walletClient, {
   asset: addresses.usdc,
   name: 'My Strategy',
   symbol: 'MSTRAT',
-  initialDepositAmount: 1_000_000n, // 1 USDC
   vehicles,
   account: account.address,
+  // Optional: queryRegistry (defaults to the chain's addresses.queryRegistry)
   // Optional: accessControl (use existing EAC instead of spawning)
   // Optional: adminAddress (defaults to account)
-  // Optional: initialExpectedSupply (defaults to 10n ** 18n)
+  // Optional: forbiddenAddresses
   // Optional: feeManager, modulesManager
 })
 
 // result.eacAddress — the ExternalAccessControl address
 // result.multiVehicleContracts — { multiVehicle, queryRedeemQueue,
-//   queueStrategyEngine, sectorAccountingEngine, subQueryEngine, vehicleRegistry }
+//   queueStrategyEngine, sectorAccountingEngine, subQueryEngine, vehicleManager }
 // result.transactionHashes — all tx hashes in order
 ```
 
@@ -141,11 +141,10 @@ const hash = await spawnMultiVehicle(walletClient, {
   name: 'My Strategy',
   symbol: 'MSTRAT',
   accessControl: eacAddress,
-  initialDepositSize: 1_000_000n,
-  initialExpectedSupply: 10n ** 18n,
+  queryRegistry: queryRegistryAddress,
   account: account.address,
-  // Optional: feeManager, modulesManager, salts (MultiVehicleSalts),
-  //           initialInterceptions
+  // Optional: feeManager, modulesManager, forbiddenAddresses,
+  //           salts (MultiVehicleSalts), initialInterceptions
 })
 
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -154,7 +153,7 @@ const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFa
 // contracts.queueStrategyEngine
 // contracts.sectorAccountingEngine
 // contracts.subQueryEngine
-// contracts.vehicleRegistry
+// contracts.vehicleManager
 // contracts.queryRedeemQueue
 ```
 
@@ -164,7 +163,7 @@ const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFa
 import { authorizeVehicle } from '@railnetorg/railnet-sdk'
 
 await authorizeVehicle(walletClient, {
-  vehicleRegistry: contracts.vehicleRegistry,
+  vehicleManager: contracts.vehicleManager,
   vehicle: aaveV3VehicleAddress,
   account: account.address,
 })
@@ -207,9 +206,8 @@ Wrong:
 const hash = await spawnMultiVehicle(walletClient, {
   factory: addresses.multiVehicleFactory,
   asset: addresses.usdc,
-  initialDepositSize: 1_000_000n,
-  initialExpectedSupply: 10n ** 18n,
   accessControl: eacAddress,
+  queryRegistry: queryRegistryAddress,
   name: 'Strategy',
   symbol: 'STRAT',
   account: account.address,
@@ -220,21 +218,26 @@ const hash = await spawnMultiVehicle(walletClient, {
 Correct:
 
 ```typescript
-// Approve factory FIRST
+// The amount comes from the AssetRegistry, not from the caller
+const initialDepositAmount = await getInitialDepositAmount(walletClient, {
+  assetRegistry: addresses.assetRegistry,
+  asset: addresses.usdc,
+})
+
 const { request } = await walletClient.simulateContract({
   address: addresses.usdc,
   abi: erc20Abi,
   functionName: 'approve',
-  args: [addresses.multiVehicleFactory, 1_000_000n],
+  args: [addresses.multiVehicleFactory, initialDepositAmount],
   account: account.address,
 })
 await walletClient.writeContract(request)
 // Then spawn — or just use deployMultiVehicle which handles this
 ```
 
-The factory pulls an initial deposit during spawn to protect against share inflation attacks. Without approval, the transaction reverts. The `deployMultiVehicle` workflow handles this automatically.
+The factory pulls an initial deposit during spawn to protect against share inflation attacks, sized by `AssetRegistry.getInitialDepositAmount(asset)` — not by a spawn parameter. Approving an arbitrary amount reverts with `InsufficientAllowance` when it falls short, and the caller must also hold that balance. The same applies to `spawnConduit` and `spawnAaveV3Vehicle`. The `deployMultiVehicle` workflow reads the registry and approves for you.
 
-Source: src/workflows/deployMultiVehicle.ts:76-86
+Source: src/actions/assetRegistry/getInitialDepositAmount.ts
 
 ### CRITICAL Write actions take a single client, not two
 
@@ -257,7 +260,7 @@ Source: src/actions/multiVehicle/spawnMultiVehicle.ts:45-48
 ### HIGH Using individual actions when deployMultiVehicle exists
 
 The `deployMultiVehicle` workflow orchestrates 8+ transactions in the correct order with the correct role scoping. Manually orchestrating this risks:
-- Missing role grants (e.g., forgetting to grant VEHICLE_STEAM to SubQueryEngine)
+- Missing role grants (e.g., forgetting to grant VEHICLE_STEAM_DEPOSIT and VEHICLE_STEAM_REDEEM to SubQueryEngine)
 - Wrong scope addresses (most roles must be scoped to SectorAccountingEngine, not MultiVehicle)
 - Wrong ordering (authorize before role grants will fail)
 
@@ -274,7 +277,6 @@ const result = await deployMultiVehicle(walletClient, {
   asset: addresses.usdc,
   name: 'Strategy',
   symbol: 'STRAT',
-  initialDepositAmount: 1_000_000n,
   vehicles: [{ factory: addresses.aaveV3VehicleFactory, asset: addresses.usdc }],
   account: account.address,
 })
@@ -293,7 +295,6 @@ const result = await deployMultiVehicle(walletClient, {
   asset: addresses.usdc,
   name: 'Strategy',
   symbol: 'STRAT',
-  initialDepositAmount: 1_000_000n,
   vehicles: [{
     address: vehicleAddress!,
     depositTarget: { value: 5_000n * 10n ** 18n, threshold: 0n },
@@ -330,7 +331,7 @@ Correct:
 const hash = await spawnMultiVehicle(walletClient, params)
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
 const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFactory)
-// contracts.multiVehicle, .vehicleRegistry, .queueStrategyEngine, etc.
+// contracts.multiVehicle, .vehicleManager, .queueStrategyEngine, etc.
 ```
 
 All spawn actions return only a `Hash`. Use `extractMultiVehicleContracts`, `extractAaveV3VehicleAddress`, or `extractAccessControlAddress` on the receipt to get deployed addresses.
@@ -339,7 +340,7 @@ Source: src/utils/receipt.ts
 
 ### MEDIUM Confusion between deployMultiVehicle role grants and custom setup
 
-The `deployMultiVehicle` workflow checks if `VEHICLE_STEAM` is already public on each vehicle's scope (via `isScopedRolePublic`). If not, it grants `VEHICLE_STEAM` to three specific addresses per vehicle: `multiVehicle`, `sectorAccountingEngine`, and `subQueryEngine`. It also grants `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` (scoped to VehicleRegistry) and `MULTI_VEHICLE_SET_QUEUES` (scoped to QueueStrategyEngine) to the admin.
+The `deployMultiVehicle` workflow checks, for `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM` separately, whether the role is already public on each vehicle scope (via `isScopedRolePublic`). If not, it grants that role to three specific addresses per vehicle: `multiVehicle`, `sectorAccountingEngine`, and `subQueryEngine`. It also grants `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` (scoped to VehicleManager) and `MULTI_VEHICLE_SET_QUEUES` (scoped to QueueStrategyEngine) to the admin.
 
 If your security model requires different role assignments, skip the workflow and use individual `grantScopedRole` calls with correct scopes.
 

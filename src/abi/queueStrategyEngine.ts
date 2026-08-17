@@ -6,6 +6,19 @@ export const queueStrategyEngineAbi = [
   },
   {
     type: 'function',
+    name: 'accountingEngine',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract ISectorAccountingEngine',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'allocate',
     inputs: [
       {
@@ -26,9 +39,9 @@ export const queueStrategyEngineAbi = [
             internalType: 'contract IBaseVehicle',
           },
           {
-            name: 'assets',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            name: 'asset',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -52,18 +65,31 @@ export const queueStrategyEngineAbi = [
     name: 'initialize',
     inputs: [
       {
-        name: 'multiVehicle',
+        name: 'multiVehicle_',
         type: 'address',
         internalType: 'contract IBaseVehicle',
       },
       {
-        name: 'accountingEngine',
+        name: 'accountingEngine_',
         type: 'address',
         internalType: 'contract ISectorAccountingEngine',
       },
     ],
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'multiVehicle',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract IBaseVehicle',
+      },
+    ],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -219,9 +245,9 @@ export const queueStrategyEngineAbi = [
             internalType: 'contract IBaseVehicle',
           },
           {
-            name: 'assets',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            name: 'asset',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -238,9 +264,9 @@ export const queueStrategyEngineAbi = [
         ],
       },
       {
-        name: 'complete',
-        type: 'bool',
-        internalType: 'bool',
+        name: 'remainingAssets',
+        type: 'uint256',
+        internalType: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -252,7 +278,7 @@ export const queueStrategyEngineAbi = [
       {
         name: 'accountingEngine',
         type: 'address',
-        indexed: false,
+        indexed: true,
         internalType: 'contract ISectorAccountingEngine',
       },
     ],
@@ -273,12 +299,12 @@ export const queueStrategyEngineAbi = [
   },
   {
     type: 'event',
-    name: 'MultiVehicleInitialized',
+    name: 'ParentMultiVehicleInitialized',
     inputs: [
       {
         name: 'multiVehicle',
         type: 'address',
-        indexed: false,
+        indexed: true,
         internalType: 'contract IBaseVehicle',
       },
     ],
@@ -378,6 +404,43 @@ export const queueStrategyEngineAbi = [
     type: 'error',
     name: 'InvalidInitialization',
     inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'InvalidQueueEntry',
+    inputs: [
+      {
+        name: 'index',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'vehicle',
+        type: 'address',
+        internalType: 'contract IBaseVehicle',
+      },
+      {
+        name: 'reason',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InvalidTarget',
+    inputs: [
+      {
+        name: 'value',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'threshold',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
   },
   {
     type: 'error',

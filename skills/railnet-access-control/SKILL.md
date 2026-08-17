@@ -3,7 +3,7 @@ name: railnet-access-control
 description: >
   Manage Railnet role-based access control — spawnAccessControl,
   grantScopedRole, revokeScopedRole, setScopedRolePublic,
-  extractAccessControlAddress, role constants (VEHICLE_STEAM,
+  extractAccessControlAddress, role constants (VEHICLE_STEAM_DEPOSIT,
   MULTI_VEHICLE_DISPATCH, MULTI_VEHICLE_REBALANCE,
   MULTI_VEHICLE_SET_QUEUES, DEFAULT_ADMIN_ROLE, etc.),
   scope targeting rules. Load when setting up permissions, granting
@@ -41,7 +41,7 @@ Spawning a new EAC instance defines the initial admin and optional roles.
 
 ```typescript
 import { spawnAccessControl, extractAccessControlAddress } from '@railnetorg/railnet-sdk'
-import { VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
+import { VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
 
 const hash = await spawnAccessControl(walletClient, {
   factory: addresses.eacFactory,
@@ -50,7 +50,7 @@ const hash = await spawnAccessControl(walletClient, {
   // initialRoles is optional — defaults to []
   // deploymentSalt is optional — auto-generated
   initialRoles: [
-    { account: '0x...', role: VEHICLE_STEAM as Hex }
+    { account: '0x...', role: VEHICLE_STEAM_DEPOSIT as Hex }
   ],
   account: account.address,
 })
@@ -78,11 +78,11 @@ const hash = await grantScopedRole(walletClient, {
 Revoking permissions follows the same scoped pattern.
 
 ```typescript
-import { revokeScopedRole, VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
+import { revokeScopedRole, VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
 
 await revokeScopedRole(walletClient, {
   accessControl: '0x...',
-  role: VEHICLE_STEAM as Hex,
+  role: VEHICLE_STEAM_DEPOSIT as Hex,
   scope: '0x...', // Vehicle or Multi-Vehicle address
   grantee: '0x...',
   account: account.address,
@@ -93,19 +93,19 @@ await revokeScopedRole(walletClient, {
 Make a scoped role callable by any address, or restrict it back to specific grantees.
 
 ```typescript
-import { setScopedRolePublic, VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
+import { setScopedRolePublic, VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
 
-// Make VEHICLE_STEAM public on a specific vehicle scope
+// Make VEHICLE_STEAM_DEPOSIT public on a specific vehicle scope
 const hash = await setScopedRolePublic(walletClient, {
   accessControl: '0x...',
-  role: VEHICLE_STEAM as Hex,
+  role: VEHICLE_STEAM_DEPOSIT as Hex,
   scope: vehicleAddress, // The vehicle scope to make public
   isPublic: true,
   account: account.address, // Caller must have DEFAULT_ADMIN_ROLE
 })
 ```
 
-Note: The `deployMultiVehicle` workflow checks `isScopedRolePublic` before granting `VEHICLE_STEAM` per vehicle. If the role is already public on a vehicle's scope, it skips the individual grants.
+Note: The `deployMultiVehicle` workflow checks `isScopedRolePublic` before granting `VEHICLE_STEAM_DEPOSIT` per vehicle. If the role is already public on a vehicle's scope, it skips the individual grants.
 
 ## Common Mistakes
 
@@ -121,20 +121,20 @@ Most Multi-Vehicle (MV) roles must be scoped to the `SectorAccountingEngine`, NO
 All write actions take `(client, parameters, options?)` — a single viem client that handles both simulation and signing internally.
 
 3. **HIGH: Using raw keccak256 strings instead of SDK constants**
-Manual computation of role hashes (e.g., `keccak256(toHex('VEHICLE_STEAM'))`) risks typos that produce valid but incorrect role hashes. Always use the precomputed constants exported by the SDK.
-*   **Wrong**: `const role = keccak256(toHex('VEHICLE_STEAM'))`
-*   **Correct**: `import { VEHICLE_STEAM } from '@railnetorg/railnet-sdk'`
+Manual computation of role hashes (e.g., `keccak256(toHex('VEHICLE_STEAM_DEPOSIT'))`) risks typos that produce valid but incorrect role hashes. Always use the precomputed constants exported by the SDK.
+*   **Wrong**: `const role = keccak256(toHex('VEHICLE_STEAM_DEPOSIT'))`
+*   **Correct**: `import { VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'`
 
 4. **MEDIUM: Role constants type mismatch**
 SDK role constants are exported as strings, but `grantScopedRole` and `revokeScopedRole` expect the `Hex` type. You must cast them to avoid TypeScript errors.
-*   **Wrong**: `{ role: VEHICLE_STEAM }`
-*   **Correct**: `{ role: VEHICLE_STEAM as Hex }`
+*   **Wrong**: `{ role: VEHICLE_STEAM_DEPOSIT }`
+*   **Correct**: `{ role: VEHICLE_STEAM_DEPOSIT as Hex }`
 
 5. **HIGH: Not extracting EAC address from receipt**
 `spawnAccessControl` returns a transaction hash, not the contract address. You must use `extractAccessControlAddress` on the transaction receipt to get the address for subsequent configuration or for use in `spawnConduit`.
 
 6. **HIGH: Misunderstanding `deployMultiVehicle` auto-grants**
-The `deployMultiVehicle` workflow checks if `VEHICLE_STEAM` is already public on each vehicle scope. If not, it grants `VEHICLE_STEAM` to three specific addresses per vehicle (multiVehicle, sectorAccountingEngine, subQueryEngine). If your security model requires custom role hierarchies, skip the workflow and use individual `grantScopedRole` / `setScopedRolePublic` calls with correct scopes.
+The `deployMultiVehicle` workflow checks if `VEHICLE_STEAM_DEPOSIT` is already public on each vehicle scope. If not, it grants `VEHICLE_STEAM_DEPOSIT` to three specific addresses per vehicle (multiVehicle, sectorAccountingEngine, subQueryEngine). If your security model requires custom role hierarchies, skip the workflow and use individual `grantScopedRole` / `setScopedRolePublic` calls with correct scopes.
 
 ## References
 

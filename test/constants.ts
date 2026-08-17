@@ -9,6 +9,6 @@ export const CONDUIT_FACTORY: Address = BASE_ADDRESSES.conduitFactory
 export const MULTI_VEHICLE_FACTORY: Address = BASE_ADDRESSES.multiVehicleFactory
 export const EAC_FACTORY: Address = BASE_ADDRESSES.eacFactory
 export const AAVE_V3_VEHICLE_FACTORY: Address = BASE_ADDRESSES.aaveV3VehicleFactory
-export const AAVE_V3_VEHICLE: Address = BASE_ADDRESSES.aaveV3Vehicle
+export const ASSET_REGISTRY: Address = BASE_ADDRESSES.assetRegistry
 
-export const TEST_CONDUIT: Address = '0x18c5697c60b83a65cef96f8df2e8507f3e25b251'
+export const TEST_CONDUIT: Address = '0x43ea8bd0b15780ba5659086c60f72fafd1cfccd9'

@@ -6,12 +6,13 @@ This reference provides the complete mapping of roles to their required scopes w
 
 | Role | Must be scoped to |
 |------|-------------------|
-| `VEHICLE_STEAM` | Vehicle or Multi-Vehicle contract |
+| `VEHICLE_STEAM_DEPOSIT` | Vehicle or Multi-Vehicle contract |
+| `VEHICLE_STEAM_REDEEM` | Vehicle or Multi-Vehicle contract |
 | `MULTI_VEHICLE_DISPATCH` | `SectorAccountingEngine` |
 | `MULTI_VEHICLE_REBALANCE` | `SectorAccountingEngine` |
 | `MULTI_VEHICLE_MOVE_ASSETS` | `SectorAccountingEngine` |
 | `MULTI_VEHICLE_MOVE_SHARES` | `SectorAccountingEngine` |
-| `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` | `VehicleRegistry` |
+| `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` | `VehicleManager` |
 | `MULTI_VEHICLE_DEPOSIT` | `SectorAccountingEngine` |
 | `MULTI_VEHICLE_SET_THRESHOLDS` | `SectorAccountingEngine` |
 | `MULTI_VEHICLE_SET_QUEUES` | `QueueStrategyEngine` |
@@ -30,7 +31,8 @@ This reference provides the complete mapping of roles to their required scopes w
 All role constants are precomputed as `keccak256(toHex('ROLE_NAME'))`. Use the constants exported from `@railnetorg/railnet-sdk` to avoid typos.
 
 - `DEFAULT_ADMIN_ROLE` — `0x0000...0000` (not keccak256, hardcoded zero bytes32)
-- `VEHICLE_STEAM`
+- `VEHICLE_STEAM_DEPOSIT`
+- `VEHICLE_STEAM_REDEEM`
 - `VEHICLE_SET_INTERCEPTIONS`
 - `VEHICLE_ALLOW`
 - `FEE_MANAGER_SET_FEES`

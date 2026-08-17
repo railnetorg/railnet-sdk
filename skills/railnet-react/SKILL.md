@@ -78,7 +78,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 | `useProcessConduitQuery` | `{ conduit, query, account }` | `Hash` |
 | `useSpawnAaveV3Vehicle` | `SpawnAaveV3VehicleParameters & { account }` | `Hash` |
 | `useSpawnMultiVehicle` | `SpawnMultiVehicleParameters & { account }` | `Hash` |
-| `useAuthorizeVehicle` | `{ vehicleRegistry, vehicle, account }` | `Hash` |
+| `useAuthorizeVehicle` | `{ vehicleManager, vehicle, account }` | `Hash` |
 | `useSetQueues` | `{ queueStrategyEngine, depositQueue, redeemQueue, account }` | `Hash` |
 | `useDeployMultiVehicle` | `DeployMultiVehicleParameters & { account }` | `DeployMultiVehicleResult` |
 | `useGrantScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |

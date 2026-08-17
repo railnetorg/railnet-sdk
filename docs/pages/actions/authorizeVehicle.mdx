@@ -1,10 +1,10 @@
 ---
-description: Authorizes a vehicle in the VehicleRegistry.
+description: Authorizes a vehicle in the VehicleManager.
 ---
 
 # authorizeVehicle
 
-Authorizes a vehicle in the VehicleRegistry. Requires a `WalletClient`.
+Authorizes a vehicle in the VehicleManager. Requires a `WalletClient`.
 
 ## Import
 
@@ -25,7 +25,7 @@ const walletClient = createWalletClient({
 })
 
 const hash = await authorizeVehicle(walletClient, {
-  vehicleRegistry: '0x1234...',
+  vehicleManager: '0x1234...',
   vehicle: '0x5678...',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
@@ -39,11 +39,11 @@ The transaction hash.
 
 ## Parameters
 
-### vehicleRegistry
+### vehicleManager
 
 - **Type:** `Address`
 
-The address of the VehicleRegistry contract.
+The address of the VehicleManager contract.
 
 ### vehicle
 

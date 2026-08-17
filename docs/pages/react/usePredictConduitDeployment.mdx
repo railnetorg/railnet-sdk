@@ -16,7 +16,6 @@ import { usePredictConduitDeployment } from '@railnetorg/railnet-sdk/react'
 
 ```tsx
 import { usePredictConduitDeployment } from '@railnetorg/railnet-sdk/react'
-import { TransferMode } from '@railnetorg/railnet-sdk'
 
 function PredictAddress() {
   const { data: address, isLoading } = usePredictConduitDeployment({
@@ -24,10 +23,8 @@ function PredictAddress() {
     name: 'My Conduit',
     symbol: 'COND',
     vehicle: '0x5678...',
-    depositAsset: '0x...',
-    initialDepositSize: 1000000000000000000n,
     initialExpectedSupply: 1000000000000000000n,
-    transferMode: TransferMode.ALLOW_TRANSFER,
+    transferEnabled: true,
     accessControl: '0x...',
     feeManager: '0x...',
     accountList: '0x...',

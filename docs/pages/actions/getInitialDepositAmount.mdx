@@ -1,0 +1,101 @@
+---
+description: Reads the initial deposit amount the factories pull when spawning a conduit or a vehicle.
+---
+
+# getInitialDepositAmount
+
+Reads the initial deposit amount registered for an asset in the AssetRegistry.
+
+Every factory spawn (`spawnConduit`, `spawnMultiVehicle`, `spawnAaveV3Vehicle`) pulls this amount
+from the caller — the amount is not a parameter of the spawn, it comes from the registry. Approve
+the factory for at least this much, and hold at least this much, or the spawn reverts with
+`InsufficientAllowance` / `InsufficientAssetBalance`.
+
+## Import
+
+```ts
+import { getInitialDepositAmount } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createPublicClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { getAddresses, getInitialDepositAmount } from '@railnetorg/railnet-sdk'
+
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http(),
+})
+
+const { assetRegistry, usdc } = getAddresses(base.id)
+
+const amount = await getInitialDepositAmount(publicClient, {
+  assetRegistry,
+  asset: usdc,
+})
+```
+
+Approving the factory before a spawn:
+
+```ts
+import { erc20Abi } from 'viem'
+import { getAddresses, getInitialDepositAmount, spawnConduit } from '@railnetorg/railnet-sdk'
+
+const account = '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+const { assetRegistry, conduitFactory, usdc } = getAddresses(base.id)
+
+const amount = await getInitialDepositAmount(walletClient, { assetRegistry, asset: usdc })
+
+await walletClient.writeContract({
+  address: usdc,
+  abi: erc20Abi,
+  functionName: 'approve',
+  args: [conduitFactory, amount],
+  account,
+})
+
+const hash = await spawnConduit(walletClient, {
+  factory: conduitFactory,
+  // ...
+  account,
+})
+```
+
+The [`deployMultiVehicle`](/workflows/deployMultiVehicle) workflow does this for you.
+
+## Returns
+
+`bigint`
+
+The initial deposit amount, in the asset's own decimals. `0n` means the asset has no registered
+config — the spawn will revert, since the factories require a non-zero amount.
+
+## Parameters
+
+### assetRegistry
+
+- **Type:** `Address`
+
+The AssetRegistry contract address. Available as `assetRegistry` from [`getAddresses`](/contracts/getAddresses).
+
+```ts
+const amount = await getInitialDepositAmount(publicClient, {
+  assetRegistry: '0x9133CCe08893D92b816f5cF8aAfa57839B9F7f5a', // [!code focus]
+  asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+})
+```
+
+### asset
+
+- **Type:** `Address`
+
+The asset to look up — the underlying asset of the conduit or vehicle you are about to spawn.
+
+```ts
+const amount = await getInitialDepositAmount(publicClient, {
+  assetRegistry: '0x...',
+  asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // [!code focus]
+})
+```

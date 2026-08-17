@@ -17,8 +17,16 @@ describe('getAddresses', () => {
   it('returns addresses for Base', () => {
     const result = getAddresses(base.id)
     expect(result).toBe(addresses[base.id])
-    expect(result.conduitFactory).toBe('0x45295185BB8a8853996D65ba28c24bF7F3F1e9D0')
+    expect(result.conduitFactory).toBe('0xB5Fa1934Daf1B06b1Ab80241Fa71BD49F5adc5bb')
+    expect(result.assetRegistry).toBe('0x9133CCe08893D92b816f5cF8aAfa57839B9F7f5a')
+    expect(result.queryRegistry).toBe('0x48298Bf0406E39764c842e5F4a01f53B7E2d057F')
     expect(result.usdc).toBe('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913')
+  })
+
+  it('every address is a checksummable 20-byte hex address', () => {
+    for (const address of Object.values(getAddresses(base.id))) {
+      expect(address).toMatch(/^0x[0-9a-fA-F]{40}$/)
+    }
   })
 
   it('throws for unsupported chain', () => {

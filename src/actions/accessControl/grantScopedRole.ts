@@ -10,6 +10,15 @@ export type GrantScopedRoleParameters = {
   grantee: Address
 }
 
+export function prepareGrantScopedRole(parameters: GrantScopedRoleParameters) {
+  return {
+    address: parameters.accessControl,
+    abi: externalAccessControlAbi,
+    functionName: 'grantScopedRole',
+    args: [parameters.role, parameters.scope, parameters.grantee],
+  } as const
+}
+
 /**
  * Grants a role to an address, scoped to a specific contract. The caller must be the default admin of the access control.
  * @param client - Viem client instance
@@ -24,10 +33,7 @@ export async function grantScopedRole(
 ): Promise<Hash> {
   const { request } = await simulateContract(client, {
     ...options,
-    address: parameters.accessControl,
-    abi: externalAccessControlAbi,
-    functionName: 'grantScopedRole',
-    args: [parameters.role, parameters.scope, parameters.grantee],
+    ...prepareGrantScopedRole(parameters),
     account: parameters.account,
   })
 
