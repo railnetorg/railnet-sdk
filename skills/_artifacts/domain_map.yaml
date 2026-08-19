@@ -34,7 +34,7 @@ tensions:
 cross_references:
   - from: "railnet-conduit"
     to: "railnet-access-control"
-    reason: "Spawning conduit requires EAC; operations may fail without VEHICLE_STEAM"
+    reason: "Spawning conduit requires EAC; operations may fail without VEHICLE_STEAM_DEPOSIT/VEHICLE_STEAM_REDEEM"
   - from: "railnet-vehicle"
     to: "railnet-access-control"
     reason: "deployMultiVehicle auto-grants roles; manual setup needs role scoping knowledge"

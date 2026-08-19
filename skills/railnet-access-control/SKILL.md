@@ -4,13 +4,14 @@ description: >
   Manage Railnet role-based access control — spawnAccessControl,
   grantScopedRole, revokeScopedRole, setScopedRolePublic,
   extractAccessControlAddress, role constants (VEHICLE_STEAM_DEPOSIT,
-  MULTI_VEHICLE_DISPATCH, MULTI_VEHICLE_REBALANCE,
+  MULTI_VEHICLE_DISPATCH, MULTI_VEHICLE_MOVE,
   MULTI_VEHICLE_SET_QUEUES, DEFAULT_ADMIN_ROLE, etc.),
   scope targeting rules. Load when setting up permissions, granting
   roles, or debugging MissingRole revert errors.
-type: core
-library: railnet-sdk
-library_version: '0.1.0'
+metadata:
+  type: core
+  library: railnet-sdk
+  library_version: '0.1.0'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/accessControl/*.ts'
   - 'railnetorg/railnet-sdk:src/constants/roles.ts'

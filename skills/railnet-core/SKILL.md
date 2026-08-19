@@ -11,9 +11,10 @@ description: >
   EstimationType), types (Asset, ConduitInfo,
   ChainAddresses), and role constants. Load when installing railnet-sdk,
   creating a client, or importing SDK utilities.
-type: core
-library: railnet-sdk
-library_version: '0.1.0'
+metadata:
+  type: core
+  library: railnet-sdk
+  library_version: '0.1.0'
 sources:
   - 'railnetorg/railnet-sdk:src/index.ts'
   - 'railnetorg/railnet-sdk:src/decorator.ts'

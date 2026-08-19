@@ -10,9 +10,10 @@ description: >
   Syrup), and multi-vehicle orchestration. Load when deploying yield
   strategies, spawning vehicles, authorizing sub-vehicles, or
   configuring allocation queues.
-type: core
-library: railnet-sdk
-library_version: '0.1.0'
+metadata:
+  type: core
+  library: railnet-sdk
+  library_version: '0.1.0'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/vehicle/*.ts'
   - 'railnetorg/railnet-sdk:src/actions/multiVehicle/*.ts'

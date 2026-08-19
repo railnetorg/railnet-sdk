@@ -13,10 +13,11 @@ description: >
   predictConduitDeploymentQueryOptions, query key pattern.
   Requires wagmi + @tanstack/react-query. Load when building
   React UIs for Railnet.
-type: framework
-library: railnet-sdk
-framework: react
-library_version: '0.1.0'
+metadata:
+  type: framework
+  library: railnet-sdk
+  framework: react
+  library_version: '0.1.0'
 requires:
   - railnet-core
 sources:

@@ -69,7 +69,7 @@ skills:
     description: >
       Manage Railnet role-based access control - spawn ExternalAccessControl,
       grant and revoke scoped roles, use precomputed role constants
-      (VEHICLE_STEAM, MULTI_VEHICLE_REBALANCE, etc.), understand scope
+      (VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_MOVE, etc.), understand scope
       targeting. Load when setting up permissions or debugging role errors.
     sources:
       - 'railnetorg/railnet-sdk:src/actions/accessControl/*.ts'

@@ -91,7 +91,7 @@ jobs:
               '1. Read the current SKILL.md file',
               '2. Check what changed in the library since the skill was last updated',
               '3. Update the skill content to reflect current APIs and behavior',
-              '4. Run \`bunx intent validate\` to verify the updated skill',
+              '4. Run \`bunx @tanstack/intent validate\` to verify the updated skill',
             ].join('\n');
 
             // Write outputs

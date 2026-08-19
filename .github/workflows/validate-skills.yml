@@ -37,14 +37,14 @@ jobs:
             for dir in packages/*/skills; do
               if [ -d "$dir" ]; then
                 echo "Validating $dir..."
-                bunx intent validate "$dir"
+                bunx @tanstack/intent validate "$dir"
               fi
             done
             exit 0
           fi
 
           if [ -n "$SKILLS_DIR" ]; then
-            bunx intent validate "$SKILLS_DIR"
+            bunx @tanstack/intent validate "$SKILLS_DIR"
           else
             echo "No skills/ directory found - skipping validation."
           fi

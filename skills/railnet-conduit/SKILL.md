@@ -7,9 +7,10 @@ description: >
   finalizeConduitDeposit, processConduitQuery. Covers deposits,
   redemptions, position reads, estimates, async query lifecycle,
   and conduit deployment. Load when working with conduit operations.
-type: core
-library: railnet-sdk
-library_version: '0.1.0'
+metadata:
+  type: core
+  library: railnet-sdk
+  library_version: '0.1.0'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/conduit/*.ts'
 ---
