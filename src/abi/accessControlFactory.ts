@@ -207,8 +207,20 @@ export const accessControlFactoryAbi = [
   },
   {
     type: 'event',
+    name: 'Deprecated',
+    inputs: [],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'SpawnedExternalAccessControl',
     inputs: [
+      {
+        name: 'deployer',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
       {
         name: 'eac',
         type: 'address',

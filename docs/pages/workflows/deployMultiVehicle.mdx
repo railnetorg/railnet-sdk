@@ -8,12 +8,12 @@ Full deployment workflow for a MultiVehicle ecosystem. This workflow automates t
 
 The workflow performs the following steps:
 1. Deploys an ExternalAccessControl (EAC) contract.
-2. Approves the asset for the MultiVehicle factory.
+2. Approves the asset for the MultiVehicle factory, for the amount the factory will pull — read from the AssetRegistry with [`getInitialDepositAmount`](/actions/getInitialDepositAmount). The caller must hold at least that much of the asset.
 3. Spawns the MultiVehicle ecosystem.
-4. Grants `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` role on the VehicleRegistry to the admin.
+4. Grants `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` role on the VehicleManager to the admin.
 5. Grants `MULTI_VEHICLE_SET_QUEUES` role on the QueueStrategyEngine (QSE) to the admin.
-6. For each vehicle: grants `VEHICLE_STEAM` role to the MultiVehicle, SectorAccountingEngine, and SubQueryEngine.
-7. For each vehicle: authorizes it in the VehicleRegistry.
+6. For each vehicle: grants `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM` to the MultiVehicle, SectorAccountingEngine, and SubQueryEngine.
+7. For each vehicle: authorizes it in the VehicleManager.
 8. Sets the deposit and redeem queues on the QSE.
 
 ## Import
@@ -38,7 +38,6 @@ const result = await deployMultiVehicle(walletClient, {
   asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   name: 'Diversified USDC',
   symbol: 'dUSDC',
-  initialDepositAmount: 1000000n, // 1 USDC
   vehicles: [
     {
       address: '0x...', // Aave V3 vehicle
@@ -87,11 +86,11 @@ The name of the MultiVehicle.
 
 The symbol of the MultiVehicle token.
 
-### initialDepositAmount
+### queryRegistry (optional)
 
-- **Type:** `bigint`
+- **Type:** `Address`
 
-The initial deposit amount.
+The address of the query registry contract. Defaults to the `queryRegistry` of the client's chain.
 
 ### vehicles
 
@@ -109,17 +108,24 @@ type VehicleEntry = {
 
 Set `value: 2n ** 256n - 1n` for unlimited targets. Set `value: 0n` for zero targets (drain first on redeem).
 
+### accessControl (optional)
+
+- **Type:** `Address`
+
+An existing ExternalAccessControl to reuse. When omitted, the workflow spawns a new one and returns
+its address as `eacAddress`.
+
 ### adminAddress (optional)
 
 - **Type:** `Address`
 
 The address to be set as the admin. Defaults to the account address.
 
-### initialExpectedSupply (optional)
+### forbiddenAddresses (optional)
 
-- **Type:** `bigint`
+- **Type:** `Address[]`
 
-The initial expected supply. Defaults to `10^18`.
+Optional list of addresses forbidden from interacting with the MultiVehicle.
 
 ### feeManager (optional)
 

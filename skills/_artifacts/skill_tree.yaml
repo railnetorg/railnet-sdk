@@ -40,7 +40,7 @@ skills:
       Load when working with conduit deposits, redemptions, or position data.
     sources:
       - 'railnetorg/railnet-sdk:src/actions/conduit/*.ts'
-      - 'railnetorg/railnet-sdk:docs/pages/protocol-overview.mdx'
+      - 'railnetorg/railnet-sdk:protocol-overview.md'
     references:
       - 'references/error-reference.md'
 
@@ -69,7 +69,7 @@ skills:
     description: >
       Manage Railnet role-based access control - spawn ExternalAccessControl,
       grant and revoke scoped roles, use precomputed role constants
-      (VEHICLE_STEAM, MULTI_VEHICLE_REBALANCE, etc.), understand scope
+      (VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_MOVE, etc.), understand scope
       targeting. Load when setting up permissions or debugging role errors.
     sources:
       - 'railnetorg/railnet-sdk:src/actions/accessControl/*.ts'

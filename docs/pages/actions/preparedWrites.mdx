@@ -1,0 +1,124 @@
+---
+description: Builders that return the contract call for any write action, without sending a transaction.
+---
+
+# prepare* (Prepared Writes)
+
+Every write action has a `prepare*` counterpart. They are synchronous, take no client, and send
+nothing — they return the contract call so you can hand it to viem yourself, batch it, or feed it
+into an app-side step engine.
+
+The execute actions build on these, so both paths always encode the same call.
+
+## Import
+
+```ts
+import { prepareSpawnConduit } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { prepareSpawnConduit } from '@railnetorg/railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const prepared = prepareSpawnConduit({
+  factory: '0x...',
+  name: 'My Conduit',
+  symbol: 'COND',
+  vehicle: '0x...',
+  initialExpectedSupply: 1000000n,
+  transferEnabled: true,
+  accessControl: '0x...',
+  feeManager: '0x...',
+  accountList: '0x...',
+  ownerRegistry: '0x...',
+})
+
+const hash = await walletClient.writeContract({
+  ...prepared,
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+## Returns
+
+`PreparedWrite`
+
+```ts
+type PreparedWrite = {
+  address: Address
+  abi: Abi
+  functionName: string
+  args: readonly unknown[]
+}
+```
+
+Spread it into viem's `writeContract`, `simulateContract`, or `encodeFunctionData`. The actual
+return type is narrower than `PreparedWrite` (the ABI and args stay literal), so viem keeps full
+type inference when you spread it.
+
+## Available builders
+
+| Builder | Call |
+| --- | --- |
+| `prepareGrantScopedRole` | `externalAccessControl.grantScopedRole()` |
+| `prepareRevokeScopedRole` | `externalAccessControl.revokeScopedRole()` |
+| `prepareSetScopedRolePublic` | `externalAccessControl.setScopedRolePublic()` |
+| `prepareSpawnAccessControl` | `accessControlFactory.spawn()` |
+| `prepareSpawnConduit` | `conduitFactory.spawn()` |
+| `prepareEnableConduit` | `conduit.enable()` |
+| `prepareFinalizeConduitDeposit` | `conduitFactory.finalizeConduitDeposit()` |
+| `prepareProcessConduitQuery` | `conduit.process()` |
+| `prepareDepositConduit` | `conduit.create()` |
+| `prepareRedeemConduit` | `conduit.createRedeemFromConduitShares()` |
+| `prepareAuthorizeVehicle` | `vehicleManager.authorize()` |
+| `prepareSetQueues` | `queueStrategyEngine.setQueues()` |
+| `prepareSpawnMultiVehicle` | `multiVehicleFactory.spawn()` |
+| `prepareSpawnAaveV3Vehicle` | `aaveV3VehicleFactory.spawn()` |
+
+Each builder takes the same parameters as its action, minus the client and the contract call
+overrides.
+
+## No approvals included
+
+`prepareDepositConduit` and `prepareRedeemConduit` emit **only** the Railnet call. The execute
+actions (`depositConduit`, `redeemConduit`) also check the ERC-20 allowance and send an approval
+transaction when it is insufficient — the builders do not. Sequence the approval yourself.
+
+The same applies to the `spawn*` builders: the factories pull an initial deposit from the caller,
+so the caller must have approved the factory beforehand.
+
+## `account` is required for deposits
+
+`prepareDepositConduit` and `prepareRedeemConduit` take `account`, with `receiver` defaulting to it.
+The conduit binds the query salt to the sender — `query.salt` must equal
+`keccak256(abi.encode(msg.sender, sourceSalt))` — so the deposit call cannot be encoded without
+knowing which address will send it. Sending it from any other account reverts with
+`InvalidQuerySalt`.
+
+## Pass explicit salts for reproducible calls
+
+Builders that generate a salt (`prepareSpawnConduit`, `prepareSpawnAccessControl`,
+`prepareSpawnMultiVehicle`, `prepareSpawnAaveV3Vehicle`, `prepareDepositConduit`,
+`prepareRedeemConduit`) derive it from the current timestamp when you do not provide one. Two calls
+with identical parameters then produce different salts — and, for the factories, a different
+predicted deployment address.
+
+Pass the salts explicitly whenever the prepared call has to match something computed earlier, such
+as a [`predictConduitDeployment`](/actions/predictConduitDeployment) result or a step that gets
+retried.
+
+```ts
+const prepared = prepareSpawnConduit({
+  // ...
+  querySalt: '0x1234...',
+  deploymentSalt: '0x5678...',
+})
+```

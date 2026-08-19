@@ -73,7 +73,7 @@ export type MultiVehicleContracts = {
   queueStrategyEngine: Address
   sectorAccountingEngine: Address
   subQueryEngine: Address
-  vehicleRegistry: Address
+  vehicleManager: Address
 }
 
 /**
@@ -104,7 +104,7 @@ export function extractMultiVehicleContracts(
         queueStrategyEngine: decoded.args.contracts.queueStrategyEngine,
         sectorAccountingEngine: decoded.args.contracts.sectorAccountingEngine,
         subQueryEngine: decoded.args.contracts.subQueryEngine,
-        vehicleRegistry: decoded.args.contracts.vehicleRegistry,
+        vehicleManager: decoded.args.contracts.vehicleManager,
       }
     } catch {
       /* skip non-matching log */

@@ -17,7 +17,7 @@ import { revokeScopedRole } from '@railnetorg/railnet-sdk'
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { revokeScopedRole, VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
+import { revokeScopedRole, VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,
@@ -26,7 +26,7 @@ const walletClient = createWalletClient({
 
 const hash = await revokeScopedRole(walletClient, {
   accessControl: '0x1234...',
-  role: VEHICLE_STEAM,
+  role: VEHICLE_STEAM_DEPOSIT,
   scope: '0x5678...',
   grantee: '0x9012...',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',

@@ -17,6 +17,15 @@ export type ProcessConduitQueryParameters = {
   }
 }
 
+export function prepareProcessConduitQuery(parameters: ProcessConduitQueryParameters) {
+  return {
+    address: parameters.conduit,
+    abi: conduitAbi,
+    functionName: 'process',
+    args: [parameters.query],
+  } as const
+}
+
 /**
  * Processes a query on a conduit by calling `conduit.process()`, advancing its state. Used for async (STEAM) vehicles where queries go through multiple state transitions.
  * @param client - Viem client instance
@@ -29,15 +38,10 @@ export async function processConduitQuery(
   parameters: ProcessConduitQueryParameters & { account: Address },
   options?: ContractCallOptions,
 ): Promise<Hash> {
-  const { conduit, account, query } = parameters
-
   const { request } = await simulateContract(client, {
     ...options,
-    address: conduit,
-    abi: conduitAbi,
-    functionName: 'process',
-    args: [query],
-    account,
+    ...prepareProcessConduitQuery(parameters),
+    account: parameters.account,
   })
 
   return writeContract(client, request)

@@ -9,7 +9,7 @@ export type MultiVehicleSalts = {
   queueStrategyEngine: Hex
   sectorAccountingEngine: Hex
   subQueryEngine: Hex
-  vehicleRegistry: Hex
+  vehicleManager: Hex
   initialDepositQuery: Hex
 }
 
@@ -19,10 +19,10 @@ export type SpawnMultiVehicleParameters = {
   name: string
   symbol: string
   accessControl: Address
+  queryRegistry: Address
   feeManager?: Address
   modulesManager?: Address
-  initialDepositSize: bigint
-  initialExpectedSupply: bigint
+  forbiddenAddresses?: Address[]
   salts?: MultiVehicleSalts
   initialInterceptions?: Array<{
     asset: Address
@@ -34,8 +34,42 @@ export type SpawnMultiVehicleParameters = {
   }>
 }
 
+export function prepareSpawnMultiVehicle(parameters: SpawnMultiVehicleParameters) {
+  const now = Date.now()
+  const salts: MultiVehicleSalts = parameters.salts ?? {
+    multiVehicle: keccak256(toHex(`multi-vehicle-${parameters.name}-${now}`)),
+    queryRedeemQueue: keccak256(toHex(`query-redeem-queue-${parameters.name}-${now}`)),
+    queueStrategyEngine: keccak256(toHex(`queue-strategy-engine-${parameters.name}-${now}`)),
+    sectorAccountingEngine: keccak256(toHex(`sector-accounting-engine-${parameters.name}-${now}`)),
+    subQueryEngine: keccak256(toHex(`sub-query-engine-${parameters.name}-${now}`)),
+    vehicleManager: keccak256(toHex(`vehicle-manager-${parameters.name}-${now}`)),
+    initialDepositQuery: keccak256(toHex(`initial-deposit-query-${parameters.name}-${now}`)),
+  }
+
+  return {
+    address: parameters.factory,
+    abi: multiVehicleFactoryAbi,
+    functionName: 'spawn',
+    args: [
+      {
+        asset: parameters.asset,
+        name: parameters.name,
+        symbol: parameters.symbol,
+        initialInterceptions: parameters.initialInterceptions ?? [],
+        accessControl: parameters.accessControl,
+        feeManager: parameters.feeManager ?? zeroAddress,
+        modulesManager: parameters.modulesManager ?? zeroAddress,
+        salts,
+        forbiddenAddresses: parameters.forbiddenAddresses ?? [],
+        queryRegistry: parameters.queryRegistry,
+      },
+    ],
+  } as const
+}
+
 /**
  * Spawns a new MultiVehicle ecosystem via the MultiVehicleFactory.
+ * The factory pulls an initial deposit from the caller, so approve the factory for at least {@link getInitialDepositAmount} of `asset` first — this action sends no approval.
  * Use {@link extractMultiVehicleContracts} to extract the deployed contract addresses from the transaction receipt.
  * @param client - Viem client instance
  * @param parameters - Factory address, asset, name, symbol, accessControl, vehicles config, and optional salts
@@ -47,38 +81,9 @@ export async function spawnMultiVehicle(
   parameters: SpawnMultiVehicleParameters & { account: Address },
   options?: ContractCallOptions,
 ): Promise<Hash> {
-  const now = Date.now()
-  const salts: MultiVehicleSalts = parameters.salts ?? {
-    multiVehicle: keccak256(toHex(`multi-vehicle-${parameters.name}-${now}`)),
-    queryRedeemQueue: keccak256(toHex(`query-redeem-queue-${parameters.name}-${now}`)),
-    queueStrategyEngine: keccak256(toHex(`queue-strategy-engine-${parameters.name}-${now}`)),
-    sectorAccountingEngine: keccak256(toHex(`sector-accounting-engine-${parameters.name}-${now}`)),
-    subQueryEngine: keccak256(toHex(`sub-query-engine-${parameters.name}-${now}`)),
-    vehicleRegistry: keccak256(toHex(`vehicle-registry-${parameters.name}-${now}`)),
-    initialDepositQuery: keccak256(toHex(`initial-deposit-query-${parameters.name}-${now}`)),
-  }
-
-  const initialInterceptions = parameters.initialInterceptions ?? []
-
   const { request } = await simulateContract(client, {
     ...options,
-    address: parameters.factory,
-    abi: multiVehicleFactoryAbi,
-    functionName: 'spawn',
-    args: [
-      {
-        asset: parameters.asset,
-        name: parameters.name,
-        symbol: parameters.symbol,
-        initialInterceptions,
-        accessControl: parameters.accessControl,
-        feeManager: parameters.feeManager ?? zeroAddress,
-        modulesManager: parameters.modulesManager ?? zeroAddress,
-        salts,
-        initialDepositSize: parameters.initialDepositSize,
-        initialExpectedSupply: parameters.initialExpectedSupply,
-      },
-    ],
+    ...prepareSpawnMultiVehicle(parameters),
     account: parameters.account,
   })
 

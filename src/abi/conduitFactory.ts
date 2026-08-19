@@ -17,8 +17,77 @@ export const conduitFactoryAbi = [
         type: 'address',
         internalType: 'contract ExternalAccessControl',
       },
+      {
+        name: 'assetRegistry',
+        type: 'address',
+        internalType: 'contract AssetRegistry',
+      },
+      {
+        name: 'previousFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+      {
+        name: 'feeManagerFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+      {
+        name: 'accountListFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+      {
+        name: 'ownerRegistryFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+      {
+        name: 'accessControlFactory',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
     ],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'ACCESS_CONTROL_FACTORY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'ACCOUNT_LIST_FACTORY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'ASSET_REGISTRY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract AssetRegistry',
+      },
+    ],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -45,6 +114,39 @@ export const conduitFactoryAbi = [
       },
     ],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'FEE_MANAGER_FACTORY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'OWNER_REGISTRY_FACTORY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract FactoryBase',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'deprecate',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -136,24 +238,48 @@ export const conduitFactoryAbi = [
             internalType: 'contract ExternalAccessControl',
           },
           {
-            name: 'transferMode',
-            type: 'uint8',
-            internalType: 'enum ConduitStructs.TransferMode',
+            name: 'transferEnabled',
+            type: 'bool',
+            internalType: 'bool',
           },
           {
-            name: 'initialDepositSize',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'initialInterceptions',
+            type: 'tuple[]',
+            internalType: 'struct Interceptor.Interception[]',
+            components: [
+              {
+                name: 'asset',
+                type: 'address',
+                internalType: 'address',
+              },
+              {
+                name: 'recipients',
+                type: 'tuple[]',
+                internalType: 'struct Interceptor.Recipient[]',
+                components: [
+                  {
+                    name: 'target',
+                    type: 'address',
+                    internalType: 'address',
+                  },
+                  {
+                    name: 'shareBps',
+                    type: 'uint256',
+                    internalType: 'uint256',
+                  },
+                  {
+                    name: 'chainId',
+                    type: 'uint256',
+                    internalType: 'uint256',
+                  },
+                ],
+              },
+            ],
           },
           {
             name: 'initialExpectedSupply',
             type: 'uint256',
             internalType: 'uint256',
-          },
-          {
-            name: 'depositAsset',
-            type: 'address',
-            internalType: 'contract IERC20',
           },
           {
             name: 'querySalt',
@@ -189,19 +315,6 @@ export const conduitFactoryAbi = [
       },
     ],
     stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'setDeprecated',
-    inputs: [
-      {
-        name: 'deprecated',
-        type: 'bool',
-        internalType: 'bool',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -248,24 +361,48 @@ export const conduitFactoryAbi = [
             internalType: 'contract ExternalAccessControl',
           },
           {
-            name: 'transferMode',
-            type: 'uint8',
-            internalType: 'enum ConduitStructs.TransferMode',
+            name: 'transferEnabled',
+            type: 'bool',
+            internalType: 'bool',
           },
           {
-            name: 'initialDepositSize',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'initialInterceptions',
+            type: 'tuple[]',
+            internalType: 'struct Interceptor.Interception[]',
+            components: [
+              {
+                name: 'asset',
+                type: 'address',
+                internalType: 'address',
+              },
+              {
+                name: 'recipients',
+                type: 'tuple[]',
+                internalType: 'struct Interceptor.Recipient[]',
+                components: [
+                  {
+                    name: 'target',
+                    type: 'address',
+                    internalType: 'address',
+                  },
+                  {
+                    name: 'shareBps',
+                    type: 'uint256',
+                    internalType: 'uint256',
+                  },
+                  {
+                    name: 'chainId',
+                    type: 'uint256',
+                    internalType: 'uint256',
+                  },
+                ],
+              },
+            ],
           },
           {
             name: 'initialExpectedSupply',
             type: 'uint256',
             internalType: 'uint256',
-          },
-          {
-            name: 'depositAsset',
-            type: 'address',
-            internalType: 'contract IERC20',
           },
           {
             name: 'querySalt',
@@ -309,6 +446,19 @@ export const conduitFactoryAbi = [
   },
   {
     type: 'event',
+    name: 'AssetRegistryInitialized',
+    inputs: [
+      {
+        name: 'assetRegistry',
+        type: 'address',
+        indexed: false,
+        internalType: 'contract AssetRegistry',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'BeaconInitialized',
     inputs: [
       {
@@ -324,6 +474,12 @@ export const conduitFactoryAbi = [
     type: 'event',
     name: 'ConduitDeployed',
     inputs: [
+      {
+        name: 'deployer',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
       {
         name: 'conduit',
         type: 'address',
@@ -372,24 +528,48 @@ export const conduitFactoryAbi = [
             internalType: 'contract ExternalAccessControl',
           },
           {
-            name: 'transferMode',
-            type: 'uint8',
-            internalType: 'enum ConduitStructs.TransferMode',
+            name: 'transferEnabled',
+            type: 'bool',
+            internalType: 'bool',
           },
           {
-            name: 'initialDepositSize',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'initialInterceptions',
+            type: 'tuple[]',
+            internalType: 'struct Interceptor.Interception[]',
+            components: [
+              {
+                name: 'asset',
+                type: 'address',
+                internalType: 'address',
+              },
+              {
+                name: 'recipients',
+                type: 'tuple[]',
+                internalType: 'struct Interceptor.Recipient[]',
+                components: [
+                  {
+                    name: 'target',
+                    type: 'address',
+                    internalType: 'address',
+                  },
+                  {
+                    name: 'shareBps',
+                    type: 'uint256',
+                    internalType: 'uint256',
+                  },
+                  {
+                    name: 'chainId',
+                    type: 'uint256',
+                    internalType: 'uint256',
+                  },
+                ],
+              },
+            ],
           },
           {
             name: 'initialExpectedSupply',
             type: 'uint256',
             internalType: 'uint256',
-          },
-          {
-            name: 'depositAsset',
-            type: 'address',
-            internalType: 'contract IERC20',
           },
           {
             name: 'querySalt',
@@ -434,6 +614,12 @@ export const conduitFactoryAbi = [
   },
   {
     type: 'event',
+    name: 'Deprecated',
+    inputs: [],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'Initialized',
     inputs: [
       {
@@ -441,6 +627,25 @@ export const conduitFactoryAbi = [
         type: 'uint64',
         indexed: false,
         internalType: 'uint64',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'PendingConduitDeposit',
+    inputs: [
+      {
+        name: 'deployer',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'conduit',
+        type: 'address',
+        indexed: true,
+        internalType: 'contract IConduit',
       },
     ],
     anonymous: false,
@@ -524,6 +729,22 @@ export const conduitFactoryAbi = [
     inputs: [
       {
         name: 'conduit',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'NotDeployedByFactory',
+    inputs: [
+      {
+        name: 'factory',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'addr',
         type: 'address',
         internalType: 'address',
       },

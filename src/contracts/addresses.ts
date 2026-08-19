@@ -5,7 +5,6 @@ export type ChainAddresses = {
   coreFactory: Address
   multiVehicleFactory: Address
   aaveV3VehicleFactory: Address
-  compoundV3VehicleFactory: Address
   erc4626VehicleFactory: Address
   morphoBlueVehicleFactory: Address
   wrapperVehicleFactory: Address
@@ -15,29 +14,30 @@ export type ChainAddresses = {
   modulesManagerFactory: Address
   accountListFactory: Address
   ownerRegistryFactory: Address
+  assetRegistry: Address
+  queryRegistry: Address
   aavePoolAddressesProvider: Address
-  aaveV3Vehicle: Address
   usdc: Address
 }
 
 export const addresses = {
   8453: {
-    conduitFactory: '0x45295185BB8a8853996D65ba28c24bF7F3F1e9D0',
-    coreFactory: '0xe77e77285F9cf8f2D89A4916ca03ddf7E3aB8F05',
-    multiVehicleFactory: '0xA5BEcaAFf0524dB1D78deBD2eEF492dB7c53af58',
-    aaveV3VehicleFactory: '0x414A9F508044B914243e91a421bf2F7D599aDc78',
-    compoundV3VehicleFactory: '0x33450Ec8C1b1BEbD4eEe39714b5C0e18b90d0f33',
-    erc4626VehicleFactory: '0x75074d971c62B82BA8baf316dE5c4E17eBbe9cb5',
-    morphoBlueVehicleFactory: '0x305844AD370e202e534c80b14c2a03e00369267d',
-    wrapperVehicleFactory: '0x7567FA3332a284A96b936ed8F756F03799885EC5',
-    eacFactory: '0xE7B6AE6A28B80194F104779F548601f99104a7DE',
-    adminEac: '0xfC27449b53E52F2fC9fd667f3bAF56Cc71f8f7A5',
-    feeManagerFactory: '0xe16B75aBa268d2F64a13F5CD88878A78C9c71D65',
-    modulesManagerFactory: '0xca2C29Eb8f27498fd9B4906a2960c6cC13539a8f',
-    accountListFactory: '0xE390a2A1B8189B34D5bB00D363DF70904ed729f2',
-    ownerRegistryFactory: '0xfDEC8Dc8BB04280d72794B8F18701e3CE6A59136',
+    conduitFactory: '0xB5Fa1934Daf1B06b1Ab80241Fa71BD49F5adc5bb',
+    coreFactory: '0x4d56134e9beC2bD5eEbff7BC47794Ac829BA7ED0',
+    multiVehicleFactory: '0x7Bb6D12Ecd0e93DEFfdB401FabEF76Af24eb1ac5',
+    aaveV3VehicleFactory: '0x546Fa2BA7457911832fED2C26FB9a37EbAAa9061',
+    erc4626VehicleFactory: '0x2341e0AbA453A7F450Aab5F30c390209E97B1E75',
+    morphoBlueVehicleFactory: '0x620269cbFE8E64d08E8Aaf90F89106288aEd9e3E',
+    wrapperVehicleFactory: '0x9b819B26a8B124B4Eb150994F995123162E665dA',
+    eacFactory: '0x97C15A31Ea128bFDe4e5e9826eA47cCbC4f6d289',
+    adminEac: '0x559D03f0A3fA192344da23fEfC07f5e7c6994B1f',
+    feeManagerFactory: '0xE521AA8eb221Ec9cF09A86B44018CaBA728ce84b',
+    modulesManagerFactory: '0x6BDe2385042D7b332aa8537c187d80b4aa5d54E6',
+    accountListFactory: '0x473A97c9DD9Bf77b017aAB664D42c2FDf381E6ce',
+    ownerRegistryFactory: '0x9E3B6838134D5e5d310492c3d90714235EcE106B',
+    assetRegistry: '0x9133CCe08893D92b816f5cF8aAfa57839B9F7f5a',
+    queryRegistry: '0x48298Bf0406E39764c842e5F4a01f53B7E2d057F',
     aavePoolAddressesProvider: '0xe20fCBdBfFC4Dd138cE8b2E6FBb6CB49777ad64D',
-    aaveV3Vehicle: '0x2ec94b8979868bf5586f8550733092a77cd77c9e',
     usdc: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   },
 } as const satisfies Record<number, ChainAddresses>

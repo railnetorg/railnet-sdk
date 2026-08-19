@@ -4,7 +4,7 @@ description: React hook to authorize a vehicle.
 
 # useAuthorizeVehicle
 
-React mutation hook for authorizing a vehicle in the VehicleRegistry.
+React mutation hook for authorizing a vehicle in the VehicleManager.
 
 ## Import
 
@@ -22,7 +22,7 @@ function Authorize() {
 
   const handleAuthorize = async () => {
     await mutateAsync({
-      vehicleRegistry: '0x...',
+      vehicleManager: '0x...',
       vehicle: '0x...',
       account: '0x...',
     })

@@ -17,6 +17,25 @@ export type RedeemConduitParameters = {
   salt?: Hex
 }
 
+export type PrepareRedeemConduitParameters = RedeemConduitParameters & {
+  account: Address
+}
+
+export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters) {
+  const { conduit, shares, account } = parameters
+  const receiver = parameters.receiver ?? account
+  const outputAssets = parameters.outputAssets ?? []
+  // createRedeemFromConduitShares() derives query.salt from (msg.sender, sourceSalt) itself
+  const sourceSalt = parameters.salt ?? keccak256(toHex(`redeem-${account}-${Date.now()}`))
+
+  return {
+    address: conduit,
+    abi: conduitAbi,
+    functionName: 'createRedeemFromConduitShares',
+    args: [shares, outputAssets, sourceSalt, receiver],
+  } as const
+}
+
 /**
  * Redeems conduit shares by calling `conduit.createRedeemFromConduitShares()`. On synchronous vehicles the redeem executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves conduit shares if the current allowance is insufficient.
  * @param client - Viem client instance
@@ -30,9 +49,6 @@ export async function redeemConduit(
   options?: ContractCallOptions,
 ): Promise<Hash> {
   const { conduit, shares, account } = parameters
-  const receiver = parameters.receiver ?? account
-  const outputAssets = parameters.outputAssets ?? []
-  const salt = parameters.salt ?? keccak256(toHex(`redeem-${account}-${Date.now()}`))
 
   const allowance = await readContract(client, {
     address: conduit,
@@ -56,10 +72,7 @@ export async function redeemConduit(
 
   const { request: redeemRequest } = await simulateContract(client, {
     ...options,
-    address: conduit,
-    abi: conduitAbi,
-    functionName: 'createRedeemFromConduitShares',
-    args: [shares, outputAssets, salt, receiver],
+    ...prepareRedeemConduit(parameters),
     account,
   })
 

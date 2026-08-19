@@ -11,10 +11,11 @@ const CONTRACTS: Record<string, string> = {
   MultiVehicleFactory: 'multiVehicleFactory',
   AaveV3VehicleFactory: 'aaveV3VehicleFactory',
   AccessControlFactory: 'accessControlFactory',
+  AssetRegistry: 'assetRegistry',
   ExternalAccessControl: 'externalAccessControl',
   SectorAccountingEngine: 'sectorAccountingEngine',
   QueueStrategyEngine: 'queueStrategyEngine',
-  VehicleRegistry: 'vehicleRegistry',
+  VehicleManager: 'vehicleManager',
   Conduit: 'conduit',
   ConduitFactory: 'conduitFactory',
 }

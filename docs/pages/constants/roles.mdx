@@ -9,18 +9,52 @@ Role constants used for access control across the Railnet protocol. These are pr
 ## Import
 
 ```ts
-import { VEHICLE_STEAM, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/railnet-sdk'
+import { VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/railnet-sdk'
 ```
 
 ## All Constants
+
+### Factories
+
+| Constant | Description |
+| --- | --- |
+| `FACTORY_SPAWN` | Permission to deploy new instances through a factory |
+| `FACTORY_DEPRECATE` | Permission to disable a factory and block future deployments |
+| `CONDUIT_SPAWN` | Permission to spawn conduits through the ConduitFactory |
+
+### Asset Registry
+
+| Constant | Description |
+| --- | --- |
+| `ASSET_REGISTRY_SET_ASSET` | Permission to configure assets, including their initial deposit amount |
+
+### Beacon and proxies
+
+| Constant | Description |
+| --- | --- |
+| `BEACON_FREEZE` | Permission to freeze a beacon, blocking further upgrades |
+| `BEACON_PAUSE` | Permission to pause the contracts behind a beacon |
+| `BEACON_UNPAUSE` | Permission to unpause them |
+| `BEACON_UPGRADE` | Permission to point a beacon at a new implementation |
 
 ### Vehicle
 
 | Constant | Description |
 | --- | --- |
-| `VEHICLE_STEAM` | Permission to call STEAM functions on a vehicle |
+| `VEHICLE_STEAM_DEPOSIT` | Permission to run STEAM deposit operations on a vehicle |
+| `VEHICLE_STEAM_REDEEM` | Permission to run STEAM redeem operations on a vehicle |
 | `VEHICLE_SET_INTERCEPTIONS` | Permission to set interceptions |
 | `VEHICLE_ALLOW` | Permission to allow operations on a vehicle |
+| `VEHICLE_EXEC` | Permission to execute arbitrary calls from a vehicle |
+
+### Conduit
+
+| Constant | Description |
+| --- | --- |
+| `CONDUIT_PROCESS` | Permission to process queries on a conduit |
+| `CONDUIT_FORCE_REDEEM` | Permission to force-redeem a holder's shares |
+| `CONDUIT_SET_INTERCEPTIONS` | Permission to set interceptions on a conduit |
+| `CONDUIT_SET_TRANSFER_ENABLED` | Permission to enable or disable share transfers |
 
 ### Fee Manager
 
@@ -29,7 +63,6 @@ import { VEHICLE_STEAM, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/railnet-sdk
 | `FEE_MANAGER_SET_FEES` | Permission to set fee configuration |
 | `FEE_MANAGER_SET_FEE_RECIPIENTS` | Permission to set fee recipients |
 | `FEE_MANAGER_DISPATCH_ERC20` | Permission to dispatch ERC20 tokens |
-| `FEE_MANAGER_REDEEM_VEHICLE_SHARES` | Permission to redeem vehicle shares |
 
 ### MultiVehicle
 
@@ -39,18 +72,30 @@ import { VEHICLE_STEAM, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/railnet-sdk
 | `MULTI_VEHICLE_RETRIEVE_QUERY_REDEEM_QUEUE_ASSETS` | Permission to retrieve query redeem queue assets |
 | `MULTI_VEHICLE_SET_QUEUES` | Permission to set deposit/redeem queues |
 | `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` | Permission to authorize/deauthorize vehicles |
-| `MULTI_VEHICLE_MOVE_ASSETS` | Permission to move assets between sectors |
-| `MULTI_VEHICLE_MOVE_SHARES` | Permission to move shares between sectors |
-| `MULTI_VEHICLE_REBALANCE` | Permission to rebalance between vehicles |
+| `MULTI_VEHICLE_MOVE` | Permission to move assets or shares between sectors |
 | `MULTI_VEHICLE_DEPOSIT` | Permission to deposit into the MultiVehicle |
 | `MULTI_VEHICLE_DISPATCH` | Permission to dispatch operations |
 | `MULTI_VEHICLE_PROGRESS_QUERY` | Permission to progress queries |
 | `MULTI_VEHICLE_SET_THRESHOLDS` | Permission to set thresholds |
 
-### Account List
+### Modules and account list
 
 | Constant | Description |
 | --- | --- |
+| `MODULE_MANAGER` | Permission to manage modules on the ModulesManager |
 | `ACCOUNT_LIST_MANAGER` | Permission to manage the account list |
 
+### Keepers and jobs
 
+| Constant | Description |
+| --- | --- |
+| `JOB_LISTING_REGISTER` | Permission to register a keeper job |
+| `JOB_LISTING_UNREGISTER` | Permission to unregister a keeper job |
+| `JOB_LISTING_EXECUTE` | Permission to execute a listed job |
+| `KEEPER_ON_REPORT` | Permission to report keeper execution results |
+
+### Admin
+
+| Constant | Description |
+| --- | --- |
+| `DEFAULT_ADMIN_ROLE` | `bytes32(0)`, the OpenZeppelin default admin role |

@@ -6,6 +6,12 @@ description: Deploys an Aave V3 vehicle via factory.
 
 Deploys an Aave V3 vehicle via the factory contract. Requires a `PublicClient` and a `WalletClient`.
 
+:::warning
+The factory pulls an initial deposit from the caller. Approve the factory for at least
+[`getInitialDepositAmount`](/actions/getInitialDepositAmount) of `asset` first, and hold at least
+that much — this action sends no approval of its own.
+:::
+
 ## Import
 
 ```ts
@@ -34,7 +40,7 @@ const hash = await spawnAaveV3Vehicle(publicClient, walletClient, {
   asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   poolAddressesProvider: '0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e',
   accessControl: '0x...',
-  initialDepositSize: 1000000000000000000n,
+  queryRegistry: '0x...',
   initialExpectedSupply: 1000000000000000000n,
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
@@ -76,6 +82,12 @@ The address of the Aave V3 PoolAddressesProvider.
 
 The address of the access control contract.
 
+### queryRegistry
+
+- **Type:** `Address`
+
+The address of the query registry contract.
+
 ### feeManager (optional)
 
 - **Type:** `Address`
@@ -88,11 +100,11 @@ The address of the fee manager contract.
 
 The address of the modules manager contract.
 
-### initialDepositSize
+### forbiddenAddresses (optional)
 
-- **Type:** `bigint`
+- **Type:** `Address[]`
 
-The initial deposit size.
+Optional list of addresses forbidden from interacting with the vehicle.
 
 ### initialExpectedSupply
 

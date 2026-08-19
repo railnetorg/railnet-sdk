@@ -763,12 +763,12 @@ export const externalAccessControlAbi = [
   },
   {
     type: 'error',
-    name: 'CannotModifyPublicRole',
+    name: 'DefaultAdminCannotBePublic',
     inputs: [],
   },
   {
     type: 'error',
-    name: 'DefaultAdminCannotBePublic',
+    name: 'DefaultAdminCannotBeRenounced',
     inputs: [],
   },
   {
@@ -794,6 +794,16 @@ export const externalAccessControlAbi = [
   },
   {
     type: 'error',
+    name: 'PublicRoleAuthDenied',
+    inputs: [],
+  },
+  {
+    type: 'error',
+    name: 'RolePublicStatusUnchanged',
+    inputs: [],
+  },
+  {
+    type: 'error',
     name: 'SafeCastOverflowedUintDowncast',
     inputs: [
       {
@@ -807,5 +817,10 @@ export const externalAccessControlAbi = [
         internalType: 'uint256',
       },
     ],
+  },
+  {
+    type: 'error',
+    name: 'ZeroAddress',
+    inputs: [],
   },
 ] as const

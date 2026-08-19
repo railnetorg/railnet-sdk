@@ -20,7 +20,6 @@ type ChainAddresses = {
   coreFactory: Address
   multiVehicleFactory: Address
   aaveV3VehicleFactory: Address
-  compoundV3VehicleFactory: Address
   erc4626VehicleFactory: Address
   morphoBlueVehicleFactory: Address
   wrapperVehicleFactory: Address
@@ -30,8 +29,9 @@ type ChainAddresses = {
   modulesManagerFactory: Address
   accountListFactory: Address
   ownerRegistryFactory: Address
+  assetRegistry: Address
+  queryRegistry: Address
   aavePoolAddressesProvider: Address
-  aaveV3Vehicle: Address
   usdc: Address
 }
 ```
@@ -61,12 +61,6 @@ The MultiVehicleFactory contract for spawning multi-vehicle instances.
 - **Type:** `Address`
 
 The factory contract for spawning Aave V3 vehicle instances.
-
-### compoundV3VehicleFactory
-
-- **Type:** `Address`
-
-The factory contract for spawning Compound V3 vehicle instances.
 
 ### erc4626VehicleFactory
 
@@ -122,17 +116,23 @@ The factory contract for deploying account lists.
 
 The factory contract for deploying owner registries.
 
+### assetRegistry
+
+- **Type:** `Address`
+
+The AssetRegistry contract holding the per-asset initial deposit amount the factories pull on spawn. Read it with [`getInitialDepositAmount`](/actions/getInitialDepositAmount).
+
+### queryRegistry
+
+- **Type:** `Address`
+
+The QueryRegistry contract, required when spawning a multi-vehicle or a vehicle.
+
 ### aavePoolAddressesProvider
 
 - **Type:** `Address`
 
 The Aave V3 pool addresses provider contract.
-
-### aaveV3Vehicle
-
-- **Type:** `Address`
-
-The pre-deployed Aave V3 vehicle contract address.
 
 ### usdc
 

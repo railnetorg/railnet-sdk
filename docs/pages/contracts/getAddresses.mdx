@@ -26,24 +26,22 @@ const { conduitFactory, usdc, aaveV3VehicleFactory } = getAddresses(base.id)
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { getAddresses, spawnConduit, TransferMode } from '@railnetorg/railnet-sdk'
+import { getAddresses, spawnConduit } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,
   transport: http(),
 })
 
-const { conduitFactory, usdc } = getAddresses(base.id)
+const { conduitFactory } = getAddresses(base.id)
 
 const result = await spawnConduit(walletClient, {
   factory: conduitFactory,
-  depositAsset: usdc,
   name: 'My Conduit',
   symbol: 'COND',
   vehicle: '0x...',
-  initialDepositSize: 1000000n,
   initialExpectedSupply: 1000000n,
-  transferMode: TransferMode.ALLOW_TRANSFER,
+  transferEnabled: true,
   accessControl: '0x...',
   feeManager: '0x...',
   accountList: '0x...',

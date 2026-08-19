@@ -16,7 +16,7 @@ import { useRevokeScopedRole } from '@railnetorg/railnet-sdk/react'
 
 ```tsx
 import { useRevokeScopedRole } from '@railnetorg/railnet-sdk/react'
-import { VEHICLE_STEAM } from '@railnetorg/railnet-sdk'
+import { VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
 
 function RevokeRole() {
   const { mutateAsync, isPending } = useRevokeScopedRole()
@@ -24,7 +24,7 @@ function RevokeRole() {
   const handleRevoke = async () => {
     await mutateAsync({
       accessControl: '0x...',
-      role: VEHICLE_STEAM,
+      role: VEHICLE_STEAM_DEPOSIT,
       scope: '0x...',
       grantee: '0x...',
       account: '0x...',

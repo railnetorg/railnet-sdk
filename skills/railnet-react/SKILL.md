@@ -13,10 +13,11 @@ description: >
   predictConduitDeploymentQueryOptions, query key pattern.
   Requires wagmi + @tanstack/react-query. Load when building
   React UIs for Railnet.
-type: framework
-library: railnet-sdk
-framework: react
-library_version: '0.1.0'
+metadata:
+  type: framework
+  library: railnet-sdk
+  framework: react
+  library_version: '0.1.0'
 requires:
   - railnet-core
 sources:
@@ -78,7 +79,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 | `useProcessConduitQuery` | `{ conduit, query, account }` | `Hash` |
 | `useSpawnAaveV3Vehicle` | `SpawnAaveV3VehicleParameters & { account }` | `Hash` |
 | `useSpawnMultiVehicle` | `SpawnMultiVehicleParameters & { account }` | `Hash` |
-| `useAuthorizeVehicle` | `{ vehicleRegistry, vehicle, account }` | `Hash` |
+| `useAuthorizeVehicle` | `{ vehicleManager, vehicle, account }` | `Hash` |
 | `useSetQueues` | `{ queueStrategyEngine, depositQueue, redeemQueue, account }` | `Hash` |
 | `useDeployMultiVehicle` | `DeployMultiVehicleParameters & { account }` | `DeployMultiVehicleResult` |
 | `useGrantScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |

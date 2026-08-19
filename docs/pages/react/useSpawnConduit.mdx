@@ -16,7 +16,6 @@ import { useSpawnConduit } from '@railnetorg/railnet-sdk/react'
 
 ```tsx
 import { useSpawnConduit } from '@railnetorg/railnet-sdk/react'
-import { TransferMode } from '@railnetorg/railnet-sdk'
 
 function Spawn() {
   const { mutateAsync, isPending } = useSpawnConduit()
@@ -27,10 +26,8 @@ function Spawn() {
       name: 'My Conduit',
       symbol: 'COND',
       vehicle: '0x...',
-      depositAsset: '0x...',
-      initialDepositSize: 1000000000000000000n,
       initialExpectedSupply: 1000000000000000000n,
-      transferMode: TransferMode.ALLOW_TRANSFER,
+      transferEnabled: true,
       accessControl: '0x...',
       feeManager: '0x...',
       accountList: '0x...',

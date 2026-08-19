@@ -9,7 +9,7 @@ Enum definitions used throughout the Railnet SDK.
 ## Import
 
 ```ts
-import { ConduitMode, ConduitState, TransferMode, EstimationType } from '@railnetorg/railnet-sdk'
+import { ConduitMode, ConduitState, EstimationType } from '@railnetorg/railnet-sdk'
 ```
 
 ## ConduitMode
@@ -43,7 +43,7 @@ Represents the state of a query within the STEAM state machine.
 enum ConduitState {
   EMPTY = 0,
   PROCESSING = 1,
-  WAITING = 2,
+  PAUSED = 2,
   UNLOCKING = 3,
   RECOVERING = 4,
   REJECTED = 5,
@@ -63,11 +63,11 @@ No query exists for this identifier.
 
 The query is being processed.
 
-### WAITING
+### PAUSED
 
 - **Value:** `2`
 
-The query is waiting for an external condition.
+The query is paused, waiting for an external condition.
 
 ### UNLOCKING
 
@@ -92,36 +92,6 @@ The query was rejected.
 - **Value:** `6`
 
 The query has been settled.
-
-## TransferMode
-
-Represents the transfer mode for a conduit.
-
-```ts
-enum TransferMode {
-  ACCOUNT_LIST = 0,
-  ALLOW_TRANSFER = 1,
-  BLOCK_TRANSFER = 2,
-}
-```
-
-### ACCOUNT_LIST
-
-- **Value:** `0`
-
-Transfers are restricted to accounts on a specific list.
-
-### ALLOW_TRANSFER
-
-- **Value:** `1`
-
-Transfers are allowed for all accounts.
-
-### BLOCK_TRANSFER
-
-- **Value:** `2`
-
-Transfers are blocked for all accounts.
 
 ## EstimationType
 

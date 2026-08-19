@@ -10,6 +10,15 @@ export type SetScopedRolePublicParameters = {
   isPublic: boolean
 }
 
+export function prepareSetScopedRolePublic(parameters: SetScopedRolePublicParameters) {
+  return {
+    address: parameters.accessControl,
+    abi: externalAccessControlAbi,
+    functionName: 'setScopedRolePublic',
+    args: [parameters.role, parameters.scope, parameters.isPublic],
+  } as const
+}
+
 /**
  * Sets whether a scoped role is public (callable by any address) or restricted. The caller must be the default admin.
  * @param client - Viem client instance
@@ -24,10 +33,7 @@ export async function setScopedRolePublic(
 ): Promise<Hash> {
   const { request } = await simulateContract(client, {
     ...options,
-    address: parameters.accessControl,
-    abi: externalAccessControlAbi,
-    functionName: 'setScopedRolePublic',
-    args: [parameters.role, parameters.scope, parameters.isPublic],
+    ...prepareSetScopedRolePublic(parameters),
     account: parameters.account,
   })
 

@@ -42,6 +42,11 @@ export const aaveV3VehicleFactoryAbi = [
         type: 'address',
         internalType: 'contract FactoryBase',
       },
+      {
+        name: 'assetRegistry',
+        type: 'address',
+        internalType: 'contract AssetRegistry',
+      },
     ],
     stateMutability: 'nonpayable',
   },
@@ -54,6 +59,19 @@ export const aaveV3VehicleFactoryAbi = [
         name: '',
         type: 'address',
         internalType: 'contract FactoryBase',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'ASSET_REGISTRY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract AssetRegistry',
       },
     ],
     stateMutability: 'view',
@@ -125,6 +143,13 @@ export const aaveV3VehicleFactoryAbi = [
   },
   {
     type: 'function',
+    name: 'deprecate',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     name: 'getDeploymentAddress',
     inputs: [
       {
@@ -168,14 +193,19 @@ export const aaveV3VehicleFactoryAbi = [
             internalType: 'bytes32',
           },
           {
-            name: 'initialDepositSize',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'forbiddenAddresses',
+            type: 'address[]',
+            internalType: 'address[]',
           },
           {
             name: 'initialExpectedSupply',
             type: 'uint256',
             internalType: 'uint256',
+          },
+          {
+            name: 'queryRegistry',
+            type: 'address',
+            internalType: 'contract IQueryRegistry',
           },
         ],
       },
@@ -236,19 +266,6 @@ export const aaveV3VehicleFactoryAbi = [
   },
   {
     type: 'function',
-    name: 'setDeprecated',
-    inputs: [
-      {
-        name: 'deprecated',
-        type: 'bool',
-        internalType: 'bool',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
     name: 'spawn',
     inputs: [
       {
@@ -292,14 +309,19 @@ export const aaveV3VehicleFactoryAbi = [
             internalType: 'bytes32',
           },
           {
-            name: 'initialDepositSize',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'forbiddenAddresses',
+            type: 'address[]',
+            internalType: 'address[]',
           },
           {
             name: 'initialExpectedSupply',
             type: 'uint256',
             internalType: 'uint256',
+          },
+          {
+            name: 'queryRegistry',
+            type: 'address',
+            internalType: 'contract IQueryRegistry',
           },
         ],
       },
@@ -322,6 +344,19 @@ export const aaveV3VehicleFactoryAbi = [
         type: 'address',
         indexed: false,
         internalType: 'contract ExternalAccessControl',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'AssetRegistryInitialized',
+    inputs: [
+      {
+        name: 'assetRegistry',
+        type: 'address',
+        indexed: false,
+        internalType: 'contract AssetRegistry',
       },
     ],
     anonymous: false,
@@ -367,6 +402,12 @@ export const aaveV3VehicleFactoryAbi = [
   },
   {
     type: 'event',
+    name: 'Deprecated',
+    inputs: [],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'Initialized',
     inputs: [
       {
@@ -382,6 +423,12 @@ export const aaveV3VehicleFactoryAbi = [
     type: 'event',
     name: 'SpawnedAaveV3Vehicle',
     inputs: [
+      {
+        name: 'deployer',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
       {
         name: 'vehicle',
         type: 'address',
@@ -430,14 +477,19 @@ export const aaveV3VehicleFactoryAbi = [
             internalType: 'bytes32',
           },
           {
-            name: 'initialDepositSize',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'forbiddenAddresses',
+            type: 'address[]',
+            internalType: 'address[]',
           },
           {
             name: 'initialExpectedSupply',
             type: 'uint256',
             internalType: 'uint256',
+          },
+          {
+            name: 'queryRegistry',
+            type: 'address',
+            internalType: 'contract IQueryRegistry',
           },
         ],
       },

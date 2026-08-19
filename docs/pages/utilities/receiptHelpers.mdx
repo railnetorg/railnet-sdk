@@ -27,7 +27,6 @@ import { base } from 'viem/chains'
 import { 
   spawnConduit, 
   extractConduitAddress,
-  TransferMode 
 } from '@railnetorg/railnet-sdk'
 
 const publicClient = createPublicClient({
@@ -48,10 +47,8 @@ const hash = await spawnConduit(publicClient, walletClient, {
   name: 'My Conduit',
   symbol: 'COND',
   vehicle: '0x5678...',
-  depositAsset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-  initialDepositSize: 1000000000000000000n,
   initialExpectedSupply: 1000000000000000000n,
-  transferMode: TransferMode.ALLOW_TRANSFER,
+  transferEnabled: true,
   accessControl: '0x...',
   feeManager: '0x...',
   accountList: '0x...',
@@ -153,7 +150,7 @@ type MultiVehicleContracts = {
   queueStrategyEngine: Address
   sectorAccountingEngine: Address
   subQueryEngine: Address
-  vehicleRegistry: Address
+  vehicleManager: Address
 }
 ```
 

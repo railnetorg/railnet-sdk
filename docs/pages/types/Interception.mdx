@@ -1,0 +1,42 @@
+---
+description: Type definition for a reward interception route.
+---
+
+# Interception
+
+Represents a reward interception route: an asset, and the recipients its rewards are split across.
+Passed as `initialInterceptions` when spawning a conduit, a multi-vehicle, or a vehicle.
+
+## Import
+
+```ts
+import type { Interception } from '@railnetorg/railnet-sdk'
+```
+
+## Definition
+
+```ts
+type Interception = {
+  asset: Address
+  recipients: Array<{
+    target: Address
+    shareBps: bigint
+    chainId: bigint
+  }>
+}
+```
+
+## Properties
+
+### asset
+
+- **Type:** `Address`
+
+The address of the asset being intercepted.
+
+### recipients
+
+- **Type:** `Array<{ target: Address; shareBps: bigint; chainId: bigint }>`
+
+The recipients the intercepted asset is routed to. `shareBps` is the recipient's share in basis
+points, and `chainId` is the chain the `target` lives on.

@@ -7,13 +7,14 @@ description: >
   multiVehicleFactoryAbi, aaveV3VehicleFactoryAbi,
   accessControlFactoryAbi, externalAccessControlAbi,
   queueStrategyEngineAbi, sectorAccountingEngineAbi,
-  vehicleRegistryAbi), enums (ConduitMode, ConduitState,
-  TransferMode, EstimationType), types (Asset, ConduitInfo,
+  vehicleManagerAbi), enums (ConduitMode, ConduitState,
+  EstimationType), types (Asset, ConduitInfo,
   ChainAddresses), and role constants. Load when installing railnet-sdk,
   creating a client, or importing SDK utilities.
-type: core
-library: railnet-sdk
-library_version: '0.1.0'
+metadata:
+  type: core
+  library: railnet-sdk
+  library_version: '0.1.0'
 sources:
   - 'railnetorg/railnet-sdk:src/index.ts'
   - 'railnetorg/railnet-sdk:src/decorator.ts'
@@ -64,7 +65,6 @@ const addresses = getAddresses(base.id)
 // addresses.coreFactory
 // addresses.multiVehicleFactory
 // addresses.aaveV3VehicleFactory
-// addresses.compoundV3VehicleFactory
 // addresses.erc4626VehicleFactory
 // addresses.morphoBlueVehicleFactory
 // addresses.wrapperVehicleFactory
@@ -74,8 +74,9 @@ const addresses = getAddresses(base.id)
 // addresses.modulesManagerFactory
 // addresses.accountListFactory
 // addresses.ownerRegistryFactory
+// addresses.assetRegistry           — per-asset initial deposit amounts
+// addresses.queryRegistry           — required to spawn a multi-vehicle or a vehicle
 // addresses.aavePoolAddressesProvider
-// addresses.aaveV3Vehicle           — Pre-deployed Aave V3 Vehicle
 // addresses.usdc                    — USDC on Base
 ```
 
@@ -100,7 +101,7 @@ const balance = await client.readContract({
 })
 ```
 
-Nine ABIs are exported: `conduitAbi`, `conduitFactoryAbi`, `multiVehicleFactoryAbi`, `aaveV3VehicleFactoryAbi`, `accessControlFactoryAbi`, `externalAccessControlAbi`, `queueStrategyEngineAbi`, `sectorAccountingEngineAbi`, `vehicleRegistryAbi`.
+Nine ABIs are exported: `conduitAbi`, `conduitFactoryAbi`, `multiVehicleFactoryAbi`, `aaveV3VehicleFactoryAbi`, `accessControlFactoryAbi`, `externalAccessControlAbi`, `queueStrategyEngineAbi`, `sectorAccountingEngineAbi`, `vehicleManagerAbi`.
 
 ### Write Operations (Single-Client Pattern)
 All write actions use a single-client pattern: pass a wallet client that handles both simulation and signing internally.
@@ -121,6 +122,23 @@ const hash = await depositConduit(client, {
   account: account.address,
 })
 ```
+
+Every write action also has a `prepare*` counterpart (`prepareDepositConduit`, `prepareSpawnConduit`, `prepareGrantScopedRole`, ...). They take no client, send nothing, and return `PreparedWrite` (`{ address, abi, functionName, args }`) to spread into viem yourself:
+
+```typescript
+import { prepareDepositConduit } from '@railnetorg/railnet-sdk'
+
+const prepared = prepareDepositConduit({
+  conduit: conduitAddress,
+  token: usdcAddress,
+  amount: 1_000_000n,
+  account: account.address, // required: the conduit binds the query salt to the sender
+})
+
+const hash = await client.writeContract({ ...prepared, account: account.address })
+```
+
+Two things the builders do NOT do: no ERC-20 approval (the execute actions send one when the allowance is short), and no deterministic salts — a generated salt comes from the current timestamp, so pass salts explicitly when the call must match a predicted address or survive a retry.
 
 All write actions accept an optional third `options` parameter of type `ContractCallOptions` for gas, nonce, and other overrides:
 

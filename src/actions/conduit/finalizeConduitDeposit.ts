@@ -8,6 +8,15 @@ export type FinalizeConduitDepositParameters = {
   conduit: Address
 }
 
+export function prepareFinalizeConduitDeposit(parameters: FinalizeConduitDepositParameters) {
+  return {
+    address: parameters.factory,
+    abi: conduitFactoryAbi,
+    functionName: 'finalizeConduitDeposit',
+    args: [parameters.conduit],
+  } as const
+}
+
 /**
  * Finalizes the initial deposit on a conduit with an async vehicle (e.g. Ethena, Syrup). Called via the ConduitFactory after the vehicle's async query resolves.
  * @param client - Viem client instance
@@ -22,10 +31,7 @@ export async function finalizeConduitDeposit(
 ): Promise<Hash> {
   const { request } = await simulateContract(client, {
     ...options,
-    address: parameters.factory,
-    abi: conduitFactoryAbi,
-    functionName: 'finalizeConduitDeposit',
-    args: [parameters.conduit],
+    ...prepareFinalizeConduitDeposit(parameters),
     account: parameters.account,
   })
 

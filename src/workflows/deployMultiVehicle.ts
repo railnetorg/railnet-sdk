@@ -8,13 +8,15 @@ import {
 import { externalAccessControlAbi } from '../abi/externalAccessControl.js'
 import { grantScopedRole } from '../actions/accessControl/grantScopedRole.js'
 import { spawnAccessControl } from '../actions/accessControl/spawnAccessControl.js'
+import { getInitialDepositAmount } from '../actions/assetRegistry/getInitialDepositAmount.js'
 import { authorizeVehicle } from '../actions/multiVehicle/authorizeVehicle.js'
 import { setQueues } from '../actions/multiVehicle/setQueues.js'
 import { spawnMultiVehicle } from '../actions/multiVehicle/spawnMultiVehicle.js'
 import {
   MULTI_VEHICLE_SET_QUEUES,
   MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION,
-  VEHICLE_STEAM,
+  VEHICLE_STEAM_DEPOSIT,
+  VEHICLE_STEAM_REDEEM,
 } from '../constants/roles.js'
 import { getAddresses } from '../contracts/chains.js'
 import type { ContractCallOptions } from '../types.js'
@@ -34,11 +36,11 @@ export type DeployMultiVehicleParameters = {
   asset: Address
   name: string
   symbol: string
-  initialDepositAmount: bigint
+  queryRegistry?: Address
   vehicles: VehicleEntry[]
   accessControl?: Address
   adminAddress?: Address
-  initialExpectedSupply?: bigint
+  forbiddenAddresses?: Address[]
   feeManager?: Address
   modulesManager?: Address
 }
@@ -50,9 +52,9 @@ export type DeployMultiVehicleResult = {
 }
 
 /**
- * Deploys a complete multi-vehicle ecosystem in a single workflow: spawns access control, approves tokens, spawns the multi-vehicle, grants required roles (VEHICLE_STEAM, SET_QUEUES, SET_VEHICLE_AUTHORIZATION), authorizes sub-vehicles, and configures allocation queues.
+ * Deploys a complete multi-vehicle ecosystem in a single workflow: spawns access control, approves the factory for the asset's initial deposit amount (read from the AssetRegistry), spawns the multi-vehicle, grants required roles (VEHICLE_STEAM_DEPOSIT, VEHICLE_STEAM_REDEEM, SET_QUEUES, SET_VEHICLE_AUTHORIZATION), authorizes sub-vehicles, and configures allocation queues.
  * @param client - Viem client instance with a chain configured
- * @param parameters - Asset, name, symbol, vehicles array with allocation targets, and optional accessControl/feeManager
+ * @param parameters - Asset, name, symbol, vehicles array with allocation targets, and optional queryRegistry/accessControl/feeManager
  * @param options - Optional contract call overrides
  * @returns The deployed EAC address, multi-vehicle contract addresses, and all transaction hashes
  */
@@ -63,11 +65,24 @@ export async function deployMultiVehicle(
 ): Promise<DeployMultiVehicleResult> {
   const chain = client.chain
   if (!chain) throw new Error('Client must have a chain configured')
-  const { eacFactory, multiVehicleFactory } = getAddresses(chain.id)
+  const {
+    eacFactory,
+    multiVehicleFactory,
+    assetRegistry,
+    queryRegistry: chainQueryRegistry,
+  } = getAddresses(chain.id)
 
   const transactionHashes: Hash[] = []
   const adminAddress = parameters.adminAddress ?? parameters.account
-  const initialExpectedSupply = parameters.initialExpectedSupply ?? 10n ** 18n
+  const initialDepositAmount = await getInitialDepositAmount(client, {
+    assetRegistry,
+    asset: parameters.asset,
+  })
+  if (initialDepositAmount === 0n) {
+    throw new Error(
+      `Asset ${parameters.asset} has no initial deposit amount registered in the AssetRegistry, the factory would reject the spawn`,
+    )
+  }
 
   let eacAddress: Address
   if (parameters.accessControl) {
@@ -78,7 +93,7 @@ export async function deployMultiVehicle(
       address: parameters.asset,
       abi: erc20Abi,
       functionName: 'approve',
-      args: [multiVehicleFactory, parameters.initialDepositAmount],
+      args: [multiVehicleFactory, initialDepositAmount],
       account: parameters.account,
     })
     const approveHash = await writeContract(client, approveRequest)
@@ -102,7 +117,7 @@ export async function deployMultiVehicle(
         address: parameters.asset,
         abi: erc20Abi,
         functionName: 'approve',
-        args: [multiVehicleFactory, parameters.initialDepositAmount],
+        args: [multiVehicleFactory, initialDepositAmount],
         account: parameters.account,
       }).then(({ request }) => writeContract(client, request)),
     ])
@@ -126,9 +141,11 @@ export async function deployMultiVehicle(
     name: parameters.name,
     symbol: parameters.symbol,
     accessControl: eacAddress,
-    initialDepositSize: parameters.initialDepositAmount,
-    initialExpectedSupply,
+    queryRegistry: parameters.queryRegistry ?? chainQueryRegistry,
     account: parameters.account,
+  }
+  if (parameters.forbiddenAddresses !== undefined) {
+    mvSpawnParams.forbiddenAddresses = parameters.forbiddenAddresses
   }
   if (parameters.feeManager !== undefined) {
     mvSpawnParams.feeManager = parameters.feeManager
@@ -151,7 +168,7 @@ export async function deployMultiVehicle(
         {
           accessControl: eacAddress,
           role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION as Hex,
-          scope: mvContracts.vehicleRegistry,
+          scope: mvContracts.vehicleManager,
           grantee: adminAddress,
           account: parameters.account,
         },
@@ -174,57 +191,50 @@ export async function deployMultiVehicle(
       parameters.vehicles.map(async (vehicle): Promise<Hash[]> => {
         const hashes: Hash[] = []
 
-        const isPublic = await readContract(client, {
-          address: eacAddress,
-          abi: externalAccessControlAbi,
-          functionName: 'isScopedRolePublic',
-          args: [VEHICLE_STEAM, vehicle.address],
-        })
+        const steamRoles = [VEHICLE_STEAM_DEPOSIT, VEHICLE_STEAM_REDEEM]
+        const steamGrantees = [
+          mvContracts.multiVehicle,
+          mvContracts.sectorAccountingEngine,
+          mvContracts.subQueryEngine,
+        ]
 
-        if (!isPublic) {
-          const steamHashes = await Promise.all([
-            grantScopedRole(
-              client,
-              {
-                accessControl: eacAddress,
-                role: VEHICLE_STEAM as Hex,
-                scope: vehicle.address,
-                grantee: mvContracts.multiVehicle,
-                account: parameters.account,
-              },
-              options,
-            ),
-            grantScopedRole(
-              client,
-              {
-                accessControl: eacAddress,
-                role: VEHICLE_STEAM as Hex,
-                scope: vehicle.address,
-                grantee: mvContracts.sectorAccountingEngine,
-                account: parameters.account,
-              },
-              options,
-            ),
-            grantScopedRole(
-              client,
-              {
-                accessControl: eacAddress,
-                role: VEHICLE_STEAM as Hex,
-                scope: vehicle.address,
-                grantee: mvContracts.subQueryEngine,
-                account: parameters.account,
-              },
-              options,
-            ),
-          ])
-          hashes.push(...steamHashes)
-        }
+        const isPublic = await Promise.all(
+          steamRoles.map((role) =>
+            readContract(client, {
+              address: eacAddress,
+              abi: externalAccessControlAbi,
+              functionName: 'isScopedRolePublic',
+              args: [role, vehicle.address],
+            }),
+          ),
+        )
+
+        const steamHashes = await Promise.all(
+          steamRoles.flatMap((role, index) =>
+            isPublic[index]
+              ? []
+              : steamGrantees.map((grantee) =>
+                  grantScopedRole(
+                    client,
+                    {
+                      accessControl: eacAddress,
+                      role,
+                      scope: vehicle.address,
+                      grantee,
+                      account: parameters.account,
+                    },
+                    options,
+                  ),
+                ),
+          ),
+        )
+        hashes.push(...steamHashes)
 
         hashes.push(
           await authorizeVehicle(
             client,
             {
-              vehicleRegistry: mvContracts.vehicleRegistry,
+              vehicleManager: mvContracts.vehicleManager,
               vehicle: vehicle.address,
               account: parameters.account,
             },

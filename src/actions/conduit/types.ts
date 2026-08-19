@@ -1,9 +1,12 @@
 import type { Address, Hex } from 'viem'
 
-export enum TransferMode {
-  ACCOUNT_LIST = 0,
-  ALLOW_TRANSFER = 1,
-  BLOCK_TRANSFER = 2,
+export type Interception = {
+  asset: Address
+  recipients: Array<{
+    target: Address
+    shareBps: bigint
+    chainId: bigint
+  }>
 }
 
 export type SpawnConduitParameters = {
@@ -11,10 +14,9 @@ export type SpawnConduitParameters = {
   name: string
   symbol: string
   vehicle: Address
-  depositAsset: Address
-  initialDepositSize: bigint
   initialExpectedSupply: bigint
-  transferMode: TransferMode
+  transferEnabled: boolean
+  initialInterceptions?: Array<Interception>
   accessControl: Address
   feeManager: Address
   accountList: Address
@@ -31,7 +33,7 @@ export enum ConduitMode {
 export enum ConduitState {
   EMPTY = 0,
   PROCESSING = 1,
-  WAITING = 2,
+  PAUSED = 2,
   UNLOCKING = 3,
   RECOVERING = 4,
   REJECTED = 5,

@@ -43,14 +43,14 @@ export const multiVehicleFactoryAbi = [
             internalType: 'contract FreezablePausableBeacon',
           },
           {
-            name: 'vehicleRegistry',
+            name: 'vehicleManager',
             type: 'address',
             internalType: 'contract FreezablePausableBeacon',
           },
         ],
       },
       {
-        name: 'initialCounter',
+        name: 'startingCounter',
         type: 'uint256',
         internalType: 'uint256',
       },
@@ -74,6 +74,11 @@ export const multiVehicleFactoryAbi = [
         type: 'address',
         internalType: 'contract FactoryBase',
       },
+      {
+        name: 'assetRegistry',
+        type: 'address',
+        internalType: 'contract AssetRegistry',
+      },
     ],
     stateMutability: 'nonpayable',
   },
@@ -86,6 +91,19 @@ export const multiVehicleFactoryAbi = [
         name: '',
         type: 'address',
         internalType: 'contract FactoryBase',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'ASSET_REGISTRY',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+        internalType: 'contract AssetRegistry',
       },
     ],
     stateMutability: 'view',
@@ -160,7 +178,7 @@ export const multiVehicleFactoryAbi = [
         internalType: 'contract FreezablePausableBeacon',
       },
       {
-        name: 'vehicleRegistry',
+        name: 'vehicleManager',
         type: 'address',
         internalType: 'contract FreezablePausableBeacon',
       },
@@ -179,6 +197,13 @@ export const multiVehicleFactoryAbi = [
       },
     ],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'deprecate',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -284,7 +309,7 @@ export const multiVehicleFactoryAbi = [
                 internalType: 'bytes32',
               },
               {
-                name: 'vehicleRegistry',
+                name: 'vehicleManager',
                 type: 'bytes32',
                 internalType: 'bytes32',
               },
@@ -296,14 +321,14 @@ export const multiVehicleFactoryAbi = [
             ],
           },
           {
-            name: 'initialDepositSize',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'forbiddenAddresses',
+            type: 'address[]',
+            internalType: 'address[]',
           },
           {
-            name: 'initialExpectedSupply',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'queryRegistry',
+            type: 'address',
+            internalType: 'contract IQueryRegistry',
           },
         ],
       },
@@ -340,7 +365,7 @@ export const multiVehicleFactoryAbi = [
             internalType: 'address',
           },
           {
-            name: 'vehicleRegistry',
+            name: 'vehicleManager',
             type: 'address',
             internalType: 'address',
           },
@@ -380,7 +405,7 @@ export const multiVehicleFactoryAbi = [
         internalType: 'address',
       },
       {
-        name: 'vehicleRegistry',
+        name: 'vehicleManager',
         type: 'address',
         internalType: 'address',
       },
@@ -431,19 +456,6 @@ export const multiVehicleFactoryAbi = [
       },
     ],
     stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'setDeprecated',
-    inputs: [
-      {
-        name: 'deprecated',
-        type: 'bool',
-        internalType: 'bool',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -549,7 +561,7 @@ export const multiVehicleFactoryAbi = [
                 internalType: 'bytes32',
               },
               {
-                name: 'vehicleRegistry',
+                name: 'vehicleManager',
                 type: 'bytes32',
                 internalType: 'bytes32',
               },
@@ -561,14 +573,14 @@ export const multiVehicleFactoryAbi = [
             ],
           },
           {
-            name: 'initialDepositSize',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'forbiddenAddresses',
+            type: 'address[]',
+            internalType: 'address[]',
           },
           {
-            name: 'initialExpectedSupply',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'queryRegistry',
+            type: 'address',
+            internalType: 'contract IQueryRegistry',
           },
         ],
       },
@@ -605,7 +617,7 @@ export const multiVehicleFactoryAbi = [
             internalType: 'address',
           },
           {
-            name: 'vehicleRegistry',
+            name: 'vehicleManager',
             type: 'address',
             internalType: 'address',
           },
@@ -623,6 +635,19 @@ export const multiVehicleFactoryAbi = [
         type: 'address',
         indexed: false,
         internalType: 'contract ExternalAccessControl',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'AssetRegistryInitialized',
+    inputs: [
+      {
+        name: 'assetRegistry',
+        type: 'address',
+        indexed: false,
+        internalType: 'contract AssetRegistry',
       },
     ],
     anonymous: false,
@@ -663,7 +688,7 @@ export const multiVehicleFactoryAbi = [
             internalType: 'contract FreezablePausableBeacon',
           },
           {
-            name: 'vehicleRegistry',
+            name: 'vehicleManager',
             type: 'address',
             internalType: 'contract FreezablePausableBeacon',
           },
@@ -700,6 +725,12 @@ export const multiVehicleFactoryAbi = [
   },
   {
     type: 'event',
+    name: 'Deprecated',
+    inputs: [],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'Initialized',
     inputs: [
       {
@@ -715,6 +746,12 @@ export const multiVehicleFactoryAbi = [
     type: 'event',
     name: 'SpawnedMultiVehicle',
     inputs: [
+      {
+        name: 'deployer',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
       {
         name: 'contracts',
         type: 'tuple',
@@ -747,7 +784,7 @@ export const multiVehicleFactoryAbi = [
             internalType: 'address',
           },
           {
-            name: 'vehicleRegistry',
+            name: 'vehicleManager',
             type: 'address',
             internalType: 'address',
           },
@@ -854,7 +891,7 @@ export const multiVehicleFactoryAbi = [
                 internalType: 'bytes32',
               },
               {
-                name: 'vehicleRegistry',
+                name: 'vehicleManager',
                 type: 'bytes32',
                 internalType: 'bytes32',
               },
@@ -866,35 +903,19 @@ export const multiVehicleFactoryAbi = [
             ],
           },
           {
-            name: 'initialDepositSize',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'forbiddenAddresses',
+            type: 'address[]',
+            internalType: 'address[]',
           },
           {
-            name: 'initialExpectedSupply',
-            type: 'uint256',
-            internalType: 'uint256',
+            name: 'queryRegistry',
+            type: 'address',
+            internalType: 'contract IQueryRegistry',
           },
         ],
       },
     ],
     anonymous: false,
-  },
-  {
-    type: 'error',
-    name: 'ExpectedSupplyNotReached',
-    inputs: [
-      {
-        name: 'totalSupply',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-      {
-        name: 'expectedSupply',
-        type: 'uint256',
-        internalType: 'uint256',
-      },
-    ],
   },
   {
     type: 'error',
@@ -975,6 +996,22 @@ export const multiVehicleFactoryAbi = [
             internalType: 'bytes',
           },
         ],
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InitialAccountingError',
+    inputs: [
+      {
+        name: 'totalAssets',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'totalSupply',
+        type: 'uint256',
+        internalType: 'uint256',
       },
     ],
   },

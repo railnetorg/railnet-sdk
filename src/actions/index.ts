@@ -1,4 +1,5 @@
 export * from './accessControl/index.js'
+export * from './assetRegistry/index.js'
 export * from './conduit/index.js'
 export * from './multiVehicle/index.js'
 export * from './vehicle/index.js'

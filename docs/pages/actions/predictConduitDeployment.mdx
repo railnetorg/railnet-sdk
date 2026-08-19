@@ -17,7 +17,7 @@ import { predictConduitDeployment } from '@railnetorg/railnet-sdk'
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { predictConduitDeployment, TransferMode } from '@railnetorg/railnet-sdk'
+import { predictConduitDeployment } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: base,
@@ -29,10 +29,8 @@ const predictedAddress = await predictConduitDeployment(client, {
   name: 'My Conduit',
   symbol: 'COND',
   vehicle: '0x5678...',
-  depositAsset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-  initialDepositSize: 1000000000000000000n,
   initialExpectedSupply: 1000000000000000000n,
-  transferMode: TransferMode.ALLOW_TRANSFER,
+  transferEnabled: true,
   accessControl: '0x...',
   feeManager: '0x...',
   accountList: '0x...',
@@ -74,29 +72,17 @@ The symbol of the conduit token.
 
 The address of the vehicle contract.
 
-### depositAsset
-
-- **Type:** `Address`
-
-The address of the deposit asset.
-
-### initialDepositSize
-
-- **Type:** `bigint`
-
-The initial deposit size.
-
 ### initialExpectedSupply
 
 - **Type:** `bigint`
 
 The initial expected supply.
 
-### transferMode
+### transferEnabled
 
-- **Type:** `TransferMode`
+- **Type:** `boolean`
 
-The transfer mode for the conduit. See [`Enums`](/types/Enums).
+Whether transfers are enabled for the conduit.
 
 ### accessControl
 
@@ -121,6 +107,12 @@ The address of the account list contract.
 - **Type:** `Address`
 
 The address of the owner registry contract.
+
+### initialInterceptions (optional)
+
+- **Type:** [`Interception[]`](/types/Interception)
+
+Optional initial reward interception routes for the conduit. Defaults to `[]`.
 
 ### querySalt
 
