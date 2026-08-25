@@ -41,9 +41,9 @@ export async function getConduitPosition(
       address: conduit,
       abi: conduitAbi,
       functionName: 'convert',
-      args: [[{ asset: conduit, value: shares }], true],
+      args: [{ asset: conduit, value: shares }, true],
     })
-    assets = converted[0]?.value ?? 0n
+    assets = converted.value
   }
 
   return { shares, assets, conduit, account }

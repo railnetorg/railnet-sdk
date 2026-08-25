@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'bun:test'
-import { encodeAbiParameters, keccak256, zeroAddress, zeroHash } from 'viem'
+import {
+  encodeAbiParameters,
+  encodeFunctionData,
+  keccak256,
+  toFunctionSelector,
+  zeroAddress,
+  zeroHash,
+} from 'viem'
 import {
   externalAccessControlAbi,
   type PreparedWrite,
@@ -64,6 +71,57 @@ describe('prepare* writes', () => {
     expect(prepared.functionName).toBe('createRedeemFromConduitShares')
     expect(prepared.args[2]).toBe(zeroHash)
     expect(prepared.args[3]).toBe(account)
+  })
+
+  test('prepareDepositConduit builds scalar Asset legs, not single-element arrays', () => {
+    const prepared = prepareDepositConduit({
+      conduit: zeroAddress,
+      token: zeroAddress,
+      amount: 100n,
+      account,
+      salt: zeroHash,
+    })
+    expect(Array.isArray(prepared.args[0].input)).toBe(false)
+    expect(Array.isArray(prepared.args[0].output)).toBe(false)
+    expect(prepared.args[0].input).toEqual({ asset: zeroAddress, value: 100n })
+  })
+
+  test('prepareRedeemConduit passes a scalar outputAsset', () => {
+    const prepared = prepareRedeemConduit({
+      conduit: zeroAddress,
+      shares: 1n,
+      account,
+      salt: zeroHash,
+    })
+    expect(Array.isArray(prepared.args[1])).toBe(false)
+    expect(prepared.args[1]).toEqual({ asset: zeroAddress, value: 0n })
+  })
+
+  // STEAM scalarized `Asset[]` to `Asset` (contracts b4534821). An array-shaped Asset changes the tuple
+  // encoding and therefore the selector, so the call would silently miss the deployed function.
+  test('prepared conduit writes encode to the deployed scalar-Asset selectors', () => {
+    const query = '(address,address,(address,uint256),(address,uint256),uint8,bytes32,bytes)'
+
+    const deposit = prepareDepositConduit({
+      conduit: zeroAddress,
+      token: zeroAddress,
+      amount: 100n,
+      account,
+      salt: zeroHash,
+    })
+    expect(encodeFunctionData(deposit).slice(0, 10)).toBe(
+      toFunctionSelector(`create(${query},address,bytes32)`),
+    )
+
+    const redeem = prepareRedeemConduit({
+      conduit: zeroAddress,
+      shares: 1n,
+      account,
+      salt: zeroHash,
+    })
+    expect(encodeFunctionData(redeem).slice(0, 10)).toBe(
+      toFunctionSelector('createRedeemFromConduitShares(uint256,(address,uint256),bytes32,address)'),
+    )
   })
 
   test('prepareSpawnConduit passes deploymentSalt as the second positional arg', () => {

@@ -1,4 +1,12 @@
-import { type Address, type Client, type Hash, type Hex, keccak256, toHex } from 'viem'
+import {
+  type Address,
+  type Client,
+  type Hash,
+  type Hex,
+  keccak256,
+  toHex,
+  zeroAddress,
+} from 'viem'
 import {
   readContract,
   simulateContract,
@@ -13,7 +21,7 @@ export type RedeemConduitParameters = {
   conduit: Address
   shares: bigint
   receiver?: Address
-  outputAssets?: Asset[]
+  outputAsset?: Asset
   salt?: Hex
 }
 
@@ -24,7 +32,10 @@ export type PrepareRedeemConduitParameters = RedeemConduitParameters & {
 export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters) {
   const { conduit, shares, account } = parameters
   const receiver = parameters.receiver ?? account
-  const outputAssets = parameters.outputAssets ?? []
+  // Scalar `Asset` per the STEAM ABI. A zero value disables the amount floor; the address must still
+  // be route-supported by the vehicle (`BaseVehicle._validateOutput` requires the underlying asset
+  // on a REDEEM).
+  const outputAsset = parameters.outputAsset ?? { asset: zeroAddress, value: 0n }
   // createRedeemFromConduitShares() derives query.salt from (msg.sender, sourceSalt) itself
   const sourceSalt = parameters.salt ?? keccak256(toHex(`redeem-${account}-${Date.now()}`))
 
@@ -32,14 +43,14 @@ export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters)
     address: conduit,
     abi: conduitAbi,
     functionName: 'createRedeemFromConduitShares',
-    args: [shares, outputAssets, sourceSalt, receiver],
+    args: [shares, outputAsset, sourceSalt, receiver],
   } as const
 }
 
 /**
  * Redeems conduit shares by calling `conduit.createRedeemFromConduitShares()`. On synchronous vehicles the redeem executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves conduit shares if the current allowance is insufficient.
  * @param client - Viem client instance
- * @param parameters - Conduit address, shares amount. Optional: receiver (defaults to caller), outputAssets (Asset[]), salt (auto-generated)
+ * @param parameters - Conduit address, shares amount. Optional: receiver (defaults to caller), outputAsset (scalar Asset), salt (auto-generated)
  * @param options - Optional contract call overrides
  * @returns Transaction hash
  */

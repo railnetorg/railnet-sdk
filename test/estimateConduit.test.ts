@@ -15,29 +15,27 @@ beforeAll(async () => {
 afterAll(() => teardownAnvil())
 
 describe('estimateConduit', () => {
-  it('returns an array of assets for a deposit estimate', async () => {
-    const estimations = await estimateConduit(client, {
+  it('returns the estimated cShare output for a deposit estimate', async () => {
+    const estimation = await estimateConduit(client, {
       conduit: TEST_CONDUIT,
-      assets: [{ asset: USDC, value: 1_000_000n }],
+      asset: { asset: USDC, value: 1_000_000n },
       mode: ConduitMode.DEPOSIT,
       estimationType: EstimationType.OUTPUT,
     })
 
-    expect(estimations).toHaveLength(1)
-    expect(estimations[0]?.asset.toLowerCase()).toBe(TEST_CONDUIT)
-    expect(estimations[0]?.value).toBeGreaterThan(0n)
+    expect(estimation.asset.toLowerCase()).toBe(TEST_CONDUIT)
+    expect(estimation.value).toBeGreaterThan(0n)
   })
 
-  it('returns an array of assets for a redeem estimate', async () => {
-    const estimations = await estimateConduit(client, {
+  it('returns the estimated asset output for a redeem estimate', async () => {
+    const estimation = await estimateConduit(client, {
       conduit: TEST_CONDUIT,
-      assets: [{ asset: TEST_CONDUIT, value: 10n ** 18n }],
+      asset: { asset: TEST_CONDUIT, value: 10n ** 18n },
       mode: ConduitMode.REDEEM,
       estimationType: EstimationType.OUTPUT,
     })
 
-    expect(estimations).toHaveLength(1)
-    expect(estimations[0]?.asset).toBe(USDC)
-    expect(estimations[0]?.value).toBeGreaterThan(0n)
+    expect(estimation.asset).toBe(USDC)
+    expect(estimation.value).toBeGreaterThan(0n)
   })
 })

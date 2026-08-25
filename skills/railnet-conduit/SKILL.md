@@ -144,7 +144,7 @@ const depositHash = await depositConduit(walletClient, {
 const redeemHash = await redeemConduit(walletClient, {
   conduit: conduitAddress,
   shares: 500_000n,
-  // outputAssets is optional — defaults to [].
+  // outputAsset is optional — defaults to { asset: zeroAddress, value: 0n }.
   // Pass specific assets to control which tokens you receive back.
   // receiver is optional — defaults to account
   account: account.address,
@@ -169,8 +169,8 @@ import type { Address, Hex } from 'viem'
 const query = {
   owner: conduitAddress as Address,
   receiver: conduitAddress as Address,
-  input: [{ asset: tokenAddress, value: depositAmount }],
-  output: [] as { asset: Address; value: bigint }[],
+  input: { asset: tokenAddress, value: depositAmount },
+  output: { asset: zeroAddress, value: 0n },
   mode: 0 as ConduitMode, // ConduitMode.DEPOSIT
   salt: keccak256(
     encodeAbiParameters(
@@ -267,7 +267,7 @@ Wrong:
 import { estimateConduit, ConduitMode, EstimationType } from '@railnetorg/railnet-sdk'
 
 const estimated = await estimateConduit(client, {
-  conduit, assets: [{ asset: conduit, value: shares }],
+  conduit, asset: { asset: conduit, value: shares },
   mode: ConduitMode.REDEEM, estimationType: EstimationType.OUTPUT,
 })
 ```

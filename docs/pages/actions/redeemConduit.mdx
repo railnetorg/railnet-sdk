@@ -100,9 +100,9 @@ const hash = await redeemConduit(walletClient, {
 })
 ```
 
-### outputAssets (optional)
+### outputAsset (optional)
 
-- **Type:** `Asset[]`
+- **Type:** `Asset`
 
 The expected output assets from the redemption.
 
@@ -111,7 +111,7 @@ const hash = await redeemConduit(walletClient, {
   conduit: '0x...',
   shares: 500000000000000000n,
   account: '0x...',
-  outputAssets: [{ asset: '0x...', value: 100n }], // [!code focus]
+  outputAsset: { asset: '0x...', value: 100n }, // [!code focus]
 })
 ```
 

@@ -543,8 +543,8 @@ export const aaveV3VehicleFactoryAbi = [
           },
           {
             name: 'input',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -560,8 +560,8 @@ export const aaveV3VehicleFactoryAbi = [
           },
           {
             name: 'output',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',

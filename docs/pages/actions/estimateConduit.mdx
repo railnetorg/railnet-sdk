@@ -4,7 +4,7 @@ description: Estimates the output of a conduit operation.
 
 # estimateConduit
 
-Estimates the output of a conduit operation given input assets and mode.
+Estimates the output of a conduit operation given an input asset and mode.
 
 ## Import
 
@@ -24,9 +24,9 @@ const client = createPublicClient({
   transport: http(),
 })
 
-const estimatedAssets = await estimateConduit(client, {
+const estimatedAsset = await estimateConduit(client, {
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  assets: [{ asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F', value: 1000000000000000000n }],
+  asset: { asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F', value: 1000000000000000000n },
   mode: ConduitMode.DEPOSIT,
   estimationType: EstimationType.OUTPUT,
 })
@@ -34,9 +34,9 @@ const estimatedAssets = await estimateConduit(client, {
 
 ## Returns
 
-[`Asset[]`](/types/Asset)
+[`Asset`](/types/Asset)
 
-The estimated output assets.
+The estimated output asset.
 
 ```ts
 type Asset = {
@@ -54,24 +54,24 @@ type Asset = {
 The address of the conduit contract.
 
 ```ts
-const estimatedAssets = await estimateConduit(client, {
+const estimatedAsset = await estimateConduit(client, {
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  assets: [...],
+  asset: { ... },
   mode: ConduitMode.DEPOSIT,
   estimationType: EstimationType.OUTPUT,
 })
 ```
 
-### assets
+### asset
 
-- **Type:** `Asset[]`
+- **Type:** `Asset`
 
-The input assets for the estimation. See [`Asset`](/types/Asset).
+The input asset for the estimation. See [`Asset`](/types/Asset).
 
 ```ts
-const estimatedAssets = await estimateConduit(client, {
+const estimatedAsset = await estimateConduit(client, {
   conduit: '0x...',
-  assets: [{ asset: '0x...', value: 1000000000000000000n }], // [!code focus]
+  asset: { asset: '0x...', value: 1000000000000000000n }, // [!code focus]
   mode: ConduitMode.DEPOSIT,
   estimationType: EstimationType.OUTPUT,
 })
@@ -84,9 +84,9 @@ const estimatedAssets = await estimateConduit(client, {
 The conduit mode for the estimation. See [`Enums`](/types/Enums).
 
 ```ts
-const estimatedAssets = await estimateConduit(client, {
+const estimatedAsset = await estimateConduit(client, {
   conduit: '0x...',
-  assets: [...],
+  asset: { ... },
   mode: ConduitMode.DEPOSIT, // [!code focus]
   estimationType: EstimationType.OUTPUT,
 })
@@ -99,9 +99,9 @@ const estimatedAssets = await estimateConduit(client, {
 The type of estimation to perform. See [`Enums`](/types/Enums).
 
 ```ts
-const estimatedAssets = await estimateConduit(client, {
+const estimatedAsset = await estimateConduit(client, {
   conduit: '0x...',
-  assets: [...],
+  asset: { ... },
   mode: ConduitMode.DEPOSIT,
   estimationType: EstimationType.OUTPUT, // [!code focus]
 })

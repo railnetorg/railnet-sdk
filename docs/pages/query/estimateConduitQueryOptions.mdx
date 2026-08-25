@@ -26,7 +26,7 @@ function Estimate() {
   const { data } = useQuery(
     estimateConduitQueryOptions(client, {
       conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-      assets: [{ asset: '0x...', value: 1000000000000000000n }],
+      asset: { asset: '0x...', value: 1000000000000000000n },
       mode: ConduitMode.DEPOSIT,
       estimationType: EstimationType.OUTPUT,
     }),
@@ -37,7 +37,7 @@ function Estimate() {
 ## Returns
 
 ```ts
-QueryOptions<Asset[], ReadContractErrorType, Asset[], EstimateConduitQueryKey>
+QueryOptions<Asset, ReadContractErrorType, Asset, EstimateConduitQueryKey>
 ```
 
 Options object containing `queryFn` and `queryKey`.
@@ -58,11 +58,11 @@ A viem public client.
 
 The address of the conduit contract.
 
-#### assets
+#### asset
 
-- **Type:** `Asset[]`
+- **Type:** `Asset`
 
-The input assets for the estimation.
+The input asset for the estimation.
 
 #### mode
 
@@ -79,7 +79,7 @@ The type of estimation.
 ## Query Key
 
 ```ts
-['railnet', 'estimateConduit', { conduit, assets, mode, estimationType }] as const
+['railnet', 'estimateConduit', { conduit, asset, mode, estimationType }] as const
 ```
 
 You can use `estimateConduitQueryKey` to construct the query key manually:

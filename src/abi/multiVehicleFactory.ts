@@ -948,8 +948,8 @@ export const multiVehicleFactoryAbi = [
           },
           {
             name: 'input',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -965,8 +965,8 @@ export const multiVehicleFactoryAbi = [
           },
           {
             name: 'output',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',

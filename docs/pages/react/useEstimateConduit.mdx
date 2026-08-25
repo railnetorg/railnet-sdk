@@ -21,7 +21,7 @@ import { ConduitMode, EstimationType } from '@railnetorg/railnet-sdk'
 function Estimate() {
   const { data, isLoading } = useEstimateConduit({
     conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-    assets: [{ asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F', value: 1000000000000000000n }],
+    asset: { asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F', value: 1000000000000000000n },
     mode: ConduitMode.DEPOSIT,
     estimationType: EstimationType.OUTPUT,
   })
@@ -41,10 +41,10 @@ function Estimate() {
 ## Returns
 
 ```ts
-UseQueryResult<Asset[], ReadContractErrorType>
+UseQueryResult<Asset, ReadContractErrorType>
 ```
 
-Returns an [`Asset[]`](/types/Asset) array.
+Returns a single [`Asset`](/types/Asset).
 
 The query is automatically disabled when no public client is available.
 
@@ -56,11 +56,11 @@ The query is automatically disabled when no public client is available.
 
 The address of the conduit contract.
 
-### assets
+### asset
 
-- **Type:** `Asset[]`
+- **Type:** `Asset`
 
-The input assets for the estimation. See [`Asset`](/types/Asset).
+The input asset for the estimation. See [`Asset`](/types/Asset).
 
 ### mode
 

@@ -7,6 +7,7 @@ import {
   type Hex,
   keccak256,
   toHex,
+  zeroAddress,
 } from 'viem'
 import {
   readContract,
@@ -38,8 +39,11 @@ export function prepareDepositConduit(parameters: PrepareDepositConduitParameter
   const query = {
     owner: conduit,
     receiver: conduit,
-    input: [{ asset: token, value: amount }],
-    output: [],
+    input: { asset: token, value: amount },
+    // Scalar `Asset` per the STEAM ABI. A zero-address output disables the vehicle-side floor check
+    // only; `BaseVehicle._validateOutput` still requires `output.asset == address(vehicle)` on a
+    // DEPOSIT, so callers needing a route-valid deposit must supply the vehicle address.
+    output: { asset: zeroAddress, value: 0n },
     mode: ConduitMode.DEPOSIT,
     // conduit.create() reverts unless query.salt == keccak256(abi.encode(msg.sender, sourceSalt))
     salt: keccak256(
