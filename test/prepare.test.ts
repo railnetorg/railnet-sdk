@@ -120,11 +120,13 @@ describe('prepare* writes', () => {
       salt: zeroHash,
     })
     expect(encodeFunctionData(redeem).slice(0, 10)).toBe(
-      toFunctionSelector('createRedeemFromConduitShares(uint256,(address,uint256),bytes32,address)'),
+      toFunctionSelector(
+        'createRedeemFromConduitShares(uint256,(address,uint256),bytes32,address)',
+      ),
     )
   })
 
-  test('prepareSpawnConduit passes deploymentSalt as the second positional arg', () => {
+  test('prepareSpawnConduit sends a single struct arg carrying both salts', () => {
     const prepared = prepareSpawnConduit({
       factory: zeroAddress,
       name: 'X',
@@ -140,7 +142,9 @@ describe('prepare* writes', () => {
       deploymentSalt: zeroHash,
     })
     expect(prepared.functionName).toBe('spawn')
+    expect(prepared.args).toHaveLength(1)
     expect(prepared.args[0].transferEnabled).toBe(true)
-    expect(prepared.args[1]).toBe(zeroHash)
+    expect(prepared.args[0].querySalt).toBe(zeroHash)
+    expect(prepared.args[0].deploymentSalt).toBe(zeroHash)
   })
 })

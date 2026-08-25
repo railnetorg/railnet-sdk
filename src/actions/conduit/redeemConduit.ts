@@ -1,12 +1,4 @@
-import {
-  type Address,
-  type Client,
-  type Hash,
-  type Hex,
-  keccak256,
-  toHex,
-  zeroAddress,
-} from 'viem'
+import { type Address, type Client, type Hash, type Hex, keccak256, toHex, zeroAddress } from 'viem'
 import {
   readContract,
   simulateContract,

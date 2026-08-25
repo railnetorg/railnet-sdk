@@ -11,6 +11,7 @@ export const BEACON_PAUSE = keccak256(toHex('BEACON_PAUSE'))
 export const BEACON_UNPAUSE = keccak256(toHex('BEACON_UNPAUSE'))
 export const BEACON_UPGRADE = keccak256(toHex('BEACON_UPGRADE'))
 
+export const VEHICLE_PROCESS_QUEUE = keccak256(toHex('VEHICLE_PROCESS_QUEUE'))
 export const VEHICLE_STEAM_DEPOSIT = keccak256(toHex('VEHICLE_STEAM_DEPOSIT'))
 export const VEHICLE_STEAM_REDEEM = keccak256(toHex('VEHICLE_STEAM_REDEEM'))
 export const VEHICLE_SET_INTERCEPTIONS = keccak256(toHex('VEHICLE_SET_INTERCEPTIONS'))

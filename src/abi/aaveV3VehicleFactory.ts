@@ -333,7 +333,7 @@ export const aaveV3VehicleFactoryAbi = [
         internalType: 'contract AaveV3Vehicle',
       },
     ],
-    stateMutability: 'payable',
+    stateMutability: 'nonpayable',
   },
   {
     type: 'event',

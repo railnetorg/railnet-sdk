@@ -416,11 +416,6 @@ export const conduitFactoryAbi = [
           },
         ],
       },
-      {
-        name: 'salt',
-        type: 'bytes32',
-        internalType: 'bytes32',
-      },
     ],
     outputs: [
       {
@@ -429,7 +424,7 @@ export const conduitFactoryAbi = [
         internalType: 'contract IConduit',
       },
     ],
-    stateMutability: 'payable',
+    stateMutability: 'nonpayable',
   },
   {
     type: 'event',

@@ -29,12 +29,12 @@ export function prepareSpawnConduit(parameters: SpawnConduitParameters) {
     address: parameters.factory,
     abi: conduitFactoryAbi,
     functionName: 'spawn',
-    args: [spawnParams, deploymentSalt],
+    args: [spawnParams],
   } as const
 }
 
 /**
- * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams, salt)`. Generates deterministic salts (querySalt, deploymentSalt) if not provided.
+ * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams)`. Generates deterministic salts (querySalt, deploymentSalt) if not provided; both are fields of the spawn params.
  * The factory pulls an initial deposit from the caller, so approve the factory for at least {@link getInitialDepositAmount} of the vehicle's asset first — this action sends no approval.
  * Use {@link extractConduitAddress} to extract the deployed conduit address from the transaction receipt.
  * @param client - Viem client instance

@@ -36,7 +36,7 @@ export const queueStrategyEngineAbi = [
           {
             name: 'vehicle',
             type: 'address',
-            internalType: 'contract IBaseVehicle',
+            internalType: 'contract IVehicle',
           },
           {
             name: 'asset',
@@ -104,7 +104,7 @@ export const queueStrategyEngineAbi = [
           {
             name: 'vehicle',
             type: 'address',
-            internalType: 'contract IBaseVehicle',
+            internalType: 'contract IVehicle',
           },
           {
             name: 'target',
@@ -133,7 +133,7 @@ export const queueStrategyEngineAbi = [
           {
             name: 'vehicle',
             type: 'address',
-            internalType: 'contract IBaseVehicle',
+            internalType: 'contract IVehicle',
           },
           {
             name: 'target',
@@ -169,7 +169,7 @@ export const queueStrategyEngineAbi = [
           {
             name: 'vehicle',
             type: 'address',
-            internalType: 'contract IBaseVehicle',
+            internalType: 'contract IVehicle',
           },
           {
             name: 'target',
@@ -198,7 +198,7 @@ export const queueStrategyEngineAbi = [
           {
             name: 'vehicle',
             type: 'address',
-            internalType: 'contract IBaseVehicle',
+            internalType: 'contract IVehicle',
           },
           {
             name: 'target',
@@ -242,7 +242,7 @@ export const queueStrategyEngineAbi = [
           {
             name: 'vehicle',
             type: 'address',
-            internalType: 'contract IBaseVehicle',
+            internalType: 'contract IVehicle',
           },
           {
             name: 'asset',
@@ -323,7 +323,7 @@ export const queueStrategyEngineAbi = [
           {
             name: 'vehicle',
             type: 'address',
-            internalType: 'contract IBaseVehicle',
+            internalType: 'contract IVehicle',
           },
           {
             name: 'target',
@@ -353,7 +353,7 @@ export const queueStrategyEngineAbi = [
           {
             name: 'vehicle',
             type: 'address',
-            internalType: 'contract IBaseVehicle',
+            internalType: 'contract IVehicle',
           },
           {
             name: 'target',
@@ -417,7 +417,7 @@ export const queueStrategyEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'reason',

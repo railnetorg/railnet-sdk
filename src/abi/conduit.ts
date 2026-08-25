@@ -1420,12 +1420,51 @@ export const conduitAbi = [
   },
   {
     type: 'error',
+    name: 'ZeroInputValue',
+    inputs: [],
+  },
+  {
+    type: 'error',
     name: 'ZeroTotalAssets',
     inputs: [],
   },
   {
     type: 'error',
+    name: 'InvalidInput',
+    inputs: [
+      {
+        name: 'queryInput',
+        type: 'tuple',
+        internalType: 'struct Asset',
+        components: [
+          {
+            name: 'asset',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'value',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'error',
     name: 'QueryAlreadyExists',
+    inputs: [
+      {
+        name: 'queryId',
+        type: 'bytes32',
+        internalType: 'Id',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'UnknownQuery',
     inputs: [
       {
         name: 'queryId',
@@ -1451,6 +1490,17 @@ export const conduitAbi = [
     inputs: [
       {
         name: 'approver',
+        type: 'address',
+        internalType: 'address',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InterceptionSharesTooHigh',
+    inputs: [
+      {
+        name: 'asset',
         type: 'address',
         internalType: 'address',
       },
