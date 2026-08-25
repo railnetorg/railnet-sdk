@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
 import { getConduitPosition } from '../src/actions/conduit/getConduitPosition.js'
 import { type createRailnetTestClient, testAccount } from './client.js'
-import { TEST_CONDUIT } from './constants.js'
+import { LOCKED_SHARE_HOLDER, TEST_CONDUIT } from './constants.js'
 import { setupAnvil, teardownAnvil } from './setup.js'
 
 let client: ReturnType<typeof createRailnetTestClient>
@@ -38,5 +38,17 @@ describe('getConduitPosition', () => {
     expect(position.account).toBe(client.account.address)
     expect(typeof position.shares).toBe('bigint')
     expect(typeof position.assets).toBe('bigint')
+  })
+
+  // Exercises the `convert` call, which the zero-balance cases above skip. `convert` takes a scalar
+  // `Asset`; against the superseded array-shaped ABI this reverts rather than returning a value.
+  it('converts a non-zero share balance into underlying assets', async () => {
+    const position = await getConduitPosition(client, {
+      conduit: TEST_CONDUIT,
+      account: LOCKED_SHARE_HOLDER,
+    })
+
+    expect(position.shares).toBeGreaterThan(0n)
+    expect(position.assets).toBeGreaterThan(0n)
   })
 })
