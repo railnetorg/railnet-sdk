@@ -4,7 +4,7 @@ description: Deploys a new MultiVehicle ecosystem via the factory.
 
 # spawnMultiVehicle
 
-Deploys a new MultiVehicle ecosystem via the factory contract. Requires a `PublicClient` and a `WalletClient`.
+Deploys a new MultiVehicle ecosystem via the factory contract. Requires a `WalletClient` to sign and send the transaction.
 
 :::warning
 The factory pulls an initial deposit from the caller. Approve the factory for at least
@@ -22,21 +22,16 @@ import { spawnMultiVehicle } from '@railnetorg/railnet-sdk'
 ## Usage
 
 ```ts
-import { createPublicClient, createWalletClient, http } from 'viem'
+import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { spawnMultiVehicle } from '@railnetorg/railnet-sdk'
-
-const publicClient = createPublicClient({
-  chain: base,
-  transport: http(),
-})
 
 const walletClient = createWalletClient({
   chain: base,
   transport: http(),
 })
 
-const hash = await spawnMultiVehicle(publicClient, walletClient, {
+const hash = await spawnMultiVehicle(walletClient, {
   factory: '0x1234...',
   asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
   name: 'My MultiVehicle',
