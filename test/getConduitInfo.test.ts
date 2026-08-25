@@ -31,5 +31,6 @@ describe('getConduitInfo', () => {
     expect(typeof info.totalAssets).toBe('bigint')
     expect(typeof info.holdings).toBe('bigint')
     expect(typeof info.decimals).toBe('number')
+    expect(typeof info.isEnabled).toBe('boolean')
   })
 })
