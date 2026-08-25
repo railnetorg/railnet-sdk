@@ -7,7 +7,6 @@ import {
   type Hex,
   keccak256,
   toHex,
-  zeroAddress,
 } from 'viem'
 import {
   readContract,
@@ -24,15 +23,17 @@ export type DepositConduitParameters = {
   token: Address
   amount: bigint
   receiver?: Address
+  vehicle?: Address
   salt?: Hex
 }
 
 export type PrepareDepositConduitParameters = DepositConduitParameters & {
   account: Address
+  vehicle: Address
 }
 
 export function prepareDepositConduit(parameters: PrepareDepositConduitParameters) {
-  const { conduit, token, amount, account } = parameters
+  const { conduit, token, amount, account, vehicle } = parameters
   const receiver = parameters.receiver ?? account
   const sourceSalt = parameters.salt ?? keccak256(toHex(`deposit-${account}-${Date.now()}`))
 
@@ -40,10 +41,9 @@ export function prepareDepositConduit(parameters: PrepareDepositConduitParameter
     owner: conduit,
     receiver: conduit,
     input: { asset: token, value: amount },
-    // Scalar `Asset` per the STEAM ABI. A zero-address output disables the vehicle-side floor check
-    // only; `BaseVehicle._validateOutput` still requires `output.asset == address(vehicle)` on a
-    // DEPOSIT, so callers needing a route-valid deposit must supply the vehicle address.
-    output: { asset: zeroAddress, value: 0n },
+    // BaseVehicle._validateOutput reverts unless a DEPOSIT names the vehicle as its output asset;
+    // a zero value leaves the output floor unbounded
+    output: { asset: vehicle, value: 0n },
     mode: ConduitMode.DEPOSIT,
     // conduit.create() reverts unless query.salt == keccak256(abi.encode(msg.sender, sourceSalt))
     salt: keccak256(
@@ -61,9 +61,8 @@ export function prepareDepositConduit(parameters: PrepareDepositConduitParameter
 }
 
 /**
- * Deposits into a Conduit by calling `conduit.create()`. On synchronous vehicles (Aave V3, Compound, etc.) the deposit executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves the deposit token if the current allowance is insufficient.
+ * Deposits into a Conduit by calling `conduit.create()`. On synchronous vehicles (Aave V3, Compound, etc.) the deposit executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves the deposit token if the current allowance is insufficient, and reads `conduit.getVehicle()` to name the query's output asset unless `vehicle` is supplied.
  * @param client - Viem client instance
- * @param parameters - Conduit address, deposit token, amount. Optional: receiver (defaults to caller), salt (auto-generated)
  * @param options - Optional contract call overrides
  * @returns Transaction hash
  */
@@ -74,12 +73,16 @@ export async function depositConduit(
 ): Promise<Hash> {
   const { conduit, token, amount, account } = parameters
 
-  const allowance = await readContract(client, {
-    address: token,
-    abi: erc20Abi,
-    functionName: 'allowance',
-    args: [account, conduit],
-  })
+  const [allowance, vehicle] = await Promise.all([
+    readContract(client, {
+      address: token,
+      abi: erc20Abi,
+      functionName: 'allowance',
+      args: [account, conduit],
+    }),
+    parameters.vehicle ??
+      readContract(client, { address: conduit, abi: conduitAbi, functionName: 'getVehicle' }),
+  ])
 
   if (allowance < amount) {
     const { request: approveRequest } = await simulateContract(client, {
@@ -96,7 +99,7 @@ export async function depositConduit(
 
   const { request: depositRequest } = await simulateContract(client, {
     ...options,
-    ...prepareDepositConduit(parameters),
+    ...prepareDepositConduit({ ...parameters, vehicle }),
     account,
   })
 

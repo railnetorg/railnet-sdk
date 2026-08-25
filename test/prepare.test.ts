@@ -17,6 +17,8 @@ import {
 } from '../src/index.js'
 
 const account = '0xd2135CfB216b74109775236E36d4b433F1DF507B' as const
+const VEHICLE = '0x5EEfC1d368440B8165e6674f23c1869b07B199A7' as const
+const USDC_ASSET = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as const
 
 describe('prepare* writes', () => {
   test('prepareGrantScopedRole returns { address, abi, functionName, args }', () => {
@@ -38,6 +40,7 @@ describe('prepare* writes', () => {
       token: zeroAddress,
       amount: 100n,
       account,
+      vehicle: VEHICLE,
       salt: zeroHash,
     })
     expect(prepared.functionName).toBe('create')
@@ -46,12 +49,25 @@ describe('prepare* writes', () => {
     expect(prepared.args[2]).toBe(zeroHash)
   })
 
+  test('prepareDepositConduit names the vehicle as the query output asset', () => {
+    const prepared = prepareDepositConduit({
+      conduit: zeroAddress,
+      token: zeroAddress,
+      amount: 100n,
+      account,
+      vehicle: VEHICLE,
+      salt: zeroHash,
+    })
+    expect(prepared.args[0].output).toEqual({ asset: VEHICLE, value: 0n })
+  })
+
   test('prepareDepositConduit binds query.salt to (account, sourceSalt)', () => {
     const prepared = prepareDepositConduit({
       conduit: zeroAddress,
       token: zeroAddress,
       amount: 100n,
       account,
+      vehicle: VEHICLE,
       salt: zeroHash,
     })
     expect(prepared.args[0].salt).toBe(
@@ -66,6 +82,7 @@ describe('prepare* writes', () => {
       conduit: zeroAddress,
       shares: 1n,
       account,
+      outputAsset: { asset: USDC_ASSET, value: 0n },
       salt: zeroHash,
     })
     expect(prepared.functionName).toBe('createRedeemFromConduitShares')
@@ -79,6 +96,7 @@ describe('prepare* writes', () => {
       token: zeroAddress,
       amount: 100n,
       account,
+      vehicle: VEHICLE,
       salt: zeroHash,
     })
     expect(Array.isArray(prepared.args[0].input)).toBe(false)
@@ -86,15 +104,16 @@ describe('prepare* writes', () => {
     expect(prepared.args[0].input).toEqual({ asset: zeroAddress, value: 100n })
   })
 
-  test('prepareRedeemConduit passes a scalar outputAsset', () => {
+  test('prepareRedeemConduit passes the output asset through as a scalar', () => {
     const prepared = prepareRedeemConduit({
       conduit: zeroAddress,
       shares: 1n,
       account,
+      outputAsset: { asset: USDC_ASSET, value: 0n },
       salt: zeroHash,
     })
     expect(Array.isArray(prepared.args[1])).toBe(false)
-    expect(prepared.args[1]).toEqual({ asset: zeroAddress, value: 0n })
+    expect(prepared.args[1]).toEqual({ asset: USDC_ASSET, value: 0n })
   })
 
   // STEAM scalarized `Asset[]` to `Asset` (contracts b4534821). An array-shaped Asset changes the tuple
@@ -107,6 +126,7 @@ describe('prepare* writes', () => {
       token: zeroAddress,
       amount: 100n,
       account,
+      vehicle: VEHICLE,
       salt: zeroHash,
     })
     expect(encodeFunctionData(deposit).slice(0, 10)).toBe(
@@ -117,6 +137,7 @@ describe('prepare* writes', () => {
       conduit: zeroAddress,
       shares: 1n,
       account,
+      outputAsset: { asset: USDC_ASSET, value: 0n },
       salt: zeroHash,
     })
     expect(encodeFunctionData(redeem).slice(0, 10)).toBe(
