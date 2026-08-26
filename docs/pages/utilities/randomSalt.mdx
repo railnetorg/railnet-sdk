@@ -4,9 +4,8 @@ description: Generates a cryptographically random 32-byte salt.
 
 # randomSalt
 
-Returns a random `bytes32`, drawn from `crypto.getRandomValues`.
-
-Every salt the SDK takes is a required parameter, so this is what you reach for to produce one.
+Returns a random `bytes32`, drawn from `crypto.getRandomValues`. Every salt the SDK takes is a
+required parameter, so this is what you reach for to produce one.
 
 ## Import
 
@@ -17,25 +16,7 @@ import { randomSalt } from '@railnetorg/railnet-sdk'
 ## Usage
 
 ```ts
-import { prepareSpawnConduit, randomSalt } from '@railnetorg/railnet-sdk'
-
 const deploymentSalt = randomSalt()
-const querySalt = randomSalt()
-
-const prepared = prepareSpawnConduit({
-  factory: '0x...',
-  name: 'My Conduit',
-  symbol: 'MYC',
-  vehicle: '0x...',
-  initialExpectedSupply: 10n ** 18n,
-  transferEnabled: true,
-  accessControl: '0x...',
-  feeManager: '0x...',
-  accountList: '0x...',
-  ownerRegistry: '0x...',
-  querySalt,
-  deploymentSalt,
-})
 ```
 
 ## Returns
@@ -44,26 +25,7 @@ const prepared = prepareSpawnConduit({
 
 A random 32-byte value.
 
-## Keep the value
-
-A deployment salt fixes a contract's address permanently. Log it before you send the transaction:
-if the spawn fails midway you cannot re-derive it, and
-[`prepareSpawnMultiVehicle`](/actions/spawnMultiVehicle) takes seven at once.
-
-```ts
-const salts = {
-  multiVehicle: randomSalt(),
-  queryRedeemQueue: randomSalt(),
-  queueStrategyEngine: randomSalt(),
-  sectorAccountingEngine: randomSalt(),
-  subQueryEngine: randomSalt(),
-  vehicleManager: randomSalt(),
-  initialDepositQuery: randomSalt(),
-}
-
-logger.info({ salts }, 'multi-vehicle deployment salts')
-```
-
-Query salts are disposable — only uniqueness matters, and `depositConduit` / `redeemConduit` default
-to a random one. Passing them explicitly still lets you log the value and replay a failed
-transaction.
+A deployment salt fixes a contract's address permanently, so log it before you send: a spawn that
+fails midway can only be retried against the same address if you still hold the salt, and
+[`prepareSpawnMultiVehicle`](/actions/spawnMultiVehicle) takes seven at once. Query salts are
+disposable — `depositConduit` and `redeemConduit` default to a random one.
