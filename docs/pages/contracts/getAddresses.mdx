@@ -68,6 +68,7 @@ The chain ID to look up. Throws an error if the chain is not supported.
 
 | Chain | Chain ID |
 | --- | --- |
+| Ethereum | `1` |
 | Base | `8453` |
 
 All addresses are defined in [`src/contracts/addresses.ts`](https://github.com/railnetorg/railnet-sdk/blob/main/src/contracts/addresses.ts).
@@ -77,7 +78,7 @@ All addresses are defined in [`src/contracts/addresses.ts`](https://github.com/r
 ```ts
 import { getAddresses, isSupportedChain } from '@railnetorg/railnet-sdk'
 
-const chainId = 1
+const chainId = 42161
 
 if (isSupportedChain(chainId)) {
   const addresses = getAddresses(chainId)

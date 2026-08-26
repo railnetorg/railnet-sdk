@@ -29,7 +29,7 @@ This skill builds on railnet-core. Read it first for foundational concepts.
 
 ## Setup
 
-`@railnetorg/railnet-sdk/react` requires `wagmi` and `@tanstack/react-query`. Ensure your application is wrapped in both `WagmiProvider` and `QueryClientProvider`. The SDK is optimized for the Base chain.
+`@railnetorg/railnet-sdk/react` requires `wagmi` and `@tanstack/react-query`. Ensure your application is wrapped in both `WagmiProvider` and `QueryClientProvider`. The SDK ships addresses for Ethereum (`1`) and Base (`8453`).
 
 ```tsx
 import { WagmiProvider, createConfig, http } from 'wagmi'
@@ -221,7 +221,7 @@ export function useDepositWithRefresh() {
 
 2. **Implicit Account Assumption**: Assuming mutation hooks (e.g., `useDepositConduit`) automatically detect the connected wallet. Unlike some wagmi hooks, railnet-sdk mutations require an explicit `account: Address` property in the `mutate` arguments. Failure to pass this results in type errors or runtime failures.
 
-3. **Wrong Chain Configuration**: Configuring `wagmi` for `mainnet` or other chains while interacting with Railnet conduits deployed on `base`. Hooks will silently return stale data, zero balances, or fail to find contract addresses because the underlying `publicClient` is pointing to the wrong network.
+3. **Wrong Chain Configuration**: Configuring `wagmi` for a different chain than the one the conduit lives on. Each chain has its own protocol deployment, so hooks will silently return stale data, zero balances, or fail to find contract addresses because the underlying `publicClient` is pointing to the wrong network.
 
 4. **BigInt Serialization in DevTools**: Passing `bigint` values in query parameters (like `amount` in some estimations). While TanStack Query handles `bigint` in query keys for equality checks, the standard JSON-based DevTools might fail to serialize them, leading to confusing "cannot serialize BigInt" errors in the console during development.
 

@@ -39,4 +39,4 @@ Base (chain ID 8453) only. All contract addresses are hardcoded for Base.
 - APY/historical performance data (requires indexer or public API)
 - Keeper automation (off-chain infrastructure)
 - Fee configuration beyond what the SDK exposes
-- Multi-chain support (Base only)
+- Chains beyond the ones `getAddresses` ships (Ethereum, Base)

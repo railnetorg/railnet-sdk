@@ -1,7 +1,7 @@
 import { addresses, type ChainAddresses, type SupportedChainId } from './addresses.js'
 
 /**
- * Returns whether a chain ID is supported by the Railnet protocol. Currently only Base (8453).
+ * Returns whether a chain ID is supported by the Railnet protocol: Ethereum (1) and Base (8453).
  * @returns `true` if the chain is supported, with type narrowing to `SupportedChainId`
  */
 export function isSupportedChain(chainId: number): chainId is SupportedChainId {
