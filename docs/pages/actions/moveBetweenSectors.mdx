@@ -1,0 +1,83 @@
+---
+description: Moves assets or shares between the accounting sectors of a MultiVehicle.
+---
+
+# moveBetweenSectors
+
+Moves assets or shares between two [sectors](/types/Sector) of a MultiVehicle, via its
+SectorAccountingEngine. This is the asset manager's primitive for parking liquidity aside, releasing
+it again, or repositioning balances without touching a sub-vehicle.
+
+:::info
+Requires the `MULTI_VEHICLE_MOVE` role scoped to the SectorAccountingEngine.
+:::
+
+## Import
+
+```ts
+import { moveBetweenSectors } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { moveBetweenSectors, SECTOR_AVAILABLE, SECTOR_RESERVED } from '@railnetorg/railnet-sdk'
+
+const hash = await moveBetweenSectors(walletClient, {
+  sectorAccountingEngine: '0x...',
+  from: SECTOR_AVAILABLE,
+  to: SECTOR_RESERVED,
+  asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  amount: 1000000n,
+  operationId: '0x...',
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+Pass `maxUint256` as `amount` to move the entire balance of the source sector.
+
+## Returns
+
+`Hash`
+
+The transaction hash of the move.
+
+## Parameters
+
+### sectorAccountingEngine
+
+- **Type:** `Address`
+
+The SectorAccountingEngine of the MultiVehicle, from `extractMultiVehicleContracts`.
+
+### from / to
+
+- **Type:** [`Sector`](/types/Sector)
+
+Source and destination sectors. Use the `SECTOR_*` constants for static sectors and `vehicleSector(address)`
+for a sub-vehicle's own sector.
+
+### asset
+
+- **Type:** `Address`
+
+The asset being moved — the base asset for asset sectors, the vehicle share token for share sectors.
+
+### amount
+
+- **Type:** `bigint`
+
+The amount to move, or `maxUint256` for the whole source sector balance.
+
+### operationId
+
+- **Type:** `Hex`
+
+A caller-supplied identifier echoed in the `Moved` event, for correlating a transaction with your own
+records or with the indexer.
+
+### account
+
+- **Type:** `Address`
+
+The address executing the transaction.

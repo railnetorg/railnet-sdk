@@ -19,10 +19,17 @@ export function prepareAuthorizeVehicle(parameters: AuthorizeVehicleParameters) 
 
 /**
  * Authorizes a vehicle in a multi-vehicle's VehicleManager, allowing it to receive allocations.
- * @param client - Viem client instance
- * @param parameters - VehicleManager address and the vehicle address to authorize
- * @param options - Optional contract call overrides
- * @returns Transaction hash
+ *
+ * @param parameters - {@link AuthorizeVehicleParameters}
+ *
+ * @example
+ * import { authorizeVehicle } from '@railnetorg/railnet-sdk'
+ *
+ * const hash = await authorizeVehicle(walletClient, {
+ *   vehicleManager: contracts.vehicleManager,
+ *   vehicle: vehicleAddress,
+ *   account: account.address,
+ * })
  */
 export async function authorizeVehicle(
   client: Client,

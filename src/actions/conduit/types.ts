@@ -44,3 +44,13 @@ export type Asset = {
   asset: Address
   value: bigint
 }
+
+export type Query = {
+  owner: Address
+  receiver: Address
+  input: Asset
+  output: Asset
+  mode: ConduitMode
+  salt: Hex
+  data: Hex
+}

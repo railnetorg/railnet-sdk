@@ -35,10 +35,22 @@ export function prepareSpawnAccessControl(parameters: SpawnAccessControlParamete
 /**
  * Spawns a new ExternalAccessControl via the AccessControlFactory.
  * Use {@link extractAccessControlAddress} to extract the deployed address from the transaction receipt.
- * @param client - Viem client instance
- * @param parameters - Factory address, initial admin, optional delay, initial roles, and deployment salt
- * @param options - Optional contract call overrides
- * @returns Transaction hash of the spawn
+ *
+ * @param parameters - {@link SpawnAccessControlParameters}
+ *
+ * @example
+ * import { extractAccessControlAddress, getAddresses, spawnAccessControl } from '@railnetorg/railnet-sdk'
+ * import { base } from 'viem/chains'
+ *
+ * const { eacFactory } = getAddresses(base.id)
+ *
+ * const hash = await spawnAccessControl(walletClient, {
+ *   factory: eacFactory,
+ *   initialDefaultAdmin: account.address,
+ *   account: account.address,
+ * })
+ * const receipt = await publicClient.waitForTransactionReceipt({ hash })
+ * const eacAddress = extractAccessControlAddress(receipt, eacFactory)
  */
 export async function spawnAccessControl(
   client: Client,

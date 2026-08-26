@@ -3,17 +3,24 @@ import {
   encodeAbiParameters,
   encodeFunctionData,
   keccak256,
+  maxUint256,
   toFunctionSelector,
   zeroAddress,
   zeroHash,
 } from 'viem'
 import {
+  ConduitMode,
   externalAccessControlAbi,
   type PreparedWrite,
   prepareDepositConduit,
+  prepareDispatchVehicle,
   prepareGrantScopedRole,
+  prepareMoveBetweenSectors,
   prepareRedeemConduit,
   prepareSpawnConduit,
+  SECTOR_AVAILABLE,
+  SECTOR_RESERVED,
+  vehicleSector,
 } from '../src/index.js'
 
 const account = '0xd2135CfB216b74109775236E36d4b433F1DF507B' as const
@@ -167,5 +174,50 @@ describe('prepare* writes', () => {
     expect(prepared.args[0].transferEnabled).toBe(true)
     expect(prepared.args[0].querySalt).toBe(zeroHash)
     expect(prepared.args[0].deploymentSalt).toBe(zeroHash)
+  })
+
+  test('prepareMoveBetweenSectors wraps the params in a single struct arg', () => {
+    const prepared = prepareMoveBetweenSectors({
+      sectorAccountingEngine: zeroAddress,
+      from: SECTOR_AVAILABLE,
+      to: SECTOR_RESERVED,
+      asset: zeroAddress,
+      amount: 100n,
+      operationId: zeroHash,
+    })
+    expect(prepared.functionName).toBe('move')
+    expect(prepared.args).toHaveLength(1)
+    expect(prepared.args[0].from).toBe(SECTOR_AVAILABLE)
+    expect(prepared.args[0].to).toBe(SECTOR_RESERVED)
+  })
+
+  test('prepareDispatchVehicle defaults minOutput and data', () => {
+    const prepared = prepareDispatchVehicle({
+      sectorAccountingEngine: zeroAddress,
+      vehicle: zeroAddress,
+      mode: ConduitMode.REDEEM,
+      amount: 100n,
+      settledDestination: SECTOR_AVAILABLE,
+      rejectedDestination: vehicleSector(zeroAddress),
+      operationId: zeroHash,
+    })
+    expect(prepared.functionName).toBe('dispatch')
+    expect(prepared.args[0].minOutput).toBe(0n)
+    expect(prepared.args[0].data).toBe('0x')
+  })
+
+  test('prepareDispatchVehicle rejects a slippage bound on a full-sector dispatch', () => {
+    expect(() =>
+      prepareDispatchVehicle({
+        sectorAccountingEngine: zeroAddress,
+        vehicle: zeroAddress,
+        mode: ConduitMode.REDEEM,
+        amount: maxUint256,
+        minOutput: 1n,
+        settledDestination: SECTOR_AVAILABLE,
+        rejectedDestination: vehicleSector(zeroAddress),
+        operationId: zeroHash,
+      }),
+    ).toThrow(/minOutput requires a pinned amount/)
   })
 })

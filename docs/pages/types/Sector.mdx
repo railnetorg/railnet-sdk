@@ -1,0 +1,55 @@
+---
+description: Accounting sectors in a MultiVehicle, and how their identifiers are encoded.
+---
+
+# Sector
+
+A `Sector` is a `bytes32` identifier for one bucket of a MultiVehicle's accounting: idle liquidity,
+shares held in a sub-vehicle, assets parked aside, and so on. Every
+[`moveBetweenSectors`](/actions/moveBetweenSectors) and [`dispatchVehicle`](/actions/dispatchVehicle)
+call names the sectors it reads from and writes to.
+
+```ts
+import type { Sector } from '@railnetorg/railnet-sdk'
+
+type Sector = Hex
+```
+
+## Static sectors
+
+| Constant | Holds | Counted in `withdrawable()` |
+| --- | --- | --- |
+| `SECTOR_AVAILABLE` | Idle base asset, usable for sub-vehicle allocation and for the redeem queue | Yes |
+| `SECTOR_ALLOCATION` | Vehicle shares received from settled deposits | No, it holds shares |
+| `SECTOR_RESERVED` | Base asset the manager has explicitly parked aside | **No** |
+| `SECTOR_ENTRY` | Virtual source for assets entering the system | Not tracked |
+| `SECTOR_EXIT` | Virtual destination for assets leaving the system | Not tracked |
+
+`SECTOR_RESERVED` is the one with teeth: assets moved there stay in `totalAssets()` but drop out of
+`withdrawable()`, so neither auto-fulfillment nor the queue strategy engine can spend them. It is
+asset-only — moving shares into it is rejected — and only an explicit move back to
+`SECTOR_AVAILABLE` makes the liquidity spendable again.
+
+## Vehicle sectors
+
+Each sub-vehicle has its own sector, holding that vehicle's staged shares. The identifier is not the
+address padded to 32 bytes: it is `0x01`, then eleven zero bytes, then the twenty address bytes.
+Build it with `vehicleSector`, never by hand.
+
+```ts
+import { vehicleSector, sectorToVehicle, isVehicleSector } from '@railnetorg/railnet-sdk'
+
+const sector = vehicleSector('0x2ec94b8979868Bf5586f8550733092A77Cd77c9E')
+// 0x0100000000000000000000002ec94b8979868bf5586f8550733092a77cd77c9e
+
+isVehicleSector(sector) // true
+sectorToVehicle(sector) // 0x2ec94b8979868bf5586f8550733092a77cd77c9e
+```
+
+`sectorToVehicle` returns `undefined` for a static or query sector, so it doubles as a decoder when
+reading sectors back from events.
+
+## Query sectors
+
+Queries in flight get their own temporary sectors, prefixed `0x02`. The SDK does not build these —
+they are created and consumed by the protocol as a query progresses.

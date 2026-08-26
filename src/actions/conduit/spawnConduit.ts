@@ -37,10 +37,30 @@ export function prepareSpawnConduit(parameters: SpawnConduitParameters) {
  * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams)`. Generates deterministic salts (querySalt, deploymentSalt) if not provided; both are fields of the spawn params.
  * The factory pulls an initial deposit from the caller, so approve the factory for at least {@link getInitialDepositAmount} of the vehicle's asset first — this action sends no approval.
  * Use {@link extractConduitAddress} to extract the deployed conduit address from the transaction receipt.
- * @param client - Viem client instance
- * @param parameters - Factory address, name, symbol, vehicle, initialExpectedSupply, transferEnabled, accessControl, feeManager, accountList, ownerRegistry. Optional: initialInterceptions, querySalt, deploymentSalt
- * @param options - Optional contract call overrides
- * @returns Transaction hash of the spawn
+ *
+ * @param parameters - {@link SpawnConduitParameters}
+ *
+ * @example
+ * import { extractConduitAddress, getAddresses, spawnConduit } from '@railnetorg/railnet-sdk'
+ * import { base } from 'viem/chains'
+ *
+ * const { conduitFactory } = getAddresses(base.id)
+ *
+ * const hash = await spawnConduit(walletClient, {
+ *   factory: conduitFactory,
+ *   name: 'My Conduit',
+ *   symbol: 'MYC',
+ *   vehicle: vehicleAddress,
+ *   initialExpectedSupply: 10n ** 18n,
+ *   transferEnabled: true,
+ *   accessControl: eacAddress,
+ *   feeManager: feeManagerAddress,
+ *   accountList: accountListAddress,
+ *   ownerRegistry: ownerRegistryAddress,
+ *   account: account.address,
+ * })
+ * const receipt = await publicClient.waitForTransactionReceipt({ hash })
+ * const conduit = extractConduitAddress(receipt, conduitFactory)
  */
 export async function spawnConduit(
   client: Client,

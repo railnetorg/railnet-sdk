@@ -21,9 +21,8 @@ beforeAll(async () => {
 afterAll(() => teardownAnvil())
 
 describe('conduit deposit and redeem', () => {
-  it('deposits and credits the depositor with conduit shares', async () => {
+  it('deposits, credits shares, and redeems them back out', async () => {
     const amount = 1_000_000n
-
     await client.deal({ erc20: USDC, account, amount: amount * 2n })
 
     const before = await getConduitPosition(client, {
@@ -31,29 +30,7 @@ describe('conduit deposit and redeem', () => {
       account: account.address,
     })
 
-    const hash = await depositConduit(client, {
-      conduit: TEST_CONDUIT,
-      token: USDC,
-      amount,
-      account: account.address,
-    })
-    const receipt = await client.waitForTransactionReceipt({ hash })
-
-    expect(receipt.status).toBe('success')
-
-    const after = await getConduitPosition(client, {
-      conduit: TEST_CONDUIT,
-      account: account.address,
-    })
-    expect(after.shares).toBeGreaterThan(before.shares)
-  }, 60_000)
-
-  it('redeems the shares back out', async () => {
-    const amount = 1_000_000n
-
-    await client.deal({ erc20: USDC, account, amount: amount * 10n })
-
-    await client.waitForTransactionReceipt({
+    const depositReceipt = await client.waitForTransactionReceipt({
       hash: await depositConduit(client, {
         conduit: TEST_CONDUIT,
         token: USDC,
@@ -61,27 +38,27 @@ describe('conduit deposit and redeem', () => {
         account: account.address,
       }),
     })
+    expect(depositReceipt.status).toBe('success')
 
     const deposited = await getConduitPosition(client, {
       conduit: TEST_CONDUIT,
       account: account.address,
     })
-    expect(deposited.shares).toBeGreaterThan(0n)
+    expect(deposited.shares).toBeGreaterThan(before.shares)
 
-    const receipt = await client.waitForTransactionReceipt({
+    const redeemReceipt = await client.waitForTransactionReceipt({
       hash: await redeemConduit(client, {
         conduit: TEST_CONDUIT,
         shares: deposited.shares,
         account: account.address,
       }),
     })
-
-    expect(receipt.status).toBe('success')
+    expect(redeemReceipt.status).toBe('success')
 
     const after = await getConduitPosition(client, {
       conduit: TEST_CONDUIT,
       account: account.address,
     })
     expect(after.shares).toBeLessThan(deposited.shares)
-  }, 60_000)
+  }, 120_000)
 })

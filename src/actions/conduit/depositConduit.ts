@@ -62,9 +62,21 @@ export function prepareDepositConduit(parameters: PrepareDepositConduitParameter
 
 /**
  * Deposits into a Conduit by calling `conduit.create()`. On synchronous vehicles (Aave V3, Compound, etc.) the deposit executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves the deposit token if the current allowance is insufficient, and reads `conduit.getVehicle()` to name the query's output asset unless `vehicle` is supplied.
- * @param client - Viem client instance
- * @param options - Optional contract call overrides
- * @returns Transaction hash
+ *
+ * @param parameters - {@link DepositConduitParameters}
+ *
+ * @example
+ * import { depositConduit, getAddresses } from '@railnetorg/railnet-sdk'
+ * import { base } from 'viem/chains'
+ *
+ * const { usdc } = getAddresses(base.id)
+ *
+ * const hash = await depositConduit(walletClient, {
+ *   conduit: conduitAddress,
+ *   token: usdc,
+ *   amount: 1_000_000n,
+ *   account: account.address,
+ * })
  */
 export async function depositConduit(
   client: Client,

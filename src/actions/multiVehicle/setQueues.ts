@@ -30,10 +30,18 @@ export function prepareSetQueues(parameters: SetQueuesParameters) {
 
 /**
  * Configures the deposit and redeem allocation queues on a multi-vehicle's QueueStrategyEngine. Each queue entry maps a vehicle to a target allocation and threshold.
- * @param client - Viem client instance
- * @param parameters - QueueStrategyEngine address, deposit queue entries, and redeem queue entries
- * @param options - Optional contract call overrides
- * @returns Transaction hash
+ *
+ * @param parameters - {@link SetQueuesParameters}
+ *
+ * @example
+ * import { setQueues } from '@railnetorg/railnet-sdk'
+ *
+ * const hash = await setQueues(walletClient, {
+ *   queueStrategyEngine: contracts.queueStrategyEngine,
+ *   depositQueue: [{ vehicle: vehicleAddress, target: { value: 5_000n * 10n ** 18n, threshold: 0n } }],
+ *   redeemQueue: [{ vehicle: vehicleAddress, target: { value: 0n, threshold: 0n } }],
+ *   account: account.address,
+ * })
  */
 export async function setQueues(
   client: Client,

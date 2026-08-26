@@ -71,10 +71,26 @@ export function prepareSpawnMultiVehicle(parameters: SpawnMultiVehicleParameters
  * Spawns a new MultiVehicle ecosystem via the MultiVehicleFactory.
  * The factory pulls an initial deposit from the caller, so approve the factory for at least {@link getInitialDepositAmount} of `asset` first — this action sends no approval.
  * Use {@link extractMultiVehicleContracts} to extract the deployed contract addresses from the transaction receipt.
- * @param client - Viem client instance
- * @param parameters - Factory address, asset, name, symbol, accessControl, vehicles config, and optional salts
- * @param options - Optional contract call overrides
- * @returns Transaction hash of the spawn
+ *
+ * @param parameters - {@link SpawnMultiVehicleParameters}
+ *
+ * @example
+ * import { extractMultiVehicleContracts, getAddresses, spawnMultiVehicle } from '@railnetorg/railnet-sdk'
+ * import { base } from 'viem/chains'
+ *
+ * const { multiVehicleFactory, queryRegistry, usdc } = getAddresses(base.id)
+ *
+ * const hash = await spawnMultiVehicle(walletClient, {
+ *   factory: multiVehicleFactory,
+ *   asset: usdc,
+ *   name: 'My Strategy',
+ *   symbol: 'MSTRAT',
+ *   accessControl: eacAddress,
+ *   queryRegistry,
+ *   account: account.address,
+ * })
+ * const receipt = await publicClient.waitForTransactionReceipt({ hash })
+ * const contracts = extractMultiVehicleContracts(receipt, multiVehicleFactory)
  */
 export async function spawnMultiVehicle(
   client: Client,

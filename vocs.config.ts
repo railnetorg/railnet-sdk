@@ -164,6 +164,14 @@ export default defineConfig({
               text: 'setQueues',
               link: '/actions/setQueues',
             },
+            {
+              text: 'moveBetweenSectors',
+              link: '/actions/moveBetweenSectors',
+            },
+            {
+              text: 'dispatchVehicle',
+              link: '/actions/dispatchVehicle',
+            },
           ],
         },
         {
@@ -385,6 +393,10 @@ export default defineConfig({
         {
           text: 'Interception',
           link: '/types/Interception',
+        },
+        {
+          text: 'Sector',
+          link: '/types/Sector',
         },
         {
           text: 'Enums',

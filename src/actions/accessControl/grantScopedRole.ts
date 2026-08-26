@@ -21,10 +21,19 @@ export function prepareGrantScopedRole(parameters: GrantScopedRoleParameters) {
 
 /**
  * Grants a role to an address, scoped to a specific contract. The caller must be the default admin of the access control.
- * @param client - Viem client instance
- * @param parameters - Access control address, role hash, scope (target contract), and grantee address
- * @param options - Optional contract call overrides
- * @returns Transaction hash
+ *
+ * @param parameters - {@link GrantScopedRoleParameters}
+ *
+ * @example
+ * import { grantScopedRole, VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
+ *
+ * const hash = await grantScopedRole(walletClient, {
+ *   accessControl: eacAddress,
+ *   role: VEHICLE_STEAM_DEPOSIT,
+ *   scope: vehicleAddress,
+ *   grantee: multiVehicleAddress,
+ *   account: account.address,
+ * })
  */
 export async function grantScopedRole(
   client: Client,

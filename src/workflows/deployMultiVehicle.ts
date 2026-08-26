@@ -53,10 +53,28 @@ export type DeployMultiVehicleResult = {
 
 /**
  * Deploys a complete multi-vehicle ecosystem in a single workflow: spawns access control, approves the factory for the asset's initial deposit amount (read from the AssetRegistry), spawns the multi-vehicle, grants required roles (VEHICLE_STEAM_DEPOSIT, VEHICLE_STEAM_REDEEM, SET_QUEUES, SET_VEHICLE_AUTHORIZATION), authorizes sub-vehicles, and configures allocation queues.
- * @param client - Viem client instance with a chain configured
- * @param parameters - Asset, name, symbol, vehicles array with allocation targets, and optional queryRegistry/accessControl/feeManager
- * @param options - Optional contract call overrides
- * @returns The deployed EAC address, multi-vehicle contract addresses, and all transaction hashes
+ *
+ * @param parameters - {@link DeployMultiVehicleParameters}
+ *
+ * @example
+ * import { deployMultiVehicle, getAddresses } from '@railnetorg/railnet-sdk'
+ * import { base } from 'viem/chains'
+ *
+ * const { usdc } = getAddresses(base.id)
+ *
+ * const { eacAddress, multiVehicleContracts } = await deployMultiVehicle(walletClient, {
+ *   asset: usdc,
+ *   name: 'My Strategy',
+ *   symbol: 'MSTRAT',
+ *   vehicles: [
+ *     {
+ *       address: aaveV3VehicleAddress,
+ *       depositTarget: { value: 5_000n * 10n ** 18n, threshold: 0n },
+ *       redeemTarget: { value: 0n, threshold: 0n },
+ *     },
+ *   ],
+ *   account: account.address,
+ * })
  */
 export async function deployMultiVehicle(
   client: Client,

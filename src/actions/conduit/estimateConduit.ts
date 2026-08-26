@@ -19,9 +19,18 @@ export type EstimateConduitReturnType = Asset
 
 /**
  * Estimates the output asset for a deposit or redeem operation on a conduit. Includes conduit fees.
- * @param client - Viem client instance
- * @param parameters - Conduit address, input asset, mode (deposit/redeem), and estimation type (input/output)
- * @returns The estimated output asset
+ *
+ * @param parameters - {@link EstimateConduitParameters}
+ *
+ * @example
+ * import { ConduitMode, estimateConduit, EstimationType } from '@railnetorg/railnet-sdk'
+ *
+ * const estimation = await estimateConduit(publicClient, {
+ *   conduit: conduitAddress,
+ *   asset: { asset: usdc, value: 1_000_000n },
+ *   mode: ConduitMode.DEPOSIT,
+ *   estimationType: EstimationType.OUTPUT,
+ * })
  */
 export async function estimateConduit(
   client: Client,
