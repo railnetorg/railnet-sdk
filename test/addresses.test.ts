@@ -1,19 +1,13 @@
-import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
+import { describe, expect, it } from 'bun:test'
+import { createPublicClient, http } from 'viem'
 import { readContract } from 'viem/actions'
+import { base } from 'viem/chains'
 import { conduitFactoryAbi } from '../src/abi/conduitFactory.js'
 import { getInitialDepositAmount } from '../src/actions/assetRegistry/getInitialDepositAmount.js'
-import type { createRailnetTestClient } from './client.js'
 import { BASE_ADDRESSES, CONDUIT_FACTORY, TEST_CONDUIT, USDC } from './constants.js'
-import { setupAnvil, teardownAnvil } from './setup.js'
 
-let client: ReturnType<typeof createRailnetTestClient>
-
-beforeAll(async () => {
-  const ctx = await setupAnvil()
-  client = ctx.client
-}, 30_000)
-
-afterAll(() => teardownAnvil())
+// Reads only, so this talks to Base directly instead of paying for an anvil fork.
+const client = createPublicClient({ chain: base, transport: http(process.env.BASE_RPC_URL) })
 
 describe('shipped Base addresses', () => {
   // The ABIs and the addresses are synced from contracts separately, so nothing stops them drifting
