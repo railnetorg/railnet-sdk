@@ -624,7 +624,7 @@ export const multiVehicleFactoryAbi = [
         ],
       },
     ],
-    stateMutability: 'payable',
+    stateMutability: 'nonpayable',
   },
   {
     type: 'event',

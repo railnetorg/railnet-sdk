@@ -1,12 +1,4 @@
-import {
-  type Address,
-  type Client,
-  type Hash,
-  type Hex,
-  keccak256,
-  toHex,
-  zeroAddress,
-} from 'viem'
+import { type Address, type Client, type Hash, type Hex, keccak256, toHex } from 'viem'
 import {
   readContract,
   simulateContract,
@@ -27,15 +19,12 @@ export type RedeemConduitParameters = {
 
 export type PrepareRedeemConduitParameters = RedeemConduitParameters & {
   account: Address
+  outputAsset: Asset
 }
 
 export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters) {
-  const { conduit, shares, account } = parameters
+  const { conduit, shares, account, outputAsset } = parameters
   const receiver = parameters.receiver ?? account
-  // Scalar `Asset` per the STEAM ABI. A zero value disables the amount floor; the address must still
-  // be route-supported by the vehicle (`BaseVehicle._validateOutput` requires the underlying asset
-  // on a REDEEM).
-  const outputAsset = parameters.outputAsset ?? { asset: zeroAddress, value: 0n }
   // createRedeemFromConduitShares() derives query.salt from (msg.sender, sourceSalt) itself
   const sourceSalt = parameters.salt ?? keccak256(toHex(`redeem-${account}-${Date.now()}`))
 
@@ -48,9 +37,8 @@ export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters)
 }
 
 /**
- * Redeems conduit shares by calling `conduit.createRedeemFromConduitShares()`. On synchronous vehicles the redeem executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves conduit shares if the current allowance is insufficient.
+ * Redeems conduit shares by calling `conduit.createRedeemFromConduitShares()`. On synchronous vehicles the redeem executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves conduit shares if the current allowance is insufficient, and reads `conduit.asset()` to name the query's output asset unless `outputAsset` is supplied.
  * @param client - Viem client instance
- * @param parameters - Conduit address, shares amount. Optional: receiver (defaults to caller), outputAsset (scalar Asset), salt (auto-generated)
  * @param options - Optional contract call overrides
  * @returns Transaction hash
  */
@@ -61,12 +49,18 @@ export async function redeemConduit(
 ): Promise<Hash> {
   const { conduit, shares, account } = parameters
 
-  const allowance = await readContract(client, {
-    address: conduit,
-    abi: conduitAbi,
-    functionName: 'allowance',
-    args: [account, conduit],
-  })
+  const [allowance, outputAsset] = await Promise.all([
+    readContract(client, {
+      address: conduit,
+      abi: conduitAbi,
+      functionName: 'allowance',
+      args: [account, conduit],
+    }),
+    parameters.outputAsset ??
+      readContract(client, { address: conduit, abi: conduitAbi, functionName: 'asset' }).then(
+        (asset) => ({ asset, value: 0n }),
+      ),
+  ])
 
   if (allowance < shares) {
     const { request: approveRequest } = await simulateContract(client, {
@@ -83,7 +77,7 @@ export async function redeemConduit(
 
   const { request: redeemRequest } = await simulateContract(client, {
     ...options,
-    ...prepareRedeemConduit(parameters),
+    ...prepareRedeemConduit({ ...parameters, outputAsset }),
     account,
   })
 

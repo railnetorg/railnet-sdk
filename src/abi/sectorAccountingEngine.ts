@@ -6,6 +6,19 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'function',
+    name: 'activeVehicles',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'address[]',
+        internalType: 'contract IVehicle[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'addToSector',
     inputs: [
       {
@@ -90,7 +103,7 @@ export const sectorAccountingEngineAbi = [
           {
             name: 'vehicle',
             type: 'address',
-            internalType: 'contract IBaseVehicle',
+            internalType: 'contract IVehicle',
           },
           {
             name: 'mode',
@@ -236,7 +249,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [
@@ -354,7 +367,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [
@@ -373,7 +386,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [
@@ -392,7 +405,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [
@@ -411,7 +424,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [
@@ -430,7 +443,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [
@@ -638,7 +651,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [],
@@ -664,7 +677,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [
@@ -683,7 +696,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [
@@ -735,7 +748,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
     outputs: [
@@ -819,7 +832,7 @@ export const sectorAccountingEngineAbi = [
         name: 'vehicle',
         type: 'address',
         indexed: true,
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'mode',
@@ -856,7 +869,7 @@ export const sectorAccountingEngineAbi = [
         name: 'vehicle',
         type: 'address',
         indexed: true,
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'settledDestination',
@@ -973,7 +986,7 @@ export const sectorAccountingEngineAbi = [
         name: 'vehicle',
         type: 'address',
         indexed: true,
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'requestedAmount',
@@ -1016,7 +1029,7 @@ export const sectorAccountingEngineAbi = [
         name: 'vehicle',
         type: 'address',
         indexed: true,
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'requestedAmount',
@@ -1240,7 +1253,7 @@ export const sectorAccountingEngineAbi = [
         name: 'vehicle',
         type: 'address',
         indexed: true,
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'active',
@@ -1363,7 +1376,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'cap',
@@ -1389,7 +1402,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'requestedAmount',
@@ -1420,7 +1433,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'requestedAmount',
@@ -1446,7 +1459,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'mode',
@@ -1483,6 +1496,17 @@ export const sectorAccountingEngineAbi = [
         name: 'to',
         type: 'bytes32',
         internalType: 'Sector',
+      },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InterceptionSharesTooHigh',
+    inputs: [
+      {
+        name: 'asset',
+        type: 'address',
+        internalType: 'address',
       },
     ],
   },
@@ -1580,7 +1604,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
   },
@@ -1607,7 +1631,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
       {
         name: 'minOutput',
@@ -1686,7 +1710,7 @@ export const sectorAccountingEngineAbi = [
       {
         name: 'vehicle',
         type: 'address',
-        internalType: 'contract IBaseVehicle',
+        internalType: 'contract IVehicle',
       },
     ],
   },

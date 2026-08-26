@@ -220,7 +220,7 @@ export const vehicleManagerAbi = [
       {
         name: 'multiVehicle_',
         type: 'address',
-        internalType: 'contract IVehicle',
+        internalType: 'contract IBaseVehicle',
       },
       {
         name: 'asset_',
@@ -707,13 +707,13 @@ export const vehicleManagerAbi = [
         components: [
           {
             name: 'input',
-            type: 'address[]',
-            internalType: 'address[]',
+            type: 'address',
+            internalType: 'address',
           },
           {
             name: 'output',
-            type: 'address[]',
-            internalType: 'address[]',
+            type: 'address',
+            internalType: 'address',
           },
         ],
       },
@@ -724,13 +724,13 @@ export const vehicleManagerAbi = [
         components: [
           {
             name: 'input',
-            type: 'address[]',
-            internalType: 'address[]',
+            type: 'address',
+            internalType: 'address',
           },
           {
             name: 'output',
-            type: 'address[]',
-            internalType: 'address[]',
+            type: 'address',
+            internalType: 'address',
           },
         ],
       },
