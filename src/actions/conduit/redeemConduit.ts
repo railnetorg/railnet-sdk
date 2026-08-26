@@ -27,6 +27,8 @@ export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters)
     address: conduit,
     abi: conduitAbi,
     functionName: 'createRedeemFromConduitShares',
+    // sourceSalt goes in raw: unlike conduit.create(), this entrypoint derives query.salt from
+    // (msg.sender, sourceSalt) itself
     args: [shares, outputAsset, sourceSalt, receiver],
   } as const
 }

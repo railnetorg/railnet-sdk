@@ -119,9 +119,9 @@ const hash = await redeemConduit(walletClient, {
 
 - **Type:** `Hex`
 
-Source salt for the query. Defaults to a
-[`randomSalt`](/utilities/randomSalt). Pass it explicitly to log the value and replay a failed
-transaction. Required on [`prepareRedeemConduit`](/actions/preparedWrites), which stays pure.
+Source salt for the query. Defaults to a [`randomSalt`](/utilities/randomSalt). Pass it explicitly
+to log the value and replay a failed transaction. Required on
+[`prepareRedeemConduit`](/actions/preparedWrites).
 
 ```ts
 const hash = await redeemConduit(walletClient, {

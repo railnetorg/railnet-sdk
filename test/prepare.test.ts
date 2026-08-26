@@ -226,9 +226,6 @@ describe('prepare* writes', () => {
   })
 })
 
-// Every salt is a required parameter, so a builder has nothing left to draw from the clock. Calling
-// one twice with the same input has to produce the same calldata — otherwise a prepared call cannot
-// be compared against a simulation or replayed after a failure, which is the whole point of it.
 describe('prepare* builders are pure', () => {
   const mvSalts = {
     multiVehicle: zeroHash,

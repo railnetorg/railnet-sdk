@@ -29,7 +29,7 @@ export function prepareSpawnConduit(parameters: SpawnConduitParameters) {
 }
 
 /**
- * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams)`. `querySalt` and `deploymentSalt` are required fields of the spawn params: `deploymentSalt` fixes the conduit's address, so the caller has to own it to retry a failed spawn against the same address. Use {@link randomSalt} to generate them.
+ * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams)`. `querySalt` and `deploymentSalt` are required fields of the spawn params; `deploymentSalt` fixes the conduit's address. Use {@link randomSalt} to generate them.
  * The factory pulls an initial deposit from the caller, so approve the factory for at least {@link getInitialDepositAmount} of the vehicle's asset first — this action sends no approval.
  * Use {@link extractConduitAddress} to extract the deployed conduit address from the transaction receipt.
  *

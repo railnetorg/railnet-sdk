@@ -102,9 +102,8 @@ import { VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/rai
 
 ## The registry
 
-Individual constants cover the case where you know the role you want. When you need the whole set —
-labelling a hash read from chain, or building a role picker — use `ROLES` and `roleName` instead of
-rebuilding the list by introspecting the exports.
+Use the individual constants when you know the role you want, and `ROLES` / `roleName` when you need
+the whole set — labelling a hash read from chain, or building a role picker.
 
 ```ts
 import { ROLES, roleName, VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
@@ -122,8 +121,7 @@ roleName('0xdead')              // null
 
 - **Type:** `readonly { name: string; hash: Hex }[]`
 
-Every role, including `DEFAULT_ADMIN_ROLE`. A test asserts it stays in step with the named exports
-in both directions.
+Every role, including `DEFAULT_ADMIN_ROLE`.
 
 ### roleName
 

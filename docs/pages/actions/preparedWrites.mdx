@@ -107,12 +107,10 @@ knowing which address will send it. Sending it from any other account reverts wi
 
 ## Salts are required, never generated
 
-Every builder that takes a salt requires it. A `prepare*` is a pure function of its inputs: two
-calls with the same parameters encode the same calldata, so a prepared call can be compared against
-a simulation or replayed after a failure.
-
-Generate salts with [`randomSalt`](/utilities/randomSalt), and keep the deployment ones — they fix
-the deployed address, and `prepareSpawnMultiVehicle` takes seven at once.
+Every builder that takes a salt requires it, so a `prepare*` is a pure function of its inputs: the
+same parameters always encode the same calldata. Generate them with
+[`randomSalt`](/utilities/randomSalt) and keep the deployment ones — they fix the deployed address,
+and `prepareSpawnMultiVehicle` takes seven at once.
 
 ```ts
 import { prepareSpawnConduit, randomSalt } from '@railnetorg/railnet-sdk'
@@ -125,5 +123,4 @@ const prepared = prepareSpawnConduit({
 ```
 
 The execute actions differ on one point: `depositConduit` and `redeemConduit` default `salt` to a
-random value, because a query salt is disposable and the action makes the full round trip itself.
-The `spawn*` actions have no defaults at all.
+random value. The `spawn*` actions have no defaults at all.

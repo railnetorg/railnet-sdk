@@ -133,10 +133,10 @@ Optional initial reward interception routes for the conduit. Defaults to `[]`.
 
 - **Type:** `Hex`
 
-Salt for the spawn's initial query. Required: a `prepare*` builder draws nothing from the clock, so the same input always encodes the same calldata. Generate it with [`randomSalt`](/utilities/randomSalt).
+Salt for the spawn's initial query. Generate it with [`randomSalt`](/utilities/randomSalt).
 
 ### deploymentSalt
 
 - **Type:** `Hex`
 
-A deployment salt fixes the contract's address for good. It is required so a failed spawn can be retried against the same address — generate it with [`randomSalt`](/utilities/randomSalt) and keep the value.
+Fixes the deployed address. Generate it with [`randomSalt`](/utilities/randomSalt) and keep the value.

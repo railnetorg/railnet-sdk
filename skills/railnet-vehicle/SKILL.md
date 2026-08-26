@@ -120,7 +120,7 @@ const result = await deployMultiVehicle(walletClient, {
       initialDepositQuery: randomSalt(),
     },
     accessControl: randomSalt(),
-  }, // required: this workflow deploys eight contracts. Log them.
+  }, // required — eight contracts. Log them.
   // Optional: queryRegistry (defaults to the chain's addresses.queryRegistry)
   // Optional: accessControl (use existing EAC instead of spawning)
   // Optional: adminAddress (defaults to account)
@@ -167,7 +167,7 @@ const hash = await spawnMultiVehicle(walletClient, {
     subQueryEngine: randomSalt(),
     vehicleManager: randomSalt(),
     initialDepositQuery: randomSalt(),
-  }, // required: seven addresses, keep them to retry a partial spawn
+  }, // required — seven addresses. Log them.
   // Optional: feeManager, modulesManager, forbiddenAddresses, initialInterceptions
 })
 

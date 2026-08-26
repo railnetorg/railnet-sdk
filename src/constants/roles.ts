@@ -58,8 +58,7 @@ export const DEFAULT_ADMIN_ROLE =
   '0x0000000000000000000000000000000000000000000000000000000000000000' as const
 
 /**
- * Every role the protocol defines, as `{ name, hash }`. Use it to label a role hash read from
- * chain, or to build a role picker, instead of reconstructing the list from the named exports.
+ * Every role the protocol defines, as `{ name, hash }`.
  *
  * @example
  * import { ROLES } from '@railnetorg/railnet-sdk'

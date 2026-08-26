@@ -112,9 +112,8 @@ Optional list of addresses forbidden from interacting with the MultiVehicle.
 
 - **Type:** `MultiVehicleSalts`
 
-The seven deployment salts, one per contract. Required: they fix seven addresses at once, so
-losing them means a spawn that fails midway cannot be retried against the same addresses.
-Generate each with [`randomSalt`](/utilities/randomSalt) and keep them.
+The seven deployment salts, one per contract. They fix seven addresses at once — generate each with
+[`randomSalt`](/utilities/randomSalt) and keep them.
 
 ```ts
 type MultiVehicleSalts = {

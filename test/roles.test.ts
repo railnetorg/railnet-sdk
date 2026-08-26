@@ -27,8 +27,6 @@ describe('role constants', () => {
 })
 
 describe('ROLES', () => {
-  // The registry is written out by hand, so it can fall behind the constants it mirrors. These two
-  // assertions are what notice.
   it('lists every exported role constant', () => {
     expect(registry.length).toBe(exportedRoles.length)
     for (const [name, hash] of exportedRoles) {
