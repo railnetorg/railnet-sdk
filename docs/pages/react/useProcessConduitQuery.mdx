@@ -31,8 +31,8 @@ function Process() {
           query: {
             owner: '0x...',
             receiver: '0x...',
-            input: [{ asset: '0x...', value: 100n }],
-            output: [],
+            input: { asset: '0x...', value: 100n },
+            output: { asset: zeroAddress, value: 0n },
             mode: ConduitMode.DEPOSIT,
             salt: '0x...',
             data: '0x',

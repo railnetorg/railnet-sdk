@@ -379,12 +379,12 @@ export const queueStrategyEngineAbi = [
   },
   {
     type: 'error',
-    name: 'InvalidEstimatedAssets',
+    name: 'InvalidEstimatedAsset',
     inputs: [
       {
-        name: 'invalidAssets',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        name: 'invalidAsset',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',

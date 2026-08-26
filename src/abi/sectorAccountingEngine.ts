@@ -148,8 +148,8 @@ export const sectorAccountingEngineAbi = [
           },
           {
             name: 'input',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -165,8 +165,8 @@ export const sectorAccountingEngineAbi = [
           },
           {
             name: 'output',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -888,8 +888,8 @@ export const sectorAccountingEngineAbi = [
           },
           {
             name: 'input',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -905,8 +905,8 @@ export const sectorAccountingEngineAbi = [
           },
           {
             name: 'output',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -1488,12 +1488,12 @@ export const sectorAccountingEngineAbi = [
   },
   {
     type: 'error',
-    name: 'InvalidEstimatedAssets',
+    name: 'InvalidEstimatedAsset',
     inputs: [
       {
-        name: 'invalidAssets',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        name: 'invalidAsset',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',

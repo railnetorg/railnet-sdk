@@ -23,7 +23,7 @@ export type RailnetActions = {
   ) => Promise<GetConduitPositionReturnType>
   getConduitInfo: (parameters: GetConduitInfoParameters) => Promise<GetConduitInfoReturnType>
   predictConduitDeployment: (parameters: PredictConduitDeploymentParameters) => Promise<Address>
-  estimateConduit: (parameters: EstimateConduitParameters) => Promise<Asset[]>
+  estimateConduit: (parameters: EstimateConduitParameters) => Promise<Asset>
 }
 
 /**

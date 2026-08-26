@@ -578,9 +578,9 @@ export const conduitAbi = [
     name: 'convert',
     inputs: [
       {
-        name: 'assets',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        name: 'asset_',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',
@@ -603,8 +603,8 @@ export const conduitAbi = [
     outputs: [
       {
         name: 'converted',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',
@@ -626,9 +626,9 @@ export const conduitAbi = [
     name: 'estimate',
     inputs: [
       {
-        name: 'assets',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        name: 'asset_',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',
@@ -655,9 +655,9 @@ export const conduitAbi = [
     ],
     outputs: [
       {
-        name: 'estimations',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        name: 'estimation',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',
@@ -695,8 +695,8 @@ export const conduitAbi = [
           },
           {
             name: 'input',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -712,8 +712,8 @@ export const conduitAbi = [
           },
           {
             name: 'output',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -775,8 +775,8 @@ export const conduitAbi = [
           },
           {
             name: 'input',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -792,8 +792,8 @@ export const conduitAbi = [
           },
           {
             name: 'output',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -860,8 +860,8 @@ export const conduitAbi = [
           },
           {
             name: 'input',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -877,8 +877,8 @@ export const conduitAbi = [
           },
           {
             name: 'output',
-            type: 'tuple[]',
-            internalType: 'struct Asset[]',
+            type: 'tuple',
+            internalType: 'struct Asset',
             components: [
               {
                 name: 'asset',
@@ -1282,8 +1282,8 @@ export const conduitAbi = [
       },
       {
         name: 'output',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',
@@ -1322,9 +1322,9 @@ export const conduitAbi = [
         internalType: 'uint256',
       },
       {
-        name: 'outputAssets',
-        type: 'tuple[]',
-        internalType: 'struct Asset[]',
+        name: 'outputAsset',
+        type: 'tuple',
+        internalType: 'struct Asset',
         components: [
           {
             name: 'asset',

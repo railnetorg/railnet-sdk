@@ -10,18 +10,18 @@ export enum EstimationType {
 
 export type EstimateConduitParameters = {
   conduit: Address
-  assets: Asset[]
+  asset: Asset
   mode: ConduitMode
   estimationType: EstimationType
 }
 
-export type EstimateConduitReturnType = Asset[]
+export type EstimateConduitReturnType = Asset
 
 /**
- * Estimates the output assets for a deposit or redeem operation on a conduit.
+ * Estimates the output asset for a deposit or redeem operation on a conduit. Includes conduit fees.
  * @param client - Viem client instance
- * @param parameters - Conduit address, input assets, mode (deposit/redeem), and estimation type (input/output)
- * @returns Array of estimated output assets with their values
+ * @param parameters - Conduit address, input asset, mode (deposit/redeem), and estimation type (input/output)
+ * @returns The estimated output asset
  */
 export async function estimateConduit(
   client: Client,
@@ -31,8 +31,8 @@ export async function estimateConduit(
     address: parameters.conduit,
     abi: conduitAbi,
     functionName: 'estimate',
-    args: [parameters.assets, parameters.mode, parameters.estimationType],
+    args: [parameters.asset, parameters.mode, parameters.estimationType],
   })
 
-  return result.map((a) => ({ asset: a.asset, value: a.value }))
+  return { asset: result.asset, value: result.value }
 }

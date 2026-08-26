@@ -30,8 +30,8 @@ const hash = await processConduitQuery(walletClient, {
   query: {
     owner: '0x...',
     receiver: '0x...',
-    input: [{ asset: '0x...', value: 100n }],
-    output: [{ asset: '0x...', value: 100n }],
+    input: { asset: '0x...', value: 100n },
+    output: { asset: '0x...', value: 100n },
     mode: ConduitMode.DEPOSIT,
     salt: '0x...',
     data: '0x',
@@ -95,13 +95,13 @@ The receiver address for the query.
 
 #### query.input
 
-- **Type:** `Asset[]`
+- **Type:** `Asset`
 
 The input assets for the query. See [`Asset`](/types/Asset).
 
 #### query.output
 
-- **Type:** `Asset[]`
+- **Type:** `Asset`
 
 The output assets for the query. See [`Asset`](/types/Asset).
 

@@ -9,8 +9,8 @@ export type ProcessConduitQueryParameters = {
   query: {
     owner: Address
     receiver: Address
-    input: Asset[]
-    output: Asset[]
+    input: Asset
+    output: Asset
     mode: ConduitMode
     salt: Hex
     data: Hex
@@ -29,7 +29,7 @@ export function prepareProcessConduitQuery(parameters: ProcessConduitQueryParame
 /**
  * Processes a query on a conduit by calling `conduit.process()`, advancing its state. Used for async (STEAM) vehicles where queries go through multiple state transitions.
  * @param client - Viem client instance
- * @param parameters - Conduit address and the full Query struct (owner, receiver, input Asset[], output Asset[], mode, salt, data)
+ * @param parameters - Conduit address and the full Query struct (owner, receiver, input Asset, output Asset, mode, salt, data)
  * @param options - Optional contract call overrides
  * @returns Transaction hash
  */

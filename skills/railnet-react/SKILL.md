@@ -64,7 +64,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 |------|-----------|---------|
 | `useConduitPosition` | `{ conduit, account, enabled? }` | `ConduitPosition` (shares, assets) |
 | `useConduitInfo` | `{ conduit, enabled? }` | `ConduitInfo` (name, symbol, totalSupply, totalAssets, holdings, decimals) |
-| `useEstimateConduit` | `{ conduit, assets, mode, estimationType, enabled? }` | `Asset[]` |
+| `useEstimateConduit` | `{ conduit, asset, mode, estimationType, enabled? }` | `Asset` |
 | `usePredictConduitDeployment` | `{ factory, ..., querySalt, deploymentSalt, enabled? }` | `Address` |
 
 ### Mutation Hooks (write, return TanStack Mutation result)
@@ -72,7 +72,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 | Hook | Mutate Parameters | Returns |
 |------|------------------|---------|
 | `useDepositConduit` | `{ conduit, token, amount, account, receiver?, salt? }` | `Hash` |
-| `useRedeemConduit` | `{ conduit, shares, account, receiver?, outputAssets?, salt? }` | `Hash` |
+| `useRedeemConduit` | `{ conduit, shares, account, receiver?, outputAsset?, salt? }` | `Hash` |
 | `useSpawnConduit` | `SpawnConduitParameters & { account }` | `Hash` |
 | `useEnableConduit` | `{ conduit, account }` | `Hash` |
 | `useFinalizeConduitDeposit` | `{ factory, conduit, account }` | `Hash` |
