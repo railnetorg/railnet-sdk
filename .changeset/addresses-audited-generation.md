@@ -12,6 +12,6 @@ All 15 protocol addresses pointed at a superseded generation while the ABIs had 
 
 No test caught this because none of them touched a factory address. `addresses.test.ts` now asserts on-chain that the conduit factory we ship acknowledges the fixture the scalar ABI is proven against — swapping the old address back fails it.
 
-`scripts/sync-addresses.ts` generates `addresses.ts` from `contracts/deployments/*.json` (`bun run addresses:sync`), so the addresses and the ABIs no longer drift apart by hand.
+Each chain's block is annotated with the contracts deployment file it was transcribed from.
 
 Ethereum's deployment authorizes no assets yet, so `getInitialDepositAmount` reverts there and spawning will too. The addresses are correct; the chain is not provisioned.

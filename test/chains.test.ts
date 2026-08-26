@@ -55,10 +55,9 @@ describe('addresses', () => {
     expect(new Set(entries.map(([, address]) => address)).size).toBe(entries.length)
   })
 
-  // Hand-maintained in scripts/sync-addresses.ts rather than generated from contracts, so a typo
-  // here would ship silently. The rest of the file is generated and pinning it would only
-  // restate the generator's output.
-  it('pins the external addresses the generator cannot derive', () => {
+  // Circle's and Aave's, so unlike the protocol addresses they are not transcribed from a contracts
+  // deployment file and nothing else in the repo corroborates them.
+  it('pins the external addresses', () => {
     expect(getAddresses(base.id).usdc).toBe('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913')
     expect(getAddresses(base.id).aavePoolAddressesProvider).toBe(
       '0xe20fCBdBfFC4Dd138cE8b2E6FBb6CB49777ad64D',
