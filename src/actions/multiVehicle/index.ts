@@ -1,3 +1,5 @@
 export * from './authorizeVehicle.js'
+export * from './dispatchVehicle.js'
+export * from './moveBetweenSectors.js'
 export * from './setQueues.js'
 export * from './spawnMultiVehicle.js'

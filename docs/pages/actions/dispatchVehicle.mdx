@@ -1,0 +1,133 @@
+---
+description: Dispatches a deposit or redeem between a sector and a sub-vehicle.
+---
+
+# dispatchVehicle
+
+Dispatches a deposit or a redeem between a [sector](/types/Sector) and a sub-vehicle, via the
+MultiVehicle's SectorAccountingEngine. Together with
+[`moveBetweenSectors`](/actions/moveBetweenSectors) this is what replaced the removed `rebalance()`:
+reallocating between two vehicles is a redeem dispatch followed by a deposit dispatch.
+
+:::info
+Requires the `MULTI_VEHICLE_DISPATCH` role scoped to the SectorAccountingEngine.
+:::
+
+:::warning
+On a synchronous vehicle the dispatch settles in the same transaction. On an async vehicle (Ethena,
+Syrup) it leaves the query in `PROCESSING`, and the funds are not where you want them until the query
+is progressed. Call `simulateDispatchVehicle` first if the difference matters — which it does whenever
+a second leg depends on the first.
+:::
+
+## Import
+
+```ts
+import { dispatchVehicle, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import {
+  ConduitMode,
+  dispatchVehicle,
+  SECTOR_AVAILABLE,
+  vehicleSector,
+} from '@railnetorg/railnet-sdk'
+
+const hash = await dispatchVehicle(walletClient, {
+  sectorAccountingEngine: '0x...',
+  vehicle: aaveV3Vehicle,
+  mode: ConduitMode.REDEEM,
+  amount: 1000000n,
+  settledDestination: SECTOR_AVAILABLE,
+  rejectedDestination: vehicleSector(aaveV3Vehicle),
+  operationId: '0x...',
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+Checking whether it will settle in one transaction:
+
+```ts
+import { ConduitState, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
+
+const { query, state } = await simulateDispatchVehicle(walletClient, {
+  /* same parameters */
+})
+
+if (state !== ConduitState.SETTLED) {
+  // async vehicle: the redeem will sit in PROCESSING, keep `query` to progress it later
+}
+```
+
+## Returns
+
+`Hash` for `dispatchVehicle`.
+
+`{ query: Query; state: ConduitState }` for `simulateDispatchVehicle`, which sends nothing. Keep the
+`query` if the state is not `SETTLED` — progressing an in-flight query later requires the exact struct.
+
+## Parameters
+
+### sectorAccountingEngine
+
+- **Type:** `Address`
+
+The SectorAccountingEngine of the MultiVehicle.
+
+### vehicle
+
+- **Type:** `Address`
+
+The sub-vehicle to deposit into or redeem from. Deposits require the vehicle to be authorized; redeems
+do not, so an unauthorized-but-funded vehicle can always be unwound.
+
+### mode
+
+- **Type:** `ConduitMode`
+
+`ConduitMode.DEPOSIT` to allocate into the vehicle, `ConduitMode.REDEEM` to pull out of it.
+
+### amount
+
+- **Type:** `bigint`
+
+The amount to dispatch, or `maxUint256` for the entire sector balance. With `maxUint256`, a binding cap
+or vehicle limit reduces the amount instead of reverting; with an explicit amount it reverts.
+
+### settledDestination / rejectedDestination
+
+- **Type:** [`Sector`](/types/Sector)
+
+Where the output lands when the query settles, and where it lands when it is rejected. A redeem
+typically settles into `SECTOR_AVAILABLE` and falls back to the vehicle's own sector.
+
+### minOutput (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Slippage floor on the vehicle's output. It can only bind to a pinned amount: combining it with
+`amount: maxUint256` throws, because the sentinel resolves to the sector balance at execution time and
+would silently dilute the bound.
+
+### data (optional)
+
+- **Type:** `Hex`
+- **Default:** `'0x'`
+
+Vehicle-specific payload forwarded to the STEAM call.
+
+### operationId
+
+- **Type:** `Hex`
+
+A caller-supplied identifier echoed in the `Dispatched`, `DispatchSkipped` and `Limited*` events.
+
+### account
+
+- **Type:** `Address`
+
+The address executing the transaction.

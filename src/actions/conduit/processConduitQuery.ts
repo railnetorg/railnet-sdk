@@ -1,20 +1,12 @@
-import type { Address, Client, Hash, Hex } from 'viem'
+import type { Address, Client, Hash } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { ContractCallOptions } from '../../types.js'
-import type { Asset, ConduitMode } from './types.js'
+import type { Query } from './types.js'
 
 export type ProcessConduitQueryParameters = {
   conduit: Address
-  query: {
-    owner: Address
-    receiver: Address
-    input: Asset
-    output: Asset
-    mode: ConduitMode
-    salt: Hex
-    data: Hex
-  }
+  query: Query
 }
 
 export function prepareProcessConduitQuery(parameters: ProcessConduitQueryParameters) {
