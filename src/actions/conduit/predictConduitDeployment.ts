@@ -3,10 +3,7 @@ import { readContract } from 'viem/actions'
 import { conduitFactoryAbi } from '../../abi/conduitFactory.js'
 import type { SpawnConduitParameters } from './types.js'
 
-export type PredictConduitDeploymentParameters = Required<
-  Pick<SpawnConduitParameters, 'querySalt' | 'deploymentSalt'>
-> &
-  Omit<SpawnConduitParameters, 'querySalt' | 'deploymentSalt'>
+export type PredictConduitDeploymentParameters = SpawnConduitParameters
 
 export type PredictConduitDeploymentReturnType = Address
 

@@ -41,7 +41,7 @@ const addresses = getAddresses(base.id)
 Spawning a new EAC instance defines the initial admin and optional roles.
 
 ```typescript
-import { spawnAccessControl, extractAccessControlAddress } from '@railnetorg/railnet-sdk'
+import { spawnAccessControl, extractAccessControlAddress, randomSalt } from '@railnetorg/railnet-sdk'
 import { VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
 
 const hash = await spawnAccessControl(walletClient, {
@@ -49,7 +49,7 @@ const hash = await spawnAccessControl(walletClient, {
   initialDefaultAdmin: account.address,
   // initialDelay is optional — defaults to 0
   // initialRoles is optional — defaults to []
-  // deploymentSalt is optional — auto-generated
+  deploymentSalt: randomSalt(), // required: it fixes the deployed address
   initialRoles: [
     { account: '0x...', role: VEHICLE_STEAM_DEPOSIT as Hex }
   ],

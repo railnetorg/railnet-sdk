@@ -138,7 +138,7 @@ const prepared = prepareDepositConduit({
 const hash = await client.writeContract({ ...prepared, account: account.address })
 ```
 
-Two things the builders do NOT do: no ERC-20 approval (the execute actions send one when the allowance is short), and no deterministic salts — a generated salt comes from the current timestamp, so pass salts explicitly when the call must match a predicted address or survive a retry.
+Two things the builders do NOT do: no ERC-20 approval (the execute actions send one when the allowance is short), and no salt generation — every salt is a required parameter, so a builder is a pure function of its inputs and the same parameters always encode the same calldata. Generate salts with `randomSalt()` and keep the deployment ones: they fix the deployed address, and `prepareSpawnMultiVehicle` takes seven at once.
 
 All write actions accept an optional third `options` parameter of type `ContractCallOptions` for gas, nonce, and other overrides:
 

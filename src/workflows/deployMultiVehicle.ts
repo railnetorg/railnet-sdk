@@ -11,7 +11,10 @@ import { spawnAccessControl } from '../actions/accessControl/spawnAccessControl.
 import { getInitialDepositAmount } from '../actions/assetRegistry/getInitialDepositAmount.js'
 import { authorizeVehicle } from '../actions/multiVehicle/authorizeVehicle.js'
 import { setQueues } from '../actions/multiVehicle/setQueues.js'
-import { spawnMultiVehicle } from '../actions/multiVehicle/spawnMultiVehicle.js'
+import {
+  type MultiVehicleSalts,
+  spawnMultiVehicle,
+} from '../actions/multiVehicle/spawnMultiVehicle.js'
 import {
   MULTI_VEHICLE_SET_QUEUES,
   MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION,
@@ -32,6 +35,12 @@ export type VehicleEntry = {
   redeemTarget: { value: bigint; threshold: bigint }
 }
 
+export type DeployMultiVehicleSalts = {
+  multiVehicle: MultiVehicleSalts
+  /** Unused when an existing `accessControl` address is supplied, since none is spawned. */
+  accessControl: Hex
+}
+
 export type DeployMultiVehicleParameters = {
   asset: Address
   name: string
@@ -43,6 +52,7 @@ export type DeployMultiVehicleParameters = {
   forbiddenAddresses?: Address[]
   feeManager?: Address
   modulesManager?: Address
+  salts: DeployMultiVehicleSalts
 }
 
 export type DeployMultiVehicleResult = {
@@ -126,6 +136,7 @@ export async function deployMultiVehicle(
           initialDefaultAdmin: adminAddress,
           initialDelay: 0,
           initialRoles: [],
+          deploymentSalt: parameters.salts.accessControl,
           account: parameters.account,
         },
         options,
@@ -160,6 +171,7 @@ export async function deployMultiVehicle(
     symbol: parameters.symbol,
     accessControl: eacAddress,
     queryRegistry: parameters.queryRegistry ?? chainQueryRegistry,
+    salts: parameters.salts.multiVehicle,
     account: parameters.account,
   }
   if (parameters.forbiddenAddresses !== undefined) {

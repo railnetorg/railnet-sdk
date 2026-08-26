@@ -1,15 +1,10 @@
-import { type Address, type Client, type Hash, keccak256, toHex } from 'viem'
+import type { Address, Client, Hash } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { conduitFactoryAbi } from '../../abi/conduitFactory.js'
 import type { ContractCallOptions } from '../../types.js'
 import type { SpawnConduitParameters } from './types.js'
 
 export function prepareSpawnConduit(parameters: SpawnConduitParameters) {
-  const now = Date.now()
-  const querySalt =
-    parameters.querySalt ?? keccak256(toHex(`conduit-query-${parameters.name}-${now}`))
-  const deploymentSalt =
-    parameters.deploymentSalt ?? keccak256(toHex(`conduit-deploy-${parameters.symbol}-${now}`))
   const spawnParams = {
     name: parameters.name,
     symbol: parameters.symbol,
@@ -21,8 +16,8 @@ export function prepareSpawnConduit(parameters: SpawnConduitParameters) {
     transferEnabled: parameters.transferEnabled,
     initialInterceptions: parameters.initialInterceptions ?? [],
     initialExpectedSupply: parameters.initialExpectedSupply,
-    querySalt,
-    deploymentSalt,
+    querySalt: parameters.querySalt,
+    deploymentSalt: parameters.deploymentSalt,
   } as const
 
   return {
@@ -34,7 +29,7 @@ export function prepareSpawnConduit(parameters: SpawnConduitParameters) {
 }
 
 /**
- * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams)`. Generates deterministic salts (querySalt, deploymentSalt) if not provided; both are fields of the spawn params.
+ * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams)`. `querySalt` and `deploymentSalt` are required fields of the spawn params; `deploymentSalt` fixes the conduit's address. Use {@link randomSalt} to generate them.
  * The factory pulls an initial deposit from the caller, so approve the factory for at least {@link getInitialDepositAmount} of the vehicle's asset first — this action sends no approval.
  * Use {@link extractConduitAddress} to extract the deployed conduit address from the transaction receipt.
  *

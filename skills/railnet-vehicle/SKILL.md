@@ -56,6 +56,7 @@ import {
   spawnAaveV3Vehicle,
   extractAaveV3VehicleAddress,
   getAddresses,
+  randomSalt,
 } from '@railnetorg/railnet-sdk'
 
 const addresses = getAddresses(base.id)
@@ -68,7 +69,9 @@ const hash = await spawnAaveV3Vehicle(walletClient, {
   queryRegistry: queryRegistryAddress,
   initialExpectedSupply: 10n ** 18n,
   account: account.address,
-  // Optional: feeManager, modulesManager, forbiddenAddresses, querySalt, deploymentSalt
+  querySalt: randomSalt(),
+  deploymentSalt: randomSalt(), // required: it fixes the deployed address
+  // Optional: feeManager, modulesManager, forbiddenAddresses
 })
 
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -90,7 +93,7 @@ The `deployMultiVehicle` workflow orchestrates the entire setup in sequence:
 **Vehicles must be deployed before calling this workflow.**
 
 ```typescript
-import { deployMultiVehicle, type VehicleEntry } from '@railnetorg/railnet-sdk'
+import { deployMultiVehicle, randomSalt, type VehicleEntry } from '@railnetorg/railnet-sdk'
 
 const vehicles: VehicleEntry[] = [
   {
@@ -106,6 +109,18 @@ const result = await deployMultiVehicle(walletClient, {
   symbol: 'MSTRAT',
   vehicles,
   account: account.address,
+  salts: {
+    multiVehicle: {
+      multiVehicle: randomSalt(),
+      queryRedeemQueue: randomSalt(),
+      queueStrategyEngine: randomSalt(),
+      sectorAccountingEngine: randomSalt(),
+      subQueryEngine: randomSalt(),
+      vehicleManager: randomSalt(),
+      initialDepositQuery: randomSalt(),
+    },
+    accessControl: randomSalt(),
+  }, // required — eight contracts. Log them.
   // Optional: queryRegistry (defaults to the chain's addresses.queryRegistry)
   // Optional: accessControl (use existing EAC instead of spawning)
   // Optional: adminAddress (defaults to account)
@@ -144,8 +159,16 @@ const hash = await spawnMultiVehicle(walletClient, {
   accessControl: eacAddress,
   queryRegistry: queryRegistryAddress,
   account: account.address,
-  // Optional: feeManager, modulesManager, forbiddenAddresses,
-  //           salts (MultiVehicleSalts), initialInterceptions
+  salts: {
+    multiVehicle: randomSalt(),
+    queryRedeemQueue: randomSalt(),
+    queueStrategyEngine: randomSalt(),
+    sectorAccountingEngine: randomSalt(),
+    subQueryEngine: randomSalt(),
+    vehicleManager: randomSalt(),
+    initialDepositQuery: randomSalt(),
+  }, // required — seven addresses. Log them.
+  // Optional: feeManager, modulesManager, forbiddenAddresses, initialInterceptions
 })
 
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -212,6 +235,7 @@ const hash = await spawnMultiVehicle(walletClient, {
   name: 'Strategy',
   symbol: 'STRAT',
   account: account.address,
+  salts,
 })
 // Reverts: InsufficientAllowance
 ```

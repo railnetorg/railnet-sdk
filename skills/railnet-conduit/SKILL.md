@@ -107,7 +107,7 @@ async function deployNewConduit() {
     account: walletClient.account.address,
   })
 
-  // spawnConduit auto-generates querySalt and deploymentSalt if not provided
+  // querySalt and deploymentSalt are required; deploymentSalt fixes the conduit address
   const hash = await spawnConduit(walletClient, params)
   const receipt = await publicClient.waitForTransactionReceipt({ hash })
   
@@ -136,7 +136,7 @@ const depositHash = await depositConduit(walletClient, {
   amount: 1_000_000n, // 1 USDC (6 decimals)
   account: account.address,
   // receiver is optional — defaults to account
-  // salt is optional — auto-generated
+  // salt is optional here — defaults to randomSalt(). prepareDepositConduit requires it.
 })
 
 // Redeem: no approval needed, the conduit burns the caller's shares internally.

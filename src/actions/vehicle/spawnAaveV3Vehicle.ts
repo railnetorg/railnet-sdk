@@ -1,4 +1,4 @@
-import { type Address, type Client, type Hash, type Hex, keccak256, toHex, zeroAddress } from 'viem'
+import { type Address, type Client, type Hash, type Hex, zeroAddress } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { aaveV3VehicleFactoryAbi } from '../../abi/aaveV3VehicleFactory.js'
 import type { ContractCallOptions } from '../../types.js'
@@ -13,16 +13,11 @@ export type SpawnAaveV3VehicleParameters = {
   modulesManager?: Address
   forbiddenAddresses?: Address[]
   initialExpectedSupply: bigint
-  querySalt?: Hex
-  deploymentSalt?: Hex
+  querySalt: Hex
+  deploymentSalt: Hex
 }
 
 export function prepareSpawnAaveV3Vehicle(parameters: SpawnAaveV3VehicleParameters) {
-  const now = Date.now()
-  const querySalt = parameters.querySalt ?? keccak256(toHex(`aave-v3-vehicle-query-${now}`))
-  const deploymentSalt =
-    parameters.deploymentSalt ?? keccak256(toHex(`aave-v3-vehicle-deploy-${now}`))
-
   return {
     address: parameters.factory,
     abi: aaveV3VehicleFactoryAbi,
@@ -34,8 +29,8 @@ export function prepareSpawnAaveV3Vehicle(parameters: SpawnAaveV3VehicleParamete
         accessControl: parameters.accessControl,
         feeManager: parameters.feeManager ?? zeroAddress,
         modulesManager: parameters.modulesManager ?? zeroAddress,
-        querySalt,
-        deploymentSalt,
+        querySalt: parameters.querySalt,
+        deploymentSalt: parameters.deploymentSalt,
         forbiddenAddresses: parameters.forbiddenAddresses ?? [],
         initialExpectedSupply: parameters.initialExpectedSupply,
         queryRegistry: parameters.queryRegistry,

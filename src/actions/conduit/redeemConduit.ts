@@ -1,7 +1,8 @@
-import { type Address, type Client, type Hash, type Hex, keccak256, toHex } from 'viem'
+import type { Address, Client, Hash, Hex } from 'viem'
 import { readContract, simulateContract, writeContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { ContractCallOptions } from '../../types.js'
+import { randomSalt } from '../../utils/salt.js'
 import type { Asset } from './types.js'
 
 export type RedeemConduitParameters = {
@@ -12,21 +13,22 @@ export type RedeemConduitParameters = {
   salt?: Hex
 }
 
-export type PrepareRedeemConduitParameters = RedeemConduitParameters & {
+export type PrepareRedeemConduitParameters = Omit<RedeemConduitParameters, 'salt'> & {
   account: Address
   outputAsset: Asset
+  salt: Hex
 }
 
 export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters) {
-  const { conduit, shares, account, outputAsset } = parameters
+  const { conduit, shares, account, outputAsset, salt: sourceSalt } = parameters
   const receiver = parameters.receiver ?? account
-  // createRedeemFromConduitShares() derives query.salt from (msg.sender, sourceSalt) itself
-  const sourceSalt = parameters.salt ?? keccak256(toHex(`redeem-${account}-${Date.now()}`))
 
   return {
     address: conduit,
     abi: conduitAbi,
     functionName: 'createRedeemFromConduitShares',
+    // sourceSalt goes in raw: unlike conduit.create(), this entrypoint derives query.salt from
+    // (msg.sender, sourceSalt) itself
     args: [shares, outputAsset, sourceSalt, receiver],
   } as const
 }
@@ -59,7 +61,7 @@ export async function redeemConduit(
 
   const { request: redeemRequest } = await simulateContract(client, {
     ...options,
-    ...prepareRedeemConduit({ ...parameters, outputAsset }),
+    ...prepareRedeemConduit({ ...parameters, outputAsset, salt: parameters.salt ?? randomSalt() }),
     account,
   })
 

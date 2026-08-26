@@ -124,7 +124,9 @@ const hash = await depositConduit(walletClient, {
 
 - **Type:** `Hex`
 
-Optional salt for the deposit operation.
+Source salt for the query. Defaults to a [`randomSalt`](/utilities/randomSalt). Pass it explicitly
+to log the value and replay a failed transaction. Required on
+[`prepareDepositConduit`](/actions/preparedWrites).
 
 ```ts
 const hash = await depositConduit(walletClient, {

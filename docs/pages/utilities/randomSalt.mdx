@@ -1,0 +1,31 @@
+---
+description: Generates a cryptographically random 32-byte salt.
+---
+
+# randomSalt
+
+Returns a random `bytes32`, drawn from `crypto.getRandomValues`. Every salt the SDK takes is a
+required parameter, so this is what you reach for to produce one.
+
+## Import
+
+```ts
+import { randomSalt } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+const deploymentSalt = randomSalt()
+```
+
+## Returns
+
+`Hex`
+
+A random 32-byte value.
+
+A deployment salt fixes a contract's address permanently, so log it before you send: a spawn that
+fails midway can only be retried against the same address if you still hold the salt, and
+[`prepareSpawnMultiVehicle`](/actions/spawnMultiVehicle) takes seven at once. Query salts are
+disposable — `depositConduit` and `redeemConduit` default to a random one.
