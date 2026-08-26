@@ -18,10 +18,13 @@ export function prepareEnableConduit(parameters: EnableConduitParameters) {
 
 /**
  * Enables a conduit, transitioning it to an operational state. Can only be called by the conduit factory.
- * @param client - Viem client instance
- * @param parameters - The conduit address and caller account
- * @param options - Optional contract call overrides
- * @returns Transaction hash
+ *
+ * @param parameters - {@link EnableConduitParameters}
+ *
+ * @example
+ * import { enableConduit } from '@railnetorg/railnet-sdk'
+ *
+ * const hash = await enableConduit(walletClient, { conduit: conduitAddress, account: account.address })
  */
 export async function enableConduit(
   client: Client,

@@ -21,10 +21,19 @@ export function prepareSetScopedRolePublic(parameters: SetScopedRolePublicParame
 
 /**
  * Sets whether a scoped role is public (callable by any address) or restricted. The caller must be the default admin.
- * @param client - Viem client instance
- * @param parameters - Access control address, role hash, scope, and isPublic flag
- * @param options - Optional contract call overrides
- * @returns Transaction hash
+ *
+ * @param parameters - {@link SetScopedRolePublicParameters}
+ *
+ * @example
+ * import { setScopedRolePublic, VEHICLE_STEAM_REDEEM } from '@railnetorg/railnet-sdk'
+ *
+ * const hash = await setScopedRolePublic(walletClient, {
+ *   accessControl: eacAddress,
+ *   role: VEHICLE_STEAM_REDEEM,
+ *   scope: vehicleAddress,
+ *   isPublic: true,
+ *   account: account.address,
+ * })
  */
 export async function setScopedRolePublic(
   client: Client,

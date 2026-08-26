@@ -18,9 +18,16 @@ export type GetConduitPositionReturnType = ConduitPosition
 
 /**
  * Reads an account's position in a conduit: share balance and the equivalent asset value.
- * @param client - Viem client instance
- * @param parameters - Conduit address and account address to query
- * @returns Position with shares, assets, conduit, and account addresses
+ *
+ * @param parameters - {@link GetConduitPositionParameters}
+ *
+ * @example
+ * import { getConduitPosition } from '@railnetorg/railnet-sdk'
+ *
+ * const position = await getConduitPosition(publicClient, {
+ *   conduit: conduitAddress,
+ *   account: account.address,
+ * })
  */
 export async function getConduitPosition(
   client: Client,

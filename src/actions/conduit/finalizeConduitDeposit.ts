@@ -19,10 +19,20 @@ export function prepareFinalizeConduitDeposit(parameters: FinalizeConduitDeposit
 
 /**
  * Finalizes the initial deposit on a conduit with an async vehicle (e.g. Ethena, Syrup). Called via the ConduitFactory after the vehicle's async query resolves.
- * @param client - Viem client instance
- * @param parameters - Factory and conduit addresses, plus caller account
- * @param options - Optional contract call overrides
- * @returns Transaction hash
+ *
+ * @param parameters - {@link FinalizeConduitDepositParameters}
+ *
+ * @example
+ * import { finalizeConduitDeposit, getAddresses } from '@railnetorg/railnet-sdk'
+ * import { base } from 'viem/chains'
+ *
+ * const { conduitFactory } = getAddresses(base.id)
+ *
+ * const hash = await finalizeConduitDeposit(walletClient, {
+ *   factory: conduitFactory,
+ *   conduit: conduitAddress,
+ *   account: account.address,
+ * })
  */
 export async function finalizeConduitDeposit(
   client: Client,

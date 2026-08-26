@@ -23,9 +23,13 @@ export type GetConduitInfoReturnType = ConduitInfo
 /**
  * Reads on-chain metadata for a conduit via a single multicall: name, symbol, decimals, asset, totalSupply, totalAssets, holdings, and whether the conduit is enabled.
  * `isEnabled` reflects `conduit.ready()`, the gate that decides whether deposits and redeems are possible at all.
- * @param client - Viem client instance
- * @param parameters - The conduit address to query
- * @returns Conduit metadata including supply, assets, and holdings
+ *
+ * @param parameters - {@link GetConduitInfoParameters}
+ *
+ * @example
+ * import { getConduitInfo } from '@railnetorg/railnet-sdk'
+ *
+ * const info = await getConduitInfo(publicClient, { conduit: conduitAddress })
  */
 export async function getConduitInfo(
   client: Client,

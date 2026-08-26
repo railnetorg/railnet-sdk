@@ -33,9 +33,17 @@ export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters)
 
 /**
  * Redeems conduit shares by calling `conduit.createRedeemFromConduitShares()`. On synchronous vehicles the redeem executes immediately. On async vehicles (STEAM) it creates a pending query. Needs no approval: the conduit burns the caller's shares through an internal transfer, so this is a single transaction. Reads `conduit.asset()` to name the query's output asset unless `outputAsset` is supplied.
- * @param client - Viem client instance
- * @param options - Optional contract call overrides
- * @returns Transaction hash
+ *
+ * @param parameters - {@link RedeemConduitParameters}
+ *
+ * @example
+ * import { redeemConduit } from '@railnetorg/railnet-sdk'
+ *
+ * const hash = await redeemConduit(walletClient, {
+ *   conduit: conduitAddress,
+ *   shares: 500_000n,
+ *   account: account.address,
+ * })
  */
 export async function redeemConduit(
   client: Client,

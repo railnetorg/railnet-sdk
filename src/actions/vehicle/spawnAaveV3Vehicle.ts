@@ -48,10 +48,24 @@ export function prepareSpawnAaveV3Vehicle(parameters: SpawnAaveV3VehicleParamete
  * Spawns a new Aave V3 Vehicle via the AaveV3VehicleFactory.
  * The factory pulls an initial deposit from the caller, so approve the factory for at least {@link getInitialDepositAmount} of `asset` first — this action sends no approval.
  * Use {@link extractAaveV3VehicleAddress} to extract the deployed vehicle address from the transaction receipt.
- * @param client - Viem client instance
- * @param parameters - Factory address, asset, poolAddressesProvider, accessControl, and optional salts
- * @param options - Optional contract call overrides
- * @returns Transaction hash of the spawn
+ *
+ * @param parameters - {@link SpawnAaveV3VehicleParameters}
+ *
+ * @example
+ * import { extractAaveV3VehicleAddress, getAddresses, spawnAaveV3Vehicle } from '@railnetorg/railnet-sdk'
+ * import { base } from 'viem/chains'
+ *
+ * const { aaveV3VehicleFactory, aavePoolAddressesProvider, queryRegistry, usdc } = getAddresses(base.id)
+ *
+ * const hash = await spawnAaveV3Vehicle(walletClient, {
+ *   factory: aaveV3VehicleFactory,
+ *   asset: usdc,
+ *   poolAddressesProvider: aavePoolAddressesProvider,
+ *   accessControl: eacAddress,
+ *   queryRegistry,
+ *   initialExpectedSupply: 10n ** 18n,
+ *   account: account.address,
+ * })
  */
 export async function spawnAaveV3Vehicle(
   client: Client,

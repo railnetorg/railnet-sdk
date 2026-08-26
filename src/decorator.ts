@@ -28,8 +28,6 @@ export type RailnetActions = {
 
 /**
  * Viem client decorator that adds Railnet read actions. Use with `client.extend(railnetActions)`.
- * @param client - Viem client instance to extend
- * @returns An object with `getConduitPosition`, `getConduitInfo`, `predictConduitDeployment`, and `estimateConduit` methods
  */
 export function railnetActions(client: Client): RailnetActions {
   return {
