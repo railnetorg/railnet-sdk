@@ -11,6 +11,7 @@ export type ConduitInfo = {
   decimals: number
   name: string
   symbol: string
+  isEnabled: boolean
 }
 
 export type GetConduitInfoParameters = {
@@ -20,7 +21,8 @@ export type GetConduitInfoParameters = {
 export type GetConduitInfoReturnType = ConduitInfo
 
 /**
- * Reads on-chain metadata for a conduit via a single multicall: name, symbol, decimals, asset, totalSupply, totalAssets, and holdings.
+ * Reads on-chain metadata for a conduit via a single multicall: name, symbol, decimals, asset, totalSupply, totalAssets, holdings, and whether the conduit is enabled.
+ * `isEnabled` reflects `conduit.ready()`, the gate that decides whether deposits and redeems are possible at all.
  * @param client - Viem client instance
  * @param parameters - The conduit address to query
  * @returns Conduit metadata including supply, assets, and holdings
@@ -40,6 +42,7 @@ export async function getConduitInfo(
       { address: conduit, abi: conduitAbi, functionName: 'decimals' },
       { address: conduit, abi: conduitAbi, functionName: 'name' },
       { address: conduit, abi: conduitAbi, functionName: 'symbol' },
+      { address: conduit, abi: conduitAbi, functionName: 'ready' },
     ] as const,
     allowFailure: false,
   })
@@ -53,5 +56,6 @@ export async function getConduitInfo(
     decimals: results[4],
     name: results[5],
     symbol: results[6],
+    isEnabled: results[7],
   }
 }
