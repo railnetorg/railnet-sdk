@@ -42,7 +42,7 @@ const walletClient = createWalletClient({
 const factoryAddress = '0x1234...'
 
 // 1. Spawn the contract
-const hash = await spawnConduit(publicClient, walletClient, {
+const hash = await spawnConduit(walletClient, {
   factory: factoryAddress,
   name: 'My Conduit',
   symbol: 'COND',

@@ -4,7 +4,7 @@ description: Deploys a new conduit via the factory.
 
 # spawnConduit
 
-Deploys a new conduit via the factory contract. Requires a `PublicClient` and a `WalletClient` to sign and send the transaction.
+Deploys a new conduit via the factory contract. Requires a `WalletClient` to sign and send the transaction.
 
 :::warning
 The factory pulls an initial deposit from the caller. Approve the factory for at least
@@ -21,21 +21,16 @@ import { spawnConduit } from '@railnetorg/railnet-sdk'
 ## Usage
 
 ```ts
-import { createPublicClient, createWalletClient, http } from 'viem'
+import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { spawnConduit } from '@railnetorg/railnet-sdk'
-
-const publicClient = createPublicClient({
-  chain: base,
-  transport: http(),
-})
 
 const walletClient = createWalletClient({
   chain: base,
   transport: http(),
 })
 
-const hash = await spawnConduit(publicClient, walletClient, {
+const hash = await spawnConduit(walletClient, {
   factory: '0x1234...',
   name: 'My Conduit',
   symbol: 'COND',

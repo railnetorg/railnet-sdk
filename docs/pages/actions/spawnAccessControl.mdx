@@ -4,7 +4,7 @@ description: Deploys an ExternalAccessControl contract via factory.
 
 # spawnAccessControl
 
-Deploys an ExternalAccessControl contract via the factory. Requires a `PublicClient` and a `WalletClient`.
+Deploys an ExternalAccessControl contract via the factory. Requires a `WalletClient` to sign and send the transaction.
 
 ## Import
 
@@ -15,21 +15,16 @@ import { spawnAccessControl } from '@railnetorg/railnet-sdk'
 ## Usage
 
 ```ts
-import { createPublicClient, createWalletClient, http } from 'viem'
+import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { spawnAccessControl } from '@railnetorg/railnet-sdk'
-
-const publicClient = createPublicClient({
-  chain: base,
-  transport: http(),
-})
 
 const walletClient = createWalletClient({
   chain: base,
   transport: http(),
 })
 
-const hash = await spawnAccessControl(publicClient, walletClient, {
+const hash = await spawnAccessControl(walletClient, {
   factory: '0x1234...',
   initialDefaultAdmin: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
