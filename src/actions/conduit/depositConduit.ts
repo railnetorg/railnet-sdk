@@ -6,7 +6,6 @@ import {
   type Hash,
   type Hex,
   keccak256,
-  toHex,
 } from 'viem'
 import {
   readContract,
@@ -16,6 +15,7 @@ import {
 } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { ContractCallOptions } from '../../types.js'
+import { randomSalt } from '../../utils/salt.js'
 import { ConduitMode } from './types.js'
 
 export type DepositConduitParameters = {
@@ -27,15 +27,15 @@ export type DepositConduitParameters = {
   salt?: Hex
 }
 
-export type PrepareDepositConduitParameters = DepositConduitParameters & {
+export type PrepareDepositConduitParameters = Omit<DepositConduitParameters, 'salt'> & {
   account: Address
   vehicle: Address
+  salt: Hex
 }
 
 export function prepareDepositConduit(parameters: PrepareDepositConduitParameters) {
-  const { conduit, token, amount, account, vehicle } = parameters
+  const { conduit, token, amount, account, vehicle, salt: sourceSalt } = parameters
   const receiver = parameters.receiver ?? account
-  const sourceSalt = parameters.salt ?? keccak256(toHex(`deposit-${account}-${Date.now()}`))
 
   const query = {
     owner: conduit,
@@ -111,7 +111,7 @@ export async function depositConduit(
 
   const { request: depositRequest } = await simulateContract(client, {
     ...options,
-    ...prepareDepositConduit({ ...parameters, vehicle }),
+    ...prepareDepositConduit({ ...parameters, vehicle, salt: parameters.salt ?? randomSalt() }),
     account,
   })
 

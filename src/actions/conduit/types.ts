@@ -21,8 +21,8 @@ export type SpawnConduitParameters = {
   feeManager: Address
   accountList: Address
   ownerRegistry: Address
-  querySalt?: Hex
-  deploymentSalt?: Hex
+  querySalt: Hex
+  deploymentSalt: Hex
 }
 
 export enum ConduitMode {

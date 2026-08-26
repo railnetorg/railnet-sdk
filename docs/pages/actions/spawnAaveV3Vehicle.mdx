@@ -107,17 +107,17 @@ Optional list of addresses forbidden from interacting with the vehicle.
 
 The initial expected supply.
 
-### querySalt (optional)
+### querySalt
 
 - **Type:** `Hex`
 
-Optional salt for the query operation.
+Salt for the spawn's initial query. Required: a `prepare*` builder draws nothing from the clock, so the same input always encodes the same calldata. Generate it with [`randomSalt`](/utilities/randomSalt).
 
-### deploymentSalt (optional)
+### deploymentSalt
 
 - **Type:** `Hex`
 
-Optional salt for the deployment.
+A deployment salt fixes the contract's address for good. It is required so a failed spawn can be retried against the same address — generate it with [`randomSalt`](/utilities/randomSalt) and keep the value.
 
 ### account
 

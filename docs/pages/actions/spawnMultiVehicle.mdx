@@ -108,11 +108,13 @@ The address of the modules manager contract. Defaults to `zeroAddress`.
 
 Optional list of addresses forbidden from interacting with the MultiVehicle.
 
-### salts (optional)
+### salts
 
 - **Type:** `MultiVehicleSalts`
 
-Optional salts for the deployment. Auto-generated if not provided.
+The seven deployment salts, one per contract. Required: they fix seven addresses at once, so
+losing them means a spawn that fails midway cannot be retried against the same addresses.
+Generate each with [`randomSalt`](/utilities/randomSalt) and keep them.
 
 ```ts
 type MultiVehicleSalts = {

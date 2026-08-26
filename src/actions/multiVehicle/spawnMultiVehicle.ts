@@ -1,4 +1,4 @@
-import { type Address, type Client, type Hash, type Hex, keccak256, toHex, zeroAddress } from 'viem'
+import { type Address, type Client, type Hash, type Hex, zeroAddress } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { multiVehicleFactoryAbi } from '../../abi/multiVehicleFactory.js'
 import type { ContractCallOptions } from '../../types.js'
@@ -23,7 +23,7 @@ export type SpawnMultiVehicleParameters = {
   feeManager?: Address
   modulesManager?: Address
   forbiddenAddresses?: Address[]
-  salts?: MultiVehicleSalts
+  salts: MultiVehicleSalts
   initialInterceptions?: Array<{
     asset: Address
     recipients: Array<{
@@ -35,17 +35,6 @@ export type SpawnMultiVehicleParameters = {
 }
 
 export function prepareSpawnMultiVehicle(parameters: SpawnMultiVehicleParameters) {
-  const now = Date.now()
-  const salts: MultiVehicleSalts = parameters.salts ?? {
-    multiVehicle: keccak256(toHex(`multi-vehicle-${parameters.name}-${now}`)),
-    queryRedeemQueue: keccak256(toHex(`query-redeem-queue-${parameters.name}-${now}`)),
-    queueStrategyEngine: keccak256(toHex(`queue-strategy-engine-${parameters.name}-${now}`)),
-    sectorAccountingEngine: keccak256(toHex(`sector-accounting-engine-${parameters.name}-${now}`)),
-    subQueryEngine: keccak256(toHex(`sub-query-engine-${parameters.name}-${now}`)),
-    vehicleManager: keccak256(toHex(`vehicle-manager-${parameters.name}-${now}`)),
-    initialDepositQuery: keccak256(toHex(`initial-deposit-query-${parameters.name}-${now}`)),
-  }
-
   return {
     address: parameters.factory,
     abi: multiVehicleFactoryAbi,
@@ -59,7 +48,7 @@ export function prepareSpawnMultiVehicle(parameters: SpawnMultiVehicleParameters
         accessControl: parameters.accessControl,
         feeManager: parameters.feeManager ?? zeroAddress,
         modulesManager: parameters.modulesManager ?? zeroAddress,
-        salts,
+        salts: parameters.salts,
         forbiddenAddresses: parameters.forbiddenAddresses ?? [],
         queryRegistry: parameters.queryRegistry,
       },

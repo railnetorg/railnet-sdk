@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'bun:test'
-import { keccak256, toHex } from 'viem'
+import { type Hex, keccak256, toHex } from 'viem'
 import * as roles from '../src/constants/roles.js'
 
-const { DEFAULT_ADMIN_ROLE, ...hashedRoles } = roles
+const { DEFAULT_ADMIN_ROLE, ROLES, roleName, ...hashedRoles } = roles
+
+const registry: readonly { name: string; hash: Hex }[] = ROLES
+const exportedRoles = Object.entries(roles).filter(([, value]) => typeof value === 'string') as [
+  string,
+  Hex,
+][]
 
 describe('role constants', () => {
   it('DEFAULT_ADMIN_ROLE is bytes32 zero', () => {
@@ -17,5 +23,37 @@ describe('role constants', () => {
     for (const [name, role] of Object.entries(hashedRoles)) {
       expect(role).toBe(keccak256(toHex(name)))
     }
+  })
+})
+
+describe('ROLES', () => {
+  // The registry is written out by hand, so it can fall behind the constants it mirrors. These two
+  // assertions are what notice.
+  it('lists every exported role constant', () => {
+    expect(registry.length).toBe(exportedRoles.length)
+    for (const [name, hash] of exportedRoles) {
+      expect(registry).toContainEqual({ name, hash })
+    }
+  })
+
+  it('gives every entry the hash its name exports', () => {
+    const exportedByName = new Map(exportedRoles)
+
+    for (const role of registry) {
+      expect(exportedByName.get(role.name)).toBe(role.hash)
+    }
+  })
+})
+
+describe('roleName', () => {
+  it('resolves every role in the registry', () => {
+    for (const role of registry) {
+      expect(roleName(role.hash)).toBe(role.name)
+    }
+  })
+
+  it('returns null for a hash that is not a role', () => {
+    expect(roleName(keccak256(toHex('NOT_A_ROLE')))).toBeNull()
+    expect(roleName('0xdead')).toBeNull()
   })
 })

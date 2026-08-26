@@ -108,6 +108,22 @@ type VehicleEntry = {
 
 Set `value: 2n ** 256n - 1n` for unlimited targets. Set `value: 0n` for zero targets (drain first on redeem).
 
+### salts
+
+- **Type:** `DeployMultiVehicleSalts`
+
+```ts
+type DeployMultiVehicleSalts = {
+  multiVehicle: MultiVehicleSalts
+  accessControl: Hex
+}
+```
+
+The workflow deploys eight contracts, so it does not invent their addresses for you. Generate each
+salt with [`randomSalt`](/utilities/randomSalt) and log them: a run that fails midway can only be
+retried against the same addresses if you still hold the salts. `accessControl` is unused when you
+supply an existing `accessControl` address, since none is spawned.
+
 ### accessControl (optional)
 
 - **Type:** `Address`

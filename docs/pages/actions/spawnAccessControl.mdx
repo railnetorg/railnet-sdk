@@ -67,11 +67,11 @@ The initial delay (in seconds) for admin role changes. Defaults to `0`.
 
 Initial roles to grant. Defaults to `[]`.
 
-### deploymentSalt (optional)
+### deploymentSalt
 
 - **Type:** `Hex`
 
-Optional salt for the deployment. Auto-generated if not provided.
+A deployment salt fixes the contract's address for good. It is required so a failed spawn can be retried against the same address — generate it with [`randomSalt`](/utilities/randomSalt) and keep the value.
 
 ### account
 

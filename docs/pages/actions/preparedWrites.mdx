@@ -105,22 +105,25 @@ The conduit binds the query salt to the sender — `query.salt` must equal
 knowing which address will send it. Sending it from any other account reverts with
 `InvalidQuerySalt`.
 
-## Pass explicit salts for reproducible calls
+## Salts are required, never generated
 
-Builders that generate a salt (`prepareSpawnConduit`, `prepareSpawnAccessControl`,
-`prepareSpawnMultiVehicle`, `prepareSpawnAaveV3Vehicle`, `prepareDepositConduit`,
-`prepareRedeemConduit`) derive it from the current timestamp when you do not provide one. Two calls
-with identical parameters then produce different salts — and, for the factories, a different
-predicted deployment address.
+Every builder that takes a salt requires it. A `prepare*` is a pure function of its inputs: two
+calls with the same parameters encode the same calldata, so a prepared call can be compared against
+a simulation or replayed after a failure.
 
-Pass the salts explicitly whenever the prepared call has to match something computed earlier, such
-as a [`predictConduitDeployment`](/actions/predictConduitDeployment) result or a step that gets
-retried.
+Generate salts with [`randomSalt`](/utilities/randomSalt), and keep the deployment ones — they fix
+the deployed address, and `prepareSpawnMultiVehicle` takes seven at once.
 
 ```ts
+import { prepareSpawnConduit, randomSalt } from '@railnetorg/railnet-sdk'
+
 const prepared = prepareSpawnConduit({
   // ...
-  querySalt: '0x1234...',
-  deploymentSalt: '0x5678...',
+  querySalt: randomSalt(),
+  deploymentSalt: randomSalt(),
 })
 ```
+
+The execute actions differ on one point: `depositConduit` and `redeemConduit` default `salt` to a
+random value, because a query salt is disposable and the action makes the full round trip itself.
+The `spawn*` actions have no defaults at all.

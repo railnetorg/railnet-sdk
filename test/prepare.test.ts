@@ -17,7 +17,11 @@ import {
   prepareGrantScopedRole,
   prepareMoveBetweenSectors,
   prepareRedeemConduit,
+  prepareSpawnAaveV3Vehicle,
+  prepareSpawnAccessControl,
   prepareSpawnConduit,
+  prepareSpawnMultiVehicle,
+  randomSalt,
   SECTOR_AVAILABLE,
   SECTOR_RESERVED,
   vehicleSector,
@@ -219,5 +223,118 @@ describe('prepare* writes', () => {
         operationId: zeroHash,
       }),
     ).toThrow(/minOutput requires a pinned amount/)
+  })
+})
+
+// Every salt is a required parameter, so a builder has nothing left to draw from the clock. Calling
+// one twice with the same input has to produce the same calldata — otherwise a prepared call cannot
+// be compared against a simulation or replayed after a failure, which is the whole point of it.
+describe('prepare* builders are pure', () => {
+  const mvSalts = {
+    multiVehicle: zeroHash,
+    queryRedeemQueue: zeroHash,
+    queueStrategyEngine: zeroHash,
+    sectorAccountingEngine: zeroHash,
+    subQueryEngine: zeroHash,
+    vehicleManager: zeroHash,
+    initialDepositQuery: zeroHash,
+  }
+
+  const builders: Array<[string, () => PreparedWrite]> = [
+    [
+      'prepareDepositConduit',
+      () =>
+        prepareDepositConduit({
+          conduit: zeroAddress,
+          token: USDC_ASSET,
+          amount: 100n,
+          account,
+          vehicle: VEHICLE,
+          salt: zeroHash,
+        }),
+    ],
+    [
+      'prepareRedeemConduit',
+      () =>
+        prepareRedeemConduit({
+          conduit: zeroAddress,
+          shares: 100n,
+          account,
+          outputAsset: { asset: USDC_ASSET, value: 0n },
+          salt: zeroHash,
+        }),
+    ],
+    [
+      'prepareSpawnConduit',
+      () =>
+        prepareSpawnConduit({
+          factory: zeroAddress,
+          name: 'Conduit',
+          symbol: 'CDT',
+          vehicle: VEHICLE,
+          initialExpectedSupply: 1n,
+          transferEnabled: true,
+          accessControl: zeroAddress,
+          feeManager: zeroAddress,
+          accountList: zeroAddress,
+          ownerRegistry: zeroAddress,
+          querySalt: zeroHash,
+          deploymentSalt: zeroHash,
+        }),
+    ],
+    [
+      'prepareSpawnMultiVehicle',
+      () =>
+        prepareSpawnMultiVehicle({
+          factory: zeroAddress,
+          asset: USDC_ASSET,
+          name: 'Multi',
+          symbol: 'MV',
+          accessControl: zeroAddress,
+          queryRegistry: zeroAddress,
+          salts: mvSalts,
+        }),
+    ],
+    [
+      'prepareSpawnAaveV3Vehicle',
+      () =>
+        prepareSpawnAaveV3Vehicle({
+          factory: zeroAddress,
+          asset: USDC_ASSET,
+          poolAddressesProvider: zeroAddress,
+          accessControl: zeroAddress,
+          queryRegistry: zeroAddress,
+          initialExpectedSupply: 1n,
+          querySalt: zeroHash,
+          deploymentSalt: zeroHash,
+        }),
+    ],
+    [
+      'prepareSpawnAccessControl',
+      () =>
+        prepareSpawnAccessControl({
+          factory: zeroAddress,
+          initialDefaultAdmin: account,
+          deploymentSalt: zeroHash,
+        }),
+    ],
+  ]
+
+  test.each(builders)('%s encodes identical calldata twice', (_name, build) => {
+    const first = build()
+    const second = build()
+
+    expect(encodeFunctionData(first as never)).toBe(encodeFunctionData(second as never))
+  })
+})
+
+describe('randomSalt', () => {
+  test('returns a distinct bytes32 each call', () => {
+    const salts = new Set(Array.from({ length: 64 }, () => randomSalt()))
+
+    expect(salts.size).toBe(64)
+    for (const salt of salts) {
+      expect(salt).toMatch(/^0x[0-9a-f]{64}$/)
+    }
   })
 })

@@ -99,3 +99,34 @@ import { VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/rai
 | Constant | Description |
 | --- | --- |
 | `DEFAULT_ADMIN_ROLE` | `bytes32(0)`, the OpenZeppelin default admin role |
+
+## The registry
+
+Individual constants cover the case where you know the role you want. When you need the whole set —
+labelling a hash read from chain, or building a role picker — use `ROLES` and `roleName` instead of
+rebuilding the list by introspecting the exports.
+
+```ts
+import { ROLES, roleName, VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
+
+ROLES.length // every role the protocol defines
+ROLES[0]     // { name: 'FACTORY_SPAWN', hash: '0x...' }
+
+const options = ROLES.map((role) => ({ label: role.name, value: role.hash }))
+
+roleName(VEHICLE_STEAM_DEPOSIT) // 'VEHICLE_STEAM_DEPOSIT'
+roleName('0xdead')              // null
+```
+
+### ROLES
+
+- **Type:** `readonly { name: string; hash: Hex }[]`
+
+Every role, including `DEFAULT_ADMIN_ROLE`. A test asserts it stays in step with the named exports
+in both directions.
+
+### roleName
+
+- **Type:** `(hash: Hex) => string | null`
+
+Resolves a hash back to its name, or `null` when the hash is not a protocol role.
