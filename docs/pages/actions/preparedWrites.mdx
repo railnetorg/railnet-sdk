@@ -88,9 +88,11 @@ overrides.
 
 ## No approvals included
 
-`prepareDepositConduit` and `prepareRedeemConduit` emit **only** the Railnet call. The execute
-actions (`depositConduit`, `redeemConduit`) also check the ERC-20 allowance and send an approval
-transaction when it is insufficient — the builders do not. Sequence the approval yourself.
+`prepareDepositConduit` and `prepareRedeemConduit` emit **only** the Railnet call, and they resolve
+no addresses: `prepareDepositConduit` requires `vehicle` and `prepareRedeemConduit` requires
+`outputAsset`, both of which the execute actions read from the conduit. `depositConduit` also sends
+an ERC-20 approval when the allowance is short — sequence that yourself. Redeeming needs no
+approval at all, since the conduit burns the caller's shares internally.
 
 The same applies to the `spawn*` builders: the factories pull an initial deposit from the caller,
 so the caller must have approved the factory beforehand.

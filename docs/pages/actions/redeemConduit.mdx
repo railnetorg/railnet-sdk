@@ -7,7 +7,7 @@ description: Redeems shares from a conduit.
 Redeems shares from a conduit. Requires a `WalletClient` to sign and send the transaction.
 
 :::info
-This action automatically checks the conduit share allowance. If the current allowance is insufficient, it will send an **approval transaction** before the redeem, resulting in two transactions total.
+This action needs no approval and sends a single transaction. The conduit burns the caller's shares through an internal transfer, which never goes through `transferFrom`.
 :::
 
 ## Import

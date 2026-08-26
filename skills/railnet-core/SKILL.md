@@ -242,7 +242,7 @@ const hash = await depositConduit(client, {
 // in gas estimation and UI loading states.
 ```
 
-Write actions like `depositConduit` and `redeemConduit` auto-check ERC20 allowance and send an approval transaction before the main operation if needed. This means a single SDK call can produce two on-chain transactions.
+`depositConduit` auto-checks the ERC20 allowance and sends an approval transaction before the deposit if needed, so a single SDK call can produce two on-chain transactions. `redeemConduit` does not: the conduit burns the caller's shares internally, so redeeming is always one transaction.
 
 Source: src/actions/conduit/depositConduit.ts:36-54
 

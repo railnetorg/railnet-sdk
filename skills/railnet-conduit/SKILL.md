@@ -139,7 +139,7 @@ const depositHash = await depositConduit(walletClient, {
   // salt is optional — auto-generated
 })
 
-// Redeem: Auto-checks allowance on conduit shares.
+// Redeem: no approval needed, the conduit burns the caller's shares internally.
 // Internally calls conduit.createRedeemFromConduitShares().
 const redeemHash = await redeemConduit(walletClient, {
   conduit: conduitAddress,

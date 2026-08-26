@@ -1,10 +1,5 @@
 import { type Address, type Client, type Hash, type Hex, keccak256, toHex } from 'viem'
-import {
-  readContract,
-  simulateContract,
-  waitForTransactionReceipt,
-  writeContract,
-} from 'viem/actions'
+import { readContract, simulateContract, writeContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { ContractCallOptions } from '../../types.js'
 import type { Asset } from './types.js'
@@ -37,7 +32,7 @@ export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters)
 }
 
 /**
- * Redeems conduit shares by calling `conduit.createRedeemFromConduitShares()`. On synchronous vehicles the redeem executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves conduit shares if the current allowance is insufficient, and reads `conduit.asset()` to name the query's output asset unless `outputAsset` is supplied.
+ * Redeems conduit shares by calling `conduit.createRedeemFromConduitShares()`. On synchronous vehicles the redeem executes immediately. On async vehicles (STEAM) it creates a pending query. Needs no approval: the conduit burns the caller's shares through an internal transfer, so this is a single transaction. Reads `conduit.asset()` to name the query's output asset unless `outputAsset` is supplied.
  * @param client - Viem client instance
  * @param options - Optional contract call overrides
  * @returns Transaction hash
@@ -47,32 +42,11 @@ export async function redeemConduit(
   parameters: RedeemConduitParameters & { account: Address },
   options?: ContractCallOptions,
 ): Promise<Hash> {
-  const { conduit, shares, account } = parameters
+  const { conduit, account } = parameters
 
-  const [allowance, outputAsset] = await Promise.all([
-    readContract(client, {
-      address: conduit,
-      abi: conduitAbi,
-      functionName: 'allowance',
-      args: [account, conduit],
-    }),
-    parameters.outputAsset ??
-      readContract(client, { address: conduit, abi: conduitAbi, functionName: 'asset' }).then(
-        (asset) => ({ asset, value: 0n }),
-      ),
-  ])
-
-  if (allowance < shares) {
-    const { request: approveRequest } = await simulateContract(client, {
-      ...options,
-      address: conduit,
-      abi: conduitAbi,
-      functionName: 'approve',
-      args: [conduit, shares],
-      account,
-    })
-    const approveHash = await writeContract(client, approveRequest)
-    await waitForTransactionReceipt(client, { hash: approveHash })
+  const outputAsset: Asset = parameters.outputAsset ?? {
+    asset: await readContract(client, { address: conduit, abi: conduitAbi, functionName: 'asset' }),
+    value: 0n,
   }
 
   const { request: redeemRequest } = await simulateContract(client, {
