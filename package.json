@@ -12,7 +12,8 @@
     "docs:build": "vocs build",
     "docs:preview": "vocs preview",
     "abis:check": "bun scripts/check-abis.ts",
-    "abis:sync": "bun scripts/sync-abis.ts && bunx biome check --write src/abi/"
+    "abis:sync": "bun scripts/sync-abis.ts && bunx biome check --write src/abi/",
+    "addresses:sync": "bun scripts/sync-addresses.ts && bunx biome check --write src/contracts/addresses.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "latest",
