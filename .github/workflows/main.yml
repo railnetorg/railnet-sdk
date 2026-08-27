@@ -40,14 +40,12 @@ jobs:
 
       - name: PR or publish
         id: changesets
-        # v2 of this action requires Changesets CLI v3; we run 2.30.0. Pinned to the current
-        # commit of the v1 branch (action 1.9.0), which has no tag of its own.
-        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
         with:
-          title: 'chore: version packages'
-          commit: 'chore: version packages'
-          publish: bun run changeset:publish
-          version: bun run changeset:version
+          pr-title: 'chore: version packages'
+          commit-message: 'chore: version packages'
+          publish-script: bun run changeset:publish
+          version-script: bun run changeset:version
+          github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
