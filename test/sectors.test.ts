@@ -14,7 +14,7 @@ import {
 const VEHICLE = '0x2ec94b8979868Bf5586f8550733092A77Cd77c9E' as const
 
 describe('static sectors', () => {
-  // values transcribed from SectorLib in contracts: src/vehicles/multi/libs/Sector.sol
+  // values transcribed from SectorLib (Sector.sol)
   it('match the on-chain constants', () => {
     expect(SECTOR_ENTRY).toBe('0x0000000000000000000000000000000000000000000000000000000000000000')
     expect(SECTOR_AVAILABLE).toBe(

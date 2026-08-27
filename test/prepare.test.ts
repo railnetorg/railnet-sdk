@@ -127,7 +127,7 @@ describe('prepare* writes', () => {
     expect(prepared.args[1]).toEqual({ asset: USDC_ASSET, value: 0n })
   })
 
-  // STEAM scalarized `Asset[]` to `Asset` (contracts b4534821). An array-shaped Asset changes the tuple
+  // STEAM scalarized `Asset[]` to `Asset`. An array-shaped Asset changes the tuple
   // encoding and therefore the selector, so the call would silently miss the deployed function.
   test('prepared conduit writes encode to the deployed scalar-Asset selectors', () => {
     const query = '(address,address,(address,uint256),(address,uint256),uint8,bytes32,bytes)'

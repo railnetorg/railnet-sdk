@@ -21,7 +21,6 @@ export type ChainAddresses = {
 }
 
 export const addresses = {
-  // contracts deployments/mainnet_testnet.json (slug mainnet_testnet)
   1: {
     conduitFactory: '0x9AC272220546F1A6B5E9ec1a4b6f5E81A3acCdc0',
     coreFactory: '0x4E56Bab92f639a7A7e8D0ADaC192aeb55448e3B8',
@@ -41,7 +40,6 @@ export const addresses = {
     aavePoolAddressesProvider: '0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e',
     usdc: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   },
-  // contracts deployments/base_testnet.json (slug base_testnet)
   8453: {
     conduitFactory: '0x36Fbc89D0d2bFCc333e0075bd73c6A4dFcBA121A',
     coreFactory: '0xd9F9a04ebC252743900c2639b2B6eb3532aeb22C',

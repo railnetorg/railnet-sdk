@@ -104,6 +104,15 @@ function Position() {
 | `@railnetorg/railnet-sdk` | Core actions, ABIs, types and utilities |
 | `@railnetorg/railnet-sdk/react` | React hooks and TanStack Query integrations |
 
+## Supported chains
+
+| Chain | ID | Status |
+|---|---|---|
+| Base | `8453` | Deployed, assets authorized |
+| Ethereum | `1` | Deployed, no assets authorized yet |
+
+Ethereum authorizes no assets yet, so `getInitialDepositAmount` reverts there and spawning will too.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, architecture, adding new actions, and release process.

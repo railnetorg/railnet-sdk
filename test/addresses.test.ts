@@ -10,7 +10,7 @@ import { BASE_ADDRESSES, CONDUIT_FACTORY, TEST_CONDUIT, USDC } from './constants
 const client = createPublicClient({ chain: base, transport: http(process.env.BASE_RPC_URL) })
 
 describe('shipped Base addresses', () => {
-  // The ABIs and the addresses are synced from contracts separately, so nothing stops them drifting
+  // The ABIs and the addresses are synced separately, so nothing stops them drifting
   // onto different deployment generations. `isDeployedBy` is the cheapest thing that notices: the
   // fixture is the conduit estimateConduit proves the scalar ABI can talk to, and a factory from
   // another generation disowns it.

@@ -3,3 +3,6 @@ node_modules
 *.tsbuildinfo
 .DS_Store
 .env.test
+.omc/
+.opencode/
+.claude/settings.local.json

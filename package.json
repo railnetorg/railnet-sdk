@@ -10,9 +10,7 @@
     "test:e2e": "bun test --env-file .env.test --timeout 120000 ./test/conduitDepositRedeem.e2e.ts",
     "docs:dev": "vocs dev",
     "docs:build": "vocs build",
-    "docs:preview": "vocs preview",
-    "abis:check": "bun scripts/check-abis.ts",
-    "abis:sync": "bun scripts/sync-abis.ts && bunx biome check --write src/abi/"
+    "docs:preview": "vocs preview"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.9",
