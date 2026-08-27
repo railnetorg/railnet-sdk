@@ -10,7 +10,7 @@ description: >
 metadata:
   type: core
   library: railnet-sdk
-  library_version: '0.1.0'
+  library_version: '0.3.0'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/conduit/*.ts'
 ---

@@ -14,7 +14,7 @@ description: >
 metadata:
   type: core
   library: railnet-sdk
-  library_version: '0.1.0'
+  library_version: '0.3.0'
 sources:
   - 'railnetorg/railnet-sdk:src/index.ts'
   - 'railnetorg/railnet-sdk:src/decorator.ts'
