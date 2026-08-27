@@ -66,5 +66,8 @@
     "wagmi": {
       "optional": true
     }
+  },
+  "overrides": {
+    "ws": "^8.21.3"
   }
 }

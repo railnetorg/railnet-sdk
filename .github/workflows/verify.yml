@@ -42,3 +42,18 @@ jobs:
         env:
           CI: true
           BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      # No --ignore entries. Every advisory reaching this level has a patched
+      # version, so the answer is a bump, not a suppression.
+      - name: Audit production dependencies (high+critical)
+        run: bun audit --audit-level=high --prod
