@@ -19,6 +19,7 @@ jobs:
   changesets:
     name: Changesets
     needs: verify
+    environment: release
     permissions:
       contents: write
       packages: write
