@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/public/logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/public/logo-light.svg">
-    <img alt="Railnet SDK" src="docs/public/logo-dark.svg" width="200">
+    <source media="(prefers-color-scheme: dark)" srcset="public/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="public/logo-light.svg">
+    <img alt="Railnet SDK" src="public/logo-dark.svg" width="200">
   </picture>
 </p>
 
