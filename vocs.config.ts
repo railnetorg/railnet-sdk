@@ -7,6 +7,8 @@ export default defineConfig({
   outDir: 'docs/dist',
   renderStrategy: 'partial-static',
   baseUrl: 'https://sdk.railnet.org',
+  ogImageUrl: (pagePath, { baseUrl }) =>
+    `${baseUrl}/api/og?title=%title&description=%description&section=${pagePath.split('/').filter(Boolean)[0] ?? ''}`,
   iconUrl: '/favicon.png',
   logoUrl: {
     light: '/logo-light.svg',
