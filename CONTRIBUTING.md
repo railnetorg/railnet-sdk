@@ -4,10 +4,19 @@
 
 ```bash
 bun install
-bun run dev          # symlinks dist/ → src/ for local dev
-bun run check:types  # type check
-bun run docs:dev     # vocs documentation site
+bun run dev       # symlinks dist/ → src/ for local dev
+bun run lint      # type check
+bun run format    # biome check --fix
+bun run docs:dev  # vocs documentation site
 ```
+
+The test suite forks Base, so it needs an RPC endpoint and [Foundry](https://getfoundry.sh) on your `PATH` for `anvil`. Create a `.env.test` (gitignored):
+
+```
+BASE_RPC_URL=https://base-rpc.publicnode.com
+```
+
+Then `bun run test`. Without it three fork suites fail; the rest still run.
 
 ## Architecture
 
