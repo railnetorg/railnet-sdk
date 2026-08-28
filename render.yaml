@@ -1,0 +1,20 @@
+# Custom domain (set in the Render dashboard): sdk.railnet.org
+
+projects:
+  - name: railnet-docs
+    environments:
+      - name: production
+        services:
+          - type: web
+            name: railnet-sdk-docs
+            runtime: node
+            plan: starter
+            region: frankfurt
+            healthCheckPath: /
+            buildCommand: bun install --frozen-lockfile && bun run docs:build
+            # Reads PORT and HOST from the environment.
+            startCommand: node docs/dist/serve-node.js
+            envVars:
+              # The node runtime picks up Bun from bun.lock; this pins the version.
+              - key: BUN_VERSION
+                value: "1.3.10"
