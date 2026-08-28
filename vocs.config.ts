@@ -9,6 +9,7 @@ export default defineConfig({
   baseUrl: 'https://sdk.railnet.org',
   ogImageUrl: (pagePath, { baseUrl }) =>
     `${baseUrl}/api/og?title=%title&description=%description&section=${pagePath.split('/').filter(Boolean)[0] ?? ''}`,
+  mcp: { enabled: true },
   iconUrl: '/favicon.png',
   logoUrl: {
     light: '/logo-light.svg',
