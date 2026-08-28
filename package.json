@@ -22,7 +22,7 @@
     "@types/react": "^19.2.14",
     "@typescript/native-preview": "^7.0.0-dev.20260401.1",
     "react": "^19.2.4",
-    "typescript": "^6.0.2",
+    "typescript": "^7.0.2",
     "vocs": "^1.4.1",
     "wagmi": "^3.6.0",
     "zile": "^0.0.24"
