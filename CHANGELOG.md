@@ -1,5 +1,12 @@
 # @railnetorg/railnet-sdk
 
+## 0.3.2
+
+### Patch Changes
+
+- 0b654eb: No consumer-facing change. This release exists to exercise the upgraded release pipeline — Changesets CLI 3.0.1 and a pinned `changesets/action` v2.1.1 — end to end, so the path that publishes to partners is proven rather than assumed.
+- 1c129a7: Pin the transitive `ws` resolution to `^8.21.3`, clearing two advisories that reached the production tree through `viem › isows › ws`: a high memory-exhaustion DoS (GHSA-96hv-2xvq-fx4p, patched in 8.21.0) and a moderate uninitialized-memory disclosure (GHSA-58qx-3vcg-4xpx, patched in 8.20.1). Applied as an `overrides` entry, so the package still declares zero runtime dependencies.
+
 ## 0.3.1
 
 ### Patch Changes
@@ -13,7 +20,6 @@
 - a8367be: Make every salt an explicit parameter, and export a role registry.
 
   **Breaking.** `querySalt`, `deploymentSalt` and `salts` are now required on the four `spawn*` actions and their builders, on `deployMultiVehicle`, and `salt` is required on `prepareDepositConduit` / `prepareRedeemConduit`.
-
   - **A `prepare*` is now a pure function of its inputs.** Nothing is drawn from the clock, so two calls with the same parameters encode the same calldata — which is what makes a prepared call comparable against a simulation and replayable after a failure.
   - **`prepareSpawnMultiVehicle` derived seven deployment salts from one `Date.now()`.** A spawn that failed midway lost the timestamp, so the caller could not re-derive the salts and could never retry against the same seven addresses. A deployment salt fixes an address permanently; the caller has to own it.
   - **`depositConduit` and `redeemConduit` keep a default**, because a query salt is disposable and the action makes the full round trip itself — but it now comes from `crypto.getRandomValues`, not the clock. Two deposits from the same account in the same millisecond previously shared a `sourceSalt`, so the second reverted. Harmless for a human signing one at a time, reachable by a script or a batch.
@@ -32,7 +38,6 @@
 - f6fa146: Rotate every protocol address onto the audited deployment generation, and add Ethereum (`1`) alongside Base (`8453`).
 
   All 15 protocol addresses pointed at a superseded generation while the ABIs had already been resynced from the audit-remediation branch, so the two halves of the SDK spoke to different deployments:
-
   - **`spawnConduit` could not work.** The `spawn` selector our ABI encodes (`0x9d0c036e`) is absent from the factory we shipped and present in the audited one.
   - **`getInitialDepositAmount` under-reported.** The registry we shipped returns `1000000` for USDC where the audited one requires `2000000`, so a caller would approve half of what the factory pulls and the spawn would revert.
   - A conduit spawned by the old factory sits on a beacon whose `estimate`/`convert` still take `Asset[]`, which the scalar ABI cannot call.
@@ -44,7 +49,6 @@
   Ethereum's deployment authorizes no assets yet, so `getInitialDepositAmount` reverts there and spawning will too. The addresses are correct; the chain is not provisioned.
 
 - c42f14a: Add the SectorAccountingEngine primitives an asset manager needs to reallocate, now that the contracts replaced `rebalance()` with a composable `move` + `dispatch` API.
-
   - The `Sector` type with the five static sector constants (`SECTOR_AVAILABLE`, `SECTOR_ALLOCATION`, `SECTOR_RESERVED`, `SECTOR_ENTRY`, `SECTOR_EXIT`) and the `vehicleSector` / `sectorToVehicle` / `isVehicleSector` helpers. A vehicle sector is `0x01` followed by eleven zero bytes and the address; the static ones are ASCII right-aligned in a `bytes32`. Neither is reproducible by hand from an ABI.
   - `moveBetweenSectors` for `SectorAccountingEngine.move` and `dispatchVehicle` for its `dispatch`, each with a `prepare*` builder.
   - `simulateDispatchVehicle`, which sends nothing and returns the query plus the state the dispatch would reach — the only exact way to know whether a leg settles in one transaction or leaves an async vehicle in `PROCESSING`.
@@ -57,7 +61,6 @@
   `depositConduit` now reads `conduit.getVehicle()` (skipped when you pass `vehicle`) and `redeemConduit` reads `conduit.asset()` (skipped when you pass `outputAsset`), both alongside the allowance read they already did. The pure builders cannot derive either address, so `prepareDepositConduit` requires `vehicle` and `prepareRedeemConduit` requires `outputAsset`.
 
 - 8a17f99: Resync all ten ABIs from the audited contracts (the audit-remediation branch), which supersedes the hand-scalarised subset and brings the rest of that branch with it.
-
   - **`conduitFactory.spawn` takes one argument, not two.** `deploymentSalt` is a field of `SpawnParams`; the SDK also passed it positionally, which produced a different selector and made conduit deployment impossible. `prepareSpawnConduit` now sends `[spawnParams]`.
   - `vehicleManager`: the `Route` struct in `IncompatibleVehicle` was `(address[], address[])[]` instead of `(address, address)[]`, so that revert decoded as an unknown error.
   - Adds the errors the SDK could not decode: `ZeroInputValue`, `InvalidInput`, `UnknownQuery`, `InterceptionSharesTooHigh`, and renames `InvalidEstimatedAssets` to `InvalidEstimatedAsset`.
@@ -71,7 +74,6 @@
   `PreparedWrite` and `ContractCallOptions` are now exported from the package root.
 
   Contract upgrade sync:
-
   - Rename `VehicleRegistry` to `VehicleManager`: `vehicleRegistryAbi` → `vehicleManagerAbi`, `authorizeVehicle` parameter `vehicleRegistry` → `vehicleManager`, and the `vehicleRegistry` field on multi-vehicle salts / extracted contracts → `vehicleManager`.
   - `spawnConduit` / `predictConduitDeployment`: drop `depositAsset`, `initialDepositSize`, and the `transferMode`/`TransferMode` enum; add `transferEnabled: boolean` and optional `initialInterceptions`.
   - `spawnMultiVehicle`: drop `initialDepositSize` and `initialExpectedSupply`; add required `queryRegistry` and optional `forbiddenAddresses`.
