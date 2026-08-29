@@ -1,9 +1,15 @@
-import { defineConfig } from 'vocs'
+import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   title: 'Railnet SDK',
   description: 'TypeScript SDK for interacting with the Railnet protocol',
-  rootDir: 'docs',
+  srcDir: 'docs',
+  outDir: 'docs/dist',
+  renderStrategy: 'partial-static',
+  baseUrl: 'https://sdk.railnet.org',
+  ogImageUrl: (pagePath, { baseUrl }) =>
+    `${baseUrl}/api/og?title=%title&description=%description&section=${pagePath.split('/').filter(Boolean)[0] ?? ''}`,
+  mcp: { enabled: true },
   iconUrl: '/favicon.png',
   logoUrl: {
     light: '/logo-light.svg',

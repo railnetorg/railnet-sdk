@@ -6,3 +6,4 @@ node_modules
 .omc/
 .opencode/
 .claude/settings.local.json
+docs/pages.gen.ts
