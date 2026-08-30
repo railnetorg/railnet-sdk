@@ -7,6 +7,8 @@ export default defineConfig({
   outDir: 'docs/dist',
   renderStrategy: 'partial-static',
   baseUrl: 'https://sdk.railnet.org',
+  sitemap: false,
+  head: { meta: { robots: 'noindex, nofollow' } },
   ogImageUrl: (pagePath, { baseUrl }) =>
     `${baseUrl}/api/og?title=%title&description=%description&section=${pagePath.split('/').filter(Boolean)[0] ?? ''}`,
   mcp: { enabled: true },
