@@ -13,7 +13,7 @@ projects:
             healthCheckPath: /
             buildCommand: bun install --frozen-lockfile && bun run docs:build
             # Reads PORT and HOST from the environment.
-            startCommand: node docs/dist/serve-node.js
+            startCommand: bun docs/dist/serve-node.js
             envVars:
               # The node runtime picks up Bun from bun.lock; this pins the version.
               - key: BUN_VERSION
