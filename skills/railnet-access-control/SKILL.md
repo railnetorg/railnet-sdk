@@ -11,7 +11,7 @@ description: >
 metadata:
   type: core
   library: railnet-sdk
-  library_version: '0.3.0'
+  library_version: '0.3.1'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/accessControl/*.ts'
   - 'railnetorg/railnet-sdk:src/constants/roles.ts'
@@ -107,6 +107,27 @@ const hash = await setScopedRolePublic(walletClient, {
 ```
 
 Note: The `deployMultiVehicle` workflow checks `isScopedRolePublic` before granting `VEHICLE_STEAM_DEPOSIT` per vehicle. If the role is already public on a vehicle's scope, it skips the individual grants.
+
+### 5. Prepared Writes
+
+`prepareSpawnAccessControl`, `prepareGrantScopedRole`, `prepareRevokeScopedRole` and
+`prepareSetScopedRolePublic` return the viem contract call instead of sending it. They are
+synchronous, take no client, and accept the same parameters as their execute counterparts.
+
+```typescript
+import { prepareRevokeScopedRole } from '@railnetorg/railnet-sdk'
+
+const prepared = prepareRevokeScopedRole({
+  accessControl: eacAddress,
+  role: ROLE_CONDUIT_MANAGER,
+  scope: conduitAddress,
+  grantee: managerAddress,
+})
+
+const hash = await walletClient.writeContract({ ...prepared, account, chain: base })
+```
+
+Useful for batching several role changes into one multicall or Safe transaction.
 
 ## Common Mistakes
 
