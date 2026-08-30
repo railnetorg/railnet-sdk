@@ -14,7 +14,7 @@ description: >
 metadata:
   type: core
   library: railnet-sdk
-  library_version: '0.3.0'
+  library_version: '0.3.1'
 sources:
   - 'railnetorg/railnet-sdk:src/index.ts'
   - 'railnetorg/railnet-sdk:src/decorator.ts'
@@ -153,6 +153,34 @@ type ContractCallOptions = {
   dataSuffix?: Hex
 }
 ```
+
+### Prepared Writes
+
+Every write action has a `prepare*` counterpart. They are synchronous, take no client, and send
+nothing — they return the viem contract call so you can batch it, simulate it, or route it through
+your own signer. The execute action builds on the same builder, so both paths encode an identical
+call.
+
+```typescript
+import { prepareGrantScopedRole } from '@railnetorg/railnet-sdk'
+
+const prepared = prepareGrantScopedRole({
+  accessControl: eacAddress,
+  role: ROLE_CONDUIT_MANAGER,
+  scope: conduitAddress,
+  grantee: managerAddress,
+})
+
+const hash = await walletClient.writeContract({
+  ...prepared,
+  account,
+  chain: base,
+})
+```
+
+Most `prepare*` take the same parameters as their execute counterpart. The exceptions are the ones
+whose execute action reads chain state first: because `prepare*` is synchronous it cannot perform
+that read, so those values become required parameters. See the conduit skill for the specifics.
 
 ## Common Mistakes
 

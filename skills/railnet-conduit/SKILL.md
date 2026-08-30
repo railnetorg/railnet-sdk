@@ -10,7 +10,7 @@ description: >
 metadata:
   type: core
   library: railnet-sdk
-  library_version: '0.3.0'
+  library_version: '0.3.1'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/conduit/*.ts'
 ---
@@ -150,6 +150,34 @@ const redeemHash = await redeemConduit(walletClient, {
   account: account.address,
 })
 ```
+
+### Prepared Writes
+
+`prepareDepositConduit`, `prepareRedeemConduit`, `prepareSpawnConduit`, `prepareEnableConduit`,
+`prepareFinalizeConduitDeposit` and `prepareProcessConduitQuery` return the viem contract call
+without sending it — synchronous, no client. Use them to batch, simulate, or sign elsewhere.
+
+The deposit and redeem builders require more than their execute counterparts, because the execute
+action derives those values from a chain read that a synchronous builder cannot perform:
+
+```typescript
+import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
+
+const prepared = prepareDepositConduit({
+  conduit: conduitAddress,
+  token: usdcAddress,
+  amount: 1_000_000n,
+  account: account.address,
+  vehicle: vehicleAddress, // required here; depositConduit reads it from the conduit
+  salt: randomSalt(), // required here; depositConduit defaults it
+})
+
+const hash = await walletClient.writeContract({ ...prepared, account, chain: base })
+```
+
+`prepareRedeemConduit` likewise requires `outputAsset` and `salt`, which `redeemConduit` fills from
+`conduit.asset()` and `randomSalt()`. A prepared deposit also skips the ERC-20 approval that
+`depositConduit` sends for you — approve separately before submitting.
 
 ### Handling Async Queries (Ethena/Syrup)
 

@@ -13,7 +13,7 @@ description: >
 metadata:
   type: core
   library: railnet-sdk
-  library_version: '0.3.0'
+  library_version: '0.3.1'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/vehicle/*.ts'
   - 'railnetorg/railnet-sdk:src/actions/multiVehicle/*.ts'
@@ -219,6 +219,27 @@ await setQueues(walletClient, {
   account: account.address,
 })
 ```
+
+### Prepared Writes
+
+`prepareSpawnAaveV3Vehicle` returns the viem contract call without sending it — synchronous, no
+client, and the same parameters as `spawnAaveV3Vehicle`.
+
+```typescript
+import { prepareSpawnAaveV3Vehicle } from '@railnetorg/railnet-sdk'
+
+const prepared = prepareSpawnAaveV3Vehicle({
+  factory: aaveV3VehicleFactory,
+  asset: usdcAddress,
+  poolAddressesProvider,
+  accessControl: eacAddress,
+  deploymentSalt: randomSalt(),
+})
+
+const hash = await walletClient.writeContract({ ...prepared, account, chain: base })
+```
+
+The vehicle address still has to come from the receipt via `extractAaveV3VehicleAddress`.
 
 ## Common Mistakes
 
