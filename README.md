@@ -43,17 +43,17 @@ npm install wagmi @tanstack/react-query
 
 ```ts
 import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { base } from 'viem/chains'
 import { getConduitPosition } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
-  chain: mainnet,
+  chain: base,
   transport: http(),
 })
 
 const position = await getConduitPosition(client, {
-  conduit: '0x...',
-  account: '0x...',
+  conduit: '0x3d9e60ccee8477577c95d2faf4f127fea8745da9',
+  account: '0x991c468AbcE2b4DD627a6210C145373EbABdd186',
 })
 ```
 
@@ -61,17 +61,17 @@ const position = await getConduitPosition(client, {
 
 ```ts
 import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
+import { base } from 'viem/chains'
 import { railnetActions } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
-  chain: mainnet,
+  chain: base,
   transport: http(),
 }).extend(railnetActions)
 
 const position = await client.getConduitPosition({
-  conduit: '0x...',
-  account: '0x...',
+  conduit: '0x3d9e60ccee8477577c95d2faf4f127fea8745da9',
+  account: '0x991c468AbcE2b4DD627a6210C145373EbABdd186',
 })
 ```
 
@@ -82,8 +82,8 @@ import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
 
 function Position() {
   const { data, isLoading } = useConduitPosition({
-    conduit: '0x...',
-    account: '0x...',
+    conduit: '0x3d9e60ccee8477577c95d2faf4f127fea8745da9',
+    account: '0x991c468AbcE2b4DD627a6210C145373EbABdd186',
   })
 
   if (isLoading) return <div>Loading...</div>
@@ -106,12 +106,10 @@ function Position() {
 
 ## Supported chains
 
-| Chain | ID | Status |
-|---|---|---|
-| Base | `8453` | Deployed, assets authorized |
-| Ethereum | `1` | Deployed, no assets authorized yet |
-
-Ethereum authorizes no assets yet, so `getInitialDepositAmount` reverts there and spawning will too.
+| Chain | ID |
+|---|---|
+| Base | `8453` |
+| Ethereum | `1` |
 
 ## Contributing
 
