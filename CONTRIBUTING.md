@@ -74,19 +74,17 @@ zile publish:prepare → changeset publish → zile publish:post
 
 ## Release Process
 
-Never publish from a local terminal. All releases go through CI → GitHub Packages.
+Never publish from a local terminal. All releases go through CI.
 
 ```
 1. bunx changeset                        # in your feature branch - pick patch/minor/major
 2. git add .changeset/ && git commit     # commit the generated .changeset/*.md file
 3. push branch → open PR                 # CI runs verify
 4. merge PR into main                    # CI creates a "chore: version packages" PR
-5. merge the version PR                  # CI publishes to GitHub Packages
+5. merge the version PR                  # CI publishes the package
 ```
 
 No changeset = no publish. You can push to main freely without triggering a release.
-
-Package is published as `@railnetorg/railnet-sdk` on GitHub Packages (private registry).
 
 ## CI Workflows
 

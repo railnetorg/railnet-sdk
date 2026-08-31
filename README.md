@@ -14,21 +14,6 @@ Documentation: **[sdk.railnet.org](https://sdk.railnet.org)**
 
 ## Installation
 
-This package is published on [GitHub Packages](https://github.com/railnetorg/railnet-sdk/packages). Configure npm to use the GitHub Packages registry for the `@railnetorg` scope.
-
-**1. Authenticate with GitHub Packages**
-
-Create a `.npmrc` in your project root (or `~/.npmrc` globally):
-
-```
-@railnetorg:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
-```
-
-The token needs the `read:packages` scope. [Create one here](https://github.com/settings/tokens/new?scopes=read:packages).
-
-**2. Install**
-
 ```bash
 npm install @railnetorg/railnet-sdk viem
 ```
