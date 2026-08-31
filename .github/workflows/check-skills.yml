@@ -112,8 +112,11 @@ jobs:
         if: steps.stale.outputs.has_stale == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          SUMMARY: ${{ steps.summary.outputs.summary }}
+          PROMPT: ${{ steps.summary.outputs.prompt }}
         run: |
-          VERSION="${{ github.event.release.tag_name || 'manual' }}"
+          VERSION="${RELEASE_TAG:-manual}"
           BRANCH="skills/review-${VERSION}"
 
           git config user.name "github-actions[bot]"
@@ -122,26 +125,18 @@ jobs:
           git commit --allow-empty -m "chore: review stale skills for ${VERSION}"
           git push origin "$BRANCH"
 
+          {
+            printf '## Stale Skills Detected\n\n'
+            printf 'The following skills may need updates after the latest release:\n\n'
+            printf '%s\n\n' "$SUMMARY"
+            printf -- '---\n\n'
+            printf '### Update Prompt\n\n'
+            printf 'Paste this into your coding agent (Claude Code, Cursor, etc.):\n\n'
+            printf '~~~\n%s\n~~~\n' "$PROMPT"
+          } > "$RUNNER_TEMP/pr-body.md"
+
           gh pr create \
             --title "Review stale skills (${VERSION})" \
-            --body "$(cat <<'PREOF'
-          ## Stale Skills Detected
-
-          The following skills may need updates after the latest release:
-
-          ${{ steps.summary.outputs.summary }}
-
-          ---
-
-          ### Update Prompt
-
-          Paste this into your coding agent (Claude Code, Cursor, etc.):
-
-          ~~~
-          ${{ steps.summary.outputs.prompt }}
-          ~~~
-
-          PREOF
-          )" \
+            --body-file "$RUNNER_TEMP/pr-body.md" \
             --head "$BRANCH" \
             --base main
