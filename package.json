@@ -55,7 +55,7 @@
     "./react": "./src/react/index.ts"
   },
   "peerDependencies": {
-    "viem": "^2.56.0",
+    "viem": ">=2.8.0",
     "@tanstack/react-query": ">=5.0.0",
     "react": ">=18.0.0",
     "wagmi": ">=2.0.0"
