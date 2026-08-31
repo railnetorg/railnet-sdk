@@ -22,7 +22,6 @@ jobs:
     environment: release
     permissions:
       contents: write
-      packages: write
       pull-requests: write
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -34,10 +33,6 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Configure npm for GitHub Packages
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
-
       - name: PR or publish
         id: changesets
         uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
@@ -47,5 +42,3 @@ jobs:
           publish-script: bun run changeset:publish
           version-script: bun run changeset:version
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
