@@ -10,6 +10,8 @@
 
 TypeScript SDK for interacting with the Railnet protocol. Built on [viem](https://viem.sh), with first-class support for [React](https://react.dev) and [TanStack Query](https://tanstack.com/query).
 
+Documentation: **[sdk.railnet.org](https://sdk.railnet.org)**
+
 ## Installation
 
 This package is published on [GitHub Packages](https://github.com/railnetorg/railnet-sdk/packages). Configure npm to use the GitHub Packages registry for the `@railnetorg` scope.
