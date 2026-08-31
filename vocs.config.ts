@@ -13,8 +13,6 @@ export default defineConfig({
     `${baseUrl}/api/og?title=%title&description=%description&section=${pagePath.split('/').filter(Boolean)[0] ?? ''}`,
   mcp: {
     enabled: true,
-    // read_source_file fetches raw.githubusercontent.com unauthenticated, so the
-    // source tools only resolve once the repository is public.
     sources: [McpSource.github({ name: 'railnet-sdk', repo: 'railnetorg/railnet-sdk' })],
   },
   iconUrl: '/favicon.png',
