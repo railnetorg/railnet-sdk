@@ -1,4 +1,4 @@
-import { defineConfig } from 'vocs/config'
+import { defineConfig, McpSource } from 'vocs/config'
 
 export default defineConfig({
   title: 'Railnet SDK',
@@ -11,7 +11,10 @@ export default defineConfig({
   head: { meta: { robots: 'noindex, nofollow' } },
   ogImageUrl: (pagePath, { baseUrl }) =>
     `${baseUrl}/api/og?title=%title&description=%description&section=${pagePath.split('/').filter(Boolean)[0] ?? ''}`,
-  mcp: { enabled: true },
+  mcp: {
+    enabled: true,
+    sources: [McpSource.github({ name: 'railnet-sdk', repo: 'railnetorg/railnet-sdk' })],
+  },
   iconUrl: '/favicon.png',
   logoUrl: {
     light: '/logo-light.svg',
