@@ -7,7 +7,7 @@
       "devDependencies": {
         "@biomejs/biome": "^2.5.11",
         "@changesets/cli": "^3.0.1",
-        "@tanstack/intent": "0.3.7",
+        "@tanstack/intent": "0.3.8",
         "@tanstack/react-query": "^5.102.8",
         "@types/bun": "^1.4.0",
         "@types/node": "^26.4.0",
@@ -20,13 +20,13 @@
         "vite": "^8.2.2",
         "vocs": "^2.8.5",
         "wagmi": "^3.7.7",
-        "waku": "^1.0.0-beta.6",
+        "waku": "^1.0.0-rc.0",
         "zile": "^0.0.30",
       },
       "peerDependencies": {
         "@tanstack/react-query": ">=5.0.0",
         "react": ">=18.0.0",
-        "viem": ">=2.0.0",
+        "viem": ">=2.8.0",
         "wagmi": ">=2.0.0",
       },
       "optionalPeers": [
@@ -599,7 +599,7 @@
 
     "@takumi-rs/wasm": ["@takumi-rs/wasm@0.62.8", "", {}, "sha512-V3L4LMoa1hqUxYel+j2oaIYhx7TdfSI/5iStU+7sTDru3o0gwJxw923jG66/F+lLSPGeY4rmYejcJCJN5VfpBA=="],
 
-    "@tanstack/intent": ["@tanstack/intent@0.3.7", "", { "dependencies": { "cac": "^6.7.14", "jsonc-parser": "^3.3.1", "semver": "^7.8.4", "std-env": "^4.1.0", "yaml": "2.9.0" }, "bin": { "intent": "dist/cli.mjs" } }, "sha512-119d81v2JpdFtvLlX8C7Kmx0zqaNUnY4iTyd5Q8rVyE7sVCnuBYIS/NNCa8T6Ni0bdVkcOVDl1zdz78Oz2dfAg=="],
+    "@tanstack/intent": ["@tanstack/intent@0.3.8", "", { "dependencies": { "cac": "^6.7.14", "jsonc-parser": "^3.3.1", "semver": "^7.8.4", "std-env": "^4.1.0", "yaml": "2.9.0" }, "bin": { "intent": "dist/cli.mjs" } }, "sha512-5KXhk+dPqzVHcETuf0Q6l1jasjFS2BJvG4Vw1dakuHEaQ85kZ3oSsOMROsad5w/DsEsQ9q1F00cQzIrk9jPzsQ=="],
 
     "@tanstack/query-core": ["@tanstack/query-core@5.102.8", "", {}, "sha512-ZNjkJ33CqvPNec/6lZBnHqLc3EVGPZ9ySLhYahU9TcuRFdmwXewuj0c4hwSWcGHqEUwcSrKeZ+oGcvPBqXcQcg=="],
 
