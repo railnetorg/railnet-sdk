@@ -2,11 +2,20 @@ import type { Address, Client, Hash } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { ContractCallOptions } from '../../types.js'
+import { resolveCallOptions } from '../../utils/chain.js'
+import { prepareDepositConduit } from './depositConduit.js'
 import type { Query } from './types.js'
 
 export type ProcessConduitQueryParameters = {
   conduit: Address
   query: Query
+}
+
+/** Returns the {@link Query} a DEPOSIT query would create, for later `process()` on async vehicles. */
+export function prepareDepositConduitQuery(
+  parameters: Parameters<typeof prepareDepositConduit>[0],
+): Query {
+  return prepareDepositConduit(parameters).args[0]
 }
 
 export function prepareProcessConduitQuery(parameters: ProcessConduitQueryParameters) {
@@ -48,7 +57,7 @@ export async function processConduitQuery(
   options?: ContractCallOptions,
 ): Promise<Hash> {
   const { request } = await simulateContract(client, {
-    ...options,
+    ...resolveCallOptions(client, options),
     ...prepareProcessConduitQuery(parameters),
     account: parameters.account,
   })

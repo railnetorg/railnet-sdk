@@ -15,23 +15,26 @@ import { useSpawnAaveV3Vehicle } from '@railnetorg/railnet-sdk/react'
 ## Usage
 
 ```tsx
+import { randomSalt } from '@railnetorg/railnet-sdk'
 import { useSpawnAaveV3Vehicle } from '@railnetorg/railnet-sdk/react'
 
 function Spawn() {
   const { mutateAsync, isPending } = useSpawnAaveV3Vehicle()
 
   const handleSpawn = async () => {
-    const result = await mutateAsync({
+    const hash = await mutateAsync({
       factory: '0x...',
       asset: '0x...',
       poolAddressesProvider: '0x...',
       accessControl: '0x...',
       queryRegistry: '0x...',
       initialExpectedSupply: 1000000000000000000n,
+      querySalt: randomSalt(),
+      deploymentSalt: randomSalt(),
       account: '0x...',
     })
 
-    console.log(result.vehicleAddress)
+    // hash is the transaction hash — wait for the receipt, then extractAaveV3VehicleAddress
   }
 
   return (
@@ -45,7 +48,9 @@ function Spawn() {
 ## Returns
 
 ```ts
-UseMutationResult<SpawnAaveV3VehicleReturnType, Error, SpawnAaveV3VehicleParameters & { account: Address }>
+UseMutationResult<Hash, Error, SpawnAaveV3VehicleParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`spawnAaveV3Vehicle`](/actions/spawnAaveV3Vehicle) parameters.
+Mutation result returning the spawn transaction hash. Extract the deployed vehicle with
+[`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehicleaddress). Call
+`mutate` or `mutateAsync` with [`spawnAaveV3Vehicle`](/actions/spawnAaveV3Vehicle) parameters.

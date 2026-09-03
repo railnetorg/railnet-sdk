@@ -54,7 +54,7 @@ const info = await client.getConduitInfo({
 The decorator exposes four read actions: `getConduitPosition`, `getConduitInfo`, `predictConduitDeployment`, and `estimateConduit`. Write actions (deposit, redeem, spawn, etc.) are standalone functions — see railnet-conduit and railnet-vehicle skills.
 
 ### Contract Address Lookup
-Retrieve factory and registry addresses for the supported Base chain.
+Retrieve factory and registry addresses for the supported chains (Ethereum and Base).
 
 ```typescript
 import { getAddresses } from '@railnetorg/railnet-sdk'
@@ -204,7 +204,7 @@ import { getAddresses } from '@railnetorg/railnet-sdk'
 const addresses = getAddresses(base.id)
 ```
 
-`getAddresses` throws on any chain other than Base (8453). The SDK only supports Base. Use `isSupportedChain(chainId)` to check before calling.
+`getAddresses` throws on any chain other than Ethereum (1) and Base (8453). Use `isSupportedChain(chainId)` to check before calling.
 
 Source: src/contracts/chains.ts
 

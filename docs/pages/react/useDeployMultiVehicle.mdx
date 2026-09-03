@@ -15,6 +15,7 @@ import { useDeployMultiVehicle } from '@railnetorg/railnet-sdk/react'
 ## Usage
 
 ```tsx
+import { randomSalt } from '@railnetorg/railnet-sdk'
 import { useDeployMultiVehicle } from '@railnetorg/railnet-sdk/react'
 
 function Deploy() {
@@ -32,6 +33,18 @@ function Deploy() {
           redeemTarget: { value: 0n, threshold: 0n },
         },
       ],
+      salts: {
+        accessControl: randomSalt(),
+        multiVehicle: {
+          multiVehicle: randomSalt(),
+          queryRedeemQueue: randomSalt(),
+          queueStrategyEngine: randomSalt(),
+          sectorAccountingEngine: randomSalt(),
+          subQueryEngine: randomSalt(),
+          vehicleManager: randomSalt(),
+          initialDepositQuery: randomSalt(),
+        },
+      },
       account: '0x...',
     })
 

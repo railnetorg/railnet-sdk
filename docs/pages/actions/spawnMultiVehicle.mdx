@@ -24,7 +24,7 @@ import { spawnMultiVehicle } from '@railnetorg/railnet-sdk'
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { spawnMultiVehicle } from '@railnetorg/railnet-sdk'
+import { randomSalt, spawnMultiVehicle } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,
@@ -38,6 +38,15 @@ const hash = await spawnMultiVehicle(walletClient, {
   symbol: 'MMV',
   accessControl: '0x...',
   queryRegistry: '0x...',
+  salts: {
+    multiVehicle: randomSalt(),
+    queryRedeemQueue: randomSalt(),
+    queueStrategyEngine: randomSalt(),
+    sectorAccountingEngine: randomSalt(),
+    subQueryEngine: randomSalt(),
+    vehicleManager: randomSalt(),
+    initialDepositQuery: randomSalt(),
+  },
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
 ```

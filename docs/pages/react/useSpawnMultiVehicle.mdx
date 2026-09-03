@@ -15,23 +15,33 @@ import { useSpawnMultiVehicle } from '@railnetorg/railnet-sdk/react'
 ## Usage
 
 ```tsx
+import { randomSalt } from '@railnetorg/railnet-sdk'
 import { useSpawnMultiVehicle } from '@railnetorg/railnet-sdk/react'
 
 function Spawn() {
   const { mutateAsync, isPending } = useSpawnMultiVehicle()
 
   const handleSpawn = async () => {
-    const result = await mutateAsync({
+    const hash = await mutateAsync({
       factory: '0x...',
       asset: '0x...',
       name: 'My MultiVehicle',
       symbol: 'MMV',
       accessControl: '0x...',
       queryRegistry: '0x...',
+      salts: {
+        multiVehicle: randomSalt(),
+        queryRedeemQueue: randomSalt(),
+        queueStrategyEngine: randomSalt(),
+        sectorAccountingEngine: randomSalt(),
+        subQueryEngine: randomSalt(),
+        vehicleManager: randomSalt(),
+        initialDepositQuery: randomSalt(),
+      },
       account: '0x...',
     })
 
-    console.log(result.contracts.multiVehicle)
+    // hash is the transaction hash — wait for the receipt, then extractMultiVehicleContracts
   }
 
   return (
@@ -45,7 +55,9 @@ function Spawn() {
 ## Returns
 
 ```ts
-UseMutationResult<SpawnMultiVehicleReturnType, Error, SpawnMultiVehicleParameters & { account: Address }>
+UseMutationResult<Hash, Error, SpawnMultiVehicleParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`spawnMultiVehicle`](/actions/spawnMultiVehicle) parameters.
+Mutation result returning the spawn transaction hash. Extract the deployed contracts with
+[`extractMultiVehicleContracts`](/utilities/receiptHelpers#extractmultivehiclecontracts). Call
+`mutate` or `mutateAsync` with [`spawnMultiVehicle`](/actions/spawnMultiVehicle) parameters.
