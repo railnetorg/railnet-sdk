@@ -1,15 +1,25 @@
 'use client'
 
-import type { QueryOptions } from '@tanstack/react-query'
+import { type QueryOptions, skipToken } from '@tanstack/react-query'
 import type { Client, ReadContractErrorType } from 'viem'
 import {
   type EstimateConduitParameters,
   type EstimateConduitReturnType,
   estimateConduit,
 } from '../../actions/conduit/estimateConduit.js'
+import { normalizeQueryKeyValue } from './key.js'
 
-export function estimateConduitQueryKey(parameters: EstimateConduitParameters) {
-  return ['railnet', 'estimateConduit', parameters] as const
+/** Stable prefix, for `invalidateQueries` across every chain and every parameter set. */
+export const estimateConduitQueryPrefix = ['railnet', 'estimateConduit'] as const
+
+export function estimateConduitQueryKey(
+  chainId: number | undefined,
+  parameters: EstimateConduitParameters,
+) {
+  return [
+    ...estimateConduitQueryPrefix,
+    { chainId, ...(normalizeQueryKeyValue(parameters) as EstimateConduitParameters) },
+  ] as const
 }
 
 export type EstimateConduitQueryKey = ReturnType<typeof estimateConduitQueryKey>
@@ -19,11 +29,8 @@ export function estimateConduitQueryOptions(
   parameters: EstimateConduitParameters,
 ) {
   return {
-    async queryFn() {
-      if (!client) throw new Error('Public client not available')
-      return estimateConduit(client, parameters)
-    },
-    queryKey: estimateConduitQueryKey(parameters),
+    queryFn: client ? () => estimateConduit(client, parameters) : skipToken,
+    queryKey: estimateConduitQueryKey(client?.chain?.id, parameters),
   } as const satisfies QueryOptions<
     EstimateConduitReturnType,
     ReadContractErrorType,
