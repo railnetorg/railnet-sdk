@@ -1,5 +1,11 @@
 # @railnetorg/railnet-sdk
 
+## 0.4.0
+
+### Minor Changes
+
+- a004958: Add prepareDepositConduitQuery, and refresh docs and skills
+
 ## 0.3.2
 
 ### Patch Changes
