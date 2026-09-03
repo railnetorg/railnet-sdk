@@ -1,0 +1,72 @@
+---
+description: Sets whether a scoped role is callable by any address.
+---
+
+# setScopedRolePublic
+
+Makes a scoped role public (callable by any address) or restricts it back to specific grantees, on the ExternalAccessControl contract. Requires a `WalletClient`. The caller must be the default admin.
+
+## Import
+
+```ts
+import { setScopedRolePublic } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { setScopedRolePublic, VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const hash = await setScopedRolePublic(walletClient, {
+  accessControl: '0x1234...',
+  role: VEHICLE_STEAM_DEPOSIT,
+  scope: '0x5678...',
+  isPublic: true,
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+## Returns
+
+`Hash`
+
+The transaction hash.
+
+## Parameters
+
+### accessControl
+
+- **Type:** `Address`
+
+The address of the ExternalAccessControl contract.
+
+### role
+
+- **Type:** `Hex`
+
+The role to make public or restrict.
+
+### scope
+
+- **Type:** `Address`
+
+The scope (contract address) the role applies to.
+
+### isPublic
+
+- **Type:** `boolean`
+
+`true` makes the scoped role callable by anyone on that scope, `false` restricts it back to explicit grantees.
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.

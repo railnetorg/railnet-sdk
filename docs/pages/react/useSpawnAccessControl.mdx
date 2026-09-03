@@ -15,19 +15,21 @@ import { useSpawnAccessControl } from '@railnetorg/railnet-sdk/react'
 ## Usage
 
 ```tsx
+import { randomSalt } from '@railnetorg/railnet-sdk'
 import { useSpawnAccessControl } from '@railnetorg/railnet-sdk/react'
 
 function Spawn() {
   const { mutateAsync, isPending } = useSpawnAccessControl()
 
   const handleSpawn = async () => {
-    const result = await mutateAsync({
+    const hash = await mutateAsync({
       factory: '0x...',
       initialDefaultAdmin: '0x...',
+      deploymentSalt: randomSalt(),
       account: '0x...',
     })
 
-    console.log(result.accessControlAddress)
+    // hash is the transaction hash — wait for the receipt, then extractAccessControlAddress
   }
 
   return (
@@ -41,7 +43,9 @@ function Spawn() {
 ## Returns
 
 ```ts
-UseMutationResult<SpawnAccessControlReturnType, Error, SpawnAccessControlParameters & { account: Address }>
+UseMutationResult<Hash, Error, SpawnAccessControlParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`spawnAccessControl`](/actions/spawnAccessControl) parameters.
+Mutation result returning the spawn transaction hash. Extract the deployed access control with
+[`extractAccessControlAddress`](/utilities/receiptHelpers#extractaccesscontroladdress). Call
+`mutate` or `mutateAsync` with [`spawnAccessControl`](/actions/spawnAccessControl) parameters.

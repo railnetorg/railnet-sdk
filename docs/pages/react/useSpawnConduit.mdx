@@ -15,13 +15,14 @@ import { useSpawnConduit } from '@railnetorg/railnet-sdk/react'
 ## Usage
 
 ```tsx
+import { randomSalt } from '@railnetorg/railnet-sdk'
 import { useSpawnConduit } from '@railnetorg/railnet-sdk/react'
 
 function Spawn() {
   const { mutateAsync, isPending } = useSpawnConduit()
 
   const handleSpawn = async () => {
-    const result = await mutateAsync({
+    const hash = await mutateAsync({
       factory: '0x...',
       name: 'My Conduit',
       symbol: 'COND',
@@ -32,10 +33,12 @@ function Spawn() {
       feeManager: '0x...',
       accountList: '0x...',
       ownerRegistry: '0x...',
+      querySalt: randomSalt(),
+      deploymentSalt: randomSalt(),
       account: '0x...',
     })
 
-    console.log(result.conduitAddress)
+    // hash is the transaction hash — wait for the receipt, then extractConduitAddress
   }
 
   return (
@@ -49,7 +52,9 @@ function Spawn() {
 ## Returns
 
 ```ts
-UseMutationResult<SpawnConduitReturnType, Error, SpawnConduitParameters & { account: Address }>
+UseMutationResult<Hash, Error, SpawnConduitParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`spawnConduit`](/actions/spawnConduit) parameters.
+Mutation result returning the spawn transaction hash. Extract the deployed conduit with
+[`extractConduitAddress`](/utilities/receiptHelpers#extractconduitaddress). Call `mutate` or
+`mutateAsync` with [`spawnConduit`](/actions/spawnConduit) parameters.

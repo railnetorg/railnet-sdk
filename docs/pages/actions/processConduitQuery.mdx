@@ -77,9 +77,12 @@ const hash = await processConduitQuery(walletClient, {
 
 ### query
 
-- **Type:** `ConduitQuery`
+- **Type:** `Query`
 
-The query to process.
+The query to process — the exact `Query` struct the conduit created. For async deposits, rebuild
+it from the original call's parameters with `prepareDepositConduitQuery`. Redeems cannot be
+rebuilt off-chain: the input is the vehicle-share conversion of the conduit shares, which depends
+on `totalSupply`/`holdings` at execution time.
 
 #### query.owner
 

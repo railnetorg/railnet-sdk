@@ -23,7 +23,7 @@ import { spawnConduit } from '@railnetorg/railnet-sdk'
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { spawnConduit } from '@railnetorg/railnet-sdk'
+import { randomSalt, spawnConduit } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,
@@ -41,6 +41,8 @@ const hash = await spawnConduit(walletClient, {
   feeManager: '0x...',
   accountList: '0x...',
   ownerRegistry: '0x...',
+  querySalt: randomSalt(),
+  deploymentSalt: randomSalt(),
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
 ```

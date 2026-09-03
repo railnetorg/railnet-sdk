@@ -200,6 +200,10 @@ export default defineConfig({
               text: 'revokeScopedRole',
               link: '/actions/revokeScopedRole',
             },
+            {
+              text: 'setScopedRolePublic',
+              link: '/actions/setScopedRolePublic',
+            },
           ],
         },
         {
@@ -348,6 +352,10 @@ export default defineConfig({
             {
               text: 'useRevokeScopedRole',
               link: '/react/useRevokeScopedRole',
+            },
+            {
+              text: 'useSetScopedRolePublic',
+              link: '/react/useSetScopedRolePublic',
             },
           ],
         },
