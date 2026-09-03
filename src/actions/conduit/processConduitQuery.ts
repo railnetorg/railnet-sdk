@@ -2,7 +2,6 @@ import type { Address, Client, Hash } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { ContractCallOptions } from '../../types.js'
-import { resolveCallOptions } from '../../utils/chain.js'
 import { prepareDepositConduit } from './depositConduit.js'
 import type { Query } from './types.js'
 
@@ -57,7 +56,7 @@ export async function processConduitQuery(
   options?: ContractCallOptions,
 ): Promise<Hash> {
   const { request } = await simulateContract(client, {
-    ...resolveCallOptions(client, options),
+    ...options,
     ...prepareProcessConduitQuery(parameters),
     account: parameters.account,
   })
