@@ -34,12 +34,6 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Authenticate with npm
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '24.20'
-          registry-url: 'https://registry.npmjs.org'
-
       - name: PR or publish
         id: changesets
         uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
@@ -49,6 +43,3 @@ jobs:
           publish-script: bun run changeset:publish
           version-script: bun run changeset:version
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          npm_config_provenance: 'true'
