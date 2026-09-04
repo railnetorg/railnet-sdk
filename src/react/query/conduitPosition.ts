@@ -20,7 +20,7 @@ export function conduitPositionQueryKey(
 ) {
   return [
     ...conduitPositionQueryPrefix,
-    { chainId, ...normalizeQueryKeyParameters(parameters) },
+    { ...normalizeQueryKeyParameters(parameters), chainId },
   ] as const
 }
 

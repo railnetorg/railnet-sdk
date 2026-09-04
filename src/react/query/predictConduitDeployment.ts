@@ -15,7 +15,7 @@ export function predictConduitDeploymentQueryKey(
 ) {
   return [
     ...predictConduitDeploymentQueryPrefix,
-    { chainId, ...normalizeQueryKeyParameters(parameters) },
+    { ...normalizeQueryKeyParameters(parameters), chainId },
   ] as const
 }
 

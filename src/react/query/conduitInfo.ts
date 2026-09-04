@@ -19,7 +19,7 @@ export function conduitInfoQueryKey(
 ) {
   return [
     ...conduitInfoQueryPrefix,
-    { chainId, ...normalizeQueryKeyParameters(parameters) },
+    { ...normalizeQueryKeyParameters(parameters), chainId },
   ] as const
 }
 

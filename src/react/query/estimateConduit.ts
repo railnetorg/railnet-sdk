@@ -18,7 +18,7 @@ export function estimateConduitQueryKey(
 ) {
   return [
     ...estimateConduitQueryPrefix,
-    { chainId, ...normalizeQueryKeyParameters(parameters) },
+    { ...normalizeQueryKeyParameters(parameters), chainId },
   ] as const
 }
 

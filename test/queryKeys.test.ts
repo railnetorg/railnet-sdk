@@ -46,17 +46,17 @@ describe('query keys', () => {
     expect(() => hashKey(key)).not.toThrow()
   })
 
-  it('gives one entry to an address whatever its casing', () => {
+  it('splits an address across two entries rather than guessing which strings are addresses', () => {
     const lower = conduitPositionQueryKey(base.id, { conduit: CONDUIT, account: ACCOUNT })
     const checksummed = conduitPositionQueryKey(base.id, {
       conduit: getAddress(CONDUIT),
       account: getAddress(ACCOUNT),
     })
 
-    expect(hashKey(checksummed)).toBe(hashKey(lower))
+    expect(hashKey(checksummed)).not.toBe(hashKey(lower))
   })
 
-  it('keeps the casing of a free-form string that is not a valid checksum', () => {
+  it('keeps the casing of a name, which reaches the CREATE2 init code', () => {
     const parameters = {
       factory: CONDUIT,
       symbol: 'TEST',
@@ -77,10 +77,21 @@ describe('query keys', () => {
     })
     const upperName = predictConduitDeploymentQueryKey(base.id, {
       ...parameters,
-      name: ASSET.toUpperCase().replace('0X', '0x'),
+      name: getAddress(ASSET),
     })
 
     expect(hashKey(upperName)).not.toBe(hashKey(lowerName))
+  })
+
+  it('keeps the client-derived chain even when the parameters carry one of their own', () => {
+    const honest = conduitPositionQueryKey(base.id, { conduit: CONDUIT, account: ACCOUNT })
+    const lying = conduitPositionQueryKey(base.id, {
+      conduit: CONDUIT,
+      account: ACCOUNT,
+      chainId: 1,
+    } as never)
+
+    expect(hashKey(lying)).toBe(hashKey(honest))
   })
 
   it('separates the same conduit on two chains', () => {
