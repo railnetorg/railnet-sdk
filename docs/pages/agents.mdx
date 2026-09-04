@@ -8,15 +8,15 @@ The package ships five [TanStack Intent](https://github.com/TanStack/intent) ski
 `railnet-core`, `railnet-conduit`, `railnet-vehicle`, `railnet-access-control`, `railnet-react` — so
 your agent reads the SDK from `node_modules` instead of guessing at it.
 
-Run both, once per project:
+Once per project:
 
 ```bash
 bunx @tanstack/intent@latest install
-bunx @tanstack/intent@latest hooks install
 ```
 
-The first writes loading guidance into `AGENTS.md`; the second injects the skill catalog at session
-start. Swap `bunx` for `pnpm dlx` or `npx`.
+That writes loading guidance into `AGENTS.md`. If your agent reads `CLAUDE.md` instead, move the
+generated `<!-- intent-skills -->` block there — later runs follow it. Swap `bunx` for `pnpm dlx` or
+`npx`.
 
 The agent takes it from there:
 
