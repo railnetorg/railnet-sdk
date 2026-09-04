@@ -93,6 +93,10 @@ export async function deployMultiVehicle(
 ): Promise<DeployMultiVehicleResult> {
   const chain = client.chain
   if (!chain) throw new Error('Client must have a chain configured')
+  if (options?.chain && options.chain.id !== chain.id)
+    throw new Error(
+      `options.chain (${options.chain.id}) does not match the client chain (${chain.id}). The protocol addresses are resolved from the client, so the two cannot differ.`,
+    )
   const {
     eacFactory,
     multiVehicleFactory,

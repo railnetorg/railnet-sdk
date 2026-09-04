@@ -1,12 +1,22 @@
 'use client'
 
-import type { QueryOptions } from '@tanstack/react-query'
+import { type QueryOptions, skipToken } from '@tanstack/react-query'
 import type { Address, Client, ReadContractErrorType } from 'viem'
 import type { PredictConduitDeploymentParameters } from '../../actions/conduit/predictConduitDeployment.js'
 import { predictConduitDeployment } from '../../actions/conduit/predictConduitDeployment.js'
+import { normalizeQueryKeyParameters } from './key.js'
 
-export function predictConduitDeploymentQueryKey(parameters: PredictConduitDeploymentParameters) {
-  return ['railnet', 'predictConduitDeployment', parameters] as const
+/** Stable prefix, for `invalidateQueries` across every chain and every parameter set. */
+export const predictConduitDeploymentQueryPrefix = ['railnet', 'predictConduitDeployment'] as const
+
+export function predictConduitDeploymentQueryKey(
+  chainId: number | undefined,
+  parameters: PredictConduitDeploymentParameters,
+) {
+  return [
+    ...predictConduitDeploymentQueryPrefix,
+    { ...normalizeQueryKeyParameters(parameters), chainId },
+  ] as const
 }
 
 export type PredictConduitDeploymentQueryKey = ReturnType<typeof predictConduitDeploymentQueryKey>
@@ -16,11 +26,8 @@ export function predictConduitDeploymentQueryOptions(
   parameters: PredictConduitDeploymentParameters,
 ) {
   return {
-    async queryFn() {
-      if (!client) throw new Error('Public client not available')
-      return predictConduitDeployment(client, parameters)
-    },
-    queryKey: predictConduitDeploymentQueryKey(parameters),
+    queryFn: client ? () => predictConduitDeployment(client, parameters) : skipToken,
+    queryKey: predictConduitDeploymentQueryKey(client?.chain?.id, parameters),
   } as const satisfies QueryOptions<
     Address,
     ReadContractErrorType,

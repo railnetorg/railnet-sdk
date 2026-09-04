@@ -80,20 +80,42 @@ The address of the conduit contract.
 ## Query Key
 
 ```ts
-['railnet', 'conduitInfo', { conduit }] as const
+['railnet', 'conduitInfo', { chainId, conduit }] as const
 ```
+
+The hook hands the key back on its result, so the common case needs no builder and no guess about
+which chain the client resolved to:
+
+```ts
+const { data, queryKey } = useConduitInfo({ conduit: '0x...' })
+
+queryClient.invalidateQueries({ queryKey })
+```
+
+Reach for the builder when the hook is not mounted where you invalidate — a mutation's
+`onSuccess` in another component, a route loader.
 
 You can use `conduitInfoQueryKey` to construct the query key manually for cache invalidation:
 
 ```ts
 import { useQueryClient } from '@tanstack/react-query'
+import { base } from 'viem/chains'
 import { conduitInfoQueryKey } from '@railnetorg/railnet-sdk/react'
 
 const queryClient = useQueryClient()
 
 queryClient.invalidateQueries({
-  queryKey: conduitInfoQueryKey({
+  queryKey: conduitInfoQueryKey(base.id, {
     conduit: '0x...',
   }),
 })
+```
+
+Every read is scoped to a chain, so the key carries the chain it was filled from. The prefix is
+exported too, to invalidate the family across every chain and every parameter set:
+
+```ts
+import { conduitInfoQueryPrefix } from '@railnetorg/railnet-sdk/react'
+
+queryClient.invalidateQueries({ queryKey: conduitInfoQueryPrefix })
 ```

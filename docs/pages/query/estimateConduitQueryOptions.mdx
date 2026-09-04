@@ -79,11 +79,35 @@ The type of estimation.
 ## Query Key
 
 ```ts
-['railnet', 'estimateConduit', { conduit, asset, mode, estimationType }] as const
+['railnet', 'estimateConduit', { chainId, conduit, asset, mode, estimationType }] as const
 ```
+
+The hook hands the key back on its result, so the common case needs no builder and no guess about
+which chain the client resolved to:
+
+```ts
+const { data, queryKey } = useEstimateConduit({ conduit: '0x...' })
+
+queryClient.invalidateQueries({ queryKey })
+```
+
+Reach for the builder when the hook is not mounted where you invalidate — a mutation's
+`onSuccess` in another component, a route loader.
 
 You can use `estimateConduitQueryKey` to construct the query key manually:
 
 ```ts
+import { base } from 'viem/chains'
 import { estimateConduitQueryKey } from '@railnetorg/railnet-sdk/react'
+
+const queryKey = estimateConduitQueryKey(base.id, parameters)
+```
+
+Every read is scoped to a chain, so the key carries the chain it was filled from. The prefix is
+exported too, to invalidate the family across every chain and every parameter set:
+
+```ts
+import { estimateConduitQueryPrefix } from '@railnetorg/railnet-sdk/react'
+
+queryClient.invalidateQueries({ queryKey: estimateConduitQueryPrefix })
 ```

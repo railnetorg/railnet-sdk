@@ -99,6 +99,25 @@ const result = useConduitPosition({
 })
 ```
 
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+Chain to read from. The hook resolves the public client for it, so a page can read a contract on
+one chain while the wallet sits on another. The query key carries the resolved chain, so two chains
+never share a cache entry.
+
+```tsx
+import { base } from 'viem/chains'
+
+const result = useConduitPosition({
+  conduit: '0x...',
+  account: '0x...',
+  chainId: base.id, // [!code focus]
+})
+```
+
 ### enabled (optional)
 
 - **Type:** `boolean`

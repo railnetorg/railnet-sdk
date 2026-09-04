@@ -74,6 +74,27 @@ The mode for the estimation. See [`Enums`](/types/Enums).
 
 The type of estimation. See [`Enums`](/types/Enums).
 
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+Chain to read from. The hook resolves the public client for it, so a page can read a contract on
+one chain while the wallet sits on another. The query key carries the resolved chain, so two chains
+never share a cache entry.
+
+```tsx
+import { base } from 'viem/chains'
+
+const result = useEstimateConduit({
+  conduit: '0x...',
+  asset: { asset: '0x...', value: 1_000_000n },
+  mode: ConduitMode.DEPOSIT,
+  estimationType: EstimationType.OUTPUT,
+  chainId: base.id, // [!code focus]
+})
+```
+
 ### enabled (optional)
 
 - **Type:** `boolean`

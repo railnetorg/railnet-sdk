@@ -1,16 +1,26 @@
-import type { QueryOptions } from '@tanstack/react-query'
+import { type QueryOptions, skipToken } from '@tanstack/react-query'
 import type { Address, Client, ReadContractErrorType } from 'viem'
 import {
   type GetConduitInfoReturnType,
   getConduitInfo,
 } from '../../actions/conduit/getConduitInfo.js'
+import { normalizeQueryKeyParameters } from './key.js'
 
 export type ConduitInfoParameters = {
   conduit: Address
 }
 
-export function conduitInfoQueryKey(parameters: ConduitInfoParameters) {
-  return ['railnet', 'conduitInfo', parameters] as const
+/** Stable prefix, for `invalidateQueries` across every chain and every parameter set. */
+export const conduitInfoQueryPrefix = ['railnet', 'conduitInfo'] as const
+
+export function conduitInfoQueryKey(
+  chainId: number | undefined,
+  parameters: ConduitInfoParameters,
+) {
+  return [
+    ...conduitInfoQueryPrefix,
+    { ...normalizeQueryKeyParameters(parameters), chainId },
+  ] as const
 }
 
 export type ConduitInfoQueryKey = ReturnType<typeof conduitInfoQueryKey>
@@ -20,11 +30,8 @@ export function conduitInfoQueryOptions(
   parameters: ConduitInfoParameters,
 ) {
   return {
-    async queryFn() {
-      if (!client) throw new Error('Public client not available')
-      return getConduitInfo(client, { conduit: parameters.conduit })
-    },
-    queryKey: conduitInfoQueryKey(parameters),
+    queryFn: client ? () => getConduitInfo(client, { conduit: parameters.conduit }) : skipToken,
+    queryKey: conduitInfoQueryKey(client?.chain?.id, parameters),
   } as const satisfies QueryOptions<
     GetConduitInfoReturnType,
     ReadContractErrorType,

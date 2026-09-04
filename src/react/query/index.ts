@@ -1,4 +1,6 @@
+export * from './attachQueryKey.js'
 export * from './conduitInfo.js'
 export * from './conduitPosition.js'
 export * from './estimateConduit.js'
+export * from './key.js'
 export * from './predictConduitDeployment.js'

@@ -1,17 +1,27 @@
-import type { QueryOptions } from '@tanstack/react-query'
+import { type QueryOptions, skipToken } from '@tanstack/react-query'
 import type { Address, Client, ReadContractErrorType } from 'viem'
 import {
   type GetConduitPositionParameters,
   type GetConduitPositionReturnType,
   getConduitPosition,
 } from '../../actions/conduit/getConduitPosition.js'
+import { normalizeQueryKeyParameters } from './key.js'
 
 export type ConduitPositionParameters = Omit<GetConduitPositionParameters, 'account'> & {
   account: Address | undefined
 }
 
-export function conduitPositionQueryKey(parameters: ConduitPositionParameters) {
-  return ['railnet', 'conduitPosition', parameters] as const
+/** Stable prefix, for `invalidateQueries` across every chain and every parameter set. */
+export const conduitPositionQueryPrefix = ['railnet', 'conduitPosition'] as const
+
+export function conduitPositionQueryKey(
+  chainId: number | undefined,
+  parameters: ConduitPositionParameters,
+) {
+  return [
+    ...conduitPositionQueryPrefix,
+    { ...normalizeQueryKeyParameters(parameters), chainId },
+  ] as const
 }
 
 export type ConduitPositionQueryKey = ReturnType<typeof conduitPositionQueryKey>
@@ -21,15 +31,15 @@ export function conduitPositionQueryOptions(
   parameters: ConduitPositionParameters,
 ) {
   return {
-    async queryFn() {
-      if (!client) throw new Error('Public client not available')
-      if (!parameters.account) throw new Error('account is required')
-      return getConduitPosition(client, {
-        conduit: parameters.conduit,
-        account: parameters.account,
-      })
-    },
-    queryKey: conduitPositionQueryKey(parameters),
+    queryFn:
+      client && parameters.account
+        ? () =>
+            getConduitPosition(client, {
+              conduit: parameters.conduit,
+              account: parameters.account as Address,
+            })
+        : skipToken,
+    queryKey: conduitPositionQueryKey(client?.chain?.id, parameters),
   } as const satisfies QueryOptions<
     GetConduitPositionReturnType,
     ReadContractErrorType,
