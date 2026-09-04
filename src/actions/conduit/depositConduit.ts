@@ -16,6 +16,8 @@ import {
 import { conduitAbi } from '../../abi/conduit.js'
 import type { ContractCallOptions } from '../../types.js'
 import { randomSalt } from '../../utils/salt.js'
+import { applySlippage, estimateVehicle } from '../vehicle/estimateVehicle.js'
+import { EstimationType } from './estimateConduit.js'
 import { ConduitMode } from './types.js'
 
 export type DepositConduitParameters = {
@@ -24,26 +26,33 @@ export type DepositConduitParameters = {
   amount: bigint
   receiver?: Address
   vehicle?: Address
+  /** Floor on the vehicle shares the deposit must produce. Omitted accepts any output. */
+  minOutput?: bigint
+  /** Derives `minOutput` from the vehicle's estimate, this far below it. Ignored when `minOutput` is set. */
+  slippageBps?: number
   salt?: Hex
 }
 
-export type PrepareDepositConduitParameters = Omit<DepositConduitParameters, 'salt'> & {
+export type PrepareDepositConduitParameters = Omit<
+  DepositConduitParameters,
+  'salt' | 'slippageBps'
+> & {
   account: Address
   vehicle: Address
   salt: Hex
 }
 
 export function prepareDepositConduit(parameters: PrepareDepositConduitParameters) {
-  const { conduit, token, amount, account, vehicle, salt: sourceSalt } = parameters
+  const { conduit, token, amount, account, vehicle, minOutput, salt: sourceSalt } = parameters
   const receiver = parameters.receiver ?? account
 
   const query = {
     owner: conduit,
     receiver: conduit,
     input: { asset: token, value: amount },
-    // BaseVehicle._validateOutput reverts unless a DEPOSIT names the vehicle as its output asset;
-    // a zero value leaves the output floor unbounded
-    output: { asset: vehicle, value: 0n },
+    // BaseVehicle._validateOutput reverts unless a DEPOSIT names the vehicle as its output asset.
+    // The value is a floor, checked as `query.output.value > estimate` at create time; 0 sets none.
+    output: { asset: vehicle, value: minOutput ?? 0n },
     mode: ConduitMode.DEPOSIT,
     // conduit.create() reverts unless query.salt == keccak256(abi.encode(msg.sender, sourceSalt))
     salt: keccak256(
@@ -109,9 +118,31 @@ export async function depositConduit(
     await waitForTransactionReceipt(client, { hash: approveHash })
   }
 
+  const { slippageBps, ...depositParameters } = parameters
+  const minOutput =
+    parameters.minOutput ??
+    (slippageBps === undefined
+      ? undefined
+      : applySlippage(
+          (
+            await estimateVehicle(client, {
+              vehicle,
+              asset: { asset: token, value: amount },
+              mode: ConduitMode.DEPOSIT,
+              estimationType: EstimationType.OUTPUT,
+            })
+          ).value,
+          slippageBps,
+        ))
+
   const { request: depositRequest } = await simulateContract(client, {
     ...options,
-    ...prepareDepositConduit({ ...parameters, vehicle, salt: parameters.salt ?? randomSalt() }),
+    ...prepareDepositConduit({
+      ...depositParameters,
+      vehicle,
+      ...(minOutput === undefined ? {} : { minOutput }),
+      salt: parameters.salt ?? randomSalt(),
+    }),
     account,
   })
 
