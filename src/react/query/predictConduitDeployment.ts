@@ -4,7 +4,7 @@ import { type QueryOptions, skipToken } from '@tanstack/react-query'
 import type { Address, Client, ReadContractErrorType } from 'viem'
 import type { PredictConduitDeploymentParameters } from '../../actions/conduit/predictConduitDeployment.js'
 import { predictConduitDeployment } from '../../actions/conduit/predictConduitDeployment.js'
-import { normalizeQueryKeyValue } from './key.js'
+import { normalizeQueryKeyParameters } from './key.js'
 
 /** Stable prefix, for `invalidateQueries` across every chain and every parameter set. */
 export const predictConduitDeploymentQueryPrefix = ['railnet', 'predictConduitDeployment'] as const
@@ -15,7 +15,7 @@ export function predictConduitDeploymentQueryKey(
 ) {
   return [
     ...predictConduitDeploymentQueryPrefix,
-    { chainId, ...(normalizeQueryKeyValue(parameters) as PredictConduitDeploymentParameters) },
+    { chainId, ...normalizeQueryKeyParameters(parameters) },
   ] as const
 }
 

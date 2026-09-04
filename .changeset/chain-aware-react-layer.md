@@ -15,6 +15,8 @@ Make the React layer chain-aware, and stop it hashing keys it cannot hash.
   carry a `bigint` — an `Asset` value, `initialExpectedSupply` — and TanStack hashes keys with
   `JSON.stringify`, which refuses a bigint. Key values are now normalised: bigints stringified,
   addresses lowercased so one contract does not occupy two entries with two staleness clocks.
+  Only a checksum-valid address is lowercased, so a free-form string that happens to look like
+  one — a conduit `name`, which feeds the CREATE2 result — keeps its casing and its own entry.
 - **Keys carry the chain, derived from `client.chain?.id`** rather than passed alongside the
   client, so a key cannot describe a chain other than the one that filled it.
 - **Write actions take viem's `chain`.** They never set it, so it defaulted to `client.chain` and
@@ -23,7 +25,9 @@ Make the React layer chain-aware, and stop it hashing keys it cannot hash.
   refuses rather than signing against whatever chain is connected. The protocol is deployed on
   several chains from one CREATE2 factory, so an address can carry a different contract per chain.
   Optional, and only asserted for a `json-rpc` account — a local account signs for the declared
-  chain, so a mismatch is rejected by the node instead.
+  chain, so a mismatch is rejected by the node instead. `deployMultiVehicle` resolves protocol
+  addresses from the client, so it rejects a `chain` that is not the client's rather than submit
+  one chain's addresses to another.
 - **A missing client or account skips the query** via `skipToken` instead of throwing inside
   `queryFn`, so the exported `*QueryOptions` are usable on their own — `prefetchQuery`, a route
   loader — and not only behind their hook's `enabled`.

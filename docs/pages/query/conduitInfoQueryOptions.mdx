@@ -80,20 +80,30 @@ The address of the conduit contract.
 ## Query Key
 
 ```ts
-['railnet', 'conduitInfo', { conduit }] as const
+['railnet', 'conduitInfo', { chainId, conduit }] as const
 ```
 
 You can use `conduitInfoQueryKey` to construct the query key manually for cache invalidation:
 
 ```ts
 import { useQueryClient } from '@tanstack/react-query'
+import { base } from 'viem/chains'
 import { conduitInfoQueryKey } from '@railnetorg/railnet-sdk/react'
 
 const queryClient = useQueryClient()
 
 queryClient.invalidateQueries({
-  queryKey: conduitInfoQueryKey({
+  queryKey: conduitInfoQueryKey(base.id, {
     conduit: '0x...',
   }),
 })
+```
+
+Every read is scoped to a chain, so the key carries the chain it was filled from. The prefix is
+exported too, to invalidate the family across every chain and every parameter set:
+
+```ts
+import { conduitInfoQueryPrefix } from '@railnetorg/railnet-sdk/react'
+
+queryClient.invalidateQueries({ queryKey: conduitInfoQueryPrefix })
 ```

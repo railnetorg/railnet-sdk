@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import { hashKey } from '@tanstack/react-query'
-import type { Address } from 'viem'
+import { type Address, getAddress } from 'viem'
 import { base } from 'viem/chains'
 import { EstimationType } from '../src/actions/conduit/estimateConduit.js'
 import { ConduitMode } from '../src/actions/conduit/types.js'
@@ -48,12 +48,39 @@ describe('query keys', () => {
 
   it('gives one entry to an address whatever its casing', () => {
     const lower = conduitPositionQueryKey(base.id, { conduit: CONDUIT, account: ACCOUNT })
-    const upper = conduitPositionQueryKey(base.id, {
-      conduit: CONDUIT.toUpperCase().replace('0X', '0x') as Address,
-      account: ACCOUNT.toUpperCase().replace('0X', '0x') as Address,
+    const checksummed = conduitPositionQueryKey(base.id, {
+      conduit: getAddress(CONDUIT),
+      account: getAddress(ACCOUNT),
     })
 
-    expect(hashKey(upper)).toBe(hashKey(lower))
+    expect(hashKey(checksummed)).toBe(hashKey(lower))
+  })
+
+  it('keeps the casing of a free-form string that is not a valid checksum', () => {
+    const parameters = {
+      factory: CONDUIT,
+      symbol: 'TEST',
+      vehicle: ASSET,
+      initialExpectedSupply: 2_000_000n,
+      transferEnabled: true,
+      accessControl: ACCOUNT,
+      feeManager: ACCOUNT,
+      accountList: ACCOUNT,
+      ownerRegistry: ACCOUNT,
+      querySalt: `0x${'11'.repeat(32)}`,
+      deploymentSalt: `0x${'22'.repeat(32)}`,
+    } as const
+
+    const lowerName = predictConduitDeploymentQueryKey(base.id, {
+      ...parameters,
+      name: ASSET,
+    })
+    const upperName = predictConduitDeploymentQueryKey(base.id, {
+      ...parameters,
+      name: ASSET.toUpperCase().replace('0X', '0x'),
+    })
+
+    expect(hashKey(upperName)).not.toBe(hashKey(lowerName))
   })
 
   it('separates the same conduit on two chains', () => {

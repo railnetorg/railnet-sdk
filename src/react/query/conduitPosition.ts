@@ -5,7 +5,7 @@ import {
   type GetConduitPositionReturnType,
   getConduitPosition,
 } from '../../actions/conduit/getConduitPosition.js'
-import { normalizeQueryKeyValue } from './key.js'
+import { normalizeQueryKeyParameters } from './key.js'
 
 export type ConduitPositionParameters = Omit<GetConduitPositionParameters, 'account'> & {
   account: Address | undefined
@@ -20,7 +20,7 @@ export function conduitPositionQueryKey(
 ) {
   return [
     ...conduitPositionQueryPrefix,
-    { chainId, ...(normalizeQueryKeyValue(parameters) as ConduitPositionParameters) },
+    { chainId, ...normalizeQueryKeyParameters(parameters) },
   ] as const
 }
 

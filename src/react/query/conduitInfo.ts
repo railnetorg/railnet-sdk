@@ -4,7 +4,7 @@ import {
   type GetConduitInfoReturnType,
   getConduitInfo,
 } from '../../actions/conduit/getConduitInfo.js'
-import { normalizeQueryKeyValue } from './key.js'
+import { normalizeQueryKeyParameters } from './key.js'
 
 export type ConduitInfoParameters = {
   conduit: Address
@@ -19,7 +19,7 @@ export function conduitInfoQueryKey(
 ) {
   return [
     ...conduitInfoQueryPrefix,
-    { chainId, ...(normalizeQueryKeyValue(parameters) as ConduitInfoParameters) },
+    { chainId, ...normalizeQueryKeyParameters(parameters) },
   ] as const
 }
 

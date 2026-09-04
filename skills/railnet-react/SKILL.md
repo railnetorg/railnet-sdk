@@ -93,12 +93,24 @@ All mutation hooks internally use `useWalletClient()` from wagmi and pass the wa
 
 | Function | Query Key Pattern |
 |----------|-------------------|
-| `conduitPositionQueryOptions(client, { conduit, account })` | `['railnet', 'conduitPosition', { conduit, account }]` |
-| `conduitInfoQueryOptions(client, { conduit })` | `['railnet', 'conduitInfo', { conduit }]` |
-| `estimateConduitQueryOptions(client, { conduit, assets, mode, estimationType })` | `['railnet', 'estimateConduit', { ... }]` |
-| `predictConduitDeploymentQueryOptions(client, params)` | `['railnet', 'predictConduitDeployment', { ... }]` |
+| `conduitPositionQueryOptions(client, { conduit, account })` | `['railnet', 'conduitPosition', { chainId, conduit, account }]` |
+| `conduitInfoQueryOptions(client, { conduit })` | `['railnet', 'conduitInfo', { chainId, conduit }]` |
+| `estimateConduitQueryOptions(client, { conduit, assets, mode, estimationType })` | `['railnet', 'estimateConduit', { chainId, ... }]` |
+| `predictConduitDeploymentQueryOptions(client, params)` | `['railnet', 'predictConduitDeployment', { chainId, ... }]` |
 
-Query key functions are also exported: `conduitPositionQueryKey`, `conduitInfoQueryKey`, `estimateConduitQueryKey`, `predictConduitDeploymentQueryKey`.
+The `chainId` is taken from the client the options were built with, so a key cannot name a chain
+other than the one it read from. Key values are normalised for hashing: a `bigint` becomes a
+string, an address is lowercased.
+
+Query key builders take the chain first: `conduitPositionQueryKey(chainId, parameters)`, and the
+same for `conduitInfoQueryKey`, `estimateConduitQueryKey`, `predictConduitDeploymentQueryKey`.
+
+Each family also exports its prefix — `conduitPositionQueryPrefix`, `conduitInfoQueryPrefix`,
+`estimateConduitQueryPrefix`, `predictConduitDeploymentQueryPrefix` — to invalidate a family
+across every chain without reconstructing a key.
+
+A missing client or account makes the options resolve to `skipToken`, so `*QueryOptions` can be
+handed to `prefetchQuery` or a route loader directly, not only to a hook behind `enabled`.
 
 ## Hooks and Components
 

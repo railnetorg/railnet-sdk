@@ -79,11 +79,23 @@ The type of estimation.
 ## Query Key
 
 ```ts
-['railnet', 'estimateConduit', { conduit, asset, mode, estimationType }] as const
+['railnet', 'estimateConduit', { chainId, conduit, asset, mode, estimationType }] as const
 ```
 
 You can use `estimateConduitQueryKey` to construct the query key manually:
 
 ```ts
+import { base } from 'viem/chains'
 import { estimateConduitQueryKey } from '@railnetorg/railnet-sdk/react'
+
+const queryKey = estimateConduitQueryKey(base.id, parameters)
+```
+
+Every read is scoped to a chain, so the key carries the chain it was filled from. The prefix is
+exported too, to invalidate the family across every chain and every parameter set:
+
+```ts
+import { estimateConduitQueryPrefix } from '@railnetorg/railnet-sdk/react'
+
+queryClient.invalidateQueries({ queryKey: estimateConduitQueryPrefix })
 ```

@@ -7,7 +7,7 @@ import {
   type EstimateConduitReturnType,
   estimateConduit,
 } from '../../actions/conduit/estimateConduit.js'
-import { normalizeQueryKeyValue } from './key.js'
+import { normalizeQueryKeyParameters } from './key.js'
 
 /** Stable prefix, for `invalidateQueries` across every chain and every parameter set. */
 export const estimateConduitQueryPrefix = ['railnet', 'estimateConduit'] as const
@@ -18,7 +18,7 @@ export function estimateConduitQueryKey(
 ) {
   return [
     ...estimateConduitQueryPrefix,
-    { chainId, ...(normalizeQueryKeyValue(parameters) as EstimateConduitParameters) },
+    { chainId, ...normalizeQueryKeyParameters(parameters) },
   ] as const
 }
 
