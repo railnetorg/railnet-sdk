@@ -1,0 +1,52 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300..700&display=swap");
+
+@font-face {
+  font-family: "ABC Marist Book";
+  src: url("/fonts/ABCMarist-Book.woff2") format("woff2");
+  font-weight: 350;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --vocs-font-family: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+
+  --vocs-background-color-primary: light-dark(#ffffff, #141414);
+  --vocs-background-color-surface: light-dark(#ffffff, #1a1a1a);
+  --vocs-background-color-surfaceMuted: light-dark(#f7f4f2, #1a1a1a);
+  --vocs-background-color-surfaceTint: light-dark(#faf8f7, #0a0a0a);
+
+  --vocs-text-color-primary: light-dark(#1a1210, #f8ebe5);
+  --vocs-text-color-secondary: light-dark(#4a3f38, #d4c4bb);
+  --vocs-text-color-muted: light-dark(#7a6e67, #9a8e87);
+  --vocs-text-color-heading: light-dark(#1a1210, #f8ebe5);
+  --vocs-text-color-quote: light-dark(#4a3f38, #d4c4bb);
+  --vocs-text-color-link: light-dark(#cc3f00, #fd5100);
+  --vocs-text-color-link-hover: light-dark(#a33300, #cc3f00);
+
+  --vocs-border-color-primary: light-dark(#e5dfdb, #2a2a2a);
+  --vocs-border-color-secondary: light-dark(#e5dfdb, #2a2a2a);
+
+  --vocs-background-color-blockquote: light-dark(#f7f4f2, #1a1a1a);
+  --vocs-background-color-code-block: light-dark(#faf8f7, #0c0c0c);
+  --vocs-background-color-inline-code: light-dark(rgba(204, 63, 0, 0.06), rgba(253, 81, 0, 0.08));
+  --vocs-background-color-code-highlighted: light-dark(rgba(204, 63, 0, 0.05), rgba(253, 81, 0, 0.06));
+  --vocs-border-color-code-highlighted: light-dark(#cc3f00, #500000);
+
+  /* Callouts keep Vocs' default hue assignments, warm-shifted away from the
+     hue-38 brand accent so danger/warning stay readable next to it. */
+  --vocs-color-red: light-dark(oklch(0.6 0.23 15), oklch(0.74 0.21 15));
+  --vocs-color-yellow: light-dark(oklch(0.58 0.19 75), oklch(0.8 0.19 75));
+
+  --vocs-radius-xs: 0px;
+  --vocs-radius-sm: 0px;
+  --vocs-radius-md: 0px;
+  --vocs-radius-lg: 0px;
+  --vocs-radius-xl: 0px;
+  --vocs-radius-2xl: 0px;
+}
+
+:is(h1, h2, h3)[data-v] {
+  font-family: "ABC Marist Book", ui-serif, Georgia, serif;
+  font-weight: 350;
+}
