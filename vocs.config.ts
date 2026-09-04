@@ -219,6 +219,10 @@ export default defineConfig({
               link: '/react/usePredictConduitDeployment',
             },
             {
+              text: 'useApproveConduitDeposit',
+              link: '/react/useApproveConduitDeposit',
+            },
+            {
               text: 'useDepositConduit',
               link: '/react/useDepositConduit',
             },

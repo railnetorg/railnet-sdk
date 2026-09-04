@@ -6,6 +6,13 @@ description: React hook to deposit assets into a conduit.
 
 React mutation hook for depositing assets into a conduit.
 
+The conduit pulls the token, so it must be approved first — see
+[`useApproveConduitDeposit`](/react/useApproveConduitDeposit). The allowance is spent by the
+deposit, so a later deposit of the same size needs a new approval.
+
+Reads go through the transport your wagmi config declares and only the transaction reaches the
+wallet, so a wallet serving stale state cannot make the deposit read a spent allowance.
+
 ## Import
 
 ```ts
@@ -15,33 +22,71 @@ import { useDepositConduit } from '@railnetorg/railnet-sdk/react'
 ## Usage
 
 ```tsx
-import { useDepositConduit } from '@railnetorg/railnet-sdk/react'
+import { erc20Abi } from 'viem'
+import { useReadContract } from 'wagmi'
+import { useApproveConduitDeposit, useDepositConduit } from '@railnetorg/railnet-sdk/react'
 
-function Deposit() {
-  const { mutate, isPending } = useDepositConduit()
+const conduit = '0x...'
+const token = '0x...'
+
+function Deposit({ account, amount }: { account: `0x${string}`; amount: bigint }) {
+  const { data: allowance } = useReadContract({
+    address: token,
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args: [account, conduit],
+  })
+
+  const approve = useApproveConduitDeposit()
+  const deposit = useDepositConduit()
+
+  if (allowance !== undefined && allowance < amount) {
+    return (
+      <button
+        type="button"
+        disabled={approve.isPending}
+        onClick={() => approve.mutate({ conduit, token, amount, account })}
+      >
+        {approve.isPending ? 'Approving…' : 'Approve'}
+      </button>
+    )
+  }
 
   return (
     <button
-      disabled={isPending}
-      onClick={() =>
-        mutate({
-          conduit: '0x...',
-          token: '0x...',
-          amount: 1000000000000000000n,
-          account: '0x...',
-        })
-      }
+      type="button"
+      disabled={deposit.isPending}
+      onClick={() => deposit.mutate({ conduit, token, amount, account })}
     >
-      Deposit
+      {deposit.isPending ? 'Depositing…' : 'Deposit'}
     </button>
   )
 }
 ```
 
+Each step is its own transaction, so you keep both hashes and can show where the flow stands. If
+the deposit is rejected the approval still stands, and the next attempt skips it.
+
+## Parameters
+
+`chainId` — chain to read and sign on. Defaults to the connected one.
+
+## Variables
+
+Everything [`prepareDepositConduit`](/actions/prepareDepositConduit) takes, with two optional:
+
+- `vehicle` — read from `conduit.getVehicle()` when omitted.
+- `salt` — a random one when omitted.
+- `minOutput` — a floor on the vehicle shares the deposit must produce. Derive it from
+  [`useEstimateConduit`](/react/useEstimateConduit) to set a slippage floor.
+
 ## Returns
 
 ```ts
-UseMutationResult<Hash, Error, DepositConduitParameters & { account: Address }>
+UseMutationResult<Hash, Error, DepositConduitVariables>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`depositConduit`](/actions/depositConduit) parameters.
+## Full control
+
+For a single transaction built yourself, [`prepareDepositConduit`](/actions/prepareDepositConduit)
+returns the call and nothing else — hand it to wagmi's `useWriteContract`.

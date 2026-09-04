@@ -1,3 +1,4 @@
+export * from './useApproveConduitDeposit.js'
 export * from './useAuthorizeVehicle.js'
 export * from './useConduitInfo.js'
 export * from './useConduitPosition.js'

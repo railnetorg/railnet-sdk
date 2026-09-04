@@ -86,8 +86,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
 | `useRevokeScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |
 | `useSetScopedRolePublic` | `{ accessControl, role, scope, isPublic, account }` | `Hash` |
 | `useSpawnAccessControl` | `SpawnAccessControlParameters & { account }` | `Hash` |
+| `useApproveConduitDeposit` | `{ conduit, token, amount, account }` | `Hash` |
 
-All mutation hooks internally use `useWalletClient()` from wagmi and pass the wallet client to the underlying SDK action.
+A deposit needs two transactions: `useApproveConduitDeposit` then `useDepositConduit`. They are
+separate hooks so the caller keeps both hashes and can show where the flow stands — the deposit
+hook does not approve on your behalf. The allowance is spent by the deposit, so read it before
+each attempt.
+
+`useDepositConduit` reads (`conduit.getVehicle()`) through `usePublicClient` and signs through
+`useWalletClient`, so the app's configured transport serves the reads. Pass `vehicle` to skip that
+read, and `minOutput` — derived from `useEstimateConduit` — to set a slippage floor.
+
+The other mutation hooks use `useWalletClient()` from wagmi and pass the wallet client to the
+underlying SDK action.
 
 ## Query Options (for custom query composition)
 
