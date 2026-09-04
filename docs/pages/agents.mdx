@@ -1,0 +1,25 @@
+---
+description: Set up the Railnet SDK's Intent skills in your coding agent.
+---
+
+# AI Agents
+
+The package ships five [TanStack Intent](https://github.com/TanStack/intent) skills —
+`railnet-core`, `railnet-conduit`, `railnet-vehicle`, `railnet-access-control`, `railnet-react` — so
+your agent reads the SDK from `node_modules` instead of guessing at it.
+
+Run both, once per project:
+
+```bash
+bunx @tanstack/intent@latest install
+bunx @tanstack/intent@latest hooks install
+```
+
+The first writes loading guidance into `AGENTS.md`; the second injects the skill catalog at session
+start. Swap `bunx` for `pnpm dlx` or `npx`.
+
+The agent takes it from there:
+
+```bash
+bunx @tanstack/intent@latest load @railnetorg/railnet-sdk#railnet-conduit
+```

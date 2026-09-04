@@ -15,7 +15,7 @@ export default defineConfig({
     enabled: true,
     sources: [McpSource.github({ name: 'railnet-sdk', repo: 'railnetorg/railnet-sdk' })],
   },
-  accentColor: 'light-dark(#CC3F00, #FD5100)',
+  accentColor: 'light-dark(#cc3f00, #ff9465)',
   iconUrl: '/favicon.png',
   logoUrl: {
     light: '/logo-light.svg',
@@ -29,6 +29,10 @@ export default defineConfig({
     {
       text: 'Getting Started',
       link: '/getting-started',
+    },
+    {
+      text: 'AI Agents',
+      link: '/agents',
     },
     {
       text: 'Actions',

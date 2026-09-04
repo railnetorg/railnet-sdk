@@ -24,6 +24,12 @@ For React hooks, also install:
 npm install wagmi @tanstack/react-query
 ```
 
+### AI coding agents
+
+The package ships [TanStack Intent](https://github.com/TanStack/intent) skills for the SDK. Run
+`bunx @tanstack/intent install` in your project to let your agent load them on demand. See
+[AI Agents](https://sdk.railnet.org/agents) for details.
+
 ## Usage
 
 ### Standalone Actions
