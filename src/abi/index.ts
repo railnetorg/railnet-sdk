@@ -1,6 +1,7 @@
 export { aaveV3VehicleFactoryAbi } from './aaveV3VehicleFactory.js'
 export { accessControlFactoryAbi } from './accessControlFactory.js'
 export { assetRegistryAbi } from './assetRegistry.js'
+export { baseVehicleAbi } from './baseVehicle.js'
 export { conduitAbi } from './conduit.js'
 export { conduitFactoryAbi } from './conduitFactory.js'
 export { externalAccessControlAbi } from './externalAccessControl.js'

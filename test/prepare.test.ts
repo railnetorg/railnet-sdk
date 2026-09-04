@@ -72,6 +72,20 @@ describe('prepare* writes', () => {
     expect(prepared.args[0].output).toEqual({ asset: VEHICLE, value: 0n })
   })
 
+  test('prepareDepositConduit carries a slippage floor into the query output', () => {
+    const prepared = prepareDepositConduit({
+      conduit: zeroAddress,
+      token: zeroAddress,
+      amount: 100n,
+      account,
+      vehicle: VEHICLE,
+      minOutput: 99n,
+      salt: zeroHash,
+    })
+    // BaseVehicle._validateConstraints rejects when output.value > the create-time estimate.
+    expect(prepared.args[0].output).toEqual({ asset: VEHICLE, value: 99n })
+  })
+
   test('prepareDepositConduit binds query.salt to (account, sourceSalt)', () => {
     const prepared = prepareDepositConduit({
       conduit: zeroAddress,
