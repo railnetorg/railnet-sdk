@@ -102,7 +102,15 @@ The `chainId` is taken from the client the options were built with, so a key can
 other than the one it read from. Key values are normalised for hashing: a `bigint` becomes a
 string, an address is lowercased.
 
-Query key builders take the chain first: `conduitPositionQueryKey(chainId, parameters)`, and the
+Every read hook returns its `queryKey` alongside the query result, so invalidating what a
+component displays needs no builder and no knowledge of the resolved chain:
+
+```ts
+const { data, queryKey } = useConduitPosition({ conduit, account })
+queryClient.invalidateQueries({ queryKey })
+```
+
+Use a builder when the hook is not mounted where you invalidate. They take the chain first: `conduitPositionQueryKey(chainId, parameters)`, and the
 same for `conduitInfoQueryKey`, `estimateConduitQueryKey`, `predictConduitDeploymentQueryKey`.
 
 Each family also exports its prefix — `conduitPositionQueryPrefix`, `conduitInfoQueryPrefix`,

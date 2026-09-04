@@ -31,5 +31,9 @@ Make the React layer chain-aware, and stop it hashing keys it cannot hash.
 - **A missing client or account skips the query** via `skipToken` instead of throwing inside
   `queryFn`, so the exported `*QueryOptions` are usable on their own — `prefetchQuery`, a route
   loader — and not only behind their hook's `enabled`.
+- **Every read hook returns its `queryKey`.** The chain in a key comes from the client, so
+  rebuilding one meant guessing which chain the client resolved to. Invalidating what a component
+  displays now reads the key off the result; the builders remain for invalidating from where the
+  hook is not mounted.
 - **Each query exports its prefix** (`conduitPositionQueryPrefix`), so a caller can invalidate a
   family across chains without reconstructing the key.

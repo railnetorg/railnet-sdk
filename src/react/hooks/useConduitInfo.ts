@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
+import { attachQueryKey } from '../query/attachQueryKey.js'
 import { type ConduitInfoParameters, conduitInfoQueryOptions } from '../query/conduitInfo.js'
 
 export type UseConduitInfoParameters = ConduitInfoParameters & {
@@ -15,8 +16,10 @@ export function useConduitInfo(parameters: UseConduitInfoParameters) {
   const client = usePublicClient({ chainId })
   const options = conduitInfoQueryOptions(client, queryParameters)
 
-  return useQuery({
+  const result = useQuery({
     ...options,
     enabled,
   })
+
+  return attachQueryKey(result, options.queryKey)
 }

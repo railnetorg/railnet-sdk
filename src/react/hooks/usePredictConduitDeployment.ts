@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
 import type { PredictConduitDeploymentParameters } from '../../actions/conduit/predictConduitDeployment.js'
+import { attachQueryKey } from '../query/attachQueryKey.js'
 import { predictConduitDeploymentQueryOptions } from '../query/predictConduitDeployment.js'
 
 export type UsePredictConduitDeploymentParameters = PredictConduitDeploymentParameters & {
@@ -16,8 +17,10 @@ export function usePredictConduitDeployment(parameters: UsePredictConduitDeploym
   const client = usePublicClient({ chainId })
   const options = predictConduitDeploymentQueryOptions(client, queryParameters)
 
-  return useQuery({
+  const result = useQuery({
     ...options,
     enabled,
   })
+
+  return attachQueryKey(result, options.queryKey)
 }

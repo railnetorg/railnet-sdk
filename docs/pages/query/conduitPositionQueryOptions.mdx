@@ -91,6 +91,18 @@ The address of the account to query the position for.
 ['railnet', 'conduitPosition', { chainId, conduit, account }] as const
 ```
 
+The hook hands the key back on its result, so the common case needs no builder and no guess about
+which chain the client resolved to:
+
+```ts
+const { data, queryKey } = useConduitPosition({ conduit: '0x...' })
+
+queryClient.invalidateQueries({ queryKey })
+```
+
+Reach for the builder when the hook is not mounted where you invalidate — a mutation's
+`onSuccess` in another component, a route loader.
+
 You can use `conduitPositionQueryKey` to construct the query key manually for cache invalidation:
 
 ```ts

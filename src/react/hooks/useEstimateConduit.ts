@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
 import type { EstimateConduitParameters } from '../../actions/conduit/estimateConduit.js'
+import { attachQueryKey } from '../query/attachQueryKey.js'
 import { estimateConduitQueryOptions } from '../query/estimateConduit.js'
 
 export type UseEstimateConduitParameters = EstimateConduitParameters & {
@@ -16,8 +17,10 @@ export function useEstimateConduit(parameters: UseEstimateConduitParameters) {
   const client = usePublicClient({ chainId })
   const options = estimateConduitQueryOptions(client, queryParameters)
 
-  return useQuery({
+  const result = useQuery({
     ...options,
     enabled,
   })
+
+  return attachQueryKey(result, options.queryKey)
 }

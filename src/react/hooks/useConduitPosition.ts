@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
+import { attachQueryKey } from '../query/attachQueryKey.js'
 import {
   type ConduitPositionParameters,
   conduitPositionQueryOptions,
@@ -18,8 +19,10 @@ export function useConduitPosition(parameters: UseConduitPositionParameters) {
   const client = usePublicClient({ chainId })
   const options = conduitPositionQueryOptions(client, queryParameters)
 
-  return useQuery({
+  const result = useQuery({
     ...options,
     enabled,
   })
+
+  return attachQueryKey(result, options.queryKey)
 }
