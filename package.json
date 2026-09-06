@@ -35,6 +35,9 @@
   "[!start-pkg]": "",
   "name": "@railnetorg/railnet-sdk",
   "type": "module",
+  "keywords": [
+    "tanstack-intent"
+  ],
   "version": "0.5.0",
   "license": "MIT",
   "repository": {

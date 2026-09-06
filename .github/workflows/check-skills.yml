@@ -1,17 +1,14 @@
-# check-skills.yml - Drop this into your library repo's .github/workflows/
-#
-# Checks for stale intent skills after a release and opens a review PR
-# if any skills need attention. The PR body includes a prompt you can
-# paste into Claude Code, Cursor, or any coding agent to update them.
-#
-# Triggers: new release published, or manual workflow_dispatch.
-#
-# Template variables (replaced by `intent setup`):
-#   railnet-sdk - e.g. @tanstack/query or my-workspace workspace
+# Read by `intent stale`: below 3 it adds a workflow-advisory item to every
+# review body, opening a PR on every run.
+# intent-workflow-version: 3
 
 name: Check Skills
 
 on:
+  pull_request:
+    paths:
+      - 'skills/**'
+      - '**/skills/**'
   release:
     types: [published]
   push:
@@ -25,8 +22,26 @@ permissions:
   contents: read
 
 jobs:
-  check:
-    name: Check for stale skills
+  validate:
+    name: Validate intent skills
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate skills
+        run: bunx @tanstack/intent validate --github-summary
+
+  review:
+    name: Check intent skill coverage
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -43,100 +58,37 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Check staleness
+      - name: Check skills
         id: stale
-        run: |
-          OUTPUT=$(bunx @tanstack/intent stale --json 2>/dev/null) || true
-          echo "$OUTPUT"
-
-          NEEDS_REVIEW=$(echo "$OUTPUT" | node -e "
-            const input = require('fs').readFileSync('/dev/stdin','utf8');
-            try {
-              const reports = JSON.parse(input);
-              const stale = reports.flatMap(r =>
-                r.skills.filter(s => s.needsReview).map(s => ({ library: r.library, skill: s.name, reasons: s.reasons }))
-              );
-              if (stale.length > 0) {
-                console.log(JSON.stringify(stale));
-              }
-            } catch {}
-          ")
-
-          if [ -z "$NEEDS_REVIEW" ]; then
-            echo "has_stale=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_stale=true" >> "$GITHUB_OUTPUT"
-            # Escape for multiline GH output
-            EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-            echo "stale_json<<$EOF" >> "$GITHUB_OUTPUT"
-            echo "$NEEDS_REVIEW" >> "$GITHUB_OUTPUT"
-            echo "$EOF" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Build summary
-        if: steps.stale.outputs.has_stale == 'true'
-        id: summary
-        run: |
-          node -e "
-            const stale = JSON.parse(process.env.STALE_JSON);
-            const lines = stale.map(s =>
-              '- **' + s.skill + '** (' + s.library + '): ' + s.reasons.join(', ')
-            );
-            const summary = lines.join('\n');
-
-            const prompt = [
-              'Review and update the following stale intent skills for railnet-sdk:',
-              '',
-              ...stale.map(s => '- ' + s.skill + ': ' + s.reasons.join(', ')),
-              '',
-              'For each stale skill:',
-              '1. Read the current SKILL.md file',
-              '2. Check what changed in the library since the skill was last updated',
-              '3. Update the skill content to reflect current APIs and behavior',
-              '4. Run \`bunx @tanstack/intent validate\` to verify the updated skill',
-            ].join('\n');
-
-            // Write outputs
-            const fs = require('fs');
-            const env = fs.readFileSync(process.env.GITHUB_OUTPUT, 'utf8');
-            const eof = require('crypto').randomBytes(15).toString('base64');
-            fs.appendFileSync(process.env.GITHUB_OUTPUT,
-              'summary<<' + eof + '\n' + summary + '\n' + eof + '\n' +
-              'prompt<<' + eof + '\n' + prompt + '\n' + eof + '\n'
-            );
-          "
         env:
-          STALE_JSON: ${{ steps.stale.outputs.stale_json }}
+          PACKAGE_LABEL: '@railnetorg/railnet-sdk'
+        run: bunx @tanstack/intent stale --github-review --package-label "$PACKAGE_LABEL"
 
-      - name: Open review PR
-        if: steps.stale.outputs.has_stale == 'true'
+      - name: Open or update review PR
+        if: steps.stale.outputs.has_review == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
-          SUMMARY: ${{ steps.summary.outputs.summary }}
-          PROMPT: ${{ steps.summary.outputs.prompt }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           VERSION="${RELEASE_TAG:-manual}"
           BRANCH="skills/review-${VERSION}"
 
+          PR_URL="$(gh pr list --head "$BRANCH" --json url --jq '.[0].url')"
+          if [ -n "$PR_URL" ]; then
+            gh pr edit "$PR_URL" --body-file pr-body.md
+            echo "Refreshed existing review PR: $PR_URL"
+            exit 0
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
-          git commit --allow-empty -m "chore: review stale skills for ${VERSION}"
-          git push origin "$BRANCH"
-
-          {
-            printf '## Stale Skills Detected\n\n'
-            printf 'The following skills may need updates after the latest release:\n\n'
-            printf '%s\n\n' "$SUMMARY"
-            printf -- '---\n\n'
-            printf '### Update Prompt\n\n'
-            printf 'Paste this into your coding agent (Claude Code, Cursor, etc.):\n\n'
-            printf '~~~\n%s\n~~~\n' "$PROMPT"
-          } > "$RUNNER_TEMP/pr-body.md"
+          git checkout -B "$BRANCH"
+          git commit --allow-empty -m "chore: review intent skills for ${VERSION}"
+          git push --force origin "$BRANCH"
 
           gh pr create \
-            --title "Review stale skills (${VERSION})" \
-            --body-file "$RUNNER_TEMP/pr-body.md" \
+            --title "Review intent skills (${VERSION})" \
+            --body-file pr-body.md \
             --head "$BRANCH" \
-            --base main
+            --base "$BASE_BRANCH"
