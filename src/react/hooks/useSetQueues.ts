@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 import type { Address, Hash } from 'viem'
 import { usePublicClient, useWalletClient } from 'wagmi'
 import { prepareSetQueues, type SetQueuesParameters } from '../../actions/multiVehicle/setQueues.js'
-import { simulateThenWrite } from '../simulateThenWrite.js'
+import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
 
 export type UseSetQueuesParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */

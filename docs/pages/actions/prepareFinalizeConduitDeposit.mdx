@@ -2,40 +2,36 @@
 description: Finalizes a conduit deposit after the initial setup.
 ---
 
-# finalizeConduitDeposit
+# prepareFinalizeConduitDeposit
 
-Finalizes a conduit deposit after the initial setup. Requires a `WalletClient` to sign and send the transaction.
+Finalizes a conduit deposit after the initial setup. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
 
 ## Import
 
 ```ts
-import { finalizeConduitDeposit } from '@railnetorg/railnet-sdk'
+import { prepareFinalizeConduitDeposit } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
 
 ```ts
-import { createWalletClient, http } from 'viem'
-import { base } from 'viem/chains'
-import { finalizeConduitDeposit } from '@railnetorg/railnet-sdk'
+import { simulateContract, writeContract } from 'viem/actions'
+import { prepareFinalizeConduitDeposit } from '@railnetorg/railnet-sdk'
 
-const walletClient = createWalletClient({
-  chain: base,
-  transport: http(),
-})
-
-const hash = await finalizeConduitDeposit(walletClient, {
-  factory: '0x1234...',
-  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+const { request } = await simulateContract(client, {
+  ...prepareFinalizeConduitDeposit({
+    factory: '0x1234...',
+    conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  }),
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
+
+const hash = await writeContract(client, request)
 ```
 
 ## Returns
 
-`Hash`
-
-The transaction hash of the finalize transaction.
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 
@@ -46,7 +42,7 @@ The transaction hash of the finalize transaction.
 The address of the conduit factory contract.
 
 ```ts
-const hash = await finalizeConduitDeposit(walletClient, {
+prepareFinalizeConduitDeposit({
   factory: '0x1234...', // [!code focus]
   conduit: '0x...',
   account: '0x...',
@@ -60,7 +56,7 @@ const hash = await finalizeConduitDeposit(walletClient, {
 The address of the conduit contract.
 
 ```ts
-const hash = await finalizeConduitDeposit(walletClient, {
+prepareFinalizeConduitDeposit({
   factory: '0x...',
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
   account: '0x...',
@@ -74,7 +70,7 @@ const hash = await finalizeConduitDeposit(walletClient, {
 The address of the account executing the transaction.
 
 ```ts
-const hash = await finalizeConduitDeposit(walletClient, {
+prepareFinalizeConduitDeposit({
   factory: '0x...',
   conduit: '0x...',
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]

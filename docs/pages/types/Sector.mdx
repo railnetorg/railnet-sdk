@@ -6,7 +6,7 @@ description: Accounting sectors in a MultiVehicle, and how their identifiers are
 
 A `Sector` is a `bytes32` identifier for one bucket of a MultiVehicle's accounting: idle liquidity,
 shares held in a sub-vehicle, assets parked aside, and so on. Every
-[`moveBetweenSectors`](/actions/moveBetweenSectors) and [`dispatchVehicle`](/actions/dispatchVehicle)
+[`moveBetweenSectors`](/actions/prepareMoveBetweenSectors) and [`dispatchVehicle`](/actions/prepareDispatchVehicle)
 call names the sectors it reads from and writes to.
 
 ```ts

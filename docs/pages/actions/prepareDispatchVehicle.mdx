@@ -2,11 +2,11 @@
 description: Dispatches a deposit or redeem between a sector and a sub-vehicle.
 ---
 
-# dispatchVehicle
+# prepareDispatchVehicle
 
 Dispatches a deposit or a redeem between a [sector](/types/Sector) and a sub-vehicle, via the
 MultiVehicle's SectorAccountingEngine. Together with
-[`moveBetweenSectors`](/actions/moveBetweenSectors) this is what replaced the removed `rebalance()`:
+[`moveBetweenSectors`](/actions/prepareMoveBetweenSectors) this is what replaced the removed `rebalance()`:
 reallocating between two vehicles is a redeem dispatch followed by a deposit dispatch.
 
 :::info
@@ -29,23 +29,23 @@ import { dispatchVehicle, simulateDispatchVehicle } from '@railnetorg/railnet-sd
 ## Usage
 
 ```ts
-import {
-  ConduitMode,
-  dispatchVehicle,
-  SECTOR_AVAILABLE,
-  vehicleSector,
-} from '@railnetorg/railnet-sdk'
+import { simulateContract, writeContract } from 'viem/actions'
+import { prepareDispatchVehicle } from '@railnetorg/railnet-sdk'
 
-const hash = await dispatchVehicle(walletClient, {
-  sectorAccountingEngine: '0x...',
-  vehicle: aaveV3Vehicle,
-  mode: ConduitMode.REDEEM,
-  amount: 1000000n,
-  settledDestination: SECTOR_AVAILABLE,
-  rejectedDestination: vehicleSector(aaveV3Vehicle),
-  operationId: '0x...',
+const { request } = await simulateContract(client, {
+  ...prepareDispatchVehicle({
+    sectorAccountingEngine: '0x...',
+    vehicle: aaveV3Vehicle,
+    mode: ConduitMode.REDEEM,
+    amount: 1000000n,
+    settledDestination: SECTOR_AVAILABLE,
+    rejectedDestination: vehicleSector(aaveV3Vehicle),
+    operationId: '0x...',
+  }),
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
+
+const hash = await writeContract(client, request)
 ```
 
 Checking whether it will settle in one transaction:

@@ -7,7 +7,7 @@ import {
   type ProcessConduitQueryParameters,
   prepareProcessConduitQuery,
 } from '../../actions/conduit/processConduitQuery.js'
-import { simulateThenWrite } from '../simulateThenWrite.js'
+import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
 
 export type UseProcessConduitQueryParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */

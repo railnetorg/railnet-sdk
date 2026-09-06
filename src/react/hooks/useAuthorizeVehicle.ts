@@ -7,7 +7,7 @@ import {
   type AuthorizeVehicleParameters,
   prepareAuthorizeVehicle,
 } from '../../actions/multiVehicle/authorizeVehicle.js'
-import { simulateThenWrite } from '../simulateThenWrite.js'
+import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
 
 export type UseAuthorizeVehicleParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */

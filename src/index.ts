@@ -12,5 +12,6 @@ export * from './types.js'
 
 export * from './utils/receipt.js'
 export * from './utils/salt.js'
+export * from './utils/simulateThenWrite.js'
 
 export * from './workflows/index.js'

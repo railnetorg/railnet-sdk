@@ -7,7 +7,7 @@ import {
   type GrantScopedRoleParameters,
   prepareGrantScopedRole,
 } from '../../actions/accessControl/grantScopedRole.js'
-import { simulateThenWrite } from '../simulateThenWrite.js'
+import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
 
 export type UseGrantScopedRoleParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */

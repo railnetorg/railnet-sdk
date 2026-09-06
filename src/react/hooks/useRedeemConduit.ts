@@ -11,7 +11,7 @@ import {
 } from '../../actions/conduit/redeemConduit.js'
 import type { Asset } from '../../actions/conduit/types.js'
 import { randomSalt } from '../../utils/salt.js'
-import { simulateThenWrite } from '../simulateThenWrite.js'
+import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
 
 export type RedeemConduitVariables = Omit<
   PrepareRedeemConduitParameters,

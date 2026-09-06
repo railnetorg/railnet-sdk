@@ -52,6 +52,6 @@ UseMutationResult<Hash, Error, SpawnAccessControlParameters & { account: Address
 
 Mutation result returning the spawn transaction hash. Extract the deployed access control with
 [`extractAccessControlAddress`](/utilities/receiptHelpers#extractaccesscontroladdress). Call
-`mutate` or `mutateAsync` with [`spawnAccessControl`](/actions/spawnAccessControl) parameters.
+`mutate` or `mutateAsync` with [`spawnAccessControl`](/actions/prepareSpawnAccessControl) parameters.
 
 The call is simulated through the transport your wagmi config declares and only the transaction reaches the wallet, so a wallet serving stale state cannot reject a call on state that has already changed.

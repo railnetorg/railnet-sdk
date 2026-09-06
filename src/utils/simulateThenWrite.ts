@@ -1,5 +1,6 @@
 import type { Abi, Account, Address, Client, Hash } from 'viem'
 import { simulateContract, writeContract } from 'viem/actions'
+import type { ContractCallOptions } from '../types.js'
 
 export type PreparedCall = {
   address: Address
@@ -19,10 +20,12 @@ export async function simulateThenWrite(
   clients: { publicClient: Client; walletClient: Client },
   call: PreparedCall,
   account: Address | Account,
+  options?: ContractCallOptions,
 ): Promise<Hash> {
   const { publicClient, walletClient } = clients
 
   const { request } = await simulateContract(publicClient, {
+    ...options,
     ...call,
     account,
     chain: walletClient.chain,

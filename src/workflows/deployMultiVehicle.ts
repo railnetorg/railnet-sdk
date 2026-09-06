@@ -6,14 +6,14 @@ import {
   writeContract,
 } from 'viem/actions'
 import { externalAccessControlAbi } from '../abi/externalAccessControl.js'
-import { grantScopedRole } from '../actions/accessControl/grantScopedRole.js'
-import { spawnAccessControl } from '../actions/accessControl/spawnAccessControl.js'
+import { prepareGrantScopedRole } from '../actions/accessControl/grantScopedRole.js'
+import { prepareSpawnAccessControl } from '../actions/accessControl/spawnAccessControl.js'
 import { getInitialDepositAmount } from '../actions/assetRegistry/getInitialDepositAmount.js'
-import { authorizeVehicle } from '../actions/multiVehicle/authorizeVehicle.js'
-import { setQueues } from '../actions/multiVehicle/setQueues.js'
+import { prepareAuthorizeVehicle } from '../actions/multiVehicle/authorizeVehicle.js'
+import { prepareSetQueues } from '../actions/multiVehicle/setQueues.js'
 import {
   type MultiVehicleSalts,
-  spawnMultiVehicle,
+  prepareSpawnMultiVehicle,
 } from '../actions/multiVehicle/spawnMultiVehicle.js'
 import {
   MULTI_VEHICLE_SET_QUEUES,
@@ -28,6 +28,7 @@ import {
   extractMultiVehicleContracts,
   type MultiVehicleContracts,
 } from '../utils/receipt.js'
+import { simulateThenWrite } from '../utils/simulateThenWrite.js'
 
 export type VehicleEntry = {
   address: Address
@@ -93,6 +94,23 @@ export async function deployMultiVehicle(
 ): Promise<DeployMultiVehicleResult> {
   const chain = client.chain
   if (!chain) throw new Error('Client must have a chain configured')
+
+  const clients = { publicClient: client, walletClient: client }
+  const grantScopedRole = (
+    parameters: Parameters<typeof prepareGrantScopedRole>[0] & { account: Address },
+  ) => simulateThenWrite(clients, prepareGrantScopedRole(parameters), parameters.account, options)
+  const spawnAccessControl = (
+    parameters: Parameters<typeof prepareSpawnAccessControl>[0] & { account: Address },
+  ) =>
+    simulateThenWrite(clients, prepareSpawnAccessControl(parameters), parameters.account, options)
+  const authorizeVehicle = (
+    parameters: Parameters<typeof prepareAuthorizeVehicle>[0] & { account: Address },
+  ) => simulateThenWrite(clients, prepareAuthorizeVehicle(parameters), parameters.account, options)
+  const setQueues = (parameters: Parameters<typeof prepareSetQueues>[0] & { account: Address }) =>
+    simulateThenWrite(clients, prepareSetQueues(parameters), parameters.account, options)
+  const spawnMultiVehicle = (
+    parameters: Parameters<typeof prepareSpawnMultiVehicle>[0] & { account: Address },
+  ) => simulateThenWrite(clients, prepareSpawnMultiVehicle(parameters), parameters.account, options)
   if (options?.chain && options.chain.id !== chain.id)
     throw new Error(
       `options.chain (${options.chain.id}) does not match the client chain (${chain.id}). The protocol addresses are resolved from the client, so the two cannot differ.`,
@@ -133,18 +151,14 @@ export async function deployMultiVehicle(
     transactionHashes.push(approveHash)
   } else {
     const [eacHash, approveHash] = await Promise.all([
-      spawnAccessControl(
-        client,
-        {
-          factory: eacFactory,
-          initialDefaultAdmin: adminAddress,
-          initialDelay: 0,
-          initialRoles: [],
-          deploymentSalt: parameters.salts.accessControl,
-          account: parameters.account,
-        },
-        options,
-      ),
+      spawnAccessControl({
+        factory: eacFactory,
+        initialDefaultAdmin: adminAddress,
+        initialDelay: 0,
+        initialRoles: [],
+        deploymentSalt: parameters.salts.accessControl,
+        account: parameters.account,
+      }),
       simulateContract(client, {
         ...options,
         address: parameters.asset,
@@ -168,7 +182,7 @@ export async function deployMultiVehicle(
     transactionHashes.push(eacHash, approveHash)
   }
 
-  const mvSpawnParams: Parameters<typeof spawnMultiVehicle>[1] = {
+  const mvSpawnParams: Parameters<typeof spawnMultiVehicle>[0] = {
     factory: multiVehicleFactory,
     asset: parameters.asset,
     name: parameters.name,
@@ -187,7 +201,7 @@ export async function deployMultiVehicle(
   if (parameters.modulesManager !== undefined) {
     mvSpawnParams.modulesManager = parameters.modulesManager
   }
-  const mvHash = await spawnMultiVehicle(client, mvSpawnParams, options)
+  const mvHash = await spawnMultiVehicle(mvSpawnParams)
   const mvReceipt = await waitForTransactionReceipt(client, { hash: mvHash })
   const mvContracts = extractMultiVehicleContracts(mvReceipt, multiVehicleFactory)
   if (!mvContracts) {
@@ -197,28 +211,20 @@ export async function deployMultiVehicle(
 
   const [adminRoleHashes, vehicleHashes] = await Promise.all([
     Promise.all([
-      grantScopedRole(
-        client,
-        {
-          accessControl: eacAddress,
-          role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION as Hex,
-          scope: mvContracts.vehicleManager,
-          grantee: adminAddress,
-          account: parameters.account,
-        },
-        options,
-      ),
-      grantScopedRole(
-        client,
-        {
-          accessControl: eacAddress,
-          role: MULTI_VEHICLE_SET_QUEUES as Hex,
-          scope: mvContracts.queueStrategyEngine,
-          grantee: adminAddress,
-          account: parameters.account,
-        },
-        options,
-      ),
+      grantScopedRole({
+        accessControl: eacAddress,
+        role: MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION as Hex,
+        scope: mvContracts.vehicleManager,
+        grantee: adminAddress,
+        account: parameters.account,
+      }),
+      grantScopedRole({
+        accessControl: eacAddress,
+        role: MULTI_VEHICLE_SET_QUEUES as Hex,
+        scope: mvContracts.queueStrategyEngine,
+        grantee: adminAddress,
+        account: parameters.account,
+      }),
     ]),
 
     Promise.all(
@@ -248,32 +254,24 @@ export async function deployMultiVehicle(
             isPublic[index]
               ? []
               : steamGrantees.map((grantee) =>
-                  grantScopedRole(
-                    client,
-                    {
-                      accessControl: eacAddress,
-                      role,
-                      scope: vehicle.address,
-                      grantee,
-                      account: parameters.account,
-                    },
-                    options,
-                  ),
+                  grantScopedRole({
+                    accessControl: eacAddress,
+                    role,
+                    scope: vehicle.address,
+                    grantee,
+                    account: parameters.account,
+                  }),
                 ),
           ),
         )
         hashes.push(...steamHashes)
 
         hashes.push(
-          await authorizeVehicle(
-            client,
-            {
-              vehicleManager: mvContracts.vehicleManager,
-              vehicle: vehicle.address,
-              account: parameters.account,
-            },
-            options,
-          ),
+          await authorizeVehicle({
+            vehicleManager: mvContracts.vehicleManager,
+            vehicle: vehicle.address,
+            account: parameters.account,
+          }),
         )
 
         return hashes
@@ -284,22 +282,18 @@ export async function deployMultiVehicle(
   transactionHashes.push(...adminRoleHashes, ...vehicleHashes.flat())
 
   transactionHashes.push(
-    await setQueues(
-      client,
-      {
-        queueStrategyEngine: mvContracts.queueStrategyEngine,
-        depositQueue: parameters.vehicles.map((v) => ({
-          vehicle: v.address,
-          target: v.depositTarget,
-        })),
-        redeemQueue: parameters.vehicles.map((v) => ({
-          vehicle: v.address,
-          target: v.redeemTarget,
-        })),
-        account: parameters.account,
-      },
-      options,
-    ),
+    await setQueues({
+      queueStrategyEngine: mvContracts.queueStrategyEngine,
+      depositQueue: parameters.vehicles.map((v) => ({
+        vehicle: v.address,
+        target: v.depositTarget,
+      })),
+      redeemQueue: parameters.vehicles.map((v) => ({
+        vehicle: v.address,
+        target: v.redeemTarget,
+      })),
+      account: parameters.account,
+    }),
   )
 
   return {

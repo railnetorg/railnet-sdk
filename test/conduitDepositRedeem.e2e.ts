@@ -1,7 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
-import { depositConduit } from '../src/actions/conduit/depositConduit.js'
+import { erc20Abi } from 'viem'
+import { conduitAbi } from '../src/abi/conduit.js'
+import { prepareDepositConduit } from '../src/actions/conduit/depositConduit.js'
 import { getConduitPosition } from '../src/actions/conduit/getConduitPosition.js'
-import { redeemConduit } from '../src/actions/conduit/redeemConduit.js'
+import { prepareRedeemConduit } from '../src/actions/conduit/redeemConduit.js'
+import { randomSalt } from '../src/utils/salt.js'
+import { simulateThenWrite } from '../src/utils/simulateThenWrite.js'
 import { type createRailnetTestClient, testAccount } from './client.js'
 import { TEST_CONDUIT, USDC } from './constants.js'
 import { setupAnvil, teardownAnvil } from './setup.js'
@@ -30,13 +34,35 @@ describe('conduit deposit and redeem', () => {
       account: account.address,
     })
 
+    const approveHash = await client.writeContract({
+      address: USDC,
+      abi: erc20Abi,
+      functionName: 'approve',
+      args: [TEST_CONDUIT, amount],
+      account,
+      chain: client.chain,
+    })
+    await client.waitForTransactionReceipt({ hash: approveHash })
+
+    const vehicle = await client.readContract({
+      address: TEST_CONDUIT,
+      abi: conduitAbi,
+      functionName: 'getVehicle',
+    })
+
     const depositReceipt = await client.waitForTransactionReceipt({
-      hash: await depositConduit(client, {
-        conduit: TEST_CONDUIT,
-        token: USDC,
-        amount,
-        account: account.address,
-      }),
+      hash: await simulateThenWrite(
+        { publicClient: client, walletClient: client },
+        prepareDepositConduit({
+          conduit: TEST_CONDUIT,
+          token: USDC,
+          amount,
+          account: account.address,
+          vehicle,
+          salt: randomSalt(),
+        }),
+        account,
+      ),
     })
     expect(depositReceipt.status).toBe('success')
 
@@ -46,12 +72,24 @@ describe('conduit deposit and redeem', () => {
     })
     expect(deposited.shares).toBeGreaterThan(before.shares)
 
+    const conduitAsset = await client.readContract({
+      address: TEST_CONDUIT,
+      abi: conduitAbi,
+      functionName: 'asset',
+    })
+
     const redeemReceipt = await client.waitForTransactionReceipt({
-      hash: await redeemConduit(client, {
-        conduit: TEST_CONDUIT,
-        shares: deposited.shares,
-        account: account.address,
-      }),
+      hash: await simulateThenWrite(
+        { publicClient: client, walletClient: client },
+        prepareRedeemConduit({
+          conduit: TEST_CONDUIT,
+          shares: deposited.shares,
+          account: account.address,
+          outputAsset: { asset: conduitAsset, value: 0n },
+          salt: randomSalt(),
+        }),
+        account,
+      ),
     })
     expect(redeemReceipt.status).toBe('success')
 

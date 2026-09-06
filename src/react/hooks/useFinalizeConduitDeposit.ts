@@ -7,7 +7,7 @@ import {
   type FinalizeConduitDepositParameters,
   prepareFinalizeConduitDeposit,
 } from '../../actions/conduit/finalizeConduitDeposit.js'
-import { simulateThenWrite } from '../simulateThenWrite.js'
+import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
 
 export type UseFinalizeConduitDepositParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */

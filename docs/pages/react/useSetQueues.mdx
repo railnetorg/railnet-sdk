@@ -47,6 +47,6 @@ function SetQueues() {
 UseMutationResult<Hash, Error, SetQueuesParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`setQueues`](/actions/setQueues) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`setQueues`](/actions/prepareSetQueues) parameters.
 
 The call is simulated through the transport your wagmi config declares and only the transaction reaches the wallet, so a wallet serving stale state cannot reject a call on state that has already changed.

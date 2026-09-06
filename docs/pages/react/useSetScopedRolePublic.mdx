@@ -50,6 +50,6 @@ function MakePublic() {
 UseMutationResult<Hash, Error, SetScopedRolePublicParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`setScopedRolePublic`](/actions/setScopedRolePublic) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`setScopedRolePublic`](/actions/prepareSetScopedRolePublic) parameters.
 
 The call is simulated through the transport your wagmi config declares and only the transaction reaches the wallet, so a wallet serving stale state cannot reject a call on state that has already changed.

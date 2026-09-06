@@ -1,12 +1,18 @@
-import type { Address, Client, Hash } from 'viem'
-import { simulateContract, writeContract } from 'viem/actions'
+import type { Address } from 'viem'
 import { conduitAbi } from '../../abi/conduit.js'
-import type { ContractCallOptions } from '../../types.js'
 
 export type EnableConduitParameters = {
   conduit: Address
 }
 
+/**
+ * Enables a conduit, transitioning it to an operational state. Can only be called by the conduit factory.
+ *
+ * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
+ * or to wagmi's `useWriteContract`.
+ *
+ * @param parameters - {@link EnableConduitParameters}
+ */
 export function prepareEnableConduit(parameters: EnableConduitParameters) {
   return {
     address: parameters.conduit,
@@ -14,28 +20,4 @@ export function prepareEnableConduit(parameters: EnableConduitParameters) {
     functionName: 'enable',
     args: [],
   } as const
-}
-
-/**
- * Enables a conduit, transitioning it to an operational state. Can only be called by the conduit factory.
- *
- * @param parameters - {@link EnableConduitParameters}
- *
- * @example
- * import { enableConduit } from '@railnetorg/railnet-sdk'
- *
- * const hash = await enableConduit(walletClient, { conduit: conduitAddress, account: account.address })
- */
-export async function enableConduit(
-  client: Client,
-  parameters: EnableConduitParameters & { account: Address },
-  options?: ContractCallOptions,
-): Promise<Hash> {
-  const { request } = await simulateContract(client, {
-    ...options,
-    ...prepareEnableConduit(parameters),
-    account: parameters.account,
-  })
-
-  return writeContract(client, request)
 }

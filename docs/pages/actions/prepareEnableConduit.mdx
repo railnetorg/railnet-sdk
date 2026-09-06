@@ -1,0 +1,59 @@
+---
+description: Enables public access to a conduit after deployment setup is complete.
+---
+
+# prepareEnableConduit
+
+Enables public access to a conduit after deployment setup is complete. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+
+## Import
+
+```ts
+import { prepareEnableConduit } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { prepareEnableConduit } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...prepareEnableConduit({ conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e' }),
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The address of the conduit contract.
+
+```ts
+prepareEnableConduit({
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  account: '0x...',
+})
+```
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.
+
+```ts
+prepareEnableConduit({
+  conduit: '0x...',
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+})
+```

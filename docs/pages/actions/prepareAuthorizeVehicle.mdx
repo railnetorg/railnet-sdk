@@ -2,40 +2,36 @@
 description: Authorizes a vehicle in the VehicleManager.
 ---
 
-# authorizeVehicle
+# prepareAuthorizeVehicle
 
 Authorizes a vehicle in the VehicleManager. Requires a `WalletClient`.
 
 ## Import
 
 ```ts
-import { authorizeVehicle } from '@railnetorg/railnet-sdk'
+import { prepareAuthorizeVehicle } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
 
 ```ts
-import { createWalletClient, http } from 'viem'
-import { base } from 'viem/chains'
-import { authorizeVehicle } from '@railnetorg/railnet-sdk'
+import { simulateContract, writeContract } from 'viem/actions'
+import { prepareAuthorizeVehicle } from '@railnetorg/railnet-sdk'
 
-const walletClient = createWalletClient({
-  chain: base,
-  transport: http(),
-})
-
-const hash = await authorizeVehicle(walletClient, {
-  vehicleManager: '0x1234...',
-  vehicle: '0x5678...',
+const { request } = await simulateContract(client, {
+  ...prepareAuthorizeVehicle({
+    vehicleManager: '0x1234...',
+    vehicle: '0x5678...',
+  }),
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
+
+const hash = await writeContract(client, request)
 ```
 
 ## Returns
 
-`Hash`
-
-The transaction hash.
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 

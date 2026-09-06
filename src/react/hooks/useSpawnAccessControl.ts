@@ -7,7 +7,7 @@ import {
   prepareSpawnAccessControl,
   type SpawnAccessControlParameters,
 } from '../../actions/accessControl/spawnAccessControl.js'
-import { simulateThenWrite } from '../simulateThenWrite.js'
+import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
 
 export type UseSpawnAccessControlParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */

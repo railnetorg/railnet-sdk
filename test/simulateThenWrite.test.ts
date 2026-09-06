@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import { type Address, createClient, custom } from 'viem'
 import { base } from 'viem/chains'
-import { simulateThenWrite } from '../src/react/simulateThenWrite.js'
+import { simulateThenWrite } from '../src/utils/simulateThenWrite.js'
 
 const ACCOUNT = '0x000000000000000000000000000000000000beef' as Address
 const CONTRACT = '0x43ea8bd0b15780ba5659086c60f72fafd1cfccd9' as Address

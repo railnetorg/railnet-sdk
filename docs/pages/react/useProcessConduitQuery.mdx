@@ -56,6 +56,6 @@ function Process() {
 UseMutationResult<Hash, Error, ProcessConduitQueryParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`processConduitQuery`](/actions/processConduitQuery) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`processConduitQuery`](/actions/prepareProcessConduitQuery) parameters.
 
 The call is simulated through the transport your wagmi config declares and only the transaction reaches the wallet, so a wallet serving stale state cannot reject a call on state that has already changed.

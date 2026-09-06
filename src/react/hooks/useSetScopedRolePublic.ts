@@ -7,7 +7,7 @@ import {
   prepareSetScopedRolePublic,
   type SetScopedRolePublicParameters,
 } from '../../actions/accessControl/setScopedRolePublic.js'
-import { simulateThenWrite } from '../simulateThenWrite.js'
+import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
 
 export type UseSetScopedRolePublicParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */
