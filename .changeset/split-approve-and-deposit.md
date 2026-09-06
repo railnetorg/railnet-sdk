@@ -36,8 +36,11 @@ optional `chainId`, like the read hooks.
 `useRedeemConduit` reads `conduit.asset()` through the public client too, and takes `outputAsset`
 and `salt` as optional variables.
 
-`useDeployMultiVehicle` is untouched: it spawns several contracts and reads addresses back out of
-receipts, so it is an orchestration rather than a call, and it stays on the action.
+**`useDeployMultiVehicle` is removed.** It spawns several contracts and reads their addresses back
+out of receipts across five steps, so it never had the shape of a call — and wrapped that way it
+was the last place a read still travelled through the wallet. `deployMultiVehicle` stays as an
+action for a script or a server, where the client is one you built; drive the UI from the read
+hooks once it lands.
 
 The core actions are unchanged — `depositConduit` still approves and deposits for a caller who
 supplies their own client, and `prepareDepositConduit` still returns the call and nothing else.

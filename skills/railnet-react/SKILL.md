@@ -5,7 +5,7 @@ description: >
   useConduitPosition, useConduitInfo, useEstimateConduit,
   usePredictConduitDeployment, useDepositConduit, useRedeemConduit,
   useSpawnConduit, useEnableConduit, useFinalizeConduitDeposit,
-  useProcessConduitQuery, useDeployMultiVehicle, useSpawnMultiVehicle,
+  useProcessConduitQuery, useSpawnMultiVehicle,
   useSpawnAaveV3Vehicle, useAuthorizeVehicle, useSetQueues,
   useGrantScopedRole, useRevokeScopedRole, useSetScopedRolePublic,
   useSpawnAccessControl, conduitPositionQueryOptions,
@@ -81,7 +81,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
 | `useSpawnMultiVehicle` | `SpawnMultiVehicleParameters & { account }` | `Hash` |
 | `useAuthorizeVehicle` | `{ vehicleManager, vehicle, account }` | `Hash` |
 | `useSetQueues` | `{ queueStrategyEngine, depositQueue, redeemQueue, account }` | `Hash` |
-| `useDeployMultiVehicle` | `DeployMultiVehicleParameters & { account }` | `DeployMultiVehicleResult` |
 | `useGrantScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |
 | `useRevokeScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |
 | `useSetScopedRolePublic` | `{ accessControl, role, scope, isPublic, account }` | `Hash` |
@@ -99,9 +98,12 @@ read, and `minOutput` — derived from `useEstimateConduit` — to set a slippag
 
 Every write hook builds its call with the matching `prepare*` builder, simulates on
 `usePublicClient` and signs on `useWalletClient`. The preflight therefore runs on the transport the
-app configured, not on the wallet's, and each hook takes an optional `chainId`. The exceptions are
-`useApproveConduitDeposit`, which is a plain ERC-20 approve with nothing to simulate, and
-`useDeployMultiVehicle`, an orchestration that stays on its action.
+app configured, not on the wallet's, and each hook takes an optional `chainId`. The exception is
+`useApproveConduitDeposit`, a plain ERC-20 approve with nothing to simulate.
+
+`deployMultiVehicle` has no hook. It spawns several contracts and reads their addresses back out
+of receipts, so it is a workflow rather than a call: run it from a script or a server with a
+client of your own, and drive the UI from the read hooks once it lands.
 
 ## Query Options (for custom query composition)
 

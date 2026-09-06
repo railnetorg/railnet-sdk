@@ -263,10 +263,6 @@ export default defineConfig({
               text: 'useSetQueues',
               link: '/react/useSetQueues',
             },
-            {
-              text: 'useDeployMultiVehicle',
-              link: '/react/useDeployMultiVehicle',
-            },
           ],
         },
         {
