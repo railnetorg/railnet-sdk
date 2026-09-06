@@ -4,7 +4,7 @@ Common contract revert errors encountered when interacting with Railnet conduits
 
 | Error | Description |
 | :--- | :--- |
-| `DisabledConduit()` | The conduit has not been enabled yet. Call `enableConduit()` first. |
+| `DisabledConduit()` | The conduit has not been enabled yet. Send `prepareEnableConduit()` first. |
 | `MissingRole(role, scope, caller)` | The caller is missing a required access control role (e.g., `VEHICLE_STEAM_DEPOSIT`). |
 | `InsufficientAllowance()` | The factory or conduit is not approved to spend the required assets. |
 | `InvalidState(expected, actual)` | The query is in an incorrect STEAM state for the requested action. |

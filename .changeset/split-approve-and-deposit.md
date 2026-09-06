@@ -42,8 +42,18 @@ was the last place a read still travelled through the wallet. `deployMultiVehicl
 action for a script or a server, where the client is one you built; drive the UI from the read
 hooks once it lands.
 
-The core actions are unchanged — `depositConduit` still approves and deposits for a caller who
-supplies their own client, and `prepareDepositConduit` still returns the call and nothing else.
+**The write actions are gone, and the builders remain.** Sixteen of them were a `prepare*` call
+wrapped in `simulateContract` then `writeContract`, and two also hid an ERC-20 approve and a
+`getVehicle` read. None of that is Railnet knowledge — the salt derivation, the rule that a
+deposit's output asset must name the vehicle, the encoding — that lives in the builders, and it
+stays. `simulateThenWrite` is exported and is the one way to send a call the SDK built, whether a
+script passes the same client twice or a hook passes two. `deployMultiVehicle` stays: which
+factory, in which order, which log to parse for the address it returns is Railnet knowledge, and it
+composes the builders internally. The read actions and the `railnetActions` decorator, which only
+ever exposed reads, are untouched.
+
+Docs and skills follow: the action pages become builder pages, and the skills no longer teach that
+a single wallet client should do both the simulation and the signing.
 
 Fixes `deal` in the test helpers, which ignored its `account` parameter and always funded the
 client's own account.
