@@ -97,8 +97,11 @@ each attempt.
 `useWalletClient`, so the app's configured transport serves the reads. Pass `vehicle` to skip that
 read, and `minOutput` — derived from `useEstimateConduit` — to set a slippage floor.
 
-The other mutation hooks use `useWalletClient()` from wagmi and pass the wallet client to the
-underlying SDK action.
+Every write hook builds its call with the matching `prepare*` builder, simulates on
+`usePublicClient` and signs on `useWalletClient`. The preflight therefore runs on the transport the
+app configured, not on the wallet's, and each hook takes an optional `chainId`. The exceptions are
+`useApproveConduitDeposit`, which is a plain ERC-20 approve with nothing to simulate, and
+`useDeployMultiVehicle`, an orchestration that stays on its action.
 
 ## Query Options (for custom query composition)
 

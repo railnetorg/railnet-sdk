@@ -25,6 +25,20 @@ wallet.
 - `vehicle` and `salt` are optional variables: the vehicle is read when omitted, the salt is
   random.
 
+**Every write hook simulates through the app's transport.** They all handed the wallet client to
+an action that simulates and writes with the one client it is given, so every preflight reached the
+wallet's RPC. It matters most in the two-step flows an integration is made of — grant a role then
+enable, deposit then finalize, spawn then authorize — where the state a call depends on changed
+seconds earlier. The hooks now build with the `prepare*` builder, simulate on `usePublicClient` and
+sign on `useWalletClient`, so the preflight and its decoded revert reason are kept. Each takes an
+optional `chainId`, like the read hooks.
+
+`useRedeemConduit` reads `conduit.asset()` through the public client too, and takes `outputAsset`
+and `salt` as optional variables.
+
+`useDeployMultiVehicle` is untouched: it spawns several contracts and reads addresses back out of
+receipts, so it is an orchestration rather than a call, and it stays on the action.
+
 The core actions are unchanged — `depositConduit` still approves and deposits for a caller who
 supplies their own client, and `prepareDepositConduit` still returns the call and nothing else.
 

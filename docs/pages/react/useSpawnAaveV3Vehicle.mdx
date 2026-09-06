@@ -45,6 +45,10 @@ function Spawn() {
 }
 ```
 
+## Parameters
+
+`chainId` — chain to simulate and sign on. Defaults to the connected one.
+
 ## Returns
 
 ```ts
@@ -54,3 +58,5 @@ UseMutationResult<Hash, Error, SpawnAaveV3VehicleParameters & { account: Address
 Mutation result returning the spawn transaction hash. Extract the deployed vehicle with
 [`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehicleaddress). Call
 `mutate` or `mutateAsync` with [`spawnAaveV3Vehicle`](/actions/spawnAaveV3Vehicle) parameters.
+
+The call is simulated through the transport your wagmi config declares and only the transaction reaches the wallet, so a wallet serving stale state cannot reject a call on state that has already changed.
