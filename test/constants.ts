@@ -11,8 +11,13 @@ export const EAC_FACTORY: Address = BASE_ADDRESSES.eacFactory
 export const AAVE_V3_VEHICLE_FACTORY: Address = BASE_ADDRESSES.aaveV3VehicleFactory
 export const ASSET_REGISTRY: Address = BASE_ADDRESSES.assetRegistry
 
-// Conduit instance on the scalar-`Asset` generation: beacon 0x83BAF6312D1fa077F41e8EEef4e7FB361be47f57
-// spawned by ConduitFactory 0x36Fbc89D0d2bFCc333e0075bd73c6A4dFcBA121A at block 50396003.
+// Beacon the v1.0.0 manifest pins the conduit implementation to. The shipped factory must report
+// this one, or the addresses and the ABIs sit on different deployment generations.
+export const CONDUIT_BEACON: Address = '0x94B7aBE28952bC3Ed7A9D64BFC1BaDb1513a671d'
+
+// Conduit instance on the scalar-`Asset` generation, spawned before the v1.0.0 redeploy: the
+// v1.0.0 factory has a zero `previousFactory` and disowns it, and no v1.0.0 conduit exists yet.
+// Reads still hold — it runs the same scalar `estimate`/`convert` the shipped ABIs speak.
 //
 // The previous fixture 0x43ea8bd0b15780ba5659086c60f72fafd1cfccd9 sits on a superseded beacon
 // (0xc9629a6f…, impl 0x7d3b5578…) whose `estimate`/`convert` still take `Asset[]`. Calling it with
