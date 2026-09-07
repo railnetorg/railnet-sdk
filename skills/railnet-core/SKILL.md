@@ -2,7 +2,7 @@
 name: railnet-core
 description: >
   Set up railnet-sdk with viem clients, use the railnetActions decorator,
-  understand chain support (Base 8453 only), contract addresses via
+  understand chain support (Ethereum 1 and Base 8453), contract addresses via
   getAddresses, ABIs (conduitAbi, conduitFactoryAbi,
   multiVehicleFactoryAbi, aaveV3VehicleFactoryAbi,
   accessControlFactoryAbi, externalAccessControlAbi,
@@ -67,7 +67,7 @@ const addresses = getAddresses(base.id)
 // addresses.aaveV3VehicleFactory
 // addresses.erc4626VehicleFactory
 // addresses.morphoBlueVehicleFactory
-// addresses.wrapperVehicleFactory
+// addresses.wrapperVehicleFactory  — optional: absent on Ethereum mainnet
 // addresses.eacFactory              — ExternalAccessControl factory
 // addresses.adminEac                — Admin ExternalAccessControl
 // addresses.feeManagerFactory

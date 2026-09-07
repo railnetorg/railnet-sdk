@@ -22,7 +22,7 @@ type ChainAddresses = {
   aaveV3VehicleFactory: Address
   erc4626VehicleFactory: Address
   morphoBlueVehicleFactory: Address
-  wrapperVehicleFactory: Address
+  wrapperVehicleFactory?: Address
   eacFactory: Address
   adminEac: Address
   feeManagerFactory: Address
@@ -76,9 +76,10 @@ The factory contract for spawning Morpho Blue vehicle instances.
 
 ### wrapperVehicleFactory
 
-- **Type:** `Address`
+- **Type:** `Address | undefined`
 
-The factory contract for spawning wrapper vehicle instances.
+The factory contract for spawning wrapper vehicle instances. Absent on Ethereum mainnet, whose
+production deployment ships no wrapper vehicle factory.
 
 ### eacFactory
 
