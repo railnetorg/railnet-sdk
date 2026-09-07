@@ -7,7 +7,7 @@ import {
   prepareSpawnAaveV3Vehicle,
   type SpawnAaveV3VehicleParameters,
 } from '../../actions/vehicle/spawnAaveV3Vehicle.js'
-import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
+import { simulateThenWrite } from '../simulateThenWrite.js'
 
 export type UseSpawnAaveV3VehicleParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */

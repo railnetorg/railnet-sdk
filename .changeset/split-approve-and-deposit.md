@@ -46,11 +46,18 @@ hooks once it lands.
 wrapped in `simulateContract` then `writeContract`, and two also hid an ERC-20 approve and a
 `getVehicle` read. None of that is Railnet knowledge — the salt derivation, the rule that a
 deposit's output asset must name the vehicle, the encoding — that lives in the builders, and it
-stays. `simulateThenWrite` is exported and is the one way to send a call the SDK built, whether a
-script passes the same client twice or a hook passes two. `deployMultiVehicle` stays: which
-factory, in which order, which log to parse for the address it returns is Railnet knowledge, and it
-composes the builders internally. The read actions and the `railnetActions` decorator, which only
-ever exposed reads, are untouched.
+stays. Sending a built call is `simulateContract` then `writeContract` — two lines of viem, so the SDK
+does not wrap them for you either. The React hooks share one internal helper for it, because there
+the two clients differ.
+
+**`deployMultiVehicle` is gone too.** It hid eight or more transactions against several factories
+behind one call, so a caller could not report progress, retry a step, or see which one failed. The
+knowledge it carried is still shipped: the log parsers (`extractMultiVehicleContracts`,
+`extractAccessControlAddress`) are exported, and the order — which scope each role needs, why
+granting after authorizing fails — is a guide at `/workflows/deployingAMultiVehicle` and in the
+vehicle skill. An order you can read beats an order you cannot step through.
+
+The read actions and the `railnetActions` decorator, which only ever exposed reads, are untouched.
 
 Docs and skills follow: the action pages become builder pages, and the skills no longer teach that
 a single wallet client should do both the simulation and the signing.

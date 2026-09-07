@@ -5,7 +5,7 @@ import type { Address, Hash } from 'viem'
 import { usePublicClient, useWalletClient } from 'wagmi'
 import { prepareSpawnConduit } from '../../actions/conduit/spawnConduit.js'
 import type { SpawnConduitParameters } from '../../actions/conduit/types.js'
-import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
+import { simulateThenWrite } from '../simulateThenWrite.js'
 
 export type UseSpawnConduitParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */

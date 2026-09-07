@@ -1,0 +1,56 @@
+---
+description: The order to deploy an access control, a multi-vehicle and its queues.
+---
+
+# Deploying a multi-vehicle
+
+Bringing up a multi-vehicle is several transactions against several factories, and each step needs
+an address the previous one returned. The SDK gives you the builders, the log parsers and the read
+you need for the initial deposit; the order is here.
+
+There is no `deployMultiVehicle` function. It existed, and it hid five transactions behind one
+call: you could not report progress, retry a single step, or see which one failed. Composing it
+yourself is longer, and it is the only version you can operate.
+
+## The order
+
+1. **Read the initial deposit amount.** The factory rejects a spawn whose asset has none
+   registered — see [`getInitialDepositAmount`](/actions/getInitialDepositAmount).
+2. **Approve the multi-vehicle factory** for that amount. A plain ERC-20 call.
+3. **Spawn the access control**, unless you are reusing one —
+   [`prepareSpawnAccessControl`](/actions/prepareSpawnAccessControl). Read its address back out of
+   the receipt with `extractAccessControlAddress`.
+4. **Spawn the multi-vehicle** — [`prepareSpawnMultiVehicle`](/actions/prepareSpawnMultiVehicle).
+   `extractMultiVehicleContracts` returns the multi-vehicle, its vehicle manager, its queue
+   strategy engine and its sector accounting engine.
+5. **Grant the admin roles** — [`prepareGrantScopedRole`](/actions/prepareGrantScopedRole). Scope
+   each role to the engine that checks it, not to the multi-vehicle: `MULTI_VEHICLE_SET_QUEUES`
+   goes to the queue strategy engine, `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` to the vehicle
+   manager. The wrong scope succeeds silently and every later call reverts with `MissingRole`.
+6. **Authorize each vehicle** — [`prepareAuthorizeVehicle`](/actions/prepareAuthorizeVehicle) on
+   the vehicle manager.
+7. **Set the queues** — [`prepareSetQueues`](/actions/prepareSetQueues) on the queue strategy
+   engine, with a deposit and a redeem target per vehicle.
+
+## Sending each step
+
+Every builder returns `{ address, abi, functionName, args }`. Simulate first so a revert reaches
+you with its reason before you pay for it:
+
+```ts
+import { simulateContract, waitForTransactionReceipt, writeContract } from 'viem/actions'
+import { extractMultiVehicleContracts, prepareSpawnMultiVehicle } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...prepareSpawnMultiVehicle(params),
+  account,
+})
+const hash = await writeContract(client, request)
+const receipt = await waitForTransactionReceipt(client, { hash })
+
+const contracts = extractMultiVehicleContracts(receipt, multiVehicleFactory)
+if (!contracts) throw new Error('no multi-vehicle in the logs')
+```
+
+Keep every hash. A step that lands and a step that follows are not the same thing, and a partial
+deployment is resumable only if you know where it stopped.

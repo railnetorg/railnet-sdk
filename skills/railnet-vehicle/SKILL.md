@@ -3,7 +3,7 @@ name: railnet-vehicle
 description: >
   Deploy and manage Railnet vehicles and multi-vehicle strategies —
   prepareSpawnAaveV3Vehicle, prepareSpawnMultiVehicle, prepareAuthorizeVehicle, prepareSetQueues,
-  deployMultiVehicle workflow, extractMultiVehicleContracts,
+  extractMultiVehicleContracts,
   extractAaveV3VehicleAddress, VehicleEntry, QueueEntry, QueueTarget,
   MultiVehicleContracts. Covers STEAM vehicle lifecycle (sync vs async),
   vehicle types (Aave V3, Compound V3, Morpho Blue, ERC4626, Ethena,
@@ -17,7 +17,6 @@ metadata:
 sources:
   - 'railnetorg/railnet-sdk:src/actions/vehicle/*.ts'
   - 'railnetorg/railnet-sdk:src/actions/multiVehicle/*.ts'
-  - 'railnetorg/railnet-sdk:src/workflows/deployMultiVehicle.ts'
   - 'railnetorg/railnet-sdk:src/utils/receipt.ts'
 ---
 
@@ -52,13 +51,13 @@ Note: Factory addresses exist for ERC4626, Morpho Blue, and Wrapper vehicles (`a
 ### Spawn an Aave V3 Vehicle
 
 ```typescript
-import { extractAaveV3VehicleAddress, getAddresses, prepareSpawnAaveV3Vehicle, randomSalt, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { extractAaveV3VehicleAddress, getAddresses, prepareSpawnAaveV3Vehicle, randomSalt } from '@railnetorg/railnet-sdk'
 
 const addresses = getAddresses(base.id)
 
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareSpawnAaveV3Vehicle({
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareSpawnAaveV3Vehicle({
       factory: addresses.aaveV3VehicleFactory,
       asset: addresses.usdc,
       poolAddressesProvider: addresses.aavePoolAddressesProvider,
@@ -69,8 +68,7 @@ const hash = await simulateThenWrite(
       querySalt: randomSalt(),
       deploymentSalt: randomSalt(), // required: it fixes the deployed address
       // Optional: feeManager, modulesManager, forbiddenAddresses
-    }),
-  account.address,
+    }), account: account.address })).request,
 )
 
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -79,20 +77,31 @@ const vehicleAddress = extractAaveV3VehicleAddress(receipt, addresses.aaveV3Vehi
 
 ### Deploy a Full Multi-Vehicle Ecosystem
 
-The `deployMultiVehicle` workflow orchestrates the entire setup in sequence:
+There is no `deployMultiVehicle` function; the sequence is yours to send. Send each step with its
+builder, simulate first, and keep every hash — a partial deployment is resumable only if you know
+where it stopped.
 
-1. Spawn ExternalAccessControl (or use existing via `accessControl` param)
-2. Approve factory for initial deposit
-3. Spawn MultiVehicle (deploys 6 contracts)
-4. Grant `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` (scoped to VehicleManager)
-5. Grant `MULTI_VEHICLE_SET_QUEUES` (scoped to QueueStrategyEngine)
-6. Per vehicle: for each of `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM`, check if it is public on the vehicle scope, and if not grant it x3 (to MV, SectorAccountingEngine, SubQueryEngine) + authorize
-7. Set deposit/redeem queues
+1. Read `AssetRegistry.getInitialDepositAmount(asset)` — the factory rejects a spawn whose asset
+   has none registered
+2. Approve the MultiVehicle factory for that amount
+3. `prepareSpawnAccessControl` — or reuse an existing ExternalAccessControl.
+   `extractAccessControlAddress` reads the address out of the receipt
+4. `prepareSpawnMultiVehicle` — deploys 6 contracts. `extractMultiVehicleContracts` returns them
+5. `prepareGrantScopedRole` for `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION`, scoped to the
+   VehicleManager
+6. `prepareGrantScopedRole` for `MULTI_VEHICLE_SET_QUEUES`, scoped to the QueueStrategyEngine
+7. Per vehicle: for each of `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM`, check whether it is
+   public on the vehicle scope; if not, grant it three times — to the MultiVehicle, the
+   SectorAccountingEngine and the SubQueryEngine — then `prepareAuthorizeVehicle`
+8. `prepareSetQueues` with a deposit and redeem target per vehicle
 
-**Vehicles must be deployed before calling this workflow.**
+Getting a scope wrong succeeds silently and every later call reverts with `MissingRole`. Granting
+after authorizing fails. The order above is the whole point.
+
+**Vehicles must be deployed before step 4.**
 
 ```typescript
-import { deployMultiVehicle, randomSalt, type VehicleEntry } from '@railnetorg/railnet-sdk'
+import { randomSalt, type VehicleEntry } from '@railnetorg/railnet-sdk'
 
 const vehicles: VehicleEntry[] = [
   {
@@ -102,7 +111,8 @@ const vehicles: VehicleEntry[] = [
   },
 ]
 
-const result = await deployMultiVehicle(walletClient, {
+// the parameters each step needs, gathered once
+const deployment = {
   asset: addresses.usdc,
   name: 'My Strategy',
   symbol: 'MSTRAT',
@@ -138,7 +148,7 @@ const result = await deployMultiVehicle(walletClient, {
 Use individual actions when you need custom role configuration.
 
 ```typescript
-import { extractMultiVehicleContracts, getAddresses, prepareSpawnMultiVehicle, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { extractMultiVehicleContracts, getAddresses, prepareSpawnMultiVehicle } from '@railnetorg/railnet-sdk'
 
 const addresses = getAddresses(base.id)
 
@@ -146,9 +156,9 @@ const addresses = getAddresses(base.id)
 // (must be done before spawnMultiVehicle)
 
 // Step 2: Spawn
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareSpawnMultiVehicle({
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareSpawnMultiVehicle({
       factory: addresses.multiVehicleFactory,
       asset: addresses.usdc,
       name: 'My Strategy',
@@ -166,8 +176,7 @@ const hash = await simulateThenWrite(
       initialDepositQuery: randomSalt(),
       }, // required — seven addresses. Log them.
       // Optional: feeManager, modulesManager, forbiddenAddresses, initialInterceptions
-    }),
-  account.address,
+    }), account: account.address })).request,
 )
 
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -183,23 +192,22 @@ const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFa
 ### Authorize a Vehicle in a Multi-Vehicle
 
 ```typescript
-import { prepareAuthorizeVehicle, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { prepareAuthorizeVehicle } from '@railnetorg/railnet-sdk'
 
-await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareAuthorizeVehicle({
+writeContract(
+  client,
+  (await simulateContract(client, { ...prepareAuthorizeVehicle({
       vehicleManager: contracts.vehicleManager,
       vehicle: aaveV3VehicleAddress,
       account: account.address,
-    }),
-  account.address,
+    }), account: account.address })).request,
 )
 ```
 
 ### Configure Deposit and Redeem Queues
 
 ```typescript
-import { prepareSetQueues, simulateThenWrite, type QueueEntry } from '@railnetorg/railnet-sdk'
+import { prepareSetQueues, type QueueEntry } from '@railnetorg/railnet-sdk'
 
 const depositQueue: QueueEntry[] = [
   {
@@ -215,15 +223,14 @@ const redeemQueue: QueueEntry[] = [
   },
 ]
 
-await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareSetQueues({
+writeContract(
+  client,
+  (await simulateContract(client, { ...prepareSetQueues({
       queueStrategyEngine: contracts.queueStrategyEngine,
       depositQueue,
       redeemQueue,
       account: account.address,
-    }),
-  account.address,
+    }), account: account.address })).request,
 )
 ```
 
@@ -233,7 +240,7 @@ await simulateThenWrite(
 client, and the same parameters as `spawnAaveV3Vehicle`.
 
 ```typescript
-import { prepareSpawnAaveV3Vehicle, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { prepareSpawnAaveV3Vehicle } from '@railnetorg/railnet-sdk'
 
 const prepared = prepareSpawnAaveV3Vehicle({
   factory: aaveV3VehicleFactory,
@@ -255,9 +262,9 @@ The vehicle address still has to come from the receipt via `extractAaveV3Vehicle
 Wrong:
 
 ```typescript
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareSpawnMultiVehicle({
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareSpawnMultiVehicle({
       factory: addresses.multiVehicleFactory,
       asset: addresses.usdc,
       accessControl: eacAddress,
@@ -266,8 +273,7 @@ const hash = await simulateThenWrite(
       symbol: 'STRAT',
       account: account.address,
       salts,
-    }),
-  account.address,
+    }), account: account.address })).request,
 )
 // Reverts: InsufficientAllowance
 ```
@@ -289,10 +295,10 @@ const { request } = await walletClient.simulateContract({
   account: account.address,
 })
 await walletClient.writeContract(request)
-// Then spawn — or just use deployMultiVehicle which handles this
+// Then spawn
 ```
 
-The factory pulls an initial deposit during spawn to protect against share inflation attacks, sized by `AssetRegistry.getInitialDepositAmount(asset)` — not by a spawn parameter. Approving an arbitrary amount reverts with `InsufficientAllowance` when it falls short, and the caller must also hold that balance. The same applies to `spawnConduit` and `spawnAaveV3Vehicle`. The `deployMultiVehicle` workflow reads the registry and approves for you.
+The factory pulls an initial deposit during spawn to protect against share inflation attacks, sized by `AssetRegistry.getInitialDepositAmount(asset)` — not by a spawn parameter. Approving an arbitrary amount reverts with `InsufficientAllowance` when it falls short, and the caller must also hold that balance. The same applies to `spawnConduit` and `spawnAaveV3Vehicle`. Read the registry first and approve exactly that amount.
 
 Source: src/actions/assetRegistry/getInitialDepositAmount.ts
 
@@ -307,34 +313,41 @@ const { request } = await simulateContract(walletClient, { ...prepareSpawnMultiV
 Correct:
 
 ```typescript
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareSpawnMultiVehicle({ ... }),
-  account.address,
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareSpawnMultiVehicle({ ... }), account: account.address })).request,
 )
 ```
 
-Build the call with a `prepare*` builder, then send it with `simulateThenWrite({ publicClient, walletClient }, call, account)`: it simulates on the public client and signs on the wallet. Only signing needs the wallet — a wallet answers reads from whatever node it picked, at whatever freshness it keeps. A script with one client passes it as both: `{ publicClient: client, walletClient: client }`.
+Every write is a `prepare*` builder returning `{ address, abi, functionName, args }`. Simulate it, then send the request:
+
+```typescript
+const { request } = await simulateContract(client, { ...prepareEnableConduit({ conduit }), account })
+const hash = await writeContract(client, request)
+```
+
+In React the hooks do this for you, and they simulate on `usePublicClient` rather than on the wallet: a wallet answers reads from whatever node it picked, at whatever freshness it keeps, so a preflight sent there can reject a valid call.
 
 Source: src/actions/multiVehicle/spawnMultiVehicle.ts:45-48
 
-### HIGH Using individual actions when deployMultiVehicle exists
+### HIGH Sending the multi-vehicle steps out of order
 
-The `deployMultiVehicle` workflow orchestrates 8+ transactions in the correct order with the correct role scoping. Manually orchestrating this risks:
-- Missing role grants (e.g., forgetting to grant VEHICLE_STEAM_DEPOSIT and VEHICLE_STEAM_REDEEM to SubQueryEngine)
-- Wrong scope addresses (most roles must be scoped to SectorAccountingEngine, not MultiVehicle)
-- Wrong ordering (authorize before role grants will fail)
+The sequence is eight or more transactions and the order is load-bearing:
+- every role grant must land before the authorization that checks it
+- most roles are scoped to the SectorAccountingEngine, not the MultiVehicle
+- `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM` need granting to the SubQueryEngine too
 
-Use individual actions only when you need custom role configuration.
+A wrong scope succeeds silently and reverts later with `MissingRole`. Follow the order in
+"Deploy a Full Multi-Vehicle Ecosystem" above.
 
-Source: src/workflows/deployMultiVehicle.ts
+Source: docs/pages/workflows/deployingAMultiVehicle.mdx
 
-### HIGH deployMultiVehicle does NOT spawn vehicles
+### HIGH The multi-vehicle spawn does not spawn vehicles
 
 Wrong:
 
 ```typescript
-const result = await deployMultiVehicle(walletClient, {
+prepareSpawnMultiVehicle({
   asset: addresses.usdc,
   name: 'Strategy',
   symbol: 'STRAT',
@@ -347,16 +360,15 @@ Correct:
 
 ```typescript
 // 1. Spawn vehicles first
-const vehicleHash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareSpawnAaveV3Vehicle({ ... }),
-  account.address,
+const vehicleHash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareSpawnAaveV3Vehicle({ ... }), account: account.address })).request,
 )
 const vehicleReceipt = await publicClient.waitForTransactionReceipt({ hash: vehicleHash })
 const vehicleAddress = extractAaveV3VehicleAddress(vehicleReceipt, addresses.aaveV3VehicleFactory)
 
-// 2. Then deploy MV with pre-deployed addresses
-const result = await deployMultiVehicle(walletClient, {
+// 2. Then spawn the MultiVehicle with pre-deployed addresses
+prepareSpawnMultiVehicle({
   asset: addresses.usdc,
   name: 'Strategy',
   symbol: 'STRAT',
@@ -371,7 +383,7 @@ const result = await deployMultiVehicle(walletClient, {
 
 The `vehicles` parameter takes `VehicleEntry[]` with pre-deployed addresses, not factory configs.
 
-Source: src/workflows/deployMultiVehicle.ts:27-31
+Source: src/actions/multiVehicle/spawnMultiVehicle.ts
 
 ### HIGH Deposit queue targets are absolute ceilings, not percentage ratios
 
@@ -386,10 +398,9 @@ Source: Protocol docs — manage-multi-vehicle queue semantics
 Wrong:
 
 ```typescript
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareSpawnMultiVehicle(params),
-  account.address,
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareSpawnMultiVehicle(params), account: account.address })).request,
 )
 // hash is just a tx hash — where are the deployed contracts?
 ```
@@ -397,10 +408,9 @@ const hash = await simulateThenWrite(
 Correct:
 
 ```typescript
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareSpawnMultiVehicle(params),
-  account.address,
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareSpawnMultiVehicle(params), account: account.address })).request,
 )
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
 const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFactory)
@@ -411,13 +421,13 @@ All spawn actions return only a `Hash`. Use `extractMultiVehicleContracts`, `ext
 
 Source: src/utils/receipt.ts
 
-### MEDIUM Confusion between deployMultiVehicle role grants and custom setup
+### MEDIUM Which roles the sequence grants, and which it does not
 
-The `deployMultiVehicle` workflow checks, for `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM` separately, whether the role is already public on each vehicle scope (via `isScopedRolePublic`). If not, it grants that role to three specific addresses per vehicle: `multiVehicle`, `sectorAccountingEngine`, and `subQueryEngine`. It also grants `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` (scoped to VehicleManager) and `MULTI_VEHICLE_SET_QUEUES` (scoped to QueueStrategyEngine) to the admin.
+Step 7 of the sequence checks, for `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM` separately, whether the role is already public on each vehicle scope (via `isScopedRolePublic`). If not, grant that role to three specific addresses per vehicle: `multiVehicle`, `sectorAccountingEngine`, and `subQueryEngine`. Steps 5 and 6 grant `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` (scoped to VehicleManager) and `MULTI_VEHICLE_SET_QUEUES` (scoped to QueueStrategyEngine) to the admin.
 
 If your security model requires different role assignments, skip the workflow and use individual `grantScopedRole` calls with correct scopes.
 
-Source: src/workflows/deployMultiVehicle.ts:147-238
+Source: docs/pages/workflows/deployingAMultiVehicle.mdx:147-238
 
 See also: railnet-access-control/SKILL.md
 

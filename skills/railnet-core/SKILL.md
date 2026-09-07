@@ -104,33 +104,32 @@ const balance = await client.readContract({
 Nine ABIs are exported: `conduitAbi`, `conduitFactoryAbi`, `multiVehicleFactoryAbi`, `aaveV3VehicleFactoryAbi`, `accessControlFactoryAbi`, `externalAccessControlAbi`, `queueStrategyEngineAbi`, `sectorAccountingEngineAbi`, `vehicleManagerAbi`.
 
 ### Write Operations (Single-Client Pattern)
-Writes are builders plus `simulateThenWrite`: it simulates on the public client and signs on the wallet.
+Writes are builders: simulate the call, then send the request. In React the hooks simulate on `usePublicClient` and sign on `useWalletClient`.
 
 ```typescript
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { base } from 'viem/chains'
-import { prepareDepositConduit, randomSalt, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
 const account = privateKeyToAccount('0x...')
 const client = createWalletClient({ account, chain: base, transport: http() })
 
 // approve first, then deposit — the SDK does not approve for you
-const hash = await simulateThenWrite(
-  { publicClient: client, walletClient: client },
-  prepareDepositConduit({
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareDepositConduit({
     conduit: '0x1234567890123456789012345678901234567890',
     token: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     amount: 1_000_000n,
     account: account.address,
     vehicle,
     salt: randomSalt(),
-  }),
-  account.address,
+  }), account: account.address })).request,
 )
 ```
 
-Every write is a `prepare*` builder (`prepareDepositConduit`, `prepareSpawnConduit`, `prepareGrantScopedRole`, ...). They take no client, send nothing, and return `PreparedWrite` (`{ address, abi, functionName, args }`). Send one with `simulateThenWrite`, or spread it into viem yourself:
+Every write is a `prepare*` builder (`prepareDepositConduit`, `prepareSpawnConduit`, `prepareGrantScopedRole`, ...). They take no client, send nothing, and return `PreparedWrite` (`{ address, abi, functionName, args }`). Spread it into viem to send it:
 
 ```typescript
 import { prepareDepositConduit } from '@railnetorg/railnet-sdk'
@@ -256,12 +255,11 @@ Source: package.json peerDependencies
 Wrong:
 
 ```typescript
-import { prepareDepositConduit, randomSalt, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
-const hash = await simulateThenWrite(
-  { publicClient: client, walletClient: client },
-  prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }),
-  myAddress,
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }), account: myAddress })).request,
 )
 // Assumes the conduit is already approved
 ```
@@ -269,17 +267,16 @@ const hash = await simulateThenWrite(
 Correct:
 
 ```typescript
-import { prepareDepositConduit, randomSalt, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
 // approve first — the conduit pulls the token, and the allowance is spent by the deposit
 await writeContract(client, {
   address: token, abi: erc20Abi, functionName: 'approve', args: [conduit, 1000000n], account: myAddress,
 })
 
-const hash = await simulateThenWrite(
-  { publicClient: client, walletClient: client },
-  prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }),
-  myAddress,
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }), account: myAddress })).request,
 )
 // Two transactions. Account for both in gas estimation and UI loading states.
 ```
@@ -293,7 +290,7 @@ Source: src/actions/conduit/depositConduit.ts
 Wrong:
 
 ```typescript
-import { prepareDepositConduit, randomSalt, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
 const { request } = await simulateContract(walletClient, {
   ...prepareDepositConduit({
@@ -304,14 +301,23 @@ const { request } = await simulateContract(walletClient, {
 Correct:
 
 ```typescript
-import { prepareDepositConduit, randomSalt, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
-const hash = await simulateThenWrite({ publicClient, walletClient }, prepareDepositConduit({
-  conduit, token, amount: 1000000n, account: myAddress,
+const { request } = await simulateContract(publicClient, {
+  ...prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }),
+  account: myAddress,
 })
+const hash = await writeContract(walletClient, request)
 ```
 
-Build the call with a `prepare*` builder, then send it with `simulateThenWrite({ publicClient, walletClient }, call, account)`: it simulates on the public client and signs on the wallet. Only signing needs the wallet — a wallet answers reads from whatever node it picked, at whatever freshness it keeps. A script with one client passes it as both: `{ publicClient: client, walletClient: client }`.
+Every write is a `prepare*` builder returning `{ address, abi, functionName, args }`. Simulate it, then send the request:
+
+```typescript
+const { request } = await simulateContract(client, { ...prepareEnableConduit({ conduit }), account })
+const hash = await writeContract(client, request)
+```
+
+In React the hooks do this for you, and they simulate on `usePublicClient` rather than on the wallet: a wallet answers reads from whatever node it picked, at whatever freshness it keeps, so a preflight sent there can reject a valid call.
 
 Source: src/actions/conduit/depositConduit.ts:27-30
 

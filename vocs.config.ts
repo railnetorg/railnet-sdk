@@ -158,8 +158,8 @@ export default defineConfig({
       collapsed: false,
       items: [
         {
-          text: 'deployMultiVehicle',
-          link: '/workflows/deployMultiVehicle',
+          text: 'Deploying a multi-vehicle',
+          link: '/workflows/deployingAMultiVehicle',
         },
       ],
     },

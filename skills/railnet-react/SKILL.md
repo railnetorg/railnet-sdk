@@ -101,9 +101,10 @@ Every write hook builds its call with the matching `prepare*` builder, simulates
 app configured, not on the wallet's, and each hook takes an optional `chainId`. The exception is
 `useApproveConduitDeposit`, a plain ERC-20 approve with nothing to simulate.
 
-`deployMultiVehicle` has no hook. It spawns several contracts and reads their addresses back out
-of receipts, so it is a workflow rather than a call: run it from a script or a server with a
-client of your own, and drive the UI from the read hooks once it lands.
+Deploying a multi-vehicle has no hook and no single function: it is eight or more transactions
+against several factories, each needing an address the previous one returned. Send the sequence
+from a script or a server with a client of your own — see the
+`deployingAMultiVehicle` guide — and drive the UI from the read hooks once it lands.
 
 ## Query Options (for custom query composition)
 

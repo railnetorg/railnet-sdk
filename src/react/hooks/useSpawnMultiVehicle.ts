@@ -7,7 +7,7 @@ import {
   prepareSpawnMultiVehicle,
   type SpawnMultiVehicleParameters,
 } from '../../actions/multiVehicle/spawnMultiVehicle.js'
-import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
+import { simulateThenWrite } from '../simulateThenWrite.js'
 
 export type UseSpawnMultiVehicleParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */

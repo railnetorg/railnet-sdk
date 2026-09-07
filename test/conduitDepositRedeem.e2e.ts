@@ -5,7 +5,6 @@ import { prepareDepositConduit } from '../src/actions/conduit/depositConduit.js'
 import { getConduitPosition } from '../src/actions/conduit/getConduitPosition.js'
 import { prepareRedeemConduit } from '../src/actions/conduit/redeemConduit.js'
 import { randomSalt } from '../src/utils/salt.js'
-import { simulateThenWrite } from '../src/utils/simulateThenWrite.js'
 import { type createRailnetTestClient, testAccount } from './client.js'
 import { TEST_CONDUIT, USDC } from './constants.js'
 import { setupAnvil, teardownAnvil } from './setup.js'
@@ -51,17 +50,20 @@ describe('conduit deposit and redeem', () => {
     })
 
     const depositReceipt = await client.waitForTransactionReceipt({
-      hash: await simulateThenWrite(
-        { publicClient: client, walletClient: client },
-        prepareDepositConduit({
-          conduit: TEST_CONDUIT,
-          token: USDC,
-          amount,
-          account: account.address,
-          vehicle,
-          salt: randomSalt(),
-        }),
-        account,
+      hash: await client.writeContract(
+        (
+          await client.simulateContract({
+            ...prepareDepositConduit({
+              conduit: TEST_CONDUIT,
+              token: USDC,
+              amount,
+              account: account.address,
+              vehicle,
+              salt: randomSalt(),
+            }),
+            account,
+          })
+        ).request,
       ),
     })
     expect(depositReceipt.status).toBe('success')
@@ -79,16 +81,19 @@ describe('conduit deposit and redeem', () => {
     })
 
     const redeemReceipt = await client.waitForTransactionReceipt({
-      hash: await simulateThenWrite(
-        { publicClient: client, walletClient: client },
-        prepareRedeemConduit({
-          conduit: TEST_CONDUIT,
-          shares: deposited.shares,
-          account: account.address,
-          outputAsset: { asset: conduitAsset, value: 0n },
-          salt: randomSalt(),
-        }),
-        account,
+      hash: await client.writeContract(
+        (
+          await client.simulateContract({
+            ...prepareRedeemConduit({
+              conduit: TEST_CONDUIT,
+              shares: deposited.shares,
+              account: account.address,
+              outputAsset: { asset: conduitAsset, value: 0n },
+              salt: randomSalt(),
+            }),
+            account,
+          })
+        ).request,
       ),
     })
     expect(redeemReceipt.status).toBe('success')

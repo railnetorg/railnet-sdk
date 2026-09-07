@@ -67,7 +67,7 @@ async function checkPosition(conduit: Address, user: Address) {
 ### Spawning and Enabling a Conduit
 
 ```typescript
-import { extractConduitAddress, getInitialDepositAmount, predictConduitDeployment, prepareEnableConduit, prepareSpawnConduit, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { extractConduitAddress, getInitialDepositAmount, predictConduitDeployment, prepareEnableConduit, prepareSpawnConduit } from '@railnetorg/railnet-sdk'
 import { erc20Abi } from 'viem'
 
 async function deployNewConduit() {
@@ -102,23 +102,21 @@ async function deployNewConduit() {
   })
 
   // querySalt and deploymentSalt are required; deploymentSalt fixes the conduit address
-  const hash = await simulateThenWrite(
-    { publicClient, walletClient },
-    prepareSpawnConduit(params),
-    walletClient.account.address,
-  )
+  const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareSpawnConduit(params), account: walletClient.account.address })).request,
+)
   const receipt = await publicClient.waitForTransactionReceipt({ hash })
   
   const conduit = extractConduitAddress(receipt, factory)
   
   if (conduit) {
-    await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareEnableConduit({ 
+    writeContract(
+  client,
+  (await simulateContract(client, { ...prepareEnableConduit({ 
       conduit, 
       account: walletClient.account.address 
-    }),
-  account.address,
+    }), account: account.address })).request,
 )
   }
 }
@@ -133,9 +131,7 @@ does not approve for you.
 ```typescript
 import { erc20Abi } from 'viem'
 import { readContract, simulateContract, waitForTransactionReceipt, writeContract } from 'viem/actions'
-import { conduitAbi, prepareDepositConduit, prepareRedeemConduit, randomSalt, simulateThenWrite } from '@railnetorg/railnet-sdk'
-
-const clients = { publicClient, walletClient }
+import { conduitAbi, prepareDepositConduit, prepareRedeemConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
 // 1. approve — a plain ERC-20 call, nothing Railnet-specific
 const approveHash = await writeContract(walletClient, {
@@ -154,9 +150,10 @@ const vehicle = await readContract(publicClient, {
   functionName: 'getVehicle',
 })
 
-const depositHash = await simulateThenWrite(
-  clients,
-  prepareDepositConduit({
+const depositHash = writeContract(
+  walletClient,
+  (await simulateContract(publicClient, {
+    ...prepareDepositConduit({
     conduit: conduitAddress,
     token: usdcAddress,
     amount: 1_000_000n, // 1 USDC (6 decimals)
@@ -166,7 +163,8 @@ const depositHash = await simulateThenWrite(
     // receiver optional — defaults to account
     // minOutput optional — a floor on the vehicle shares produced
   }),
-  account.address,
+    account: account.address,
+  })).request,
 )
 
 // Redeem: no approval, the conduit burns the caller's shares.
@@ -177,16 +175,18 @@ const asset = await readContract(publicClient, {
   functionName: 'asset',
 })
 
-const redeemHash = await simulateThenWrite(
-  clients,
-  prepareRedeemConduit({
+const redeemHash = writeContract(
+  walletClient,
+  (await simulateContract(publicClient, {
+    ...prepareRedeemConduit({
     conduit: conduitAddress,
     shares: 500_000n,
     account: account.address,
     outputAsset: { asset, value: 0n }, // value is a floor; 0n sets none
     salt: randomSalt(),
   }),
-  account.address,
+    account: account.address,
+  })).request,
 )
 ```
 
@@ -200,7 +200,7 @@ The deposit and redeem builders require more than their execute counterparts, be
 action derives those values from a chain read that a synchronous builder cannot perform:
 
 ```typescript
-import { prepareDepositConduit, randomSalt, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
 const prepared = prepareDepositConduit({
   conduit: conduitAddress,
@@ -225,7 +225,7 @@ When the underlying vehicle is async, `create()` returns state PROCESSING (not U
 Note: `create()` never produces REJECTED or RECOVERING — validation failures always revert. If `create()` succeeds, the query is in PROCESSING or UNLOCKING.
 
 ```typescript
-import { prepareProcessConduitQuery, simulateThenWrite, type ConduitMode } from '@railnetorg/railnet-sdk'
+import { prepareProcessConduitQuery, type ConduitMode } from '@railnetorg/railnet-sdk'
 import { encodeAbiParameters, keccak256 } from 'viem'
 import type { Address, Hex } from 'viem'
 
@@ -249,14 +249,13 @@ const query = {
 }
 
 // Call once the vehicle reaches UNLOCKING state
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareProcessConduitQuery({
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareProcessConduitQuery({
       conduit: conduitAddress,
       query,
       account: account.address,
-    }),
-  account.address,
+    }), account: account.address })).request,
 )
 
 await publicClient.waitForTransactionReceipt({ hash })
@@ -267,18 +266,17 @@ await publicClient.waitForTransactionReceipt({ hash })
 When spawning a conduit on an async vehicle, the initial deposit remains pending. After the vehicle settles the initial query, call `finalizeConduitDeposit` on the **factory** (not the conduit) to burn initial shares and enable public access.
 
 ```typescript
-import { getAddresses, prepareFinalizeConduitDeposit, simulateThenWrite } from '@railnetorg/railnet-sdk'
+import { getAddresses, prepareFinalizeConduitDeposit } from '@railnetorg/railnet-sdk'
 
 const addresses = getAddresses(base.id)
 
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareFinalizeConduitDeposit({
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareFinalizeConduitDeposit({
       factory: addresses.conduitFactory,
       conduit: conduitAddress,
       account: account.address,
-    }),
-  account.address,
+    }), account: account.address })).request,
 )
 ```
 
@@ -300,22 +298,21 @@ const { request } = await simulateContract(walletClient, {
 Correct:
 
 ```typescript
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareDepositConduit({ /* … */ }),
-  account,
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareDepositConduit({ /* … */ }), account: account })).request,
 )
 ```
 
 A wallet client's transport is the wallet itself, so it answers reads from whatever node it picked,
 at whatever freshness it keeps — one was observed pinned to a block from before the approval was
 sent, which made the deposit simulate against a spent allowance and revert on state already on
-chain. `simulateThenWrite` simulates on the public client and signs on the wallet. Only signing
-needs the wallet.
+chain. Simulate on the public client, then send the request with the wallet. Only signing needs the
+wallet.
 
-A script with one client passes it as both: `{ publicClient: client, walletClient: client }`.
+A script with a single client uses it for both, which is fine: it chose that client's transport.
 
-Source: src/utils/simulateThenWrite.ts
+Source: src/react/hooks/useDepositConduit.ts
 
 ### CRITICAL Forgetting account parameter on write actions
 
@@ -336,7 +333,7 @@ prepareDepositConduit({
 })
 ```
 
-The builders take `account` because the query salt is derived from it, and `simulateThenWrite` takes it again for the simulation. Without it, simulation fails with a cryptic viem error about a missing account.
+The builders take `account` because the query salt is derived from it, and the simulation needs it too. Without it, simulation fails with a cryptic viem error about a missing account.
 
 Source: src/actions/conduit/depositConduit.ts:29
 
@@ -371,10 +368,9 @@ Source: Protocol docs — estimate() vs convert()
 Wrong:
 
 ```typescript
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareDepositConduit({ conduit, token, amount: 1000000n, account, vehicle, salt: randomSalt() }),
-  account,
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareDepositConduit({ conduit, token, amount: 1000000n, account, vehicle, salt: randomSalt() }), account: account })).request,
 )
 // Assumes deposit is settled immediately
 ```
@@ -382,18 +378,16 @@ const hash = await simulateThenWrite(
 Correct:
 
 ```typescript
-const hash = await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareDepositConduit({ conduit, token, amount: 1000000n, account, vehicle, salt: randomSalt() }),
-  account,
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareDepositConduit({ conduit, token, amount: 1000000n, account, vehicle, salt: randomSalt() }), account: account })).request,
 )
 // For async vehicles (Ethena, Syrup): deposit enters PROCESSING state.
 // Monitor vehicle Updated events or poll vehicle.state(query).
 // When state reaches UNLOCKING, call:
-await simulateThenWrite(
-  { publicClient, walletClient },
-  prepareProcessConduitQuery({ conduit, query, account }),
-  account.address,
+writeContract(
+  client,
+  (await simulateContract(client, { ...prepareProcessConduitQuery({ conduit, query, account }), account: account.address })).request,
 )
 ```
 

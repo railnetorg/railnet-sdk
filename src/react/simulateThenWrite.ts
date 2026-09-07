@@ -10,7 +10,8 @@ export type PreparedCall = {
 }
 
 /**
- * Simulates on the app's transport and signs with the wallet, the split wagmi's own
+ * Internal to the React layer. Simulates on the app's transport and signs with the wallet, the
+ * split wagmi's own
  * `simulateContract` and `writeContract` keep. A wallet provider serves reads from whatever node
  * it chooses at whatever freshness it chooses, so a preflight sent there can reject a call on
  * state that has already changed — and the declared chain still reaches the wallet, where viem

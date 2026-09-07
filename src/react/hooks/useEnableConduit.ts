@@ -7,7 +7,7 @@ import {
   type EnableConduitParameters,
   prepareEnableConduit,
 } from '../../actions/conduit/enableConduit.js'
-import { simulateThenWrite } from '../../utils/simulateThenWrite.js'
+import { simulateThenWrite } from '../simulateThenWrite.js'
 
 export type UseEnableConduitParameters = {
   /** Chain to simulate and sign on. Defaults to the connected one. */
