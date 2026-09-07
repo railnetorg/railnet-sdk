@@ -49,10 +49,6 @@ function Spawn() {
 }
 ```
 
-## Parameters
-
-`chainId` — chain to simulate and sign on. Defaults to the connected one.
-
 ## Returns
 
 ```ts
@@ -61,6 +57,4 @@ UseMutationResult<Hash, Error, SpawnConduitParameters & { account: Address }>
 
 Mutation result returning the spawn transaction hash. Extract the deployed conduit with
 [`extractConduitAddress`](/utilities/receiptHelpers#extractconduitaddress). Call `mutate` or
-`mutateAsync` with [`spawnConduit`](/actions/prepareSpawnConduit) parameters.
-
-The call is simulated through the transport your wagmi config declares and only the transaction reaches the wallet, so a wallet serving stale state cannot reject a call on state that has already changed.
+`mutateAsync` with [`spawnConduit`](/actions/spawnConduit) parameters.

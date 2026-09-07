@@ -27,5 +27,5 @@ A random 32-byte value.
 
 A deployment salt fixes a contract's address permanently, so log it before you send: a spawn that
 fails midway can only be retried against the same address if you still hold the salt, and
-[`prepareSpawnMultiVehicle`](/actions/prepareSpawnMultiVehicle) takes seven at once. Query salts are
+[`prepareSpawnMultiVehicle`](/actions/spawnMultiVehicle) takes seven at once. Query salts are
 disposable — `depositConduit` and `redeemConduit` default to a random one.

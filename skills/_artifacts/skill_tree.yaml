@@ -51,12 +51,13 @@ skills:
     description: >
       Deploy and manage Railnet vehicles and multi-vehicle strategies -
       spawnAaveV3Vehicle, spawnMultiVehicle, authorizeVehicle, setQueues,
-      multi-vehicle deployment sequence, vehicle types (sync vs async), STEAM
+      deployMultiVehicle workflow, vehicle types (sync vs async), STEAM
       lifecycle. Load when deploying yield strategies, spawning vehicles,
       or configuring allocation queues.
     sources:
       - 'railnetorg/railnet-sdk:src/actions/vehicle/*.ts'
       - 'railnetorg/railnet-sdk:src/actions/multiVehicle/*.ts'
+      - 'railnetorg/railnet-sdk:src/workflows/deployMultiVehicle.ts'
       - 'railnetorg/railnet-sdk:src/utils/receipt.ts'
 
   - name: 'Access Control'

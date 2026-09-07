@@ -54,20 +54,20 @@ export default defineConfig({
               link: '/actions/getConduitInfo',
             },
             {
-              text: 'prepareDepositConduit',
-              link: '/actions/prepareDepositConduit',
+              text: 'depositConduit',
+              link: '/actions/depositConduit',
             },
             {
-              text: 'prepareRedeemConduit',
-              link: '/actions/prepareRedeemConduit',
+              text: 'redeemConduit',
+              link: '/actions/redeemConduit',
             },
             {
-              text: 'prepareSpawnConduit',
-              link: '/actions/prepareSpawnConduit',
+              text: 'spawnConduit',
+              link: '/actions/spawnConduit',
             },
             {
-              text: 'prepareEnableConduit',
-              link: '/actions/prepareEnableConduit',
+              text: 'enableConduit',
+              link: '/actions/enableConduit',
             },
             {
               text: 'estimateConduit',
@@ -78,12 +78,12 @@ export default defineConfig({
               link: '/actions/predictConduitDeployment',
             },
             {
-              text: 'prepareFinalizeConduitDeposit',
-              link: '/actions/prepareFinalizeConduitDeposit',
+              text: 'finalizeConduitDeposit',
+              link: '/actions/finalizeConduitDeposit',
             },
             {
-              text: 'prepareProcessConduitQuery',
-              link: '/actions/prepareProcessConduitQuery',
+              text: 'processConduitQuery',
+              link: '/actions/processConduitQuery',
             },
           ],
         },
@@ -91,24 +91,24 @@ export default defineConfig({
           text: 'MultiVehicle',
           items: [
             {
-              text: 'prepareSpawnMultiVehicle',
-              link: '/actions/prepareSpawnMultiVehicle',
+              text: 'spawnMultiVehicle',
+              link: '/actions/spawnMultiVehicle',
             },
             {
-              text: 'prepareAuthorizeVehicle',
-              link: '/actions/prepareAuthorizeVehicle',
+              text: 'authorizeVehicle',
+              link: '/actions/authorizeVehicle',
             },
             {
-              text: 'prepareSetQueues',
-              link: '/actions/prepareSetQueues',
+              text: 'setQueues',
+              link: '/actions/setQueues',
             },
             {
-              text: 'prepareMoveBetweenSectors',
-              link: '/actions/prepareMoveBetweenSectors',
+              text: 'moveBetweenSectors',
+              link: '/actions/moveBetweenSectors',
             },
             {
-              text: 'prepareDispatchVehicle',
-              link: '/actions/prepareDispatchVehicle',
+              text: 'dispatchVehicle',
+              link: '/actions/dispatchVehicle',
             },
           ],
         },
@@ -116,20 +116,20 @@ export default defineConfig({
           text: 'Access Control',
           items: [
             {
-              text: 'prepareSpawnAccessControl',
-              link: '/actions/prepareSpawnAccessControl',
+              text: 'spawnAccessControl',
+              link: '/actions/spawnAccessControl',
             },
             {
-              text: 'prepareGrantScopedRole',
-              link: '/actions/prepareGrantScopedRole',
+              text: 'grantScopedRole',
+              link: '/actions/grantScopedRole',
             },
             {
-              text: 'prepareRevokeScopedRole',
-              link: '/actions/prepareRevokeScopedRole',
+              text: 'revokeScopedRole',
+              link: '/actions/revokeScopedRole',
             },
             {
-              text: 'prepareSetScopedRolePublic',
-              link: '/actions/prepareSetScopedRolePublic',
+              text: 'setScopedRolePublic',
+              link: '/actions/setScopedRolePublic',
             },
           ],
         },
@@ -137,8 +137,8 @@ export default defineConfig({
           text: 'Vehicle',
           items: [
             {
-              text: 'prepareSpawnAaveV3Vehicle',
-              link: '/actions/prepareSpawnAaveV3Vehicle',
+              text: 'spawnAaveV3Vehicle',
+              link: '/actions/spawnAaveV3Vehicle',
             },
           ],
         },
@@ -158,8 +158,8 @@ export default defineConfig({
       collapsed: false,
       items: [
         {
-          text: 'Deploying a multi-vehicle',
-          link: '/workflows/deployingAMultiVehicle',
+          text: 'deployMultiVehicle',
+          link: '/workflows/deployMultiVehicle',
         },
       ],
     },
@@ -219,10 +219,6 @@ export default defineConfig({
               link: '/react/usePredictConduitDeployment',
             },
             {
-              text: 'useApproveConduitDeposit',
-              link: '/react/useApproveConduitDeposit',
-            },
-            {
               text: 'useDepositConduit',
               link: '/react/useDepositConduit',
             },
@@ -262,6 +258,10 @@ export default defineConfig({
             {
               text: 'useSetQueues',
               link: '/react/useSetQueues',
+            },
+            {
+              text: 'useDeployMultiVehicle',
+              link: '/react/useDeployMultiVehicle',
             },
           ],
         },

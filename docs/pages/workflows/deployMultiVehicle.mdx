@@ -1,0 +1,173 @@
+---
+description: Full deployment workflow for a MultiVehicle ecosystem.
+---
+
+# deployMultiVehicle
+
+Full deployment workflow for a MultiVehicle ecosystem. This workflow automates the multi-step process of setting up a complete MultiVehicle environment.
+
+The workflow performs the following steps:
+1. Deploys an ExternalAccessControl (EAC) contract.
+2. Approves the asset for the MultiVehicle factory, for the amount the factory will pull — read from the AssetRegistry with [`getInitialDepositAmount`](/actions/getInitialDepositAmount). The caller must hold at least that much of the asset.
+3. Spawns the MultiVehicle ecosystem.
+4. Grants `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` role on the VehicleManager to the admin.
+5. Grants `MULTI_VEHICLE_SET_QUEUES` role on the QueueStrategyEngine (QSE) to the admin.
+6. For each vehicle: grants `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM` to the MultiVehicle, SectorAccountingEngine, and SubQueryEngine.
+7. For each vehicle: authorizes it in the VehicleManager.
+8. Sets the deposit and redeem queues on the QSE.
+
+## Import
+
+```ts
+import { deployMultiVehicle } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { deployMultiVehicle, randomSalt } from '@railnetorg/railnet-sdk'
+
+const walletClient = createWalletClient({
+  chain: base,
+  transport: http(),
+})
+
+const result = await deployMultiVehicle(walletClient, {
+  asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  name: 'Diversified USDC',
+  symbol: 'dUSDC',
+  vehicles: [
+    {
+      address: '0x...', // Aave V3 vehicle
+      depositTarget: { value: 1000n * 10n ** 18n, threshold: 0n },
+      redeemTarget: { value: 0n, threshold: 0n },
+    },
+    {
+      address: '0x...', // Compound V3 vehicle
+      depositTarget: { value: 2n ** 256n - 1n, threshold: 0n }, // unlimited
+      redeemTarget: { value: 0n, threshold: 0n },
+    },
+  ],
+  salts: {
+    accessControl: randomSalt(),
+    multiVehicle: {
+      multiVehicle: randomSalt(),
+      queryRedeemQueue: randomSalt(),
+      queueStrategyEngine: randomSalt(),
+      sectorAccountingEngine: randomSalt(),
+      subQueryEngine: randomSalt(),
+      vehicleManager: randomSalt(),
+      initialDepositQuery: randomSalt(),
+    },
+  },
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+```
+
+## Returns
+
+```ts
+type DeployMultiVehicleResult = {
+  eacAddress: Address
+  multiVehicleContracts: MultiVehicleContracts
+  transactionHashes: Hash[]
+}
+```
+
+The addresses of the deployed contracts and the transaction hashes for each step.
+
+## Parameters
+
+### asset
+
+- **Type:** `Address`
+
+The address of the underlying asset.
+
+### name
+
+- **Type:** `string`
+
+The name of the MultiVehicle.
+
+### symbol
+
+- **Type:** `string`
+
+The symbol of the MultiVehicle token.
+
+### queryRegistry (optional)
+
+- **Type:** `Address`
+
+The address of the query registry contract. Defaults to the `queryRegistry` of the client's chain.
+
+### vehicles
+
+- **Type:** `VehicleEntry[]`
+
+Array of vehicles to authorize and configure. Each entry specifies the vehicle address and its queue targets:
+
+```ts
+type VehicleEntry = {
+  address: Address
+  depositTarget: { value: bigint; threshold: bigint }
+  redeemTarget: { value: bigint; threshold: bigint }
+}
+```
+
+Set `value: 2n ** 256n - 1n` for unlimited targets. Set `value: 0n` for zero targets (drain first on redeem).
+
+### salts
+
+- **Type:** `DeployMultiVehicleSalts`
+
+```ts
+type DeployMultiVehicleSalts = {
+  multiVehicle: MultiVehicleSalts
+  accessControl: Hex
+}
+```
+
+The workflow deploys eight contracts and does not invent their addresses. Generate each salt with
+[`randomSalt`](/utilities/randomSalt) and log them. `accessControl` is unused when you supply an
+existing `accessControl` address, since none is spawned.
+
+### accessControl (optional)
+
+- **Type:** `Address`
+
+An existing ExternalAccessControl to reuse. When omitted, the workflow spawns a new one and returns
+its address as `eacAddress`.
+
+### adminAddress (optional)
+
+- **Type:** `Address`
+
+The address to be set as the admin. Defaults to the account address.
+
+### forbiddenAddresses (optional)
+
+- **Type:** `Address[]`
+
+Optional list of addresses forbidden from interacting with the MultiVehicle.
+
+### feeManager (optional)
+
+- **Type:** `Address`
+
+The address of the fee manager contract.
+
+### modulesManager (optional)
+
+- **Type:** `Address`
+
+The address of the modules manager contract.
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.

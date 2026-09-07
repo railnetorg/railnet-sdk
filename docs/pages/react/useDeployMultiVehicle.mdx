@@ -1,0 +1,68 @@
+---
+description: React hook to deploy a full MultiVehicle ecosystem.
+---
+
+# useDeployMultiVehicle
+
+React mutation hook for deploying a full MultiVehicle ecosystem via a workflow.
+
+## Import
+
+```ts
+import { useDeployMultiVehicle } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { randomSalt } from '@railnetorg/railnet-sdk'
+import { useDeployMultiVehicle } from '@railnetorg/railnet-sdk/react'
+
+function Deploy() {
+  const { mutateAsync, isPending } = useDeployMultiVehicle()
+
+  const handleDeploy = async () => {
+    const result = await mutateAsync({
+      asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      name: 'Diversified USDC',
+      symbol: 'dUSDC',
+      vehicles: [
+        {
+          address: '0x...',
+          depositTarget: { value: 1000n * 10n ** 18n, threshold: 0n },
+          redeemTarget: { value: 0n, threshold: 0n },
+        },
+      ],
+      salts: {
+        accessControl: randomSalt(),
+        multiVehicle: {
+          multiVehicle: randomSalt(),
+          queryRedeemQueue: randomSalt(),
+          queueStrategyEngine: randomSalt(),
+          sectorAccountingEngine: randomSalt(),
+          subQueryEngine: randomSalt(),
+          vehicleManager: randomSalt(),
+          initialDepositQuery: randomSalt(),
+        },
+      },
+      account: '0x...',
+    })
+
+    console.log(result.multiVehicleContracts.multiVehicle)
+  }
+
+  return (
+    <button disabled={isPending} onClick={handleDeploy}>
+      Deploy Full Ecosystem
+    </button>
+  )
+}
+```
+
+## Returns
+
+```ts
+UseMutationResult<DeployMultiVehicleResult, Error, DeployMultiVehicleParameters & { account: Address }>
+```
+
+Mutation result. Call `mutate` or `mutateAsync` with [`deployMultiVehicle`](/workflows/deployMultiVehicle) parameters.
