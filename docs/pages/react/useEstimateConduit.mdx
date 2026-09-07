@@ -30,9 +30,11 @@ function Estimate() {
 
   return (
     <div>
-      {data?.map((a, i) => (
-        <p key={i}>{a.asset}: {a.value.toString()}</p>
-      ))}
+      {data ? (
+        <p>
+          {data.asset}: {data.value.toString()}
+        </p>
+      ) : null}
     </div>
   )
 }

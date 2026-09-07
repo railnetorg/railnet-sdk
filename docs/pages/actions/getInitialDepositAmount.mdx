@@ -6,7 +6,7 @@ description: Reads the initial deposit amount the factories pull when spawning a
 
 Reads the initial deposit amount registered for an asset in the AssetRegistry.
 
-Every factory spawn (`spawnConduit`, `spawnMultiVehicle`, `spawnAaveV3Vehicle`) pulls this amount
+Every factory spawn (`prepareSpawnConduit`, `prepareSpawnMultiVehicle`, `prepareSpawnAaveV3Vehicle`) pulls this amount
 from the caller — the amount is not a parameter of the spawn, it comes from the registry. Approve
 the factory for at least this much, and hold at least this much, or the spawn reverts with
 `InsufficientAllowance` / `InsufficientAssetBalance`.
@@ -22,6 +22,7 @@ import { getInitialDepositAmount } from '@railnetorg/railnet-sdk'
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
+import { simulateContract, writeContract } from 'viem/actions'
 import { getAddresses, getInitialDepositAmount } from '@railnetorg/railnet-sdk'
 
 const publicClient = createPublicClient({
@@ -41,7 +42,7 @@ Approving the factory before a spawn:
 
 ```ts
 import { erc20Abi } from 'viem'
-import { getAddresses, getInitialDepositAmount, spawnConduit } from '@railnetorg/railnet-sdk'
+import { getAddresses, getInitialDepositAmount, prepareSpawnConduit } from '@railnetorg/railnet-sdk'
 
 const account = '0xd2135CfB216b74109775236E36d4b433F1DF507B'
 const { assetRegistry, conduitFactory, usdc } = getAddresses(base.id)
@@ -56,14 +57,28 @@ await walletClient.writeContract({
   account,
 })
 
-const hash = await spawnConduit(walletClient, {
-  factory: conduitFactory,
-  // ...
-  account,
+const { request } = await simulateContract(walletClient, {
+  ...prepareSpawnConduit({
+    factory: '0x...',
+    name: 'My Conduit',
+    symbol: 'COND',
+    vehicle: '0x...',
+    initialExpectedSupply: 1000000n,
+    transferEnabled: true,
+    accessControl: '0x...',
+    feeManager: '0x...',
+    accountList: '0x...',
+    ownerRegistry: '0x...',
+    querySalt: randomSalt(),
+    deploymentSalt: randomSalt(),
+  }),
+  account: '0x...',
 })
+
+const hash = await writeContract(walletClient, request)
 ```
 
-The [`deployMultiVehicle`](/workflows/deployMultiVehicle) workflow does this for you.
+See [Deploying a multi-vehicle](/workflows/deployingAMultiVehicle) for where this sits in the order.
 
 ## Returns
 

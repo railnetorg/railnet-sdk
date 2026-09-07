@@ -1,7 +1,5 @@
-import type { Address, Client, Hash, Hex } from 'viem'
-import { simulateContract, writeContract } from 'viem/actions'
+import type { Address, Hex } from 'viem'
 import { externalAccessControlAbi } from '../../abi/externalAccessControl.js'
-import type { ContractCallOptions } from '../../types.js'
 
 export type SetScopedRolePublicParameters = {
   accessControl: Address
@@ -10,6 +8,11 @@ export type SetScopedRolePublicParameters = {
   isPublic: boolean
 }
 
+/**
+ * Sets whether a scoped role is public (callable by any address) or restricted. The caller must be the default admin.
+ *
+ * @param parameters - {@link SetScopedRolePublicParameters}
+ */
 export function prepareSetScopedRolePublic(parameters: SetScopedRolePublicParameters) {
   return {
     address: parameters.accessControl,
@@ -17,34 +20,4 @@ export function prepareSetScopedRolePublic(parameters: SetScopedRolePublicParame
     functionName: 'setScopedRolePublic',
     args: [parameters.role, parameters.scope, parameters.isPublic],
   } as const
-}
-
-/**
- * Sets whether a scoped role is public (callable by any address) or restricted. The caller must be the default admin.
- *
- * @param parameters - {@link SetScopedRolePublicParameters}
- *
- * @example
- * import { setScopedRolePublic, VEHICLE_STEAM_REDEEM } from '@railnetorg/railnet-sdk'
- *
- * const hash = await setScopedRolePublic(walletClient, {
- *   accessControl: eacAddress,
- *   role: VEHICLE_STEAM_REDEEM,
- *   scope: vehicleAddress,
- *   isPublic: true,
- *   account: account.address,
- * })
- */
-export async function setScopedRolePublic(
-  client: Client,
-  parameters: SetScopedRolePublicParameters & { account: Address },
-  options?: ContractCallOptions,
-): Promise<Hash> {
-  const { request } = await simulateContract(client, {
-    ...options,
-    ...prepareSetScopedRolePublic(parameters),
-    account: parameters.account,
-  })
-
-  return writeContract(client, request)
 }

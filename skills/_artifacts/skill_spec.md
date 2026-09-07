@@ -32,7 +32,7 @@ Base (chain ID 8453) only. All contract addresses are hardcoded for Base.
 - Write actions auto-handle ERC20 allowance checks and approvals
 - Account parameter is always explicit (never auto-injected from wallet)
 - Role constants are precomputed keccak256 hashes exported as `Hex` strings
-- The `deployMultiVehicle` workflow orchestrates 8+ sequential transactions
+- Deploying a multi-vehicle is 8+ sequential transactions the caller sends
 
 ## Out of Scope
 

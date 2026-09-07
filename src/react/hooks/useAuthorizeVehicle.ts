@@ -2,19 +2,32 @@
 
 import { useMutation } from '@tanstack/react-query'
 import type { Address, Hash } from 'viem'
-import { useWalletClient } from 'wagmi'
+import { usePublicClient, useWalletClient } from 'wagmi'
 import {
   type AuthorizeVehicleParameters,
-  authorizeVehicle,
+  prepareAuthorizeVehicle,
 } from '../../actions/multiVehicle/authorizeVehicle.js'
+import { simulateThenWrite } from '../simulateThenWrite.js'
 
-export function useAuthorizeVehicle() {
-  const { data: walletClient } = useWalletClient()
+export type UseAuthorizeVehicleParameters = {
+  /** Chain to simulate and sign on. Defaults to the connected one. */
+  chainId?: number | undefined
+}
+
+export function useAuthorizeVehicle({ chainId }: UseAuthorizeVehicleParameters = {}) {
+  const publicClient = usePublicClient({ chainId })
+  const { data: walletClient } = useWalletClient({ chainId })
 
   return useMutation<Hash, Error, AuthorizeVehicleParameters & { account: Address }>({
     mutationFn: async (parameters) => {
       if (!walletClient) throw new Error('Wallet not connected')
-      return authorizeVehicle(walletClient, parameters)
+      if (!publicClient) throw new Error('No public client configured for the requested chain')
+
+      return simulateThenWrite(
+        { publicClient, walletClient },
+        prepareAuthorizeVehicle(parameters),
+        parameters.account,
+      )
     },
   })
 }

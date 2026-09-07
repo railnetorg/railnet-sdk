@@ -2,7 +2,7 @@
 description: Moves assets or shares between the accounting sectors of a MultiVehicle.
 ---
 
-# moveBetweenSectors
+# prepareMoveBetweenSectors
 
 Moves assets or shares between two [sectors](/types/Sector) of a MultiVehicle, via its
 SectorAccountingEngine. This is the asset manager's primitive for parking liquidity aside, releasing
@@ -15,32 +15,35 @@ Requires the `MULTI_VEHICLE_MOVE` role scoped to the SectorAccountingEngine.
 ## Import
 
 ```ts
-import { moveBetweenSectors } from '@railnetorg/railnet-sdk'
+import { prepareMoveBetweenSectors } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
 
 ```ts
-import { moveBetweenSectors, SECTOR_AVAILABLE, SECTOR_RESERVED } from '@railnetorg/railnet-sdk'
+import { simulateContract, writeContract } from 'viem/actions'
+import { prepareMoveBetweenSectors } from '@railnetorg/railnet-sdk'
 
-const hash = await moveBetweenSectors(walletClient, {
-  sectorAccountingEngine: '0x...',
-  from: SECTOR_AVAILABLE,
-  to: SECTOR_RESERVED,
-  asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-  amount: 1000000n,
-  operationId: '0x...',
+const { request } = await simulateContract(client, {
+  ...prepareMoveBetweenSectors({
+    sectorAccountingEngine: '0x...',
+    from: SECTOR_AVAILABLE,
+    to: SECTOR_RESERVED,
+    asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    amount: 1000000n,
+    operationId: '0x...',
+  }),
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
+
+const hash = await writeContract(client, request)
 ```
 
 Pass `maxUint256` as `amount` to move the entire balance of the source sector.
 
 ## Returns
 
-`Hash`
-
-The transaction hash of the move.
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 
@@ -76,8 +79,3 @@ The amount to move, or `maxUint256` for the whole source sector balance.
 A caller-supplied identifier echoed in the `Moved` event, for correlating a transaction with your own
 records or with the indexer.
 
-### account
-
-- **Type:** `Address`
-
-The address executing the transaction.

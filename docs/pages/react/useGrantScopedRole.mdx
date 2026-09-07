@@ -39,10 +39,16 @@ function GrantRole() {
 }
 ```
 
+## Parameters
+
+`chainId` — chain to simulate and sign on. Defaults to the connected one.
+
 ## Returns
 
 ```ts
 UseMutationResult<Hash, Error, GrantScopedRoleParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`grantScopedRole`](/actions/grantScopedRole) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`prepareGrantScopedRole`](/actions/prepareGrantScopedRole) parameters.
+
+The call is simulated through the transport your wagmi config declares and only the transaction reaches the wallet, so a wallet serving stale state cannot reject a call on state that has already changed.

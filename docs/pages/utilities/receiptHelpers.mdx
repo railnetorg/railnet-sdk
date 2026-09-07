@@ -24,8 +24,9 @@ The typical flow involves spawning a contract, waiting for the transaction recei
 ```ts
 import { createPublicClient, createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
+import { simulateContract, writeContract } from 'viem/actions'
 import { 
-  spawnConduit, 
+  prepareSpawnConduit, 
   extractConduitAddress,
 } from '@railnetorg/railnet-sdk'
 
@@ -42,19 +43,25 @@ const walletClient = createWalletClient({
 const factoryAddress = '0x1234...'
 
 // 1. Spawn the contract
-const hash = await spawnConduit(walletClient, {
-  factory: factoryAddress,
-  name: 'My Conduit',
-  symbol: 'COND',
-  vehicle: '0x5678...',
-  initialExpectedSupply: 1000000000000000000n,
-  transferEnabled: true,
-  accessControl: '0x...',
-  feeManager: '0x...',
-  accountList: '0x...',
-  ownerRegistry: '0x...',
-  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+const { request } = await simulateContract(walletClient, {
+  ...prepareSpawnConduit({
+    factory: '0x...',
+    name: 'My Conduit',
+    symbol: 'COND',
+    vehicle: '0x...',
+    initialExpectedSupply: 1000000n,
+    transferEnabled: true,
+    accessControl: '0x...',
+    feeManager: '0x...',
+    accountList: '0x...',
+    ownerRegistry: '0x...',
+    querySalt: randomSalt(),
+    deploymentSalt: randomSalt(),
+  }),
+  account: '0x...',
 })
+
+const hash = await writeContract(walletClient, request)
 
 // 2. Wait for the receipt
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -65,7 +72,7 @@ const conduitAddress = extractConduitAddress(receipt, factoryAddress)
 
 ## extractConduitAddress
 
-Extracts the deployed conduit address from a `spawnConduit` transaction receipt.
+Extracts the deployed conduit address from a `prepareSpawnConduit` transaction receipt.
 
 ```ts
 const conduitAddress = extractConduitAddress(receipt, factoryAddress)
@@ -91,7 +98,7 @@ The deployed conduit address, or `null` if not found.
 
 ## extractAccessControlAddress
 
-Extracts the deployed access control address from a `spawnAccessControl` transaction receipt.
+Extracts the deployed access control address from a `prepareSpawnAccessControl` transaction receipt.
 
 ```ts
 const accessControlAddress = extractAccessControlAddress(receipt, factoryAddress)
@@ -117,7 +124,7 @@ The deployed access control address, or `null` if not found.
 
 ## extractMultiVehicleContracts
 
-Extracts the deployed MultiVehicle contract addresses from a `spawnMultiVehicle` transaction receipt.
+Extracts the deployed MultiVehicle contract addresses from a `prepareSpawnMultiVehicle` transaction receipt.
 
 ```ts
 const contracts = extractMultiVehicleContracts(receipt, factoryAddress)
@@ -156,7 +163,7 @@ type MultiVehicleContracts = {
 
 ## extractAaveV3VehicleAddress
 
-Extracts the deployed Aave V3 vehicle address from a `spawnAaveV3Vehicle` transaction receipt.
+Extracts the deployed Aave V3 vehicle address from a `prepareSpawnAaveV3Vehicle` transaction receipt.
 
 ```ts
 const vehicleAddress = extractAaveV3VehicleAddress(receipt, factoryAddress)

@@ -2,41 +2,37 @@
 description: Deploys an ExternalAccessControl contract via factory.
 ---
 
-# spawnAccessControl
+# prepareSpawnAccessControl
 
-Deploys an ExternalAccessControl contract via the factory. Requires a `WalletClient` to sign and send the transaction.
+Deploys an ExternalAccessControl contract via the factory.
 
 ## Import
 
 ```ts
-import { spawnAccessControl } from '@railnetorg/railnet-sdk'
+import { prepareSpawnAccessControl } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
 
 ```ts
-import { createWalletClient, http } from 'viem'
-import { base } from 'viem/chains'
-import { randomSalt, spawnAccessControl } from '@railnetorg/railnet-sdk'
+import { simulateContract, writeContract } from 'viem/actions'
+import { prepareSpawnAccessControl } from '@railnetorg/railnet-sdk'
 
-const walletClient = createWalletClient({
-  chain: base,
-  transport: http(),
-})
-
-const hash = await spawnAccessControl(walletClient, {
-  factory: '0x1234...',
-  initialDefaultAdmin: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
-  deploymentSalt: randomSalt(),
+const { request } = await simulateContract(client, {
+  ...prepareSpawnAccessControl({
+    factory: '0x1234...',
+    initialDefaultAdmin: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+    deploymentSalt: randomSalt(),
+  }),
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
+
+const hash = await writeContract(client, request)
 ```
 
 ## Returns
 
-`Hash`
-
-The transaction hash.
+A prepared call: `{ address, abi, functionName, args }`.
 
 :::info
 Use [`extractAccessControlAddress`](/utilities/receiptHelpers#extractaccesscontroladdress) to extract the deployed access control address from the transaction receipt.
@@ -74,8 +70,3 @@ Initial roles to grant. Defaults to `[]`.
 
 Fixes the deployed address. Generate it with [`randomSalt`](/utilities/randomSalt) and keep the value.
 
-### account
-
-- **Type:** `Address`
-
-The address of the account executing the transaction.

@@ -5,7 +5,7 @@ description: >
   useConduitPosition, useConduitInfo, useEstimateConduit,
   usePredictConduitDeployment, useDepositConduit, useRedeemConduit,
   useSpawnConduit, useEnableConduit, useFinalizeConduitDeposit,
-  useProcessConduitQuery, useDeployMultiVehicle, useSpawnMultiVehicle,
+  useProcessConduitQuery, useSpawnMultiVehicle,
   useSpawnAaveV3Vehicle, useAuthorizeVehicle, useSetQueues,
   useGrantScopedRole, useRevokeScopedRole, useSetScopedRolePublic,
   useSpawnAccessControl, conduitPositionQueryOptions,
@@ -81,13 +81,27 @@ export function Providers({ children }: { children: React.ReactNode }) {
 | `useSpawnMultiVehicle` | `SpawnMultiVehicleParameters & { account }` | `Hash` |
 | `useAuthorizeVehicle` | `{ vehicleManager, vehicle, account }` | `Hash` |
 | `useSetQueues` | `{ queueStrategyEngine, depositQueue, redeemQueue, account }` | `Hash` |
-| `useDeployMultiVehicle` | `DeployMultiVehicleParameters & { account }` | `DeployMultiVehicleResult` |
 | `useGrantScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |
 | `useRevokeScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |
 | `useSetScopedRolePublic` | `{ accessControl, role, scope, isPublic, account }` | `Hash` |
 | `useSpawnAccessControl` | `SpawnAccessControlParameters & { account }` | `Hash` |
 
-All mutation hooks internally use `useWalletClient()` from wagmi and pass the wallet client to the underlying SDK action.
+A deposit needs two transactions: approve the conduit for the token with wagmi's
+`useWriteContract`, then `useDepositConduit`. The SDK does not wrap the approval — it is a plain
+ERC-20 call. The allowance is spent by the deposit, so read it before each attempt.
+
+`useDepositConduit` reads (`conduit.getVehicle()`) through `usePublicClient` and signs through
+`useWalletClient`, so the app's configured transport serves the reads. Pass `vehicle` to skip that
+read, and `minOutput` — derived from `useEstimateConduit` — to set a slippage floor.
+
+Every write hook builds its call with the matching `prepare*` builder, simulates on
+`usePublicClient` and signs on `useWalletClient`. The preflight therefore runs on the transport the
+app configured, not on the wallet's, and each hook takes an optional `chainId`. Every write hook does this, with no exception.
+
+Deploying a multi-vehicle has no hook and no single function: it is eight or more transactions
+against several factories, each needing an address the previous one returned. Send the sequence
+from a script or a server with a client of your own — see the
+`deployingAMultiVehicle` guide — and drive the UI from the read hooks once it lands.
 
 ## Query Options (for custom query composition)
 

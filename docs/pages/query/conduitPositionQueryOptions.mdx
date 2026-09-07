@@ -95,7 +95,7 @@ The hook hands the key back on its result, so the common case needs no builder a
 which chain the client resolved to:
 
 ```ts
-const { data, queryKey } = useConduitPosition({ conduit: '0x...' })
+const { data, queryKey } = useConduitPosition({ conduit: '0x...', account: '0x...' })
 
 queryClient.invalidateQueries({ queryKey })
 ```

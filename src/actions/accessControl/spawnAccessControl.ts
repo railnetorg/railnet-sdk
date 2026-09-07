@@ -1,7 +1,5 @@
-import type { Address, Client, Hash, Hex } from 'viem'
-import { simulateContract, writeContract } from 'viem/actions'
+import type { Address, Hex } from 'viem'
 import { accessControlFactoryAbi } from '../../abi/accessControlFactory.js'
-import type { ContractCallOptions } from '../../types.js'
 
 export type SpawnAccessControlParameters = {
   factory: Address
@@ -11,6 +9,11 @@ export type SpawnAccessControlParameters = {
   deploymentSalt: Hex
 }
 
+/**
+ * Spawns a new ExternalAccessControl via the AccessControlFactory.
+ *
+ * @param parameters - {@link SpawnAccessControlParameters}
+ */
 export function prepareSpawnAccessControl(parameters: SpawnAccessControlParameters) {
   const initialDelay = parameters.initialDelay ?? 0
   const initialRoles = parameters.initialRoles ?? []
@@ -28,38 +31,4 @@ export function prepareSpawnAccessControl(parameters: SpawnAccessControlParamete
       },
     ],
   } as const
-}
-
-/**
- * Spawns a new ExternalAccessControl via the AccessControlFactory.
- * Use {@link extractAccessControlAddress} to extract the deployed address from the transaction receipt.
- *
- * @param parameters - {@link SpawnAccessControlParameters}
- *
- * @example
- * import { extractAccessControlAddress, getAddresses, spawnAccessControl } from '@railnetorg/railnet-sdk'
- * import { base } from 'viem/chains'
- *
- * const { eacFactory } = getAddresses(base.id)
- *
- * const hash = await spawnAccessControl(walletClient, {
- *   factory: eacFactory,
- *   initialDefaultAdmin: account.address,
- *   account: account.address,
- * })
- * const receipt = await publicClient.waitForTransactionReceipt({ hash })
- * const eacAddress = extractAccessControlAddress(receipt, eacFactory)
- */
-export async function spawnAccessControl(
-  client: Client,
-  parameters: SpawnAccessControlParameters & { account: Address },
-  options?: ContractCallOptions,
-): Promise<Hash> {
-  const { request } = await simulateContract(client, {
-    ...options,
-    ...prepareSpawnAccessControl(parameters),
-    account: parameters.account,
-  })
-
-  return writeContract(client, request)
 }

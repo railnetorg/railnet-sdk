@@ -37,10 +37,16 @@ function Finalize() {
 }
 ```
 
+## Parameters
+
+`chainId` — chain to simulate and sign on. Defaults to the connected one.
+
 ## Returns
 
 ```ts
 UseMutationResult<Hash, Error, FinalizeConduitDepositParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`finalizeConduitDeposit`](/actions/finalizeConduitDeposit) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`prepareFinalizeConduitDeposit`](/actions/prepareFinalizeConduitDeposit) parameters.
+
+The call is simulated through the transport your wagmi config declares and only the transaction reaches the wallet, so a wallet serving stale state cannot reject a call on state that has already changed.

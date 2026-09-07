@@ -1,7 +1,6 @@
 export * from './useAuthorizeVehicle.js'
 export * from './useConduitInfo.js'
 export * from './useConduitPosition.js'
-export * from './useDeployMultiVehicle.js'
 export * from './useDepositConduit.js'
 export * from './useEnableConduit.js'
 export * from './useEstimateConduit.js'

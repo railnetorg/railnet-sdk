@@ -1,0 +1,61 @@
+---
+description: Sets deposit and redeem queues on the QueueStrategyEngine.
+---
+
+# prepareSetQueues
+
+Sets deposit and redeem queues on the QueueStrategyEngine.
+
+## Import
+
+```ts
+import { prepareSetQueues } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { prepareSetQueues } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...prepareSetQueues({
+    queueStrategyEngine: '0x1234...',
+    depositQueue: [
+    {
+    vehicle: '0x5678...',
+    target: { value: 1000000n, threshold: 100n }
+    }
+    ],
+    redeemQueue: [],
+  }),
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### queueStrategyEngine
+
+- **Type:** `Address`
+
+The address of the QueueStrategyEngine contract.
+
+### depositQueue
+
+- **Type:** `QueueEntry[]`
+
+The new deposit queue configuration.
+
+### redeemQueue
+
+- **Type:** `QueueEntry[]`
+
+The new redeem queue configuration.
+

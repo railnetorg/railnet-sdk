@@ -103,84 +103,61 @@ const balance = await client.readContract({
 
 Nine ABIs are exported: `conduitAbi`, `conduitFactoryAbi`, `multiVehicleFactoryAbi`, `aaveV3VehicleFactoryAbi`, `accessControlFactoryAbi`, `externalAccessControlAbi`, `queueStrategyEngineAbi`, `sectorAccountingEngineAbi`, `vehicleManagerAbi`.
 
-### Write Operations (Single-Client Pattern)
-All write actions use a single-client pattern: pass a wallet client that handles both simulation and signing internally.
+### Writing
+
+Every write is a `prepare*` builder: synchronous, takes no client, sends nothing, returns
+`PreparedWrite` (`{ address, abi, functionName, args }`). Simulate it on a client whose transport
+you chose, then send the request with the wallet.
 
 ```typescript
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { base } from 'viem/chains'
-import { depositConduit } from '@railnetorg/railnet-sdk'
+import { readContract, simulateContract, writeContract } from 'viem/actions'
+import { conduitAbi, prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
 const account = privateKeyToAccount('0x...')
 const client = createWalletClient({ account, chain: base, transport: http() })
 
-const hash = await depositConduit(client, {
-  conduit: '0x1234567890123456789012345678901234567890',
-  token: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-  amount: 1_000_000n,
+const conduit = '0x1234567890123456789012345678901234567890' as const
+
+// approve the conduit for the token first — the SDK does not do it for you
+const vehicle = await readContract(client, {
+  address: conduit,
+  abi: conduitAbi,
+  functionName: 'getVehicle',
+})
+
+const { request } = await simulateContract(client, {
+  ...prepareDepositConduit({
+    conduit,
+    token: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    amount: 1_000_000n,
+    account: account.address,
+    vehicle,
+    salt: randomSalt(),
+  }),
   account: account.address,
 })
+
+const hash = await writeContract(client, request)
 ```
 
-Every write action also has a `prepare*` counterpart (`prepareDepositConduit`, `prepareSpawnConduit`, `prepareGrantScopedRole`, ...). They take no client, send nothing, and return `PreparedWrite` (`{ address, abi, functionName, args }`) to spread into viem yourself:
+In React the hooks do this, and they simulate on `usePublicClient` rather than on the wallet: a
+wallet answers reads from whatever node it picked, at whatever freshness it keeps.
 
-```typescript
-import { prepareDepositConduit } from '@railnetorg/railnet-sdk'
+Three things the builders do NOT do:
 
-const prepared = prepareDepositConduit({
-  conduit: conduitAddress,
-  token: usdcAddress,
-  amount: 1_000_000n,
-  account: account.address, // required: the conduit binds the query salt to the sender
-})
+- **No approval.** A deposit needs the conduit approved for the token, and the allowance is spent
+  by the deposit. It is a plain ERC-20 call.
+- **No chain reads.** `prepareDepositConduit` requires `vehicle` (from `conduit.getVehicle()`) and
+  `prepareRedeemConduit` requires `outputAsset` (from `conduit.asset()`).
+- **No salt generation.** Every salt is a required parameter, so the same inputs always encode the
+  same calldata. Use `randomSalt()`, and keep the deployment ones — they fix the deployed address,
+  and `prepareSpawnMultiVehicle` takes seven at once.
 
-const hash = await client.writeContract({ ...prepared, account: account.address })
-```
-
-Two things the builders do NOT do: no ERC-20 approval (the execute actions send one when the allowance is short), and no salt generation — every salt is a required parameter, so a builder is a pure function of its inputs and the same parameters always encode the same calldata. Generate salts with `randomSalt()` and keep the deployment ones: they fix the deployed address, and `prepareSpawnMultiVehicle` takes seven at once.
-
-All write actions accept an optional third `options` parameter of type `ContractCallOptions` for gas, nonce, and other overrides:
-
-```typescript
-type ContractCallOptions = {
-  gas?: bigint
-  nonce?: number
-  maxFeePerGas?: bigint
-  maxPriorityFeePerGas?: bigint
-  accessList?: AccessList
-  stateOverride?: StateOverride
-  dataSuffix?: Hex
-}
-```
-
-### Prepared Writes
-
-Every write action has a `prepare*` counterpart. They are synchronous, take no client, and send
-nothing — they return the viem contract call so you can batch it, simulate it, or route it through
-your own signer. The execute action builds on the same builder, so both paths encode an identical
-call.
-
-```typescript
-import { prepareGrantScopedRole } from '@railnetorg/railnet-sdk'
-
-const prepared = prepareGrantScopedRole({
-  accessControl: eacAddress,
-  role: ROLE_CONDUIT_MANAGER,
-  scope: conduitAddress,
-  grantee: managerAddress,
-})
-
-const hash = await walletClient.writeContract({
-  ...prepared,
-  account,
-  chain: base,
-})
-```
-
-Most `prepare*` take the same parameters as their execute counterpart. The exceptions are the ones
-whose execute action reads chain state first: because `prepare*` is synchronous it cannot perform
-that read, so those values become required parameters. See the conduit skill for the specifics.
+`ContractCallOptions` (gas, nonce, fee overrides, `stateOverride`, `dataSuffix`) is accepted by
+`simulateDispatchVehicle`. The builders take one parameter and nothing else.
 
 ## Common Mistakes
 
@@ -244,60 +221,67 @@ npm install @railnetorg/railnet-sdk viem
 
 Source: package.json peerDependencies
 
-### HIGH Write actions may send multiple transactions
+### HIGH A deposit is two transactions
 
 Wrong:
 
 ```typescript
-import { depositConduit } from '@railnetorg/railnet-sdk'
+import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
-const hash = await depositConduit(client, {
-  conduit, token, amount: 1000000n, account: myAddress,
-})
-// Assumes one transaction for gas estimation
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }), account: myAddress })).request,
+)
+// Assumes the conduit is already approved
 ```
 
 Correct:
 
 ```typescript
-import { depositConduit } from '@railnetorg/railnet-sdk'
+import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
-const hash = await depositConduit(client, {
-  conduit, token, amount: 1000000n, account: myAddress,
+// approve first — the conduit pulls the token, and the allowance is spent by the deposit
+await writeContract(client, {
+  address: token, abi: erc20Abi, functionName: 'approve', args: [conduit, 1000000n], account: myAddress,
 })
-// depositConduit checks allowance and sends approve tx if needed,
-// then sends the deposit tx. Account for 2 possible transactions
-// in gas estimation and UI loading states.
+
+const hash = writeContract(
+  client,
+  (await simulateContract(client, { ...prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }), account: myAddress })).request,
+)
+// Two transactions. Account for both in gas estimation and UI loading states.
 ```
 
-`depositConduit` auto-checks the ERC20 allowance and sends an approval transaction before the deposit if needed, so a single SDK call can produce two on-chain transactions. `redeemConduit` does not: the conduit burns the caller's shares internally, so redeeming is always one transaction.
+A deposit is two transactions: the conduit pulls the token, so it must be approved first, and the allowance is spent by the deposit. The SDK does not approve for you — an approval is a plain ERC-20 call. A redeem is one transaction: the conduit burns the caller's shares internally.
 
-Source: src/actions/conduit/depositConduit.ts:36-54
+Source: src/actions/conduit/depositConduit.ts
 
-### CRITICAL Write actions use a single client, not two
+### CRITICAL Reads and simulations do not belong on the wallet client
 
 Wrong:
 
 ```typescript
-import { depositConduit } from '@railnetorg/railnet-sdk'
-
-const hash = await depositConduit(publicClient, walletClient, {
-  conduit, token, amount: 1000000n, account: myAddress,
+const { request } = await simulateContract(walletClient, {
+  ...prepareDepositConduit({ conduit, token, amount: 1000000n, account, vehicle, salt: randomSalt() }),
+  account,
 })
+const hash = await writeContract(walletClient, request)
 ```
 
 Correct:
 
 ```typescript
-import { depositConduit } from '@railnetorg/railnet-sdk'
-
-const hash = await depositConduit(walletClient, {
-  conduit, token, amount: 1000000n, account: myAddress,
+const { request } = await simulateContract(publicClient, {
+  ...prepareDepositConduit({ conduit, token, amount: 1000000n, account, vehicle, salt: randomSalt() }),
+  account,
 })
+const hash = await writeContract(walletClient, request)
 ```
 
-All write actions take `(client, parameters, options?)` — a single viem client (typically a wallet client) that handles both simulation and signing. Do not pass two separate clients.
+A wallet answers reads from whatever node it picked, at whatever freshness it keeps, so a preflight
+sent there can reject a valid call. Only signing needs the wallet. A script with a single client
+uses it for both — it chose that client's transport.
 
-Source: src/actions/conduit/depositConduit.ts:27-30
+Source: src/react/simulateThenWrite.ts
 
 See also: railnet-conduit/SKILL.md

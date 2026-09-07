@@ -2,32 +2,26 @@
 description: Processes a query on a conduit.
 ---
 
-# processConduitQuery
+# prepareProcessConduitQuery
 
-Processes a query on a conduit. Requires a `WalletClient` to sign and send the transaction.
+Processes a query on a conduit.
 
 ## Import
 
 ```ts
-import { processConduitQuery } from '@railnetorg/railnet-sdk'
+import { prepareProcessConduitQuery } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
 
 ```ts
-import { createWalletClient, http } from 'viem'
-import { base } from 'viem/chains'
-import { processConduitQuery, ConduitMode } from '@railnetorg/railnet-sdk'
+import { simulateContract, writeContract } from 'viem/actions'
+import { prepareProcessConduitQuery } from '@railnetorg/railnet-sdk'
 
-const walletClient = createWalletClient({
-  chain: base,
-  transport: http(),
-})
-
-const hash = await processConduitQuery(walletClient, {
-  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
-  query: {
+const { request } = await simulateContract(client, {
+  ...prepareProcessConduitQuery({
+    conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    query: {
     owner: '0x...',
     receiver: '0x...',
     input: { asset: '0x...', value: 100n },
@@ -35,15 +29,17 @@ const hash = await processConduitQuery(walletClient, {
     mode: ConduitMode.DEPOSIT,
     salt: '0x...',
     data: '0x',
-  },
+    },
+  }),
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
+
+const hash = await writeContract(client, request)
 ```
 
 ## Returns
 
-`Hash`
-
-The transaction hash of the process query transaction.
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 
@@ -54,26 +50,12 @@ The transaction hash of the process query transaction.
 The address of the conduit contract.
 
 ```ts
-const hash = await processConduitQuery(walletClient, {
+prepareProcessConduitQuery({
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  account: '0x...',
   query: { ... },
 })
 ```
 
-### account
-
-- **Type:** `Address`
-
-The address of the account executing the transaction.
-
-```ts
-const hash = await processConduitQuery(walletClient, {
-  conduit: '0x...',
-  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
-  query: { ... },
-})
-```
 
 ### query
 

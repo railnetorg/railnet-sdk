@@ -39,10 +39,16 @@ function RevokeRole() {
 }
 ```
 
+## Parameters
+
+`chainId` — chain to simulate and sign on. Defaults to the connected one.
+
 ## Returns
 
 ```ts
 UseMutationResult<Hash, Error, RevokeScopedRoleParameters & { account: Address }>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`revokeScopedRole`](/actions/revokeScopedRole) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`prepareRevokeScopedRole`](/actions/prepareRevokeScopedRole) parameters.
+
+The call is simulated through the transport your wagmi config declares and only the transaction reaches the wallet, so a wallet serving stale state cannot reject a call on state that has already changed.

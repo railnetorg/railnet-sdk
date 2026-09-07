@@ -71,7 +71,8 @@ The hook hands the key back on its result, so the common case needs no builder a
 which chain the client resolved to:
 
 ```ts
-const { data, queryKey } = usePredictConduitDeployment({ conduit: '0x...' })
+// the same spawn parameters the Usage block above passes
+const { data, queryKey } = usePredictConduitDeployment(spawnParameters)
 
 queryClient.invalidateQueries({ queryKey })
 ```

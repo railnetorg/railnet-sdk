@@ -21,7 +21,7 @@ tensions:
   - name: "Convenience vs control in write actions"
     skills: ["railnet-conduit", "railnet-core"]
     description: "Auto-approval inside write actions hides multi-tx flows from callers"
-  - name: "deployMultiVehicle workflow vs granular control"
+  - name: "standard deployment sequence vs custom role hierarchy"
     skills: ["railnet-vehicle", "railnet-access-control"]
     description: "Workflow is opinionated about role grants; custom setups need individual actions"
   - name: "Conduit transfer policy is a boolean"
@@ -37,7 +37,7 @@ cross_references:
     reason: "Spawning conduit requires EAC; operations may fail without VEHICLE_STEAM_DEPOSIT/VEHICLE_STEAM_REDEEM"
   - from: "railnet-vehicle"
     to: "railnet-access-control"
-    reason: "deployMultiVehicle auto-grants roles; manual setup needs role scoping knowledge"
+    reason: "the standard sequence grants a fixed set of roles; a custom hierarchy needs scoping knowledge"
   - from: "railnet-react"
     to: "railnet-conduit"
     reason: "React hooks wrap core actions; understanding action signatures explains hook behavior"

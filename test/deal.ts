@@ -93,25 +93,28 @@ async function tryOverrideSlot(
 }
 
 async function dealErc20(client: Client, params: DealParameters) {
-  if (!client.account) {
+  const target =
+    typeof params.account === 'string'
+      ? params.account
+      : (params.account ?? client.account)?.address
+  if (!target) {
     throw new Error('deal: no account provided and no default account on client')
   }
-  const account = client.account
 
   if (params.erc20 == null) {
-    return setBalance(client as never, { address: account.address, value: params.amount })
+    return setBalance(client as never, { address: target, value: params.amount })
   }
 
   const token = params.erc20
   const encodedAmount = numberToHex(params.amount, { size: 32 })
-  const storageSlots = await getBalanceOfStorageSlots(client, token, account.address)
+  const storageSlots = await getBalanceOfStorageSlots(client, token, target)
 
   for (const { address: contractAddress, storageKeys } of storageSlots) {
     for (const slot of storageKeys) {
       const overridden = await tryOverrideSlot(
         client,
         token,
-        account.address,
+        target,
         contractAddress,
         slot,
         encodedAmount,

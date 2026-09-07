@@ -1,0 +1,98 @@
+---
+description: Builds the call that redeems conduit shares back into the underlying asset.
+---
+
+# prepareRedeemConduit
+
+Builds the call that redeems conduit shares back into the underlying asset. Returns the call to
+send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+
+No approval is needed: the conduit burns shares it already holds for the account.
+
+## Import
+
+```ts
+import { prepareRedeemConduit, randomSalt } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createWalletClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { readContract, simulateContract, writeContract } from 'viem/actions'
+import { conduitAbi, prepareRedeemConduit, randomSalt } from '@railnetorg/railnet-sdk'
+
+const client = createWalletClient({ chain: base, transport: http() })
+
+const conduit = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+const account = '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+
+const asset = await readContract(client, {
+  address: conduit,
+  abi: conduitAbi,
+  functionName: 'asset',
+})
+
+const { request } = await simulateContract(client, {
+  ...prepareRedeemConduit({
+    conduit,
+    shares: 1_000_000n,
+    account,
+    outputAsset: { asset, value: 0n },
+    salt: randomSalt(),
+  }),
+  account,
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The conduit holding the shares.
+
+### shares
+
+- **Type:** `bigint`
+
+How many shares to redeem.
+
+### account
+
+- **Type:** `Address`
+
+The holder whose shares are burned, and the default `receiver`. Unlike `conduit.create()`, this
+entrypoint takes `salt` raw and derives the query salt from `msg.sender` itself.
+
+### outputAsset
+
+- **Type:** `Asset`
+
+The asset to receive, and a floor on its amount. `value: 0n` sets no floor. The asset is
+`conduit.asset()` unless you are redeeming into something else.
+
+### salt
+
+- **Type:** `Hex`
+
+A per-redeem salt. Use [`randomSalt`](/utilities/randomSalt).
+
+### receiver
+
+- **Type:** `Address`
+- **Optional.** Defaults to `account`.
+
+Who receives the redeemed asset.
+
+## React
+
+[`useRedeemConduit`](/react/useRedeemConduit) wraps the same call.

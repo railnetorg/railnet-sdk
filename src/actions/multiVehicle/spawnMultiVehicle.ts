@@ -1,7 +1,5 @@
-import { type Address, type Client, type Hash, type Hex, zeroAddress } from 'viem'
-import { simulateContract, writeContract } from 'viem/actions'
+import { type Address, type Hex, zeroAddress } from 'viem'
 import { multiVehicleFactoryAbi } from '../../abi/multiVehicleFactory.js'
-import type { ContractCallOptions } from '../../types.js'
 
 export type MultiVehicleSalts = {
   multiVehicle: Hex
@@ -34,6 +32,11 @@ export type SpawnMultiVehicleParameters = {
   }>
 }
 
+/**
+ * Spawns a new MultiVehicle ecosystem via the MultiVehicleFactory.
+ *
+ * @param parameters - {@link SpawnMultiVehicleParameters}
+ */
 export function prepareSpawnMultiVehicle(parameters: SpawnMultiVehicleParameters) {
   return {
     address: parameters.factory,
@@ -54,43 +57,4 @@ export function prepareSpawnMultiVehicle(parameters: SpawnMultiVehicleParameters
       },
     ],
   } as const
-}
-
-/**
- * Spawns a new MultiVehicle ecosystem via the MultiVehicleFactory.
- * The factory pulls an initial deposit from the caller, so approve the factory for at least {@link getInitialDepositAmount} of `asset` first — this action sends no approval.
- * Use {@link extractMultiVehicleContracts} to extract the deployed contract addresses from the transaction receipt.
- *
- * @param parameters - {@link SpawnMultiVehicleParameters}
- *
- * @example
- * import { extractMultiVehicleContracts, getAddresses, spawnMultiVehicle } from '@railnetorg/railnet-sdk'
- * import { base } from 'viem/chains'
- *
- * const { multiVehicleFactory, queryRegistry, usdc } = getAddresses(base.id)
- *
- * const hash = await spawnMultiVehicle(walletClient, {
- *   factory: multiVehicleFactory,
- *   asset: usdc,
- *   name: 'My Strategy',
- *   symbol: 'MSTRAT',
- *   accessControl: eacAddress,
- *   queryRegistry,
- *   account: account.address,
- * })
- * const receipt = await publicClient.waitForTransactionReceipt({ hash })
- * const contracts = extractMultiVehicleContracts(receipt, multiVehicleFactory)
- */
-export async function spawnMultiVehicle(
-  client: Client,
-  parameters: SpawnMultiVehicleParameters & { account: Address },
-  options?: ContractCallOptions,
-): Promise<Hash> {
-  const { request } = await simulateContract(client, {
-    ...options,
-    ...prepareSpawnMultiVehicle(parameters),
-    account: parameters.account,
-  })
-
-  return writeContract(client, request)
 }

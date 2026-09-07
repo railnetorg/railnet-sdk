@@ -86,7 +86,12 @@ The hook hands the key back on its result, so the common case needs no builder a
 which chain the client resolved to:
 
 ```ts
-const { data, queryKey } = useEstimateConduit({ conduit: '0x...' })
+const { data, queryKey } = useEstimateConduit({
+  conduit: '0x...',
+  asset: { asset: '0x...', value: 1_000_000n },
+  mode: ConduitMode.DEPOSIT,
+  estimationType: EstimationType.OUTPUT,
+})
 
 queryClient.invalidateQueries({ queryKey })
 ```

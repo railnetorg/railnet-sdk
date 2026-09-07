@@ -40,7 +40,9 @@ function Redeem() {
 ## Returns
 
 ```ts
-UseMutationResult<Hash, Error, RedeemConduitParameters & { account: Address }>
+UseMutationResult<Hash, Error, RedeemConduitVariables>
 ```
 
-Mutation result. Call `mutate` or `mutateAsync` with [`redeemConduit`](/actions/redeemConduit) parameters.
+Mutation result. Call `mutate` or `mutateAsync` with [`prepareRedeemConduit`](/actions/prepareRedeemConduit)
+parameters, except that `outputAsset` is read from `conduit.asset()` and `salt` defaults to a random
+one when omitted.

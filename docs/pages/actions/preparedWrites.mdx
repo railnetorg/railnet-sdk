@@ -4,16 +4,16 @@ description: Builders that return the contract call for any write action, withou
 
 # prepare* (Prepared Writes)
 
-Every write action has a `prepare*` counterpart. They are synchronous, take no client, and send
-nothing — they return the contract call so you can hand it to viem yourself, batch it, or feed it
-into an app-side step engine.
+Every write is a `prepare*` builder. They are synchronous, take no client, and send nothing — they
+return the contract call, so you decide when and how it goes out: simulate it, batch it, put it
+behind a permit, or feed it to an app-side step engine.
 
-The execute actions build on these, so both paths always encode the same call.
+The React hooks build on the same builders, so both paths encode the same call.
 
 ## Import
 
 ```ts
-import { prepareSpawnConduit } from '@railnetorg/railnet-sdk'
+import { prepareSpawnConduit, randomSalt } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ import { prepareSpawnConduit } from '@railnetorg/railnet-sdk'
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { prepareSpawnConduit } from '@railnetorg/railnet-sdk'
+import { prepareSpawnConduit, randomSalt } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,
@@ -39,6 +39,8 @@ const prepared = prepareSpawnConduit({
   feeManager: '0x...',
   accountList: '0x...',
   ownerRegistry: '0x...',
+  querySalt: randomSalt(),
+  deploymentSalt: randomSalt(),
 })
 
 const hash = await walletClient.writeContract({
@@ -82,28 +84,36 @@ type inference when you spread it.
 | `prepareSetQueues` | `queueStrategyEngine.setQueues()` |
 | `prepareSpawnMultiVehicle` | `multiVehicleFactory.spawn()` |
 | `prepareSpawnAaveV3Vehicle` | `aaveV3VehicleFactory.spawn()` |
+| `prepareMoveBetweenSectors` | `sectorAccountingEngine.move()` |
+| `prepareDispatchVehicle` | `sectorAccountingEngine.dispatch()` |
 
-Each builder takes the same parameters as its action, minus the client and the contract call
-overrides.
+A builder takes only what the call needs to be encoded. It takes no client, no `account` unless
+the encoding depends on it, and no transaction overrides — those belong to whatever sends it.
 
 ## No approvals included
 
-`prepareDepositConduit` and `prepareRedeemConduit` emit **only** the Railnet call, and they resolve
-no addresses: `prepareDepositConduit` requires `vehicle` and `prepareRedeemConduit` requires
-`outputAsset`, both of which the execute actions read from the conduit. `depositConduit` also sends
-an ERC-20 approval when the allowance is short — sequence that yourself. Redeeming needs no
-approval at all, since the conduit burns the caller's shares internally.
+The builders emit **only** the Railnet call, and they resolve no addresses:
+`prepareDepositConduit` requires `vehicle` — read it from `conduit.getVehicle()` — and
+`prepareRedeemConduit` requires `outputAsset`, from `conduit.asset()`.
+
+A deposit also needs an ERC-20 approval first, and the allowance is spent by the deposit. Send it
+yourself. Redeeming needs none: the conduit burns the caller's shares internally.
 
 The same applies to the `spawn*` builders: the factories pull an initial deposit from the caller,
 so the caller must have approved the factory beforehand.
 
-## `account` is required for deposits
+## `account` is required for deposits and redeems
 
 `prepareDepositConduit` and `prepareRedeemConduit` take `account`, with `receiver` defaulting to it.
-The conduit binds the query salt to the sender — `query.salt` must equal
-`keccak256(abi.encode(msg.sender, sourceSalt))` — so the deposit call cannot be encoded without
-knowing which address will send it. Sending it from any other account reverts with
+No other builder does.
+
+For a deposit it is load-bearing: `conduit.create()` binds the query salt to the sender —
+`query.salt` must equal `keccak256(abi.encode(msg.sender, sourceSalt))` — so the call cannot be
+encoded without knowing which address will send it. Sending it from any other account reverts with
 `InvalidQuerySalt`.
+
+A redeem goes through `createRedeemFromConduitShares()`, which takes the salt raw and derives the
+query salt from `msg.sender` itself, so there `account` only sets the default `receiver`.
 
 ## Salts are required, never generated
 
@@ -122,5 +132,5 @@ const prepared = prepareSpawnConduit({
 })
 ```
 
-The execute actions differ on one point: `depositConduit` and `redeemConduit` default `salt` to a
-random value. The `spawn*` actions have no defaults at all.
+Every builder requires its salts outright — there are no defaults. Use
+[`randomSalt`](/utilities/randomSalt) per call, and log a deployment salt before you send it.
