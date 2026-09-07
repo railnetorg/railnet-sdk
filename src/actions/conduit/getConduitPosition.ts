@@ -1,5 +1,5 @@
 import type { Address, Client } from 'viem'
-import { readContract } from 'viem/actions'
+import { getBlockNumber, readContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
 
 export type ConduitPosition = {
@@ -7,17 +7,23 @@ export type ConduitPosition = {
   assets: bigint
   conduit: Address
   account: Address
+  /** The block both reads were served at, so a caller can tell what the position is true of. */
+  blockNumber: bigint
 }
 
 export type GetConduitPositionParameters = {
   conduit: Address
   account: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetConduitPositionReturnType = ConduitPosition
 
 /**
  * Reads an account's position in a conduit: share balance and the equivalent asset value.
+ * `convert` takes the balance, so the two reads cannot be batched — they are pinned to one block
+ * instead, or a deposit landing between them reports shares at one rate and assets at another.
  *
  * @param parameters - {@link GetConduitPositionParameters}
  *
@@ -34,12 +40,14 @@ export async function getConduitPosition(
   parameters: GetConduitPositionParameters,
 ): Promise<GetConduitPositionReturnType> {
   const { conduit, account } = parameters
+  const blockNumber = parameters.blockNumber ?? (await getBlockNumber(client))
 
   const shares = await readContract(client, {
     address: conduit,
     abi: conduitAbi,
     functionName: 'balanceOf',
     args: [account],
+    blockNumber,
   })
 
   let assets = 0n
@@ -49,9 +57,10 @@ export async function getConduitPosition(
       abi: conduitAbi,
       functionName: 'convert',
       args: [{ asset: conduit, value: shares }, true],
+      blockNumber,
     })
     assets = converted.value
   }
 
-  return { shares, assets, conduit, account }
+  return { shares, assets, conduit, account, blockNumber }
 }

@@ -16,7 +16,7 @@ export type RevokeScopedRoleParameters = {
  *
  * @param parameters - {@link RevokeScopedRoleParameters}
  */
-export function prepareRevokeScopedRole(parameters: RevokeScopedRoleParameters) {
+export function buildRevokeScopedRoleCall(parameters: RevokeScopedRoleParameters) {
   return {
     address: parameters.accessControl,
     abi: externalAccessControlAbi,

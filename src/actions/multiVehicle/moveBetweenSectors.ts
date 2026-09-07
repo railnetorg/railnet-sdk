@@ -23,7 +23,7 @@ export type MoveBetweenSectorsParameters = {
  *
  * @param parameters - {@link MoveBetweenSectorsParameters}
  */
-export function prepareMoveBetweenSectors(parameters: MoveBetweenSectorsParameters) {
+export function buildMoveBetweenSectorsCall(parameters: MoveBetweenSectorsParameters) {
   return {
     address: parameters.sectorAccountingEngine,
     abi: sectorAccountingEngineAbi,

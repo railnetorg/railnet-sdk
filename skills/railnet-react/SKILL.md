@@ -3,16 +3,15 @@ name: railnet-react
 description: >
   React hooks and TanStack Query integration for railnet-sdk —
   useConduitPosition, useConduitInfo, useEstimateConduit,
-  usePredictConduitDeployment, useDepositConduit, useRedeemConduit,
-  useSpawnConduit, useEnableConduit, useFinalizeConduitDeposit,
-  useProcessConduitQuery, useSpawnMultiVehicle,
-  useSpawnAaveV3Vehicle, useAuthorizeVehicle, useSetQueues,
-  useGrantScopedRole, useRevokeScopedRole, useSetScopedRolePublic,
-  useSpawnAccessControl, conduitPositionQueryOptions,
+  usePredictConduitDeployment, useDepositConduitCall,
+  useRedeemConduitCall, conduitPositionQueryOptions,
   conduitInfoQueryOptions, estimateConduitQueryOptions,
-  predictConduitDeploymentQueryOptions, query key pattern.
-  Requires wagmi + @tanstack/react-query. Load when building
-  React UIs for Railnet.
+  predictConduitDeploymentQueryOptions,
+  depositConduitCallQueryOptions, redeemConduitCallQueryOptions,
+  query key pattern, and sending a built call with wagmi's own
+  useSimulateContract / useWriteContract. The SDK ships no write
+  hooks. Requires wagmi + @tanstack/react-query. Load when
+  building React UIs for Railnet.
 metadata:
   type: framework
   library: railnet-sdk
@@ -58,53 +57,86 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ## Available Hooks
 
-### Query Hooks (read-only, return TanStack Query result)
+Every hook here is a read. **The SDK ships no write hooks**: a write is a call you build, and you
+send it with wagmi's own `useSimulateContract` and `useWriteContract`. That is wagmi's documented
+path, and it keeps the preflight on the transport the app configured rather than on the wallet's,
+which answers reads from whatever node it picked at whatever freshness it keeps.
+
+### Query hooks (return a TanStack Query result)
 
 | Hook | Parameters | Returns |
 |------|-----------|---------|
-| `useConduitPosition` | `{ conduit, account, enabled? }` | `ConduitPosition` (shares, assets) |
-| `useConduitInfo` | `{ conduit, enabled? }` | `ConduitInfo` (name, symbol, totalSupply, totalAssets, holdings, decimals) |
-| `useEstimateConduit` | `{ conduit, asset, mode, estimationType, enabled? }` | `Asset` |
-| `usePredictConduitDeployment` | `{ factory, ..., querySalt, deploymentSalt, enabled? }` | `Address` |
+| `useConduitPosition` | `{ conduit, account, blockNumber?, chainId?, enabled? }` | `ConduitPosition` (shares, assets, blockNumber) |
+| `useConduitInfo` | `{ conduit, chainId?, enabled? }` | `ConduitInfo` (name, symbol, totalSupply, totalAssets, holdings, decimals, isEnabled) |
+| `useEstimateConduit` | `{ conduit, asset, mode, estimationType, chainId?, enabled? }` | `Asset` |
+| `usePredictConduitDeployment` | `{ factory, ..., querySalt, deploymentSalt, chainId?, enabled? }` | `Address` |
+| `useDepositConduitCall` | `{ conduit, token, amount, sender, salt, vehicle?, minOutput?, receiver?, chainId?, enabled? }` | `{ call, query, queryId, vehicle }` |
+| `useRedeemConduitCall` | `{ conduit, shares, sender, salt, outputAsset?, receiver?, chainId?, enabled? }` | `{ call, querySalt, outputAsset }` |
 
-### Mutation Hooks (write, return TanStack Mutation result)
+### Sending a call
 
-| Hook | Mutate Parameters | Returns |
-|------|------------------|---------|
-| `useDepositConduit` | `{ conduit, token, amount, account, receiver?, salt? }` | `Hash` |
-| `useRedeemConduit` | `{ conduit, shares, account, receiver?, outputAsset?, salt? }` | `Hash` |
-| `useSpawnConduit` | `SpawnConduitParameters & { account }` | `Hash` |
-| `useEnableConduit` | `{ conduit, account }` | `Hash` |
-| `useFinalizeConduitDeposit` | `{ factory, conduit, account }` | `Hash` |
-| `useProcessConduitQuery` | `{ conduit, query, account }` | `Hash` |
-| `useSpawnAaveV3Vehicle` | `SpawnAaveV3VehicleParameters & { account }` | `Hash` |
-| `useSpawnMultiVehicle` | `SpawnMultiVehicleParameters & { account }` | `Hash` |
-| `useAuthorizeVehicle` | `{ vehicleManager, vehicle, account }` | `Hash` |
-| `useSetQueues` | `{ queueStrategyEngine, depositQueue, redeemQueue, account }` | `Hash` |
-| `useGrantScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |
-| `useRevokeScopedRole` | `{ accessControl, role, scope, grantee, account }` | `Hash` |
-| `useSetScopedRolePublic` | `{ accessControl, role, scope, isPublic, account }` | `Hash` |
-| `useSpawnAccessControl` | `SpawnAccessControlParameters & { account }` | `Hash` |
-| `useApproveConduitDeposit` | `{ conduit, token, amount, account }` | `Hash` |
+```tsx
+import { buildEnableConduitCall } from '@railnetorg/railnet-sdk'
+import { useSimulateContract, useWriteContract } from 'wagmi'
 
-A deposit needs two transactions: `useApproveConduitDeposit` then `useDepositConduit`. They are
-separate hooks so the caller keeps both hashes and can show where the flow stands — the deposit
-hook does not approve on your behalf. The allowance is spent by the deposit, so read it before
-each attempt.
+const { data: simulation, error } = useSimulateContract(buildEnableConduitCall({ conduit }))
+const { writeContract, isPending } = useWriteContract()
 
-`useDepositConduit` reads (`conduit.getVehicle()`) through `usePublicClient` and signs through
-`useWalletClient`, so the app's configured transport serves the reads. Pass `vehicle` to skip that
-read, and `minOutput` — derived from `useEstimateConduit` — to set a slippage floor.
+<button onClick={() => simulation && writeContract(simulation.request)} disabled={!simulation}>
+  Enable
+</button>
+```
 
-Every write hook builds its call with the matching `prepare*` builder, simulates on
-`usePublicClient` and signs on `useWalletClient`. The preflight therefore runs on the transport the
-app configured, not on the wallet's, and each hook takes an optional `chainId`. The exception is
-`useApproveConduitDeposit`, a plain ERC-20 approve with nothing to simulate.
+From an event handler, where the arguments only exist inside the handler, use `@wagmi/core`'s
+`simulateContract(config, ...)` with `useConfig()` instead of the declarative hook.
+
+Every `build*Call` builder is listed in railnet-core. `useDepositConduitCall` and
+`useRedeemConduitCall` exist because those two calls need an address read from chain first — the
+conduit's vehicle, and its underlying asset.
+
+### `sender`, not `account`
+
+The deposit and redeem builders take `sender`: the address that will send the transaction.
+`conduit.create()` requires `query.salt == keccak256(abi.encode(msg.sender, salt))`, so a call built
+for one address reverts with `InvalidQuerySalt` when another sends it. Through a Safe, an EIP-5792
+batch or a relayer, that is the smart account's address — not `useAccount().address`.
+
+### Salts are the operation's identity
+
+No hook and no builder generates a salt. Create one when the user starts the operation and hold it
+across simulation, signature and retry:
+
+```tsx
+const [salt] = useState(() => randomSalt())
+```
+
+`useDepositConduitCall` returns `queryId` — `keccak256(abi.encode(chainId, vehicle, query))`, the
+value the conduit emits in `QueryCreated`. It is known before the transaction is sent, so it is the
+key to join the transaction to an indexed query. A redeem's query is assembled on chain at the
+share ratio of the including block, so `useRedeemConduitCall` returns `querySalt` instead; read the
+id back from the receipt with `extractQueryIds`.
+
+### Deposits: approve first
+
+A deposit needs an ERC-20 approval, and the allowance is spent by the deposit. Send it with wagmi's
+`useWriteContract` and `erc20Abi`, or batch it with the deposit through `toCall` and
+`useSendCalls` — checking the wallet's capabilities before relying on atomicity.
+
+Set `minOutput` from `estimateVehicle` and `applySlippage`, not from `useEstimateConduit`: the floor
+is enforced at the vehicle's output, while the conduit's estimate is net of conduit fees and sits
+below it, so a floor taken from it never fires. It does not bound the conduit shares received
+either, so do not label it as a minimum received.
+
+### Multi-vehicle deployment, and async queries
 
 Deploying a multi-vehicle has no hook and no single function: it is eight or more transactions
-against several factories, each needing an address the previous one returned. Send the sequence
-from a script or a server with a client of your own — see the
-`deployingAMultiVehicle` guide — and drive the UI from the read hooks once it lands.
+against several factories, each needing an address the previous one returned. Send the sequence from
+a script or a server — see the `deployingAMultiVehicle` guide — and drive the UI from the read hooks
+once it lands.
+
+Advancing an async (STEAM) query is `buildProcessConduitQueryCall` and
+`buildFinalizeConduitDepositCall`. In a deployment where a keeper drives settlement, those are its
+calls, not an integration's: a UI follows a query by its id.
 
 ## Query Options (for custom query composition)
 
@@ -114,6 +146,8 @@ from a script or a server with a client of your own — see the
 | `conduitInfoQueryOptions(client, { conduit })` | `['railnet', 'conduitInfo', { chainId, conduit }]` |
 | `estimateConduitQueryOptions(client, { conduit, assets, mode, estimationType })` | `['railnet', 'estimateConduit', { chainId, ... }]` |
 | `predictConduitDeploymentQueryOptions(client, params)` | `['railnet', 'predictConduitDeployment', { chainId, ... }]` |
+| `depositConduitCallQueryOptions(client, params)` | `['railnet', 'depositConduitCall', { chainId, ... }]` |
+| `redeemConduitCallQueryOptions(client, params)` | `['railnet', 'redeemConduitCall', { chainId, ... }]` |
 
 The `chainId` is taken from the client the options were built with, so a key cannot name a chain
 other than the one it read from. Key values are normalised for hashing: a `bigint` becomes a
@@ -128,10 +162,12 @@ queryClient.invalidateQueries({ queryKey })
 ```
 
 Use a builder when the hook is not mounted where you invalidate. They take the chain first: `conduitPositionQueryKey(chainId, parameters)`, and the
-same for `conduitInfoQueryKey`, `estimateConduitQueryKey`, `predictConduitDeploymentQueryKey`.
+same for `conduitInfoQueryKey`, `estimateConduitQueryKey`, `predictConduitDeploymentQueryKey`,
+`depositConduitCallQueryKey` and `redeemConduitCallQueryKey`.
 
 Each family also exports its prefix — `conduitPositionQueryPrefix`, `conduitInfoQueryPrefix`,
-`estimateConduitQueryPrefix`, `predictConduitDeploymentQueryPrefix` — to invalidate a family
+`estimateConduitQueryPrefix`, `predictConduitDeploymentQueryPrefix`,
+`depositConduitCallQueryPrefix`, `redeemConduitCallQueryPrefix` — to invalidate a family
 across every chain without reconstructing a key.
 
 A missing client or account makes the options resolve to `skipToken`, so `*QueryOptions` can be
@@ -165,32 +201,82 @@ export function ConduitBalance({ conduit, account }: { conduit: Address, account
 
 ### Executing Transactions
 
-Write hooks like `useDepositConduit` return TanStack Mutation objects. You must explicitly provide the `account` from wagmi's `useAccount`.
+A write is two steps you own: resolve the call, then send it with wagmi. The deposit below approves
+first, because the SDK never approves on your behalf.
 
 ```tsx
-import { useDepositConduit } from '@railnetorg/railnet-sdk/react'
-import { useAccount } from 'wagmi'
-import { parseUnits } from 'viem'
+import { randomSalt } from '@railnetorg/railnet-sdk'
+import { useDepositConduitCall } from '@railnetorg/railnet-sdk/react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import type { Address } from 'viem'
+import { erc20Abi } from 'viem'
+import {
+  useAccount,
+  usePublicClient,
+  useReadContract,
+  useSimulateContract,
+  useWriteContract,
+} from 'wagmi'
 
-export function DepositForm({ conduit, token }: { conduit: Address, token: Address }) {
+export function DepositForm({
+  conduit,
+  token,
+  amount,
+}: { conduit: Address; token: Address; amount: bigint }) {
   const { address } = useAccount()
-  const { mutate, isPending } = useDepositConduit()
+  const publicClient = usePublicClient()
+  const queryClient = useQueryClient()
+  // one salt for the whole operation: a new one is a different query
+  const [salt] = useState(() => randomSalt())
 
-  const handleDeposit = () => {
-    if (!address) return
-    
-    mutate({
-      conduit,
-      token,
-      amount: parseUnits('100', 18),
-      account: address, // Required: account must be explicitly passed
-    })
+  const { data: allowance, queryKey: allowanceKey } = useReadContract({
+    address: token,
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args: address ? [address, conduit] : undefined,
+    query: { enabled: Boolean(address) },
+  })
+
+  const { data: deposit } = useDepositConduitCall({
+    conduit,
+    token,
+    amount,
+    sender: address,
+    salt,
+  })
+
+  const approved = (allowance ?? 0n) >= amount
+  const { data: simulation } = useSimulateContract({
+    ...deposit?.call,
+    query: { enabled: Boolean(deposit) && approved },
+  })
+
+  const { writeContractAsync, isPending } = useWriteContract()
+
+  async function handleDeposit() {
+    if (!address || !publicClient) return
+
+    if (!approved) {
+      const approveHash = await writeContractAsync({
+        address: token,
+        abi: erc20Abi,
+        functionName: 'approve',
+        args: [conduit, amount],
+      })
+      await publicClient.waitForTransactionReceipt({ hash: approveHash })
+      await queryClient.invalidateQueries({ queryKey: allowanceKey })
+      return
+    }
+
+    if (!simulation) return
+    await writeContractAsync(simulation.request)
+    // deposit.queryId is the key to follow this operation from here on
   }
 
   return (
-    <button onClick={handleDeposit} disabled={isPending || !address}>
-      {isPending ? 'Depositing...' : 'Deposit 100 Tokens'}
+    <button onClick={handleDeposit} disabled={!address || isPending}>
+      {approved ? 'Deposit' : 'Approve'}
     </button>
   )
 }
@@ -219,48 +305,40 @@ export function useLongLivedConduitInfo(conduit: Address) {
 
 ### Invalidating Queries
 
-After a successful mutation, invalidate relevant queries to refresh the UI.
+Every read hook hands back its own `queryKey`, so refreshing what a component displays needs no key
+builder and no knowledge of the resolved chain.
 
 ```tsx
-import { useDepositConduit } from '@railnetorg/railnet-sdk/react'
+import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useAccount } from 'wagmi'
-import type { Address } from 'viem'
+import { usePublicClient } from 'wagmi'
 
-export function useDepositWithRefresh() {
-  const queryClient = useQueryClient()
-  const { address } = useAccount()
-  const deposit = useDepositConduit()
+const queryClient = useQueryClient()
+const publicClient = usePublicClient()
+const { queryKey } = useConduitPosition({ conduit, account: address })
 
-  const execute = (conduit: Address, token: Address, amount: bigint) => {
-    deposit.mutate({
-      conduit,
-      token,
-      amount,
-      account: address!,
-    }, {
-      onSuccess: () => {
-        // Invalidate specific conduit position for this user
-        queryClient.invalidateQueries({
-          queryKey: ['railnet', 'conduitPosition', { conduit, account: address }]
-        })
-      }
-    })
-  }
-
-  return { ...deposit, execute }
-}
+const receipt = await publicClient.waitForTransactionReceipt({ hash })
+await queryClient.invalidateQueries({ queryKey })
 ```
+
+Do not hand-write `['railnet', 'conduitPosition', { conduit, account }]`: the key also carries the
+chain and normalises its values, so a hand-built one silently fails to match.
 
 ## Common Mistakes
 
 1. **Missing Providers**: Using `useConduitPosition` or other hooks outside of `WagmiProvider` and `QueryClientProvider`. This causes `usePublicClient()` to return `undefined`, leading to immediate runtime crashes when the hook attempts to initialize the query.
 
-2. **Implicit Account Assumption**: Assuming mutation hooks (e.g., `useDepositConduit`) automatically detect the connected wallet. Unlike some wagmi hooks, railnet-sdk mutations require an explicit `account: Address` property in the `mutate` arguments. Failure to pass this results in type errors or runtime failures.
+2. **Looking for a write hook**: there are none. `useDepositConduit`, `useRedeemConduit`, `useSpawnConduit` and the rest were removed — build the call and send it with wagmi's `useSimulateContract` and `useWriteContract`.
 
-3. **Wrong Chain Configuration**: Configuring `wagmi` for a different chain than the one the conduit lives on. Each chain has its own protocol deployment, so hooks will silently return stale data, zero balances, or fail to find contract addresses because the underlying `publicClient` is pointing to the wrong network.
+3. **Passing the connected account as `sender`, blindly**: `sender` is whoever will send the transaction. Through a Safe or an EIP-5792 batch that is the smart account, and a call built for the user's EOA reverts with `InvalidQuerySalt`.
 
-4. **BigInt Serialization in DevTools**: Passing `bigint` values in query parameters (like `amount` in some estimations). While TanStack Query handles `bigint` in query keys for equality checks, the standard JSON-based DevTools might fail to serialize them, leading to confusing "cannot serialize BigInt" errors in the console during development.
+4. **Regenerating the salt**: calling `randomSalt()` in the render body makes a new query on every render, and the `queryId` you showed the user stops matching what gets sent. Hold it in state.
+
+5. **Deriving `minOutput` from `useEstimateConduit`**: the floor is enforced at the vehicle's output, while the conduit's estimate is net of conduit fees, so a floor taken from it never fires. Use `estimateVehicle` with `applySlippage`.
+
+6. **Wrong Chain Configuration**: Configuring `wagmi` for a different chain than the one the conduit lives on. Each chain has its own protocol deployment, so hooks will silently return stale data, zero balances, or fail to find contract addresses because the underlying `publicClient` is pointing to the wrong network.
+
+7. **BigInt Serialization in DevTools**: Passing `bigint` values in query parameters (like `amount` in some estimations). While TanStack Query handles `bigint` in query keys for equality checks, the standard JSON-based DevTools might fail to serialize them, leading to confusing "cannot serialize BigInt" errors in the console during development.
 
 ---
 See also: railnet-conduit/SKILL.md — hooks wrap these core actions

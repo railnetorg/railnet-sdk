@@ -1,0 +1,132 @@
+---
+description: Builds the call that deposits assets into a conduit.
+---
+
+# buildDepositConduitCall
+
+Builds the `conduit.create()` call for a DEPOSIT query. Synchronous, takes no client, sends nothing:
+spread it into viem's `simulateContract`, wagmi's `useSimulateContract`, or
+[`toCall`](/utilities/toCall) for a batch.
+
+A deposit is two transactions: the conduit pulls the token, so it must be approved first, and the
+allowance is spent by the deposit. The SDK does not approve on your behalf — an approval is a plain
+ERC-20 call and hiding it costs you its hash.
+
+Use [`getDepositConduitCall`](/actions/getDepositConduitCall) to have the vehicle read for you and
+get the query's id back.
+
+## Import
+
+```ts
+import { buildDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { erc20Abi } from 'viem'
+import { readContract, simulateContract, waitForTransactionReceipt, writeContract } from 'viem/actions'
+import { buildDepositConduitCall, conduitAbi, randomSalt } from '@railnetorg/railnet-sdk'
+
+const conduit = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+const token = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+const sender = '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+const amount = 1_000_000n
+
+const approveHash = await writeContract(client, {
+  address: token,
+  abi: erc20Abi,
+  functionName: 'approve',
+  args: [conduit, amount],
+  account: sender,
+})
+await waitForTransactionReceipt(client, { hash: approveHash })
+
+const vehicle = await readContract(client, {
+  address: conduit,
+  abi: conduitAbi,
+  functionName: 'getVehicle',
+})
+
+const { request } = await simulateContract(client, {
+  ...buildDepositConduitCall({ conduit, token, amount, sender, vehicle, salt: randomSalt() }),
+  account: sender,
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A built call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The conduit to deposit into, and the spender the token must be approved for.
+
+### token
+
+- **Type:** `Address`
+
+The asset being deposited.
+
+### amount
+
+- **Type:** `bigint`
+
+How much of `token` to deposit, in its own decimals.
+
+### sender
+
+- **Type:** `Address`
+
+The address that will send the transaction. `conduit.create()` requires
+`query.salt == keccak256(abi.encode(msg.sender, salt))`, so the call cannot be encoded without it,
+and any other account sending it reverts with `InvalidQuerySalt`.
+
+Through a Safe, an EIP-5792 batch or a relayer, this is that contract's address — not the user's.
+
+### vehicle
+
+- **Type:** `Address`
+
+The vehicle backing the conduit, read from `conduit.getVehicle()`. It names the query's output
+asset, and the deposit reverts if it does not.
+
+### salt
+
+- **Type:** `Hex`
+
+The query's entropy, never generated for you: it fixes the query's identity, and
+[`toQueryId`](/utilities/queryIdentity) turns the built query into the id an indexer will hold.
+Generate it once per deposit with [`randomSalt`](/utilities/randomSalt) and keep it for as long as
+the operation lasts — a retry with a fresh salt is a different query.
+
+### receiver
+
+- **Type:** `Address`
+- **Optional.** Defaults to `sender`.
+
+Who receives the conduit shares.
+
+### minOutput
+
+- **Type:** `bigint`
+- **Optional.** No floor when omitted.
+
+A floor on the **vehicle shares** the deposit must produce, checked as
+`query.output.value > estimate` at create time. Derive it from `estimateVehicle` and
+`applySlippage`, both exported from the package.
+
+Not from `estimateConduit`: the floor is enforced at the vehicle's output, while the conduit's
+estimate is net of conduit fees and so sits below it — a floor taken from it never fires. For the
+same reason the floor does not bound the conduit shares the user ends up with, so do not label it
+as a minimum received.
+
+## React
+
+[`useDepositConduitCall`](/react/useDepositConduitCall) resolves the same call in a query hook.

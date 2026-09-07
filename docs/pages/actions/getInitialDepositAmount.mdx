@@ -6,7 +6,7 @@ description: Reads the initial deposit amount the factories pull when spawning a
 
 Reads the initial deposit amount registered for an asset in the AssetRegistry.
 
-Every factory spawn (`spawnConduit`, `spawnMultiVehicle`, `spawnAaveV3Vehicle`) pulls this amount
+Every factory spawn (`buildSpawnConduitCall`, `buildSpawnMultiVehicleCall`, `buildSpawnAaveV3VehicleCall`) pulls this amount
 from the caller — the amount is not a parameter of the spawn, it comes from the registry. Approve
 the factory for at least this much, and hold at least this much, or the spawn reverts with
 `InsufficientAllowance` / `InsufficientAssetBalance`.
@@ -41,7 +41,7 @@ Approving the factory before a spawn:
 
 ```ts
 import { erc20Abi } from 'viem'
-import { getAddresses, getInitialDepositAmount, spawnConduit } from '@railnetorg/railnet-sdk'
+import { buildSpawnConduitCall, getAddresses, getInitialDepositAmount } from '@railnetorg/railnet-sdk'
 
 const account = '0xd2135CfB216b74109775236E36d4b433F1DF507B'
 const { assetRegistry, conduitFactory, usdc } = getAddresses(base.id)
@@ -56,9 +56,8 @@ await walletClient.writeContract({
   account,
 })
 
-const hash = await spawnConduit(walletClient, {
-  factory: conduitFactory,
-  // ...
+const hash = await walletClient.writeContract({
+  ...buildSpawnConduitCall({ factory: conduitFactory, /* ... */ }),
   account,
 })
 ```

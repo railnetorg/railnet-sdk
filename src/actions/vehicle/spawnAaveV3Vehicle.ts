@@ -23,7 +23,7 @@ export type SpawnAaveV3VehicleParameters = {
  *
  * @param parameters - {@link SpawnAaveV3VehicleParameters}
  */
-export function prepareSpawnAaveV3Vehicle(parameters: SpawnAaveV3VehicleParameters) {
+export function buildSpawnAaveV3VehicleCall(parameters: SpawnAaveV3VehicleParameters) {
   return {
     address: parameters.factory,
     abi: aaveV3VehicleFactoryAbi,

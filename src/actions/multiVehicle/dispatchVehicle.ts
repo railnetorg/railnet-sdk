@@ -2,7 +2,6 @@ import { type Address, type Client, type Hex, maxUint256 } from 'viem'
 import { simulateContract } from 'viem/actions'
 import { sectorAccountingEngineAbi } from '../../abi/sectorAccountingEngine.js'
 import type { Sector } from '../../constants/sectors.js'
-import type { ContractCallOptions } from '../../types.js'
 import type { ConduitMode, ConduitState, Query } from '../conduit/types.js'
 
 export type DispatchVehicleParameters = {
@@ -34,7 +33,7 @@ export type SimulateDispatchVehicleReturnType = {
  *
  * @param parameters - {@link DispatchVehicleParameters}
  */
-export function prepareDispatchVehicle(parameters: DispatchVehicleParameters) {
+export function buildDispatchVehicleCall(parameters: DispatchVehicleParameters) {
   const minOutput = parameters.minOutput ?? 0n
 
   // the engine reverts this combination with MinOutputRequiresPinnedAmount
@@ -75,7 +74,7 @@ export function prepareDispatchVehicle(parameters: DispatchVehicleParameters) {
  * @example
  * import { ConduitState, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
  *
- * const { query, state } = await simulateDispatchVehicle(walletClient, dispatchParameters)
+ * const { query, state } = await simulateDispatchVehicle(publicClient, dispatchParameters)
  *
  * if (state !== ConduitState.SETTLED) {
  *   // async vehicle: keep `query` to progress it once the vehicle settles
@@ -84,11 +83,9 @@ export function prepareDispatchVehicle(parameters: DispatchVehicleParameters) {
 export async function simulateDispatchVehicle(
   client: Client,
   parameters: DispatchVehicleParameters & { account: Address },
-  options?: ContractCallOptions,
 ): Promise<SimulateDispatchVehicleReturnType> {
   const { result } = await simulateContract(client, {
-    ...options,
-    ...prepareDispatchVehicle(parameters),
+    ...buildDispatchVehicleCall(parameters),
     account: parameters.account,
   })
 

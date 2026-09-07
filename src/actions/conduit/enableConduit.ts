@@ -13,7 +13,7 @@ export type EnableConduitParameters = {
  *
  * @param parameters - {@link EnableConduitParameters}
  */
-export function prepareEnableConduit(parameters: EnableConduitParameters) {
+export function buildEnableConduitCall(parameters: EnableConduitParameters) {
   return {
     address: parameters.conduit,
     abi: conduitAbi,

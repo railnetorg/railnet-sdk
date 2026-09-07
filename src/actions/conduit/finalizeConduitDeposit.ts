@@ -14,7 +14,7 @@ export type FinalizeConduitDepositParameters = {
  *
  * @param parameters - {@link FinalizeConduitDepositParameters}
  */
-export function prepareFinalizeConduitDeposit(parameters: FinalizeConduitDepositParameters) {
+export function buildFinalizeConduitDepositCall(parameters: FinalizeConduitDepositParameters) {
   return {
     address: parameters.factory,
     abi: conduitFactoryAbi,

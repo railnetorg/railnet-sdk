@@ -1,0 +1,52 @@
+---
+description: Derive the salt a conduit query is bound to, and the id it will be created under.
+---
+
+# Query identity
+
+Every conduit operation creates a query, and the protocol gives it two identifiers. Both are
+derivable off chain, which is what lets a UI or an indexer follow an operation from the moment it is
+built.
+
+## toQuerySalt
+
+```ts
+import { toQuerySalt } from '@railnetorg/railnet-sdk'
+
+const querySalt = toQuerySalt({ sender: account.address, salt: randomSalt() })
+```
+
+`keccak256(abi.encode(sender, salt))` — the value `conduit.create()` requires in `query.salt`, and
+the one `createRedeemFromConduitShares()` derives itself. Binding the salt to `msg.sender` is what
+stops another account from occupying a query id, and it is why a call built for one sender reverts
+with `InvalidQuerySalt` when another sends it.
+
+The builders call it for you; you need it directly only to recognise a query you did not build.
+
+## toQueryId
+
+```ts
+import { toQueryId } from '@railnetorg/railnet-sdk'
+
+const queryId = toQueryId({ chainId: base.id, vehicle, query })
+```
+
+`keccak256(abi.encode(chainId, vehicle, query))` — the id the conduit emits in `QueryCreated`, and
+so the key an indexer holds. [`getDepositConduitCall`](/actions/getDepositConduitCall) returns it
+already computed.
+
+It is deterministic for a deposit, whose query is built off chain. A redeem's query is assembled by
+the conduit at the share ratio of the including block, so its id is only knowable once the
+transaction lands: read it back with [`extractQueryIds`](/utilities/receiptHelpers).
+
+## Keep the salt
+
+A salt is an operation's identity, so it is a required input everywhere — no builder and no resolver
+generates one behind your back. Create it once, when the user starts the operation, and hold it
+across simulation, signature and retry:
+
+```tsx
+const [salt] = useState(() => randomSalt())
+```
+
+A retry with a fresh salt is not a retry: it is a second query.

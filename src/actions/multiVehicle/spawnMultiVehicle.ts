@@ -40,7 +40,7 @@ export type SpawnMultiVehicleParameters = {
  *
  * @param parameters - {@link SpawnMultiVehicleParameters}
  */
-export function prepareSpawnMultiVehicle(parameters: SpawnMultiVehicleParameters) {
+export function buildSpawnMultiVehicleCall(parameters: SpawnMultiVehicleParameters) {
   return {
     address: parameters.factory,
     abi: multiVehicleFactoryAbi,

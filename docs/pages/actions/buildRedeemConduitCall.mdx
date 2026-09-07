@@ -1,0 +1,98 @@
+---
+description: Builds the call that redeems conduit shares back into the underlying asset.
+---
+
+# buildRedeemConduitCall
+
+Builds the `conduit.createRedeemFromConduitShares()` call. Synchronous, takes no client, sends
+nothing: spread it into viem's `simulateContract`, wagmi's `useSimulateContract`, or
+[`toCall`](/utilities/toCall) for a batch.
+
+No approval is needed: the conduit burns shares it already holds for the account.
+
+Use [`getRedeemConduitCall`](/actions/getRedeemConduitCall) to have the output asset read for you.
+
+## Import
+
+```ts
+import { buildRedeemConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, readContract, writeContract } from 'viem/actions'
+import { conduitAbi, buildRedeemConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
+
+const conduit = '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'
+const sender = '0xd2135CfB216b74109775236E36d4b433F1DF507B'
+
+const asset = await readContract(client, {
+  address: conduit,
+  abi: conduitAbi,
+  functionName: 'asset',
+})
+
+const { request } = await simulateContract(client, {
+  ...buildRedeemConduitCall({
+    conduit,
+    shares: 1_000_000n,
+    sender,
+    outputAsset: { asset, value: 0n },
+    salt: randomSalt(),
+  }),
+  account: sender,
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A built call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The conduit holding the shares.
+
+### shares
+
+- **Type:** `bigint`
+
+How many shares to redeem.
+
+### sender
+
+- **Type:** `Address`
+
+The address that will send the transaction. The conduit burns its shares and derives the query salt
+from it, so through a Safe, an EIP-5792 batch or a relayer this is that contract's address — not
+the user's.
+
+### outputAsset
+
+- **Type:** `Asset`
+
+The asset to receive, and a floor on its amount. `value: 0n` sets no floor. The asset is
+`conduit.asset()` unless you are redeeming into something else.
+
+### salt
+
+- **Type:** `Hex`
+
+A per-redeem salt. Use [`randomSalt`](/utilities/randomSalt).
+
+### receiver
+
+- **Type:** `Address`
+- **Optional.** Defaults to `sender`.
+
+Who receives the redeemed asset.
+
+## React
+
+[`useRedeemConduitCall`](/react/useRedeemConduitCall) resolves the same call in a query hook.

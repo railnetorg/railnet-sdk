@@ -7,12 +7,12 @@ import { toHex } from 'viem'
  * @returns A random `bytes32`
  *
  * @example
- * import { prepareSpawnConduit, randomSalt } from '@railnetorg/railnet-sdk'
+ * import { buildSpawnConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
  *
  * const deploymentSalt = randomSalt()
  * const querySalt = randomSalt()
  *
- * const prepared = prepareSpawnConduit({ deploymentSalt, querySalt, ...rest })
+ * const prepared = buildSpawnConduitCall({ deploymentSalt, querySalt, ...rest })
  */
 export function randomSalt(): Hex {
   return toHex(crypto.getRandomValues(new Uint8Array(32)))

@@ -1,0 +1,28 @@
+---
+description: TanStack Query options that resolve a redeem call.
+---
+
+# redeemConduitCallQueryOptions
+
+Query options for [`getRedeemConduitCall`](/actions/getRedeemConduitCall), for composing outside of
+[`useRedeemConduitCall`](/react/useRedeemConduitCall).
+
+```ts
+import { redeemConduitCallQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+const options = redeemConduitCallQueryOptions(publicClient, {
+  conduit,
+  shares,
+  sender: account,
+  salt,
+})
+```
+
+Resolves to `skipToken` when the client or `sender` is missing.
+
+## Query key
+
+`['railnet', 'redeemConduitCall', { chainId, conduit, shares, sender, salt, ... }]`
+
+`redeemConduitCallQueryKey(chainId, parameters)` builds it, and `redeemConduitCallQueryPrefix`
+invalidates the family across every chain.

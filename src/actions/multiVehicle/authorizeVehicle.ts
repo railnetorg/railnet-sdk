@@ -14,7 +14,7 @@ export type AuthorizeVehicleParameters = {
  *
  * @param parameters - {@link AuthorizeVehicleParameters}
  */
-export function prepareAuthorizeVehicle(parameters: AuthorizeVehicleParameters) {
+export function buildAuthorizeVehicleCall(parameters: AuthorizeVehicleParameters) {
   return {
     address: parameters.vehicleManager,
     abi: vehicleManagerAbi,

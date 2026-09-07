@@ -1,60 +1,69 @@
-import { type Address, encodeAbiParameters, type Hex, keccak256 } from 'viem'
+import type { Address, Hex } from 'viem'
 import { conduitAbi } from '../../abi/conduit.js'
-import { ConduitMode } from './types.js'
+import { toQuerySalt } from './queryId.js'
+import { ConduitMode, type Query } from './types.js'
 
-export type DepositConduitParameters = {
+export type BuildDepositConduitCallParameters = {
   conduit: Address
   token: Address
   amount: bigint
-  receiver?: Address
-  vehicle?: Address
-  /** Floor on the vehicle shares the deposit must produce. Omitted accepts any output. */
-  minOutput?: bigint
-  /** Derives `minOutput` from the vehicle's estimate, this far below it. Ignored when `minOutput` is set. */
-  slippageBps?: number
-  salt?: Hex
-}
-
-export type PrepareDepositConduitParameters = Omit<
-  DepositConduitParameters,
-  'salt' | 'slippageBps'
-> & {
-  account: Address
+  /**
+   * The address that will send the transaction. `conduit.create()` binds the query salt to
+   * `msg.sender`, so through a Safe, a batch or a relayer this is that contract, not the user.
+   */
+  sender: Address
+  /** The vehicle the conduit deposits into, from `conduit.getVehicle()`. */
   vehicle: Address
+  /** Caller-chosen entropy. It fixes the query's identity, so it is never generated for you. */
   salt: Hex
+  /** Who receives the conduit shares. Defaults to `sender`. */
+  receiver?: Address
+  /**
+   * Floor on the vehicle shares the deposit must produce, checked as `query.output.value > estimate`
+   * at create time; omitted sets none. Derive it from {@link estimateVehicle} and
+   * {@link applySlippage}: the floor is enforced at the vehicle's output, so a value taken from the
+   * conduit's own estimate — which is net of conduit fees — sits below it and never fires.
+   */
+  minOutput?: bigint
 }
 
 /**
- * Deposits into a Conduit by calling `conduit.create()`. On synchronous vehicles (Aave V3, Compound, etc.) the deposit executes immediately. On async vehicles (STEAM) it creates a pending query. Automatically approves the deposit token if the current allowance is insufficient, and reads `conduit.getVehicle()` to name the query's output asset unless `vehicle` is supplied.
+ * Builds the DEPOSIT query `conduit.create()` will be called with. Its id, and so the row an
+ * indexer will hold, is {@link toQueryId} of this struct.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
- * @param parameters - {@link DepositConduitParameters}
+ * @param parameters - {@link BuildDepositConduitCallParameters}
  */
-export function prepareDepositConduit(parameters: PrepareDepositConduitParameters) {
-  const { conduit, token, amount, account, vehicle, minOutput, salt: sourceSalt } = parameters
-  const receiver = parameters.receiver ?? account
+export function buildDepositConduitQuery(parameters: BuildDepositConduitCallParameters): Query {
+  const { conduit, token, amount, sender, vehicle, minOutput, salt } = parameters
 
-  const query = {
+  return {
     owner: conduit,
     receiver: conduit,
     input: { asset: token, value: amount },
     // BaseVehicle._validateOutput reverts unless a DEPOSIT names the vehicle as its output asset.
-    // The value is a floor, checked as `query.output.value > estimate` at create time; 0 sets none.
     output: { asset: vehicle, value: minOutput ?? 0n },
     mode: ConduitMode.DEPOSIT,
-    // conduit.create() reverts unless query.salt == keccak256(abi.encode(msg.sender, sourceSalt))
-    salt: keccak256(
-      encodeAbiParameters([{ type: 'address' }, { type: 'bytes32' }], [account, sourceSalt]),
-    ),
-    data: '0x' as const,
+    salt: toQuerySalt({ sender, salt }),
+    data: '0x',
   }
+}
 
+/**
+ * Builds the `conduit.create()` call for a DEPOSIT query. The conduit must already be approved to
+ * pull the token. On a synchronous vehicle the deposit executes on send; on an async one it creates
+ * a pending query.
+ *
+ * @param parameters - {@link BuildDepositConduitCallParameters}
+ */
+export function buildDepositConduitCall(parameters: BuildDepositConduitCallParameters) {
   return {
-    address: conduit,
+    address: parameters.conduit,
     abi: conduitAbi,
     functionName: 'create',
-    args: [query, receiver, sourceSalt],
+    args: [
+      buildDepositConduitQuery(parameters),
+      parameters.receiver ?? parameters.sender,
+      parameters.salt,
+    ],
   } as const
 }

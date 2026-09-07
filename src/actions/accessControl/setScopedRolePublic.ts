@@ -16,7 +16,7 @@ export type SetScopedRolePublicParameters = {
  *
  * @param parameters - {@link SetScopedRolePublicParameters}
  */
-export function prepareSetScopedRolePublic(parameters: SetScopedRolePublicParameters) {
+export function buildSetScopedRolePublicCall(parameters: SetScopedRolePublicParameters) {
   return {
     address: parameters.accessControl,
     abi: externalAccessControlAbi,

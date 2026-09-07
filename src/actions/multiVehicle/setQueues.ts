@@ -25,7 +25,7 @@ export type SetQueuesParameters = {
  *
  * @param parameters - {@link SetQueuesParameters}
  */
-export function prepareSetQueues(parameters: SetQueuesParameters) {
+export function buildSetQueuesCall(parameters: SetQueuesParameters) {
   return {
     address: parameters.queueStrategyEngine,
     abi: queueStrategyEngineAbi,

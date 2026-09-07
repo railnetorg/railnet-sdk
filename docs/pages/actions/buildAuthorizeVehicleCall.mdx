@@ -1,0 +1,54 @@
+---
+description: Authorizes a vehicle in the VehicleManager.
+---
+
+# buildAuthorizeVehicleCall
+
+Authorizes a vehicle in the VehicleManager. Requires a `WalletClient`.
+
+## Import
+
+```ts
+import { buildAuthorizeVehicleCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildAuthorizeVehicleCall } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...buildAuthorizeVehicleCall({
+    vehicleManager: '0x1234...',
+    vehicle: '0x5678...',
+  }),
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### vehicleManager
+
+- **Type:** `Address`
+
+The address of the VehicleManager contract.
+
+### vehicle
+
+- **Type:** `Address`
+
+The address of the vehicle to authorize.
+
+### account
+
+- **Type:** `Address`
+
+The address of the account executing the transaction.

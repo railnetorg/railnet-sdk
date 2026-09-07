@@ -20,6 +20,7 @@ type ConduitPosition = {
   assets: bigint
   conduit: Address
   account: Address
+  blockNumber: bigint
 }
 ```
 
@@ -48,3 +49,12 @@ The address of the conduit contract.
 - **Type:** `Address`
 
 The address of the account that holds the position.
+
+### blockNumber
+
+- **Type:** `bigint`
+
+The block both reads were served at. `convert` takes the balance `balanceOf` returned, so the two
+cannot be batched into one multicall; pinning them to one block is what stops a deposit landing
+between them from reporting shares at one rate and assets at another. Pass it in to read a past
+position.

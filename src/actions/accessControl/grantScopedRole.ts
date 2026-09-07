@@ -16,7 +16,7 @@ export type GrantScopedRoleParameters = {
  *
  * @param parameters - {@link GrantScopedRoleParameters}
  */
-export function prepareGrantScopedRole(parameters: GrantScopedRoleParameters) {
+export function buildGrantScopedRoleCall(parameters: GrantScopedRoleParameters) {
   return {
     address: parameters.accessControl,
     abi: externalAccessControlAbi,

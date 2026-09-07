@@ -9,7 +9,7 @@ import type { SpawnConduitParameters } from './types.js'
  *
  * @param parameters - {@link SpawnConduitParameters}
  */
-export function prepareSpawnConduit(parameters: SpawnConduitParameters) {
+export function buildSpawnConduitCall(parameters: SpawnConduitParameters) {
   const spawnParams = {
     name: parameters.name,
     symbol: parameters.symbol,

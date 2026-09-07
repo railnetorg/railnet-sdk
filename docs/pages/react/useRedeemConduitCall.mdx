@@ -1,0 +1,54 @@
+---
+description: Resolves the redeem call and the salt its query will carry.
+---
+
+# useRedeemConduitCall
+
+Resolves a redeem call: reads the conduit's underlying asset through `usePublicClient`, builds the
+call, and returns it with the salt the created query will carry. A read hook — it returns a
+TanStack Query result, and sends nothing.
+
+Hand `call` to wagmi's `useSimulateContract` and `useWriteContract`; see
+[Sending a call](/react/sendingCalls).
+
+## Usage
+
+```tsx
+import { randomSalt } from '@railnetorg/railnet-sdk'
+import { useConduitPosition, useRedeemConduitCall } from '@railnetorg/railnet-sdk/react'
+import { useState } from 'react'
+import { useAccount, useSimulateContract, useWriteContract } from 'wagmi'
+
+export function RedeemAllButton({ conduit }: { conduit: Address }) {
+  const { address } = useAccount()
+  const [salt] = useState(() => randomSalt())
+  const { data: position } = useConduitPosition({ conduit, account: address })
+
+  const { data: redeem } = useRedeemConduitCall({
+    conduit,
+    shares: position?.shares ?? 0n,
+    sender: address,
+    salt,
+    enabled: Boolean(position?.shares),
+  })
+
+  const { data: simulation } = useSimulateContract({ ...redeem?.call })
+  const { writeContract } = useWriteContract()
+
+  return (
+    <button onClick={() => simulation && writeContract(simulation.request)} disabled={!simulation}>
+      Redeem all
+    </button>
+  )
+}
+```
+
+No approval is needed: the conduit burns the caller's shares through an internal transfer.
+
+## Returns
+
+A TanStack Query result over `{ call, querySalt, outputAsset }`, with its `queryKey` attached.
+
+There is no `queryId`: the conduit assembles a redeem's query at the share ratio of the including
+block, so its id is only knowable once the transaction lands. Read it from the receipt with
+[`extractQueryIds`](/utilities/receiptHelpers), or join an indexer on `querySalt`.

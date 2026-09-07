@@ -21,12 +21,12 @@ import { getAddresses } from '@railnetorg/railnet-sdk'
 const { conduitFactory, usdc, aaveV3VehicleFactory } = getAddresses(base.id)
 ```
 
-### With spawnConduit
+### With buildSpawnConduitCall
 
 ```ts
 import { createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { getAddresses, spawnConduit } from '@railnetorg/railnet-sdk'
+import { buildSpawnConduitCall, getAddresses, randomSalt } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
   chain: base,
@@ -35,17 +35,21 @@ const walletClient = createWalletClient({
 
 const { conduitFactory } = getAddresses(base.id)
 
-const result = await spawnConduit(walletClient, {
-  factory: conduitFactory,
-  name: 'My Conduit',
-  symbol: 'COND',
-  vehicle: '0x...',
-  initialExpectedSupply: 1000000n,
-  transferEnabled: true,
-  accessControl: '0x...',
-  feeManager: '0x...',
-  accountList: '0x...',
-  ownerRegistry: '0x...',
+const hash = await walletClient.writeContract({
+  ...buildSpawnConduitCall({
+    factory: conduitFactory,
+    name: 'My Conduit',
+    symbol: 'COND',
+    vehicle: '0x...',
+    initialExpectedSupply: 1000000n,
+    transferEnabled: true,
+    accessControl: '0x...',
+    feeManager: '0x...',
+    accountList: '0x...',
+    ownerRegistry: '0x...',
+    querySalt: randomSalt(),
+    deploymentSalt: randomSalt(),
+  }),
   account: '0x...',
 })
 ```
