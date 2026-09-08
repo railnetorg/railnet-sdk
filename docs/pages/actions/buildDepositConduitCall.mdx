@@ -118,14 +118,18 @@ Who receives the conduit shares.
 - **Type:** `bigint`
 - **Optional.** No floor when omitted.
 
-A floor on the **vehicle shares** the deposit must produce, checked as
-`query.output.value > estimate` at create time. Derive it from `estimateVehicle` and
+A floor on the deposit's output **in vehicle shares**, checked as `query.output.value > estimate`
+at create time against the vehicle's own estimate. Derive it from `estimateVehicle` and
 `applySlippage`, both exported from the package.
 
-Not from `estimateConduit`: the floor is enforced at the vehicle's output, while the conduit's
-estimate is net of conduit fees and so sits below it — a floor taken from it never fires. For the
-same reason the floor does not bound the conduit shares the user ends up with, so do not label it
-as a minimum received.
+Not from `estimateConduit`. That prices the same deposit in *conduit* shares: `Conduit._estimate`
+delegates to the vehicle, then converts the result through the conduit's share rate and deducts
+conduit fees. The two numbers are different denominations, so a floor taken from the conduit's
+estimate is not a looser or tighter version of the one you asked for — depending on the share rate
+it silently widens the tolerance, or reverts deposits that should have gone through.
+
+The floor bounds the vehicle's output, never the conduit shares the user finally receives: fees and
+the share rate sit in between. Do not label it as a minimum received.
 
 ## React
 

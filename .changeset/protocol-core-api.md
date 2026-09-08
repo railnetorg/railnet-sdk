@@ -66,15 +66,23 @@ could return `undefined` typed as `Address`. They use `parseEventLogs` now.
 
 **Fixed — `getConduitPosition` read two blocks.** `convert` takes the balance `balanceOf` returned,
 so the two reads cannot be batched; they are pinned to one block instead, and the block is on the
-result. Pass `blockNumber` to read a past position.
+result. The pin resolves the block with `cacheTime: 0` — viem caches the block number for the
+client's `cacheTime` by default, which would pin to a block up to a polling interval old and make a
+position read taken right after a receipt miss the deposit that receipt confirmed. Pass
+`blockNumber` to read a past position; `conduitPositionQueryOptions` and `useConduitPosition` pass
+it through.
 
 **Removed — `PreparedWrite` and `ContractCallOptions`.** The first was exported and documented as
 every builder's return type while nothing returned it. The second had one caller left; transaction
 overrides belong to whatever sends the call.
 
-`minOutput` is unchanged but now documented against the contract: the floor is enforced at the
-vehicle's output and ignores conduit fees, so derive it from `estimateVehicle` and `applySlippage`,
-never from `estimateConduit` — a floor taken from the conduit's estimate never fires, and it does
-not bound the conduit shares received either.
+`minOutput` is unchanged but now documented against the contract, and the previous wording was
+wrong. The floor is compared against the vehicle's own estimate, in vehicle shares.
+`estimateConduit` prices the same deposit in *conduit* shares — `Conduit._estimate` delegates to the
+vehicle, then converts the result through the conduit's share rate and deducts conduit fees. Those
+are different denominations, not a fee haircut: a floor derived from the conduit's estimate is
+looser or tighter than the one asked for depending on the share rate, and at some rates every
+deposit reverts. Derive it from `estimateVehicle` and `applySlippage`. It never bounds the conduit
+shares finally received either, so it is not a "minimum received".
 
 The read actions, the query layer and the `railnetActions` decorator are untouched.

@@ -19,10 +19,18 @@ export type BuildDepositConduitCallParameters = {
   /** Who receives the conduit shares. Defaults to `sender`. */
   receiver?: Address
   /**
-   * Floor on the vehicle shares the deposit must produce, checked as `query.output.value > estimate`
-   * at create time; omitted sets none. Derive it from {@link estimateVehicle} and
-   * {@link applySlippage}: the floor is enforced at the vehicle's output, so a value taken from the
-   * conduit's own estimate — which is net of conduit fees — sits below it and never fires.
+   * Floor on the deposit's output, in VEHICLE shares, checked as `query.output.value > estimate` at
+   * create time against the vehicle's own estimate; omitted sets none. Derive it from
+   * {@link estimateVehicle} and {@link applySlippage}.
+   *
+   * Not from {@link estimateConduit}, which prices the same deposit in conduit shares — it converts
+   * the vehicle's output through the share rate and deducts conduit fees. The two are different
+   * denominations, so a floor taken from it is not a looser version of the one you asked for:
+   * depending on the share rate it widens the tolerance silently, or reverts deposits that should
+   * have gone through.
+   *
+   * The floor bounds the vehicle's output, never the conduit shares finally received — fees and the
+   * share rate sit in between — so it is not a "minimum received".
    */
   minOutput?: bigint
 }

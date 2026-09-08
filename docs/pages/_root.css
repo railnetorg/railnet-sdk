@@ -43,8 +43,14 @@
 
   --vocs-background-color-blockquote: light-dark(#f0f0f0, #171819);
   --vocs-background-color-code-block: light-dark(#f9fafb, #0a0b0c);
-  --vocs-background-color-inline-code: light-dark(rgba(204, 63, 0, 0.06), rgba(255, 148, 101, 0.1));
-  --vocs-background-color-code-highlighted: light-dark(rgba(204, 63, 0, 0.05), rgba(255, 148, 101, 0.06));
+  --vocs-background-color-inline-code: light-dark(
+    rgba(204, 63, 0, 0.06),
+    rgba(255, 148, 101, 0.1)
+  );
+  --vocs-background-color-code-highlighted: light-dark(
+    rgba(204, 63, 0, 0.05),
+    rgba(255, 148, 101, 0.06)
+  );
   --vocs-border-color-code-highlighted: light-dark(#cc3f00, #ff9465);
 
   /* Callouts keep Vocs' default hue assignments, warm-shifted away from the

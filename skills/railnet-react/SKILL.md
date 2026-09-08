@@ -122,10 +122,11 @@ A deposit needs an ERC-20 approval, and the allowance is spent by the deposit. S
 `useWriteContract` and `erc20Abi`, or batch it with the deposit through `toCall` and
 `useSendCalls` — checking the wallet's capabilities before relying on atomicity.
 
-Set `minOutput` from `estimateVehicle` and `applySlippage`, not from `useEstimateConduit`: the floor
-is enforced at the vehicle's output, while the conduit's estimate is net of conduit fees and sits
-below it, so a floor taken from it never fires. It does not bound the conduit shares received
-either, so do not label it as a minimum received.
+Set `minOutput` from `estimateVehicle` and `applySlippage`, not from `useEstimateConduit`. The floor
+is compared against the vehicle's own estimate, in vehicle shares; the conduit's estimate is in
+conduit shares, converted through the share rate and net of conduit fees. Different denominations —
+so a floor taken from it silently widens the tolerance or reverts good deposits, depending on the
+rate. It does not bound the conduit shares received either, so never label it a minimum received.
 
 ### Multi-vehicle deployment, and async queries
 
@@ -334,7 +335,7 @@ chain and normalises its values, so a hand-built one silently fails to match.
 
 4. **Regenerating the salt**: calling `randomSalt()` in the render body makes a new query on every render, and the `queryId` you showed the user stops matching what gets sent. Hold it in state.
 
-5. **Deriving `minOutput` from `useEstimateConduit`**: the floor is enforced at the vehicle's output, while the conduit's estimate is net of conduit fees, so a floor taken from it never fires. Use `estimateVehicle` with `applySlippage`.
+5. **Deriving `minOutput` from `useEstimateConduit`**: the floor is compared against the vehicle's estimate, in vehicle shares, while the conduit's estimate is in conduit shares. Different denominations, so the floor ends up looser or tighter than asked for depending on the share rate. Use `estimateVehicle` with `applySlippage`.
 
 6. **Wrong Chain Configuration**: Configuring `wagmi` for a different chain than the one the conduit lives on. Each chain has its own protocol deployment, so hooks will silently return stale data, zero balances, or fail to find contract addresses because the underlying `publicClient` is pointing to the wrong network.
 

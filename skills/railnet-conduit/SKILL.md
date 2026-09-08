@@ -395,11 +395,13 @@ console.log(position.assets)
 
 `estimateConduit` includes fees in its calculation. For fee-free share-to-asset conversion, use `getConduitPosition` which calls `convert()` internally.
 
-Do NOT derive `minOutput` from it. The floor in `query.output.value` is enforced at the VEHICLE's
-output and ignores conduit fees, so a value taken from the conduit's estimate sits below the number
-it is compared against and never fires. Use `estimateVehicle` with `applySlippage`. For the same
-reason the floor does not bound the conduit shares the user receives — never show it as a minimum
-received.
+Do NOT derive `minOutput` from it. The floor in `query.output.value` is compared against the
+VEHICLE's own estimate, in vehicle shares. `Conduit._estimate` delegates to the vehicle, then
+converts the result through the conduit's share rate and deducts conduit fees, so what it returns is
+in conduit shares — a different denomination. A floor taken from it is looser or tighter than the
+one you asked for depending on the share rate, and at some rates every deposit reverts. Use
+`estimateVehicle` with `applySlippage`. The floor never bounds the conduit shares the user receives
+either — fees and the share rate sit in between — so never show it as a minimum received.
 
 Source: Protocol docs — estimate() vs convert()
 
