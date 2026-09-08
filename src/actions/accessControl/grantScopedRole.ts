@@ -11,12 +11,9 @@ export type GrantScopedRoleParameters = {
 /**
  * Grants a role to an address, scoped to a specific contract. The caller must be the default admin of the access control.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
  * @param parameters - {@link GrantScopedRoleParameters}
  */
-export function prepareGrantScopedRole(parameters: GrantScopedRoleParameters) {
+export function buildGrantScopedRoleCall(parameters: GrantScopedRoleParameters) {
   return {
     address: parameters.accessControl,
     abi: externalAccessControlAbi,

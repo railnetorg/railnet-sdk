@@ -1,0 +1,35 @@
+---
+description: TanStack Query options that resolve a deposit call.
+---
+
+# depositConduitCallQueryOptions
+
+Query options for [`getDepositConduitCall`](/actions/getDepositConduitCall), for composing outside
+of [`useDepositConduitCall`](/react/useDepositConduitCall) — a prefetch, a route loader, a query
+with its own `staleTime`.
+
+```ts
+import { depositConduitCallQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+const options = depositConduitCallQueryOptions(publicClient, {
+  conduit,
+  token,
+  amount,
+  sender: account,
+  salt,
+})
+```
+
+Resolves to `skipToken` when the client or `sender` is missing, so it can be handed to
+`prefetchQuery` directly.
+
+## Query key
+
+`['railnet', 'depositConduitCall', { chainId, conduit, token, amount, sender, salt, ... }]`
+
+`depositConduitCallQueryKey(chainId, parameters)` builds it, and `depositConduitCallQueryPrefix`
+invalidates the family across every chain. Values are normalised for hashing: a `bigint` becomes a
+string.
+
+The salt is part of the key, so a new salt is a new query — which is the point. Keep it stable for
+the length of the operation.

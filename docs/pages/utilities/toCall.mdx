@@ -1,0 +1,44 @@
+---
+description: Rewrites a built call for sendCalls (EIP-5792).
+---
+
+# toCall
+
+A built call names its target `address`, which is what viem's `simulateContract` and
+`writeContract` expect. EIP-5792's `sendCalls` names it `to`. `toCall` rewrites the one into the
+other.
+
+## Import
+
+```ts
+import { toCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+Batching the approval with the deposit is one confirmation for the user, on a wallet that supports
+it:
+
+```tsx
+import { erc20Abi } from 'viem'
+import { useSendCalls } from 'wagmi'
+import { toCall } from '@railnetorg/railnet-sdk'
+
+const { sendCalls } = useSendCalls()
+
+sendCalls({
+  calls: [
+    { to: token, abi: erc20Abi, functionName: 'approve', args: [conduit, amount] },
+    toCall(call),
+  ],
+})
+```
+
+## Two things to check first
+
+**Atomicity is not guaranteed.** Whether a batch lands as one transaction depends on the wallet —
+read its capabilities (`getCapabilities`) rather than assuming the pair cannot come apart.
+
+**Build for the effective sender.** A batch may execute from a smart account, which makes that
+account `msg.sender`. A deposit call built with the user's EOA as `sender` reverts with
+`InvalidQuerySalt` when a Safe sends it — pass the address that will actually send.

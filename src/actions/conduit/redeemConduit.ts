@@ -2,38 +2,36 @@ import type { Address, Hex } from 'viem'
 import { conduitAbi } from '../../abi/conduit.js'
 import type { Asset } from './types.js'
 
-export type RedeemConduitParameters = {
+export type BuildRedeemConduitCallParameters = {
   conduit: Address
   shares: bigint
-  receiver?: Address
-  outputAsset?: Asset
-  salt?: Hex
-}
-
-export type PrepareRedeemConduitParameters = Omit<RedeemConduitParameters, 'salt'> & {
-  account: Address
+  /**
+   * The address that will send the transaction. The conduit burns its shares and derives the query
+   * salt from it, so through a Safe, a batch or a relayer this is that contract, not the user.
+   */
+  sender: Address
+  /** The asset to redeem into, from `conduit.asset()`. A zero `value` disables the amount floor. */
   outputAsset: Asset
+  /** Caller-chosen entropy. It fixes the query's identity, so it is never generated for you. */
   salt: Hex
+  /** Who receives the output asset. Defaults to `sender`. */
+  receiver?: Address
 }
 
 /**
- * Redeems conduit shares by calling `conduit.createRedeemFromConduitShares()`. On synchronous vehicles the redeem executes immediately. On async vehicles (STEAM) it creates a pending query. Needs no approval: the conduit burns the caller's shares through an internal transfer, so this is a single transaction. Reads `conduit.asset()` to name the query's output asset unless `outputAsset` is supplied.
+ * Builds the `conduit.createRedeemFromConduitShares()` call. Needs no approval: the conduit burns
+ * the caller's shares through an internal transfer. This entrypoint takes the salt raw and derives
+ * the query salt from `(msg.sender, salt)` itself, unlike `conduit.create()`.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
- * @param parameters - {@link RedeemConduitParameters}
+ * @param parameters - {@link BuildRedeemConduitCallParameters}
  */
-export function prepareRedeemConduit(parameters: PrepareRedeemConduitParameters) {
-  const { conduit, shares, account, outputAsset, salt: sourceSalt } = parameters
-  const receiver = parameters.receiver ?? account
+export function buildRedeemConduitCall(parameters: BuildRedeemConduitCallParameters) {
+  const { conduit, shares, sender, outputAsset, salt } = parameters
 
   return {
     address: conduit,
     abi: conduitAbi,
     functionName: 'createRedeemFromConduitShares',
-    // sourceSalt goes in raw: unlike conduit.create(), this entrypoint derives query.salt from
-    // (msg.sender, sourceSalt) itself
-    args: [shares, outputAsset, sourceSalt, receiver],
+    args: [shares, outputAsset, salt, parameters.receiver ?? sender],
   } as const
 }

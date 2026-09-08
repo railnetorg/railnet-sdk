@@ -1,0 +1,128 @@
+---
+description: Builders that return the contract call for any write, without sending a transaction.
+---
+
+# build*Call (Call Builders)
+
+Every write is a `build*Call` builder. They are synchronous, take no client, and send nothing — they
+return the contract call, so you decide when and how it goes out: simulate it, batch it, put it
+behind a permit, or feed it to an app-side step engine.
+
+The SDK sends nothing on your behalf, in React either. What it keeps is what is Railnet's: the salt
+derivation, the rule that a deposit's output asset must name the vehicle, the encoding.
+
+## Import
+
+```ts
+import { buildSpawnConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildSpawnConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
+
+const call = buildSpawnConduitCall({
+  factory: '0x...',
+  name: 'My Conduit',
+  symbol: 'COND',
+  vehicle: '0x...',
+  initialExpectedSupply: 1000000n,
+  transferEnabled: true,
+  accessControl: '0x...',
+  feeManager: '0x...',
+  accountList: '0x...',
+  ownerRegistry: '0x...',
+  querySalt: randomSalt(),
+  deploymentSalt: randomSalt(),
+})
+
+const { request } = await simulateContract(client, { ...call, account })
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+`{ address, abi, functionName, args }` — spread it into viem's `simulateContract`,
+`writeContract` or `encodeFunctionData`, into wagmi's `useSimulateContract`, or through
+[`toCall`](/utilities/toCall) into `sendCalls`. The ABI and args stay literal, so viem keeps full
+type inference.
+
+## Available builders
+
+| Builder | Call |
+| --- | --- |
+| `buildGrantScopedRoleCall` | `externalAccessControl.grantScopedRole()` |
+| `buildRevokeScopedRoleCall` | `externalAccessControl.revokeScopedRole()` |
+| `buildSetScopedRolePublicCall` | `externalAccessControl.setScopedRolePublic()` |
+| `buildSpawnAccessControlCall` | `accessControlFactory.spawn()` |
+| `buildSpawnConduitCall` | `conduitFactory.spawn()` |
+| `buildEnableConduitCall` | `conduit.enable()` |
+| `buildFinalizeConduitDepositCall` | `conduitFactory.finalizeConduitDeposit()` |
+| `buildProcessConduitQueryCall` | `conduit.process()` |
+| `buildDepositConduitCall` | `conduit.create()` |
+| `buildRedeemConduitCall` | `conduit.createRedeemFromConduitShares()` |
+| `buildAuthorizeVehicleCall` | `vehicleManager.authorize()` |
+| `buildSetQueuesCall` | `queueStrategyEngine.setQueues()` |
+| `buildSpawnMultiVehicleCall` | `multiVehicleFactory.spawn()` |
+| `buildSpawnAaveV3VehicleCall` | `aaveV3VehicleFactory.spawn()` |
+| `buildMoveBetweenSectorsCall` | `sectorAccountingEngine.move()` |
+| `buildDispatchVehicleCall` | `sectorAccountingEngine.dispatch()` |
+
+A builder takes only what the call needs to be encoded: no client, no transaction overrides, and no
+`sender` unless the encoding depends on it.
+
+## No approvals, no address lookups
+
+The builders emit **only** the Railnet call, and they resolve nothing from chain:
+`buildDepositConduitCall` requires `vehicle` and `buildRedeemConduitCall` requires `outputAsset`.
+[`getDepositConduitCall`](/actions/getDepositConduitCall) and
+[`getRedeemConduitCall`](/actions/getRedeemConduitCall) read those for you and hand back the
+identity of the query the call will create.
+
+A deposit also needs an ERC-20 approval first, and the allowance is spent by the deposit. Send it
+yourself, or batch the pair with [`toCall`](/utilities/toCall). Redeeming needs none: the conduit
+burns the caller's shares internally.
+
+The same applies to the `spawn*` builders: the factories pull an initial deposit from the caller, so
+the caller must have approved the factory beforehand.
+
+## `sender` is required for deposits and redeems
+
+`buildDepositConduitCall` and `buildRedeemConduitCall` take `sender`, with `receiver` defaulting to
+it. No other builder does.
+
+For a deposit it is load-bearing: `conduit.create()` binds the query salt to the caller —
+`query.salt` must equal `keccak256(abi.encode(msg.sender, salt))` — so the call cannot be encoded
+without knowing which address will send it. Sending it from any other account reverts with
+`InvalidQuerySalt`.
+
+A redeem goes through `createRedeemFromConduitShares()`, which takes the salt raw and derives the
+query salt from `msg.sender` itself, so there `sender` only sets the default `receiver`.
+
+It is the *sender*, not the user. Through a Safe, an EIP-5792 batch or a relayer, `msg.sender` is
+that contract — build the call for it.
+
+## Salts are required, never generated
+
+Every builder that takes a salt requires it, so a `build*Call` is a pure function of its inputs: the
+same parameters always encode the same calldata, and the same query identity. Generate them with
+[`randomSalt`](/utilities/randomSalt) and keep them — a deployment salt fixes the deployed address,
+and a query salt is how you find the query again. See
+[Query identity](/utilities/queryIdentity).
+
+```ts
+import { buildSpawnConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
+
+const call = buildSpawnConduitCall({
+  // ...
+  querySalt: randomSalt(),
+  deploymentSalt: randomSalt(),
+})
+```
+
+## Sending them
+
+From a script or a server, `simulateContract` then `writeContract`. From React, wagmi's
+`useSimulateContract` and `useWriteContract` — see [Sending a call](/react/sendingCalls).

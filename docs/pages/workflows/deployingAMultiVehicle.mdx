@@ -8,9 +8,8 @@ Bringing up a multi-vehicle is several transactions against several factories, a
 an address the previous one returned. The SDK gives you the builders, the log parsers and the read
 you need for the initial deposit; the order is here.
 
-There is no `deployMultiVehicle` function. It existed, and it hid five transactions behind one
-call: you could not report progress, retry a single step, or see which one failed. Composing it
-yourself is longer, and it is the only version you can operate.
+There is no `deployMultiVehicle` function: the sequence is yours to send, so you can report
+progress, retry a single step, and see which one failed.
 
 ## The order
 
@@ -18,18 +17,18 @@ yourself is longer, and it is the only version you can operate.
    registered — see [`getInitialDepositAmount`](/actions/getInitialDepositAmount).
 2. **Approve the multi-vehicle factory** for that amount. A plain ERC-20 call.
 3. **Spawn the access control**, unless you are reusing one —
-   [`prepareSpawnAccessControl`](/actions/prepareSpawnAccessControl). Read its address back out of
+   [`buildSpawnAccessControlCall`](/actions/buildSpawnAccessControlCall). Read its address back out of
    the receipt with `extractAccessControlAddress`.
-4. **Spawn the multi-vehicle** — [`prepareSpawnMultiVehicle`](/actions/prepareSpawnMultiVehicle).
+4. **Spawn the multi-vehicle** — [`buildSpawnMultiVehicleCall`](/actions/buildSpawnMultiVehicleCall).
    `extractMultiVehicleContracts` returns the multi-vehicle, its vehicle manager, its queue
    strategy engine and its sector accounting engine.
-5. **Grant the admin roles** — [`prepareGrantScopedRole`](/actions/prepareGrantScopedRole). Scope
+5. **Grant the admin roles** — [`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall). Scope
    each role to the engine that checks it, not to the multi-vehicle: `MULTI_VEHICLE_SET_QUEUES`
    goes to the queue strategy engine, `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` to the vehicle
    manager. The wrong scope succeeds silently and every later call reverts with `MissingRole`.
-6. **Authorize each vehicle** — [`prepareAuthorizeVehicle`](/actions/prepareAuthorizeVehicle) on
+6. **Authorize each vehicle** — [`buildAuthorizeVehicleCall`](/actions/buildAuthorizeVehicleCall) on
    the vehicle manager.
-7. **Set the queues** — [`prepareSetQueues`](/actions/prepareSetQueues) on the queue strategy
+7. **Set the queues** — [`buildSetQueuesCall`](/actions/buildSetQueuesCall) on the queue strategy
    engine, with a deposit and a redeem target per vehicle.
 
 ## Sending each step
@@ -39,10 +38,10 @@ you with its reason before you pay for it:
 
 ```ts
 import { simulateContract, waitForTransactionReceipt, writeContract } from 'viem/actions'
-import { extractMultiVehicleContracts, prepareSpawnMultiVehicle } from '@railnetorg/railnet-sdk'
+import { extractMultiVehicleContracts, buildSpawnMultiVehicleCall } from '@railnetorg/railnet-sdk'
 
 const { request } = await simulateContract(client, {
-  ...prepareSpawnMultiVehicle(params),
+  ...buildSpawnMultiVehicleCall(params),
   account,
 })
 const hash = await writeContract(client, request)

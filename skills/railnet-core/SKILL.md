@@ -2,7 +2,7 @@
 name: railnet-core
 description: >
   Set up railnet-sdk with viem clients, use the railnetActions decorator,
-  understand chain support (Base 8453 only), contract addresses via
+  understand chain support (production: Ethereum 1; staging: 1 and 8453), contract addresses via
   getAddresses, ABIs (conduitAbi, conduitFactoryAbi,
   multiVehicleFactoryAbi, aaveV3VehicleFactoryAbi,
   accessControlFactoryAbi, externalAccessControlAbi,
@@ -37,11 +37,11 @@ The SDK extends viem clients with specialized read actions for Railnet contracts
 
 ```typescript
 import { createPublicClient, http } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { railnetActions } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
-  chain: base,
+  chain: mainnet,
   transport: http(),
 }).extend(railnetActions)
 
@@ -51,16 +51,16 @@ const info = await client.getConduitInfo({
 })
 ```
 
-The decorator exposes four read actions: `getConduitPosition`, `getConduitInfo`, `predictConduitDeployment`, and `estimateConduit`. Write actions (deposit, redeem, spawn, etc.) are standalone functions — see railnet-conduit and railnet-vehicle skills.
+The decorator exposes four read actions: `getConduitPosition`, `getConduitInfo`, `predictConduitDeployment`, and `estimateConduit`. Writes are call builders, not actions: the SDK builds them and never sends them — see railnet-conduit and railnet-vehicle skills.
 
 ### Contract Address Lookup
 Retrieve factory and registry addresses for the supported chains (Ethereum and Base).
 
 ```typescript
 import { getAddresses } from '@railnetorg/railnet-sdk'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 // addresses.conduitFactory
 // addresses.coreFactory
 // addresses.multiVehicleFactory
@@ -85,11 +85,11 @@ Use exported ABIs for custom viem calls or event listening.
 
 ```typescript
 import { createPublicClient, http } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { conduitAbi } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
-  chain: base,
+  chain: mainnet,
   transport: http(),
 })
 
@@ -109,68 +109,57 @@ Writes are builders: simulate the call, then send the request. In React the hook
 ```typescript
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { base } from 'viem/chains'
-import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
+import { mainnet } from 'viem/chains'
+import { buildDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 const account = privateKeyToAccount('0x...')
-const client = createWalletClient({ account, chain: base, transport: http() })
+const client = createWalletClient({ account, chain: mainnet, transport: http() })
 
 // approve first, then deposit — the SDK does not approve for you
 const hash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareDepositConduit({
+  (await simulateContract(client, { ...buildDepositConduitCall({
     conduit: '0x1234567890123456789012345678901234567890',
     token: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     amount: 1_000_000n,
-    account: account.address,
+    sender: account.address,
     vehicle,
     salt: randomSalt(),
   }), account: account.address })).request,
 )
 ```
 
-Every write is a `prepare*` builder (`prepareDepositConduit`, `prepareSpawnConduit`, `prepareGrantScopedRole`, ...). They take no client, send nothing, and return `PreparedWrite` (`{ address, abi, functionName, args }`). Spread it into viem to send it:
+Every write is a `build*Call` builder (`buildDepositConduitCall`, `buildSpawnConduitCall`, `buildGrantScopedRoleCall`, ...). They take no client, send nothing, and return `{ address, abi, functionName, args }`. Spread it into viem to send it:
 
 ```typescript
-import { prepareDepositConduit } from '@railnetorg/railnet-sdk'
+import { buildDepositConduitCall } from '@railnetorg/railnet-sdk'
 
-const prepared = prepareDepositConduit({
+const prepared = buildDepositConduitCall({
   conduit: conduitAddress,
   token: usdcAddress,
   amount: 1_000_000n,
-  account: account.address, // required: the conduit binds the query salt to the sender
+  sender: account.address, // the address that will send it: the conduit binds the query salt to msg.sender
 })
 
 const hash = await client.writeContract({ ...prepared, account: account.address })
 ```
 
-Two things the builders do NOT do: no ERC-20 approval (the execute actions send one when the allowance is short), and no salt generation — every salt is a required parameter, so a builder is a pure function of its inputs and the same parameters always encode the same calldata. Generate salts with `randomSalt()` and keep the deployment ones: they fix the deployed address, and `prepareSpawnMultiVehicle` takes seven at once.
+Two things the builders do NOT do: no ERC-20 approval, and no salt generation — every salt is a required parameter, so a builder is a pure function of its inputs and the same parameters always encode the same calldata. Generate salts with `randomSalt()` and keep the deployment ones: they fix the deployed address, and `buildSpawnMultiVehicleCall` takes seven at once.
 
-All write actions accept an optional third `options` parameter of type `ContractCallOptions` for gas, nonce, and other overrides:
+Transaction overrides — gas, nonce, fees, `stateOverride` — belong to whatever sends the call, so
+pass them to viem's `simulateContract` or `writeContract` alongside the spread call. The builders
+take none.
 
-```typescript
-type ContractCallOptions = {
-  gas?: bigint
-  nonce?: number
-  maxFeePerGas?: bigint
-  maxPriorityFeePerGas?: bigint
-  accessList?: AccessList
-  stateOverride?: StateOverride
-  dataSuffix?: Hex
-}
-```
+### Call Builders
 
-### Prepared Writes
-
-Every write action has a `prepare*` counterpart. They are synchronous, take no client, and send
-nothing — they return the viem contract call so you can batch it, simulate it, or route it through
-your own signer. The execute action builds on the same builder, so both paths encode an identical
-call.
+Every write is a `build*Call` builder. They are synchronous, take no client, and send nothing — they
+return the viem contract call so you can batch it, simulate it, or route it through your own signer.
+There is no other path: the SDK sends nothing, in React either.
 
 ```typescript
-import { prepareGrantScopedRole } from '@railnetorg/railnet-sdk'
+import { buildGrantScopedRoleCall } from '@railnetorg/railnet-sdk'
 
-const prepared = prepareGrantScopedRole({
+const prepared = buildGrantScopedRoleCall({
   accessControl: eacAddress,
   role: ROLE_CONDUIT_MANAGER,
   scope: conduitAddress,
@@ -180,13 +169,14 @@ const prepared = prepareGrantScopedRole({
 const hash = await walletClient.writeContract({
   ...prepared,
   account,
-  chain: base,
+  chain: mainnet,
 })
 ```
 
-Most `prepare*` take the same parameters as their execute counterpart. The exceptions are the ones
-whose execute action reads chain state first: because `prepare*` is synchronous it cannot perform
-that read, so those values become required parameters. See the conduit skill for the specifics.
+A builder takes only what the call needs to be encoded, including the values a chain read would
+otherwise supply — a deposit's `vehicle`, a redeem's `outputAsset`. The `get*Call` resolvers
+(`getDepositConduitCall`, `getRedeemConduitCall`) do those reads and return the call ready to send,
+with the identity of the query it will create. See the conduit skill for the specifics.
 
 ## Common Mistakes
 
@@ -204,13 +194,15 @@ const addresses = getAddresses(mainnet.id)
 Correct:
 
 ```typescript
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { getAddresses } from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 ```
 
-`getAddresses` throws on any chain other than Ethereum (1) and Base (8453). Use `isSupportedChain(chainId)` to check before calling.
+`getAddresses` holds **production** deployments only, and throws on any other chain — including Base (8453), whose production deployment has not shipped. Use `isSupportedChain(chainId)` before calling.
+
+Staging runs on real mainnet chain ids, so a chain id cannot tell you the environment. The import path does: `@railnetorg/railnet-sdk/staging` exports the same `getAddresses`/`isSupportedChain` over the staging tables, and holds Base today. Never mix the two in one code path.
 
 Source: src/contracts/chains.ts
 
@@ -255,11 +247,11 @@ Source: package.json peerDependencies
 Wrong:
 
 ```typescript
-import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
+import { buildDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 const hash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }), account: myAddress })).request,
+  (await simulateContract(client, { ...buildDepositConduitCall({ conduit, token, amount: 1000000n, sender: myAddress, vehicle, salt: randomSalt() }), account: myAddress })).request,
 )
 // Assumes the conduit is already approved
 ```
@@ -267,7 +259,7 @@ const hash = writeContract(
 Correct:
 
 ```typescript
-import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
+import { buildDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 // approve first — the conduit pulls the token, and the allowance is spent by the deposit
 await writeContract(client, {
@@ -276,7 +268,7 @@ await writeContract(client, {
 
 const hash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }), account: myAddress })).request,
+  (await simulateContract(client, { ...buildDepositConduitCall({ conduit, token, amount: 1000000n, sender: myAddress, vehicle, salt: randomSalt() }), account: myAddress })).request,
 )
 // Two transactions. Account for both in gas estimation and UI loading states.
 ```
@@ -290,30 +282,30 @@ Source: src/actions/conduit/depositConduit.ts
 Wrong:
 
 ```typescript
-import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
+import { buildDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 const { request } = await simulateContract(walletClient, {
-  ...prepareDepositConduit({
-  conduit, token, amount: 1000000n, account: myAddress,
+  ...buildDepositConduitCall({
+  conduit, token, amount: 1000000n, sender: myAddress,
 })
 ```
 
 Correct:
 
 ```typescript
-import { prepareDepositConduit, randomSalt } from '@railnetorg/railnet-sdk'
+import { buildDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 const { request } = await simulateContract(publicClient, {
-  ...prepareDepositConduit({ conduit, token, amount: 1000000n, account: myAddress, vehicle, salt: randomSalt() }),
+  ...buildDepositConduitCall({ conduit, token, amount: 1000000n, sender: myAddress, vehicle, salt: randomSalt() }),
   account: myAddress,
 })
 const hash = await writeContract(walletClient, request)
 ```
 
-Every write is a `prepare*` builder returning `{ address, abi, functionName, args }`. Simulate it, then send the request:
+Every write is a `build*Call` builder returning `{ address, abi, functionName, args }`. Simulate it, then send the request:
 
 ```typescript
-const { request } = await simulateContract(client, { ...prepareEnableConduit({ conduit }), account })
+const { request } = await simulateContract(client, { ...buildEnableConduitCall({ conduit }), account })
 const hash = await writeContract(client, request)
 ```
 

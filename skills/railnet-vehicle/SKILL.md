@@ -2,7 +2,7 @@
 name: railnet-vehicle
 description: >
   Deploy and manage Railnet vehicles and multi-vehicle strategies —
-  prepareSpawnAaveV3Vehicle, prepareSpawnMultiVehicle, prepareAuthorizeVehicle, prepareSetQueues,
+  buildSpawnAaveV3VehicleCall, buildSpawnMultiVehicleCall, buildAuthorizeVehicleCall, buildSetQueuesCall,
   extractMultiVehicleContracts,
   extractAaveV3VehicleAddress, VehicleEntry, QueueEntry, QueueTarget,
   MultiVehicleContracts. Covers STEAM vehicle lifecycle (sync vs async),
@@ -24,15 +24,15 @@ sources:
 
 ```typescript
 import { createPublicClient, createWalletClient, http, type Hex } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getAddresses } from '@railnetorg/railnet-sdk'
 
-const publicClient = createPublicClient({ chain: base, transport: http() })
+const publicClient = createPublicClient({ chain: mainnet, transport: http() })
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
-const walletClient = createWalletClient({ account, chain: base, transport: http() })
+const walletClient = createWalletClient({ account, chain: mainnet, transport: http() })
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 ```
 
 ## Vehicle Types
@@ -51,13 +51,13 @@ Note: Factory addresses exist for ERC4626, Morpho Blue, and Wrapper vehicles (`a
 ### Spawn an Aave V3 Vehicle
 
 ```typescript
-import { extractAaveV3VehicleAddress, getAddresses, prepareSpawnAaveV3Vehicle, randomSalt } from '@railnetorg/railnet-sdk'
+import { extractAaveV3VehicleAddress, getAddresses, buildSpawnAaveV3VehicleCall, randomSalt } from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 
 const hash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareSpawnAaveV3Vehicle({
+  (await simulateContract(client, { ...buildSpawnAaveV3VehicleCall({
       factory: addresses.aaveV3VehicleFactory,
       asset: addresses.usdc,
       poolAddressesProvider: addresses.aavePoolAddressesProvider,
@@ -84,16 +84,16 @@ where it stopped.
 1. Read `AssetRegistry.getInitialDepositAmount(asset)` — the factory rejects a spawn whose asset
    has none registered
 2. Approve the MultiVehicle factory for that amount
-3. `prepareSpawnAccessControl` — or reuse an existing ExternalAccessControl.
+3. `buildSpawnAccessControlCall` — or reuse an existing ExternalAccessControl.
    `extractAccessControlAddress` reads the address out of the receipt
-4. `prepareSpawnMultiVehicle` — deploys 6 contracts. `extractMultiVehicleContracts` returns them
-5. `prepareGrantScopedRole` for `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION`, scoped to the
+4. `buildSpawnMultiVehicleCall` — deploys 6 contracts. `extractMultiVehicleContracts` returns them
+5. `buildGrantScopedRoleCall` for `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION`, scoped to the
    VehicleManager
-6. `prepareGrantScopedRole` for `MULTI_VEHICLE_SET_QUEUES`, scoped to the QueueStrategyEngine
+6. `buildGrantScopedRoleCall` for `MULTI_VEHICLE_SET_QUEUES`, scoped to the QueueStrategyEngine
 7. Per vehicle: for each of `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM`, check whether it is
    public on the vehicle scope; if not, grant it three times — to the MultiVehicle, the
-   SectorAccountingEngine and the SubQueryEngine — then `prepareAuthorizeVehicle`
-8. `prepareSetQueues` with a deposit and redeem target per vehicle
+   SectorAccountingEngine and the SubQueryEngine — then `buildAuthorizeVehicleCall`
+8. `buildSetQueuesCall` with a deposit and redeem target per vehicle
 
 Getting a scope wrong succeeds silently and every later call reverts with `MissingRole`. Granting
 after authorizing fails. The order above is the whole point.
@@ -148,9 +148,9 @@ const deployment = {
 Use individual actions when you need custom role configuration.
 
 ```typescript
-import { extractMultiVehicleContracts, getAddresses, prepareSpawnMultiVehicle } from '@railnetorg/railnet-sdk'
+import { extractMultiVehicleContracts, getAddresses, buildSpawnMultiVehicleCall } from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 
 // Step 1: Approve factory for initial deposit
 // (must be done before spawnMultiVehicle)
@@ -158,7 +158,7 @@ const addresses = getAddresses(base.id)
 // Step 2: Spawn
 const hash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareSpawnMultiVehicle({
+  (await simulateContract(client, { ...buildSpawnMultiVehicleCall({
       factory: addresses.multiVehicleFactory,
       asset: addresses.usdc,
       name: 'My Strategy',
@@ -192,11 +192,11 @@ const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFa
 ### Authorize a Vehicle in a Multi-Vehicle
 
 ```typescript
-import { prepareAuthorizeVehicle } from '@railnetorg/railnet-sdk'
+import { buildAuthorizeVehicleCall } from '@railnetorg/railnet-sdk'
 
 writeContract(
   client,
-  (await simulateContract(client, { ...prepareAuthorizeVehicle({
+  (await simulateContract(client, { ...buildAuthorizeVehicleCall({
       vehicleManager: contracts.vehicleManager,
       vehicle: aaveV3VehicleAddress,
       account: account.address,
@@ -207,7 +207,7 @@ writeContract(
 ### Configure Deposit and Redeem Queues
 
 ```typescript
-import { prepareSetQueues, type QueueEntry } from '@railnetorg/railnet-sdk'
+import { buildSetQueuesCall, type QueueEntry } from '@railnetorg/railnet-sdk'
 
 const depositQueue: QueueEntry[] = [
   {
@@ -225,7 +225,7 @@ const redeemQueue: QueueEntry[] = [
 
 writeContract(
   client,
-  (await simulateContract(client, { ...prepareSetQueues({
+  (await simulateContract(client, { ...buildSetQueuesCall({
       queueStrategyEngine: contracts.queueStrategyEngine,
       depositQueue,
       redeemQueue,
@@ -234,15 +234,15 @@ writeContract(
 )
 ```
 
-### Prepared Writes
+### Call Builders
 
-`prepareSpawnAaveV3Vehicle` returns the viem contract call without sending it — synchronous, no
+`buildSpawnAaveV3VehicleCall` returns the viem contract call without sending it — synchronous, no
 client, and the same parameters as `spawnAaveV3Vehicle`.
 
 ```typescript
-import { prepareSpawnAaveV3Vehicle } from '@railnetorg/railnet-sdk'
+import { buildSpawnAaveV3VehicleCall } from '@railnetorg/railnet-sdk'
 
-const prepared = prepareSpawnAaveV3Vehicle({
+const prepared = buildSpawnAaveV3VehicleCall({
   factory: aaveV3VehicleFactory,
   asset: usdcAddress,
   poolAddressesProvider,
@@ -250,7 +250,7 @@ const prepared = prepareSpawnAaveV3Vehicle({
   deploymentSalt: randomSalt(),
 })
 
-const hash = await walletClient.writeContract({ ...prepared, account, chain: base })
+const hash = await walletClient.writeContract({ ...prepared, account, chain: mainnet })
 ```
 
 The vehicle address still has to come from the receipt via `extractAaveV3VehicleAddress`.
@@ -264,7 +264,7 @@ Wrong:
 ```typescript
 const hash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareSpawnMultiVehicle({
+  (await simulateContract(client, { ...buildSpawnMultiVehicleCall({
       factory: addresses.multiVehicleFactory,
       asset: addresses.usdc,
       accessControl: eacAddress,
@@ -307,7 +307,7 @@ Source: src/actions/assetRegistry/getInitialDepositAmount.ts
 Wrong:
 
 ```typescript
-const { request } = await simulateContract(walletClient, { ...prepareSpawnMultiVehicle({ ... }) })
+const { request } = await simulateContract(walletClient, { ...buildSpawnMultiVehicleCall({ ... }) })
 ```
 
 Correct:
@@ -315,14 +315,14 @@ Correct:
 ```typescript
 const hash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareSpawnMultiVehicle({ ... }), account: account.address })).request,
+  (await simulateContract(client, { ...buildSpawnMultiVehicleCall({ ... }), account: account.address })).request,
 )
 ```
 
-Every write is a `prepare*` builder returning `{ address, abi, functionName, args }`. Simulate it, then send the request:
+Every write is a `build*Call` builder returning `{ address, abi, functionName, args }`. Simulate it, then send the request:
 
 ```typescript
-const { request } = await simulateContract(client, { ...prepareEnableConduit({ conduit }), account })
+const { request } = await simulateContract(client, { ...buildEnableConduitCall({ conduit }), account })
 const hash = await writeContract(client, request)
 ```
 
@@ -347,7 +347,7 @@ Source: docs/pages/workflows/deployingAMultiVehicle.mdx
 Wrong:
 
 ```typescript
-prepareSpawnMultiVehicle({
+buildSpawnMultiVehicleCall({
   asset: addresses.usdc,
   name: 'Strategy',
   symbol: 'STRAT',
@@ -362,13 +362,13 @@ Correct:
 // 1. Spawn vehicles first
 const vehicleHash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareSpawnAaveV3Vehicle({ ... }), account: account.address })).request,
+  (await simulateContract(client, { ...buildSpawnAaveV3VehicleCall({ ... }), account: account.address })).request,
 )
 const vehicleReceipt = await publicClient.waitForTransactionReceipt({ hash: vehicleHash })
 const vehicleAddress = extractAaveV3VehicleAddress(vehicleReceipt, addresses.aaveV3VehicleFactory)
 
 // 2. Then spawn the MultiVehicle with pre-deployed addresses
-prepareSpawnMultiVehicle({
+buildSpawnMultiVehicleCall({
   asset: addresses.usdc,
   name: 'Strategy',
   symbol: 'STRAT',
@@ -400,7 +400,7 @@ Wrong:
 ```typescript
 const hash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareSpawnMultiVehicle(params), account: account.address })).request,
+  (await simulateContract(client, { ...buildSpawnMultiVehicleCall(params), account: account.address })).request,
 )
 // hash is just a tx hash — where are the deployed contracts?
 ```
@@ -410,7 +410,7 @@ Correct:
 ```typescript
 const hash = writeContract(
   client,
-  (await simulateContract(client, { ...prepareSpawnMultiVehicle(params), account: account.address })).request,
+  (await simulateContract(client, { ...buildSpawnMultiVehicleCall(params), account: account.address })).request,
 )
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
 const contracts = extractMultiVehicleContracts(receipt, addresses.multiVehicleFactory)

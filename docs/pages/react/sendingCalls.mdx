@@ -1,0 +1,70 @@
+---
+description: How to send a Railnet call from React, with wagmi's own hooks.
+---
+
+# Sending a call
+
+The SDK ships no write hooks. Every write is a call you build — with a `build*Call` builder or a
+`get*Call` resolver — and send with wagmi's `useSimulateContract` and `useWriteContract`.
+
+That split is wagmi's documented path, and it is the one that keeps the preflight on the transport
+your app configured. A wallet provider answers reads from whatever node it picked, at whatever
+freshness it keeps: a simulation sent there can reject a call on state that has already changed —
+an approval it has not seen yet, for instance.
+
+```tsx
+import { buildEnableConduitCall } from '@railnetorg/railnet-sdk'
+import { useSimulateContract, useWriteContract } from 'wagmi'
+
+export function EnableButton({ conduit }: { conduit: Address }) {
+  const { data: simulation, error } = useSimulateContract(buildEnableConduitCall({ conduit }))
+  const { writeContract, isPending } = useWriteContract()
+
+  return (
+    <>
+      <button
+        onClick={() => simulation && writeContract(simulation.request)}
+        disabled={!simulation || isPending}
+      >
+        Enable
+      </button>
+      {error ? <p role="alert">{error.shortMessage ?? error.message}</p> : null}
+    </>
+  )
+}
+```
+
+`useSimulateContract` gives you the revert reason before the user is asked to sign, decoded from
+the contract's own errors. `writeContract(simulation.request)` sends exactly what was simulated.
+
+## From an event handler
+
+When the arguments only exist inside the handler, skip the declarative hook and call
+`@wagmi/core` directly with the config the provider already holds:
+
+```tsx
+import { simulateContract } from '@wagmi/core'
+import { useConfig, useWriteContract } from 'wagmi'
+
+const config = useConfig()
+const { writeContractAsync } = useWriteContract()
+
+async function onSubmit(amount: bigint) {
+  const { request } = await simulateContract(config, { ...call, account })
+  const hash = await writeContractAsync(request)
+}
+```
+
+## Two-step flows
+
+A deposit needs an ERC-20 approval first, and the allowance is spent by the deposit. Send it
+yourself — with `useWriteContract` and `erc20Abi` — or batch the pair with
+[`toCall`](/utilities/toCall) and `useSendCalls`.
+
+## What the SDK still does for you
+
+The call builders keep the protocol's rules: the salt derivation, the rule that a deposit's output
+asset must name the vehicle, the encoding.
+[`useDepositConduitCall`](/react/useDepositConduitCall) and
+[`useRedeemConduitCall`](/react/useRedeemConduitCall) also resolve the addresses a call needs from
+chain, and hand back the identity of the query it will create.

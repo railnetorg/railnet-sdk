@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
 import { erc20Abi } from 'viem'
-import { conduitAbi } from '../src/abi/conduit.js'
-import { prepareDepositConduit } from '../src/actions/conduit/depositConduit.js'
 import { getConduitPosition } from '../src/actions/conduit/getConduitPosition.js'
-import { prepareRedeemConduit } from '../src/actions/conduit/redeemConduit.js'
+import { getDepositConduitCall } from '../src/actions/conduit/getDepositConduitCall.js'
+import { getRedeemConduitCall } from '../src/actions/conduit/getRedeemConduitCall.js'
+import { extractQueryIds } from '../src/index.js'
 import { randomSalt } from '../src/utils/salt.js'
 import { type createRailnetTestClient, testAccount } from './client.js'
 import { TEST_CONDUIT, USDC } from './constants.js'
@@ -43,30 +43,25 @@ describe('conduit deposit and redeem', () => {
     })
     await client.waitForTransactionReceipt({ hash: approveHash })
 
-    const vehicle = await client.readContract({
-      address: TEST_CONDUIT,
-      abi: conduitAbi,
-      functionName: 'getVehicle',
+    const deposit = await getDepositConduitCall(client, {
+      conduit: TEST_CONDUIT,
+      token: USDC,
+      amount,
+      sender: account.address,
+      salt: randomSalt(),
     })
 
     const depositReceipt = await client.waitForTransactionReceipt({
       hash: await client.writeContract(
-        (
-          await client.simulateContract({
-            ...prepareDepositConduit({
-              conduit: TEST_CONDUIT,
-              token: USDC,
-              amount,
-              account: account.address,
-              vehicle,
-              salt: randomSalt(),
-            }),
-            account,
-          })
-        ).request,
+        (await client.simulateContract({ ...deposit.call, account })).request,
       ),
     })
     expect(depositReceipt.status).toBe('success')
+
+    const createdByDeposit = extractQueryIds(depositReceipt, TEST_CONDUIT)
+    expect(createdByDeposit).toHaveLength(1)
+    expect(createdByDeposit[0]?.queryId).toBe(deposit.queryId)
+    expect(createdByDeposit[0]?.receiver).toBe(account.address)
 
     const deposited = await getConduitPosition(client, {
       conduit: TEST_CONDUIT,
@@ -74,29 +69,21 @@ describe('conduit deposit and redeem', () => {
     })
     expect(deposited.shares).toBeGreaterThan(before.shares)
 
-    const conduitAsset = await client.readContract({
-      address: TEST_CONDUIT,
-      abi: conduitAbi,
-      functionName: 'asset',
+    const redeem = await getRedeemConduitCall(client, {
+      conduit: TEST_CONDUIT,
+      shares: deposited.shares,
+      sender: account.address,
+      salt: randomSalt(),
     })
 
     const redeemReceipt = await client.waitForTransactionReceipt({
       hash: await client.writeContract(
-        (
-          await client.simulateContract({
-            ...prepareRedeemConduit({
-              conduit: TEST_CONDUIT,
-              shares: deposited.shares,
-              account: account.address,
-              outputAsset: { asset: conduitAsset, value: 0n },
-              salt: randomSalt(),
-            }),
-            account,
-          })
-        ).request,
+        (await client.simulateContract({ ...redeem.call, account })).request,
       ),
     })
     expect(redeemReceipt.status).toBe('success')
+
+    expect(extractQueryIds(redeemReceipt, TEST_CONDUIT)).toHaveLength(1)
 
     const after = await getConduitPosition(client, {
       conduit: TEST_CONDUIT,

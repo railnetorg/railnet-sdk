@@ -11,12 +11,9 @@ export type SetScopedRolePublicParameters = {
 /**
  * Sets whether a scoped role is public (callable by any address) or restricted. The caller must be the default admin.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
  * @param parameters - {@link SetScopedRolePublicParameters}
  */
-export function prepareSetScopedRolePublic(parameters: SetScopedRolePublicParameters) {
+export function buildSetScopedRolePublicCall(parameters: SetScopedRolePublicParameters) {
   return {
     address: parameters.accessControl,
     abi: externalAccessControlAbi,

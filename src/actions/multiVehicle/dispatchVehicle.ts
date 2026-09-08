@@ -2,7 +2,6 @@ import { type Address, type Client, type Hex, maxUint256 } from 'viem'
 import { simulateContract } from 'viem/actions'
 import { sectorAccountingEngineAbi } from '../../abi/sectorAccountingEngine.js'
 import type { Sector } from '../../constants/sectors.js'
-import type { ContractCallOptions } from '../../types.js'
 import type { ConduitMode, ConduitState, Query } from '../conduit/types.js'
 
 export type DispatchVehicleParameters = {
@@ -23,18 +22,13 @@ export type SimulateDispatchVehicleReturnType = {
 }
 
 /**
- * Builds the `sectorAccountingEngine.dispatch()` call for {@link dispatchVehicle} without sending it. Throws when `minOutput` is combined with an `amount` of `maxUint256`, which the engine rejects.
- * @param parameters - {@link DispatchVehicleParameters}
- */
-/**
- * Dispatches a deposit or redeem between a sector and a sub-vehicle, via the multi-vehicle's SectorAccountingEngine.
- *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
+ * Builds the `sectorAccountingEngine.dispatch()` call for a deposit or redeem between a sector and
+ * a sub-vehicle. Throws when `minOutput` is combined with an `amount` of `maxUint256`, which the
+ * engine rejects.
  *
  * @param parameters - {@link DispatchVehicleParameters}
  */
-export function prepareDispatchVehicle(parameters: DispatchVehicleParameters) {
+export function buildDispatchVehicleCall(parameters: DispatchVehicleParameters) {
   const minOutput = parameters.minOutput ?? 0n
 
   // the engine reverts this combination with MinOutputRequiresPinnedAmount
@@ -67,15 +61,14 @@ export function prepareDispatchVehicle(parameters: DispatchVehicleParameters) {
  * Simulates a dispatch without sending a transaction, returning the query it would create and the state it would reach.
  * A state of `SETTLED` means the dispatch completes in one transaction; `PROCESSING` means the vehicle is async and
  * the query needs progressing later.
- * @param parameters - Same parameters as {@link dispatchVehicle}
- * @returns The dispatched query, needed to progress it later, and the resulting state
  *
  * @param parameters - {@link DispatchVehicleParameters}
+ * @returns The dispatched query, needed to progress it later, and the resulting state
  *
  * @example
  * import { ConduitState, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
  *
- * const { query, state } = await simulateDispatchVehicle(walletClient, dispatchParameters)
+ * const { query, state } = await simulateDispatchVehicle(publicClient, dispatchParameters)
  *
  * if (state !== ConduitState.SETTLED) {
  *   // async vehicle: keep `query` to progress it once the vehicle settles
@@ -84,11 +77,9 @@ export function prepareDispatchVehicle(parameters: DispatchVehicleParameters) {
 export async function simulateDispatchVehicle(
   client: Client,
   parameters: DispatchVehicleParameters & { account: Address },
-  options?: ContractCallOptions,
 ): Promise<SimulateDispatchVehicleReturnType> {
   const { result } = await simulateContract(client, {
-    ...options,
-    ...prepareDispatchVehicle(parameters),
+    ...buildDispatchVehicleCall(parameters),
     account: parameters.account,
   })
 

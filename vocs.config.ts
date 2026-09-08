@@ -39,8 +39,8 @@ export default defineConfig({
       collapsed: false,
       items: [
         {
-          text: 'prepare* (Prepared Writes)',
-          link: '/actions/preparedWrites',
+          text: 'build*Call (Call Builders)',
+          link: '/actions/callBuilders',
         },
         {
           text: 'Conduit',
@@ -54,20 +54,28 @@ export default defineConfig({
               link: '/actions/getConduitInfo',
             },
             {
-              text: 'prepareDepositConduit',
-              link: '/actions/prepareDepositConduit',
+              text: 'buildDepositConduitCall',
+              link: '/actions/buildDepositConduitCall',
             },
             {
-              text: 'prepareRedeemConduit',
-              link: '/actions/prepareRedeemConduit',
+              text: 'buildRedeemConduitCall',
+              link: '/actions/buildRedeemConduitCall',
             },
             {
-              text: 'prepareSpawnConduit',
-              link: '/actions/prepareSpawnConduit',
+              text: 'getDepositConduitCall',
+              link: '/actions/getDepositConduitCall',
             },
             {
-              text: 'prepareEnableConduit',
-              link: '/actions/prepareEnableConduit',
+              text: 'getRedeemConduitCall',
+              link: '/actions/getRedeemConduitCall',
+            },
+            {
+              text: 'buildSpawnConduitCall',
+              link: '/actions/buildSpawnConduitCall',
+            },
+            {
+              text: 'buildEnableConduitCall',
+              link: '/actions/buildEnableConduitCall',
             },
             {
               text: 'estimateConduit',
@@ -78,12 +86,12 @@ export default defineConfig({
               link: '/actions/predictConduitDeployment',
             },
             {
-              text: 'prepareFinalizeConduitDeposit',
-              link: '/actions/prepareFinalizeConduitDeposit',
+              text: 'buildFinalizeConduitDepositCall',
+              link: '/actions/buildFinalizeConduitDepositCall',
             },
             {
-              text: 'prepareProcessConduitQuery',
-              link: '/actions/prepareProcessConduitQuery',
+              text: 'buildProcessConduitQueryCall',
+              link: '/actions/buildProcessConduitQueryCall',
             },
           ],
         },
@@ -91,24 +99,24 @@ export default defineConfig({
           text: 'MultiVehicle',
           items: [
             {
-              text: 'prepareSpawnMultiVehicle',
-              link: '/actions/prepareSpawnMultiVehicle',
+              text: 'buildSpawnMultiVehicleCall',
+              link: '/actions/buildSpawnMultiVehicleCall',
             },
             {
-              text: 'prepareAuthorizeVehicle',
-              link: '/actions/prepareAuthorizeVehicle',
+              text: 'buildAuthorizeVehicleCall',
+              link: '/actions/buildAuthorizeVehicleCall',
             },
             {
-              text: 'prepareSetQueues',
-              link: '/actions/prepareSetQueues',
+              text: 'buildSetQueuesCall',
+              link: '/actions/buildSetQueuesCall',
             },
             {
-              text: 'prepareMoveBetweenSectors',
-              link: '/actions/prepareMoveBetweenSectors',
+              text: 'buildMoveBetweenSectorsCall',
+              link: '/actions/buildMoveBetweenSectorsCall',
             },
             {
-              text: 'prepareDispatchVehicle',
-              link: '/actions/prepareDispatchVehicle',
+              text: 'buildDispatchVehicleCall',
+              link: '/actions/buildDispatchVehicleCall',
             },
           ],
         },
@@ -116,20 +124,20 @@ export default defineConfig({
           text: 'Access Control',
           items: [
             {
-              text: 'prepareSpawnAccessControl',
-              link: '/actions/prepareSpawnAccessControl',
+              text: 'buildSpawnAccessControlCall',
+              link: '/actions/buildSpawnAccessControlCall',
             },
             {
-              text: 'prepareGrantScopedRole',
-              link: '/actions/prepareGrantScopedRole',
+              text: 'buildGrantScopedRoleCall',
+              link: '/actions/buildGrantScopedRoleCall',
             },
             {
-              text: 'prepareRevokeScopedRole',
-              link: '/actions/prepareRevokeScopedRole',
+              text: 'buildRevokeScopedRoleCall',
+              link: '/actions/buildRevokeScopedRoleCall',
             },
             {
-              text: 'prepareSetScopedRolePublic',
-              link: '/actions/prepareSetScopedRolePublic',
+              text: 'buildSetScopedRolePublicCall',
+              link: '/actions/buildSetScopedRolePublicCall',
             },
           ],
         },
@@ -137,8 +145,8 @@ export default defineConfig({
           text: 'Vehicle',
           items: [
             {
-              text: 'prepareSpawnAaveV3Vehicle',
-              link: '/actions/prepareSpawnAaveV3Vehicle',
+              text: 'buildSpawnAaveV3VehicleCall',
+              link: '/actions/buildSpawnAaveV3VehicleCall',
             },
           ],
         },
@@ -169,6 +177,8 @@ export default defineConfig({
       items: [
         { text: 'Receipt Helpers', link: '/utilities/receiptHelpers' },
         { text: 'randomSalt', link: '/utilities/randomSalt' },
+        { text: 'Query identity', link: '/utilities/queryIdentity' },
+        { text: 'toCall', link: '/utilities/toCall' },
       ],
     },
     {
@@ -182,6 +192,10 @@ export default defineConfig({
         {
           text: 'isSupportedChain',
           link: '/contracts/isSupportedChain',
+        },
+        {
+          text: 'Staging deployments',
+          link: '/contracts/staging',
         },
       ],
     },
@@ -219,81 +233,18 @@ export default defineConfig({
               link: '/react/usePredictConduitDeployment',
             },
             {
-              text: 'useApproveConduitDeposit',
-              link: '/react/useApproveConduitDeposit',
+              text: 'useDepositConduitCall',
+              link: '/react/useDepositConduitCall',
             },
             {
-              text: 'useDepositConduit',
-              link: '/react/useDepositConduit',
-            },
-            {
-              text: 'useRedeemConduit',
-              link: '/react/useRedeemConduit',
-            },
-            {
-              text: 'useSpawnConduit',
-              link: '/react/useSpawnConduit',
-            },
-            {
-              text: 'useEnableConduit',
-              link: '/react/useEnableConduit',
-            },
-            {
-              text: 'useFinalizeConduitDeposit',
-              link: '/react/useFinalizeConduitDeposit',
-            },
-            {
-              text: 'useProcessConduitQuery',
-              link: '/react/useProcessConduitQuery',
+              text: 'useRedeemConduitCall',
+              link: '/react/useRedeemConduitCall',
             },
           ],
         },
         {
-          text: 'MultiVehicle',
-          items: [
-            {
-              text: 'useSpawnMultiVehicle',
-              link: '/react/useSpawnMultiVehicle',
-            },
-            {
-              text: 'useAuthorizeVehicle',
-              link: '/react/useAuthorizeVehicle',
-            },
-            {
-              text: 'useSetQueues',
-              link: '/react/useSetQueues',
-            },
-          ],
-        },
-        {
-          text: 'Access Control',
-          items: [
-            {
-              text: 'useSpawnAccessControl',
-              link: '/react/useSpawnAccessControl',
-            },
-            {
-              text: 'useGrantScopedRole',
-              link: '/react/useGrantScopedRole',
-            },
-            {
-              text: 'useRevokeScopedRole',
-              link: '/react/useRevokeScopedRole',
-            },
-            {
-              text: 'useSetScopedRolePublic',
-              link: '/react/useSetScopedRolePublic',
-            },
-          ],
-        },
-        {
-          text: 'Vehicle',
-          items: [
-            {
-              text: 'useSpawnAaveV3Vehicle',
-              link: '/react/useSpawnAaveV3Vehicle',
-            },
-          ],
+          text: 'Sending a call',
+          link: '/react/sendingCalls',
         },
       ],
     },
@@ -316,6 +267,14 @@ export default defineConfig({
         {
           text: 'predictConduitDeploymentQueryOptions',
           link: '/query/predictConduitDeploymentQueryOptions',
+        },
+        {
+          text: 'depositConduitCallQueryOptions',
+          link: '/query/depositConduitCallQueryOptions',
+        },
+        {
+          text: 'redeemConduitCallQueryOptions',
+          link: '/query/redeemConduitCallQueryOptions',
         },
       ],
     },

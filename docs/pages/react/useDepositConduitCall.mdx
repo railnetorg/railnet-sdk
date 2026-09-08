@@ -1,0 +1,90 @@
+---
+description: Resolves the deposit call and the id of the query it will create.
+---
+
+# useDepositConduitCall
+
+Resolves a deposit call: reads the conduit's vehicle through `usePublicClient`, builds the call, and
+returns it with the `queryId` the deposit will create. A read hook — it returns a TanStack Query
+result, and sends nothing.
+
+Hand `call` to wagmi's `useSimulateContract` and `useWriteContract`; see
+[Sending a call](/react/sendingCalls).
+
+## Usage
+
+```tsx
+import { useDepositConduitCall } from '@railnetorg/railnet-sdk/react'
+import { randomSalt } from '@railnetorg/railnet-sdk'
+import { erc20Abi } from 'viem'
+import { useAccount, useReadContract, useSimulateContract, useWriteContract } from 'wagmi'
+import { useState } from 'react'
+
+export function DepositButton({
+  conduit,
+  token,
+  amount,
+}: { conduit: Address; token: Address; amount: bigint }) {
+  const { address } = useAccount()
+  // one salt for the whole operation: a new one is a different query
+  const [salt] = useState(() => randomSalt())
+
+  const { data: allowance } = useReadContract({
+    address: token,
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args: address ? [address, conduit] : undefined,
+    query: { enabled: Boolean(address) },
+  })
+
+  const { data: deposit } = useDepositConduitCall({
+    conduit,
+    token,
+    amount,
+    sender: address,
+    salt,
+  })
+
+  const { data: simulation } = useSimulateContract({
+    ...deposit?.call,
+    query: { enabled: Boolean(deposit) && (allowance ?? 0n) >= amount },
+  })
+  const { writeContract } = useWriteContract()
+
+  return (
+    <button
+      onClick={() => simulation && writeContract(simulation.request)}
+      disabled={!simulation}
+    >
+      Deposit
+    </button>
+  )
+}
+```
+
+Once the transaction is sent, `deposit.queryId` is the key to follow it — the value the conduit
+emits in `QueryCreated`, and the row an indexer holds.
+
+## Parameters
+
+Everything [`getDepositConduitCall`](/actions/getDepositConduitCall) takes, with `sender` allowed to
+be `undefined` (the query is skipped until a wallet is connected), plus:
+
+### chainId
+
+- **Type:** `number`
+- **Optional.** Defaults to the connected chain.
+
+### enabled
+
+- **Type:** `boolean`
+- **Optional.** Defaults to `true`.
+
+## Returns
+
+A TanStack Query result over `{ call, query, queryId, vehicle }`, with its `queryKey` attached.
+
+## The sender is the sender
+
+`sender` is whoever will send the transaction, not whoever owns the position. Through a Safe or a
+batch that is the smart account: a call built with the user's EOA reverts with `InvalidQuerySalt`.

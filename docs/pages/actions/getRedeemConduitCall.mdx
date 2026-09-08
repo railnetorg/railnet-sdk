@@ -1,0 +1,55 @@
+---
+description: Resolves a redeem call from chain, with the salt its query will carry.
+---
+
+# getRedeemConduitCall
+
+Reads what a redeem needs — the conduit's underlying asset — and returns the call along with the
+salt the created query will carry. It only reads: sending the call is yours.
+
+## Import
+
+```ts
+import { getRedeemConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { extractQueryIds, getRedeemConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
+
+const { call, querySalt } = await getRedeemConduitCall(publicClient, {
+  conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  shares: position.shares,
+  sender: account.address,
+  salt: randomSalt(),
+})
+
+const { request } = await simulateContract(publicClient, { ...call, account })
+const receipt = await waitForTransactionReceipt(publicClient, {
+  hash: await writeContract(walletClient, request),
+})
+
+const [created] = extractQueryIds(receipt, conduit)
+```
+
+## Returns
+
+```ts
+type GetRedeemConduitCallReturnType = {
+  call: { address: Address; abi: Abi; functionName: string; args: readonly unknown[] }
+  querySalt: Hex
+  outputAsset: Asset
+}
+```
+
+`querySalt` is `keccak256(abi.encode(sender, salt))`, the value the created query carries — the
+conduit derives it the same way. Unlike a deposit there is no `queryId`: the conduit assembles the
+query at the share ratio of the including block, so its id is only knowable once the transaction
+lands. Read it from the receipt with [`extractQueryIds`](/utilities/receiptHelpers).
+
+## Parameters
+
+Everything [`buildRedeemConduitCall`](/actions/buildRedeemConduitCall) takes, with `outputAsset`
+optional: it is derived from `conduit.asset()`, with no amount floor, when omitted.

@@ -40,8 +40,8 @@ describe('getConduitPosition', () => {
     expect(typeof position.assets).toBe('bigint')
   })
 
-  // Exercises the `convert` call, which the zero-balance cases above skip. `convert` takes a scalar
-  // `Asset`; against the superseded array-shaped ABI this reverts rather than returning a value.
+  // `convert` takes a scalar `Asset`; against the superseded array-shaped ABI it reverts rather
+  // than returning a value.
   it('converts a non-zero share balance into underlying assets', async () => {
     const position = await getConduitPosition(client, {
       conduit: TEST_CONDUIT,

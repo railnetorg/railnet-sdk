@@ -15,8 +15,8 @@ export type EstimateVehicleReturnType = Asset
 
 /**
  * Estimates a vehicle's own output, which is what a deposit's `minOutput` floor is measured
- * against: `BaseVehicle._validateConstraints` compares `query.output.value` to this, not to the
- * conduit's estimate, which is net of the conduit's own fees.
+ * against: `BaseVehicle._validateConstraints` compares `query.output.value` to this, not to
+ * {@link estimateConduit}'s result.
  *
  * @param parameters - {@link EstimateVehicleParameters}
  *

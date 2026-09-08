@@ -4,16 +4,19 @@ description: Helpers to extract deployed contract addresses from transaction rec
 
 # Receipt Helpers
 
-Utility functions to extract deployed contract addresses from transaction receipts after a spawn action.
+Utility functions to read back what a transaction produced: the addresses a spawn deployed, and the
+queries a conduit created.
 
 ## Import
 
 ```ts
-import { 
-  extractConduitAddress, 
-  extractAccessControlAddress, 
-  extractMultiVehicleContracts, 
-  extractAaveV3VehicleAddress 
+import {
+  extractAaveV3VehicleAddress,
+  extractAccessControlAddress,
+  extractConduitAddress,
+  extractMultiVehicleContracts,
+  extractQueryIds,
+  randomSalt,
 } from '@railnetorg/railnet-sdk'
 ```
 
@@ -25,7 +28,7 @@ The typical flow involves spawning a contract, waiting for the transaction recei
 import { createPublicClient, createWalletClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { 
-  spawnConduit, 
+  buildSpawnConduitCall,
   extractConduitAddress,
 } from '@railnetorg/railnet-sdk'
 
@@ -42,19 +45,24 @@ const walletClient = createWalletClient({
 const factoryAddress = '0x1234...'
 
 // 1. Spawn the contract
-const hash = await spawnConduit(walletClient, {
-  factory: factoryAddress,
-  name: 'My Conduit',
-  symbol: 'COND',
-  vehicle: '0x5678...',
-  initialExpectedSupply: 1000000000000000000n,
-  transferEnabled: true,
-  accessControl: '0x...',
-  feeManager: '0x...',
-  accountList: '0x...',
-  ownerRegistry: '0x...',
+const { request } = await publicClient.simulateContract({
+  ...buildSpawnConduitCall({
+    factory: factoryAddress,
+    name: 'My Conduit',
+    symbol: 'COND',
+    vehicle: '0x5678...',
+    initialExpectedSupply: 1000000000000000000n,
+    transferEnabled: true,
+    accessControl: '0x...',
+    feeManager: '0x...',
+    accountList: '0x...',
+    ownerRegistry: '0x...',
+    querySalt: randomSalt(),
+    deploymentSalt: randomSalt(),
+  }),
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
 })
+const hash = await walletClient.writeContract(request)
 
 // 2. Wait for the receipt
 const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -65,7 +73,7 @@ const conduitAddress = extractConduitAddress(receipt, factoryAddress)
 
 ## extractConduitAddress
 
-Extracts the deployed conduit address from a `spawnConduit` transaction receipt.
+Extracts the deployed conduit address from a `buildSpawnConduitCall` transaction receipt.
 
 ```ts
 const conduitAddress = extractConduitAddress(receipt, factoryAddress)
@@ -91,7 +99,7 @@ The deployed conduit address, or `null` if not found.
 
 ## extractAccessControlAddress
 
-Extracts the deployed access control address from a `spawnAccessControl` transaction receipt.
+Extracts the deployed access control address from a `buildSpawnAccessControlCall` transaction receipt.
 
 ```ts
 const accessControlAddress = extractAccessControlAddress(receipt, factoryAddress)
@@ -117,7 +125,7 @@ The deployed access control address, or `null` if not found.
 
 ## extractMultiVehicleContracts
 
-Extracts the deployed MultiVehicle contract addresses from a `spawnMultiVehicle` transaction receipt.
+Extracts the deployed MultiVehicle contract addresses from a `buildSpawnMultiVehicleCall` transaction receipt.
 
 ```ts
 const contracts = extractMultiVehicleContracts(receipt, factoryAddress)
@@ -156,7 +164,7 @@ type MultiVehicleContracts = {
 
 ## extractAaveV3VehicleAddress
 
-Extracts the deployed Aave V3 vehicle address from a `spawnAaveV3Vehicle` transaction receipt.
+Extracts the deployed Aave V3 vehicle address from a `buildSpawnAaveV3VehicleCall` transaction receipt.
 
 ```ts
 const vehicleAddress = extractAaveV3VehicleAddress(receipt, factoryAddress)
@@ -179,3 +187,23 @@ The address of the Aave V3 vehicle factory.
 `Address | null`
 
 The deployed Aave V3 vehicle address, or `null` if not found.
+
+## extractQueryIds
+
+```ts
+import { extractQueryIds } from '@railnetorg/railnet-sdk'
+
+const created = extractQueryIds(receipt, conduit)
+// [{ queryId: '0x...', receiver: '0x...' }]
+```
+
+The queries a transaction created on a conduit, in log order, from its `QueryCreated` events. Each
+`queryId` is the key an indexer holds.
+
+A deposit's id does not need a receipt — it is known before the transaction is sent, from
+[`getDepositConduitCall`](/actions/getDepositConduitCall) or
+[`toQueryId`](/utilities/queryIdentity). A redeem's query is assembled by the conduit at the share
+ratio of the including block, so this is how to learn its id.
+
+Every helper here filters logs by their emitter first: a factory's transaction carries the logs of
+everything it deployed, and several Railnet events share an argument name.

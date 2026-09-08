@@ -30,15 +30,11 @@ export function conduitPositionQueryOptions(
   client: Client | undefined,
   parameters: ConduitPositionParameters,
 ) {
+  const { account } = parameters
+
   return {
     queryFn:
-      client && parameters.account
-        ? () =>
-            getConduitPosition(client, {
-              conduit: parameters.conduit,
-              account: parameters.account as Address,
-            })
-        : skipToken,
+      client && account ? () => getConduitPosition(client, { ...parameters, account }) : skipToken,
     queryKey: conduitPositionQueryKey(client?.chain?.id, parameters),
   } as const satisfies QueryOptions<
     GetConduitPositionReturnType,

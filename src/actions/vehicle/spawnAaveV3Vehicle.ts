@@ -18,12 +18,9 @@ export type SpawnAaveV3VehicleParameters = {
 /**
  * Spawns a new Aave V3 Vehicle via the AaveV3VehicleFactory.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
  * @param parameters - {@link SpawnAaveV3VehicleParameters}
  */
-export function prepareSpawnAaveV3Vehicle(parameters: SpawnAaveV3VehicleParameters) {
+export function buildSpawnAaveV3VehicleCall(parameters: SpawnAaveV3VehicleParameters) {
   return {
     address: parameters.factory,
     abi: aaveV3VehicleFactoryAbi,

@@ -1,62 +1,63 @@
-import type { Address, TransactionReceipt } from 'viem'
-import { decodeEventLog } from 'viem'
+import type { Abi, Address, ContractEventName, Hex, TransactionReceipt } from 'viem'
+import { parseEventLogs } from 'viem'
 import { aaveV3VehicleFactoryAbi } from '../abi/aaveV3VehicleFactory.js'
 import { accessControlFactoryAbi } from '../abi/accessControlFactory.js'
+import { conduitAbi } from '../abi/conduit.js'
 import { conduitFactoryAbi } from '../abi/conduitFactory.js'
 import { multiVehicleFactoryAbi } from '../abi/multiVehicleFactory.js'
 
 /**
- * Extracts the deployed ExternalAccessControl address from a {@link spawnAccessControl} transaction receipt.
+ * Decodes the events one contract emitted in a receipt. Filtering by emitter matters: a factory's
+ * transaction carries the logs of everything it deployed, and several Railnet events share an
+ * argument name.
+ */
+function eventsFrom<const abi extends Abi, eventName extends ContractEventName<abi>>(
+  receipt: TransactionReceipt,
+  emitter: Address,
+  abi: abi,
+  eventName: eventName,
+) {
+  return parseEventLogs({
+    abi,
+    eventName,
+    logs: receipt.logs.filter((log) => log.address.toLowerCase() === emitter.toLowerCase()),
+  })
+}
+
+/**
+ * Extracts the deployed ExternalAccessControl address from a {@link buildSpawnAccessControlCall} transaction receipt.
  * @returns The deployed EAC address, or `null` if the event is not found
  */
 export function extractAccessControlAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
 ): Address | null {
-  for (const log of receipt.logs) {
-    if (log.address.toLowerCase() !== factoryAddress.toLowerCase()) {
-      continue
-    }
+  const [event] = eventsFrom(
+    receipt,
+    factoryAddress,
+    accessControlFactoryAbi,
+    'SpawnedExternalAccessControl',
+  )
 
-    try {
-      const decoded = decodeEventLog({
-        abi: accessControlFactoryAbi,
-        data: log.data,
-        topics: log.topics,
-        eventName: 'SpawnedExternalAccessControl',
-      })
-      return decoded.args.eac
-    } catch {}
-  }
-
-  return null
+  return event?.args.eac ?? null
 }
 
 /**
- * Extracts the deployed Aave V3 Vehicle address from a {@link spawnAaveV3Vehicle} transaction receipt.
+ * Extracts the deployed Aave V3 Vehicle address from a {@link buildSpawnAaveV3VehicleCall} transaction receipt.
  * @returns The deployed vehicle address, or `null` if the event is not found
  */
 export function extractAaveV3VehicleAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
 ): Address | null {
-  for (const log of receipt.logs) {
-    if (log.address.toLowerCase() !== factoryAddress.toLowerCase()) {
-      continue
-    }
+  const [event] = eventsFrom(
+    receipt,
+    factoryAddress,
+    aaveV3VehicleFactoryAbi,
+    'SpawnedAaveV3Vehicle',
+  )
 
-    try {
-      const decoded = decodeEventLog({
-        abi: aaveV3VehicleFactoryAbi,
-        data: log.data,
-        topics: log.topics,
-        eventName: 'SpawnedAaveV3Vehicle',
-      })
-      return decoded.args.vehicle
-    } catch {}
-  }
-
-  return null
+  return event?.args.vehicle ?? null
 }
 
 export type MultiVehicleContracts = {
@@ -69,62 +70,60 @@ export type MultiVehicleContracts = {
 }
 
 /**
- * Extracts all deployed multi-vehicle contract addresses from a {@link spawnMultiVehicle} transaction receipt.
+ * Extracts all deployed multi-vehicle contract addresses from a {@link buildSpawnMultiVehicleCall} transaction receipt.
  * @returns All deployed contract addresses (multiVehicle, queryRedeemQueue, queueStrategyEngine, etc.), or `null` if the event is not found
  */
 export function extractMultiVehicleContracts(
   receipt: TransactionReceipt,
   factoryAddress: Address,
 ): MultiVehicleContracts | null {
-  for (const log of receipt.logs) {
-    if (log.address.toLowerCase() !== factoryAddress.toLowerCase()) {
-      continue
-    }
-
-    try {
-      const decoded = decodeEventLog({
-        abi: multiVehicleFactoryAbi,
-        data: log.data,
-        topics: log.topics,
-        eventName: 'SpawnedMultiVehicle',
-      })
-      return {
-        multiVehicle: decoded.args.contracts.multiVehicle,
-        queryRedeemQueue: decoded.args.contracts.queryRedeemQueue,
-        queueStrategyEngine: decoded.args.contracts.queueStrategyEngine,
-        sectorAccountingEngine: decoded.args.contracts.sectorAccountingEngine,
-        subQueryEngine: decoded.args.contracts.subQueryEngine,
-        vehicleManager: decoded.args.contracts.vehicleManager,
-      }
-    } catch {}
+  const [event] = eventsFrom(receipt, factoryAddress, multiVehicleFactoryAbi, 'SpawnedMultiVehicle')
+  if (!event) {
+    return null
   }
 
-  return null
+  const { contracts } = event.args
+
+  return {
+    multiVehicle: contracts.multiVehicle,
+    queryRedeemQueue: contracts.queryRedeemQueue,
+    queueStrategyEngine: contracts.queueStrategyEngine,
+    sectorAccountingEngine: contracts.sectorAccountingEngine,
+    subQueryEngine: contracts.subQueryEngine,
+    vehicleManager: contracts.vehicleManager,
+  }
 }
 
 /**
- * Extracts the deployed conduit address from a {@link spawnConduit} transaction receipt.
+ * Extracts the deployed conduit address from a {@link buildSpawnConduitCall} transaction receipt.
  * @returns The deployed conduit address, or `null` if the event is not found
  */
 export function extractConduitAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
 ): Address | null {
-  for (const log of receipt.logs) {
-    if (log.address.toLowerCase() !== factoryAddress.toLowerCase()) {
-      continue
-    }
+  const [event] = eventsFrom(receipt, factoryAddress, conduitFactoryAbi, 'ConduitDeployed')
 
-    try {
-      const decoded = decodeEventLog({
-        abi: conduitFactoryAbi,
-        data: log.data,
-        topics: log.topics,
-        eventName: 'ConduitDeployed',
-      })
-      return decoded.args.conduit
-    } catch {}
-  }
+  return event?.args.conduit ?? null
+}
 
-  return null
+export type CreatedQuery = {
+  queryId: Hex
+  receiver: Address
+}
+
+/**
+ * Extracts the queries a transaction created on a conduit, in log order, from its `QueryCreated`
+ * events. A deposit's id is known before it is sent — see {@link toQueryId} — but a redeem's query
+ * is assembled on chain, so this is how to learn its id.
+ * @returns One entry per created query, empty when the transaction created none
+ */
+export function extractQueryIds(
+  receipt: TransactionReceipt,
+  conduit: Address,
+): Array<CreatedQuery> {
+  return eventsFrom(receipt, conduit, conduitAbi, 'QueryCreated').map((event) => ({
+    queryId: event.args.queryId,
+    receiver: event.args.receiver,
+  }))
 }

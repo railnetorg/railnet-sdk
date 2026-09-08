@@ -1,7 +1,8 @@
 import { addresses, type ChainAddresses, type SupportedChainId } from './addresses.js'
 
 /**
- * Returns whether a chain ID is supported by the Railnet protocol: Ethereum (1) and Base (8453).
+ * Returns whether a chain has a Railnet production deployment.
+ * Staging deployments live behind `@railnetorg/railnet-sdk/staging` and are not counted here.
  * @returns `true` if the chain is supported, with type narrowing to `SupportedChainId`
  */
 export function isSupportedChain(chainId: number): chainId is SupportedChainId {
@@ -9,14 +10,14 @@ export function isSupportedChain(chainId: number): chainId is SupportedChainId {
 }
 
 /**
- * Returns the Railnet contract addresses for a given chain ID. Throws if the chain is not supported.
+ * Returns the production addresses for a chain. Throws if the chain has no production deployment.
  * @throws Error if the chain ID is not supported
  *
  * @example
  * import { getAddresses } from '@railnetorg/railnet-sdk'
- * import { base } from 'viem/chains'
+ * import { mainnet } from 'viem/chains'
  *
- * const { conduitFactory, assetRegistry, usdc } = getAddresses(base.id)
+ * const { conduitFactory, assetRegistry, usdc } = getAddresses(mainnet.id)
  */
 export function getAddresses(chainId: number): ChainAddresses {
   if (!isSupportedChain(chainId)) {
