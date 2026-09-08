@@ -10,6 +10,11 @@ import {
   zeroHash,
 } from 'viem'
 import {
+  AllowlistMode,
+  accountListAbi,
+  accountListFactoryAbi,
+  buildAddToAllowListCall,
+  buildAddToBlockListCall,
   buildDepositConduitCall,
   buildDispatchFeesCall,
   buildDispatchVehicleCall,
@@ -20,9 +25,11 @@ import {
   buildSetFeesCall,
   buildSpawnAaveV3VehicleCall,
   buildSpawnAccessControlCall,
+  buildSpawnAccountListCall,
   buildSpawnConduitCall,
   buildSpawnFeeManagerCall,
   buildSpawnMultiVehicleCall,
+  buildSpawnOwnerRegistryCall,
   ConduitMode,
   externalAccessControlAbi,
   feeManagerAbi,
@@ -436,5 +443,65 @@ describe('randomSalt', () => {
     const prepared = buildDispatchFeesCall({ feeManager: VEHICLE, token: USDC_ASSET })
     expect(prepared.functionName).toBe('dispatchERC20')
     expect(prepared.args).toEqual([USDC_ASSET])
+  })
+
+  test('buildSpawnAccountListCall seeds both lists and the sanctions config', () => {
+    const prepared = buildSpawnAccountListCall({
+      factory: VEHICLE,
+      accessControl: zeroAddress,
+      mode: AllowlistMode.STRICT,
+      initialAllowList: [USDC_ASSET],
+      initialBlockList: [],
+      sanctionsEnabled: false,
+      oracle: zeroAddress,
+      deploymentSalt: zeroHash,
+    })
+
+    expect(prepared.address).toBe(VEHICLE)
+    expect(prepared.abi).toBe(accountListFactoryAbi)
+    expect(prepared.functionName).toBe('spawn')
+    expect(prepared.args).toEqual([
+      {
+        accessControl: zeroAddress,
+        mode: AllowlistMode.STRICT,
+        initialAllowList: [USDC_ASSET],
+        initialBlockList: [],
+        sanctionsEnabled: false,
+        oracle: zeroAddress,
+        deploymentSalt: zeroHash,
+      },
+    ])
+    expect(() =>
+      encodeFunctionData({
+        abi: accountListFactoryAbi,
+        functionName: 'spawn',
+        args: prepared.args,
+      }),
+    ).not.toThrow()
+  })
+
+  test('the allow and block list calls take a batch and target the list itself', () => {
+    const accounts = [USDC_ASSET] as const
+    const allow = buildAddToAllowListCall({ accountList: VEHICLE, accounts })
+    const block = buildAddToBlockListCall({ accountList: VEHICLE, accounts })
+
+    expect(allow.address).toBe(VEHICLE)
+    expect(allow.abi).toBe(accountListAbi)
+    expect(allow.functionName).toBe('addToAllowList')
+    expect(allow.args).toEqual([accounts])
+    expect(block.functionName).toBe('addToBlockList')
+  })
+
+  test('buildSpawnOwnerRegistryCall passes symbol before name, as the struct declares them', () => {
+    const prepared = buildSpawnOwnerRegistryCall({
+      factory: VEHICLE,
+      name: 'Railnet Query Claims',
+      symbol: 'RQC',
+      deploymentSalt: zeroHash,
+    })
+
+    expect(prepared.args).toEqual([
+      { symbol: 'RQC', name: 'Railnet Query Claims', deploymentSalt: zeroHash },
+    ])
   })
 })

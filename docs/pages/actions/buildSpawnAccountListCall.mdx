@@ -1,0 +1,92 @@
+---
+description: Deploys an AccountList compliance module via factory.
+---
+
+# buildSpawnAccountListCall
+
+Deploys an AccountList — the allow-list, block-list and sanctions screening a conduit checks its users against. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+
+The caller needs `FACTORY_SPAWN` on the factory's access control.
+
+## Import
+
+```ts
+import { AllowlistMode, buildSpawnAccountListCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { AllowlistMode, buildSpawnAccountListCall, getAddresses, randomSalt } from '@railnetorg/railnet-sdk'
+import { base } from 'viem/chains'
+import { zeroAddress } from 'viem'
+
+const { accountListFactory } = getAddresses(base.id)
+
+const { request } = await simulateContract(client, {
+  ...buildSpawnAccountListCall({
+    factory: accountListFactory,
+    accessControl: '0x1234...',
+    mode: AllowlistMode.REGULAR,
+    initialAllowList: ['0xd2135CfB216b74109775236E36d4b433F1DF507B'],
+    initialBlockList: [],
+    sanctionsEnabled: false,
+    oracle: zeroAddress,
+    deploymentSalt: randomSalt(),
+  }),
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### factory
+
+- **Type:** `Address`
+
+The address of the account list factory contract.
+
+### accessControl
+
+- **Type:** `Address`
+
+Gates every later change to the list. Fixed at initialization.
+
+### mode
+
+- **Type:** `AllowlistMode`
+
+`OPEN` ignores the allow-list, `REGULAR` gates deposits with it, `STRICT` gates deposits and transfers, both sides included.
+
+Precedence across every check is sanctions, then the block-list, then this. Redeem consults sanctions alone: a blocked holder can always exit.
+
+### initialAllowList / initialBlockList
+
+- **Type:** `readonly Address[]`
+
+Seeds for both lists. Neither may contain the zero address.
+
+### sanctionsEnabled
+
+- **Type:** `boolean`
+
+Requires a non-zero `oracle`, or the deployment reverts `SanctionsOracleRequired`. Screening fails closed: an oracle that reverts, has no code, or returns something malformed marks the account sanctioned, and a sanctioned account can do nothing at all.
+
+### oracle
+
+- **Type:** `Address`
+
+An `ISanctionsList` contract, or the zero address while screening stays off.
+
+### deploymentSalt
+
+- **Type:** `Hex`
+
+Fixes the deployed address. Generate it with [`randomSalt`](/utilities/randomSalt).
