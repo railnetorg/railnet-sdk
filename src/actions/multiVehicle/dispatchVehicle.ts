@@ -22,14 +22,9 @@ export type SimulateDispatchVehicleReturnType = {
 }
 
 /**
- * Builds the `sectorAccountingEngine.dispatch()` call for {@link dispatchVehicle} without sending it. Throws when `minOutput` is combined with an `amount` of `maxUint256`, which the engine rejects.
- * @param parameters - {@link DispatchVehicleParameters}
- */
-/**
- * Dispatches a deposit or redeem between a sector and a sub-vehicle, via the multi-vehicle's SectorAccountingEngine.
- *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
+ * Builds the `sectorAccountingEngine.dispatch()` call for a deposit or redeem between a sector and
+ * a sub-vehicle. Throws when `minOutput` is combined with an `amount` of `maxUint256`, which the
+ * engine rejects.
  *
  * @param parameters - {@link DispatchVehicleParameters}
  */
@@ -66,10 +61,9 @@ export function buildDispatchVehicleCall(parameters: DispatchVehicleParameters) 
  * Simulates a dispatch without sending a transaction, returning the query it would create and the state it would reach.
  * A state of `SETTLED` means the dispatch completes in one transaction; `PROCESSING` means the vehicle is async and
  * the query needs progressing later.
- * @param parameters - Same parameters as {@link dispatchVehicle}
- * @returns The dispatched query, needed to progress it later, and the resulting state
  *
  * @param parameters - {@link DispatchVehicleParameters}
+ * @returns The dispatched query, needed to progress it later, and the resulting state
  *
  * @example
  * import { ConduitState, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'

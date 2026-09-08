@@ -4,9 +4,6 @@ import type { SpawnConduitParameters } from './types.js'
 /**
  * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams)`. `querySalt` and `deploymentSalt` are required fields of the spawn params; `deploymentSalt` fixes the conduit's address. Use {@link randomSalt} to generate them.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
  * @param parameters - {@link SpawnConduitParameters}
  */
 export function buildSpawnConduitCall(parameters: SpawnConduitParameters) {

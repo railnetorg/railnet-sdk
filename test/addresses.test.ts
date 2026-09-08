@@ -7,7 +7,6 @@ import { getInitialDepositAmount } from '../src/actions/assetRegistry/getInitial
 import { predictConduitDeployment } from '../src/actions/conduit/predictConduitDeployment.js'
 import { BASE_ADDRESSES, CONDUIT_FACTORY, USDC } from './constants.js'
 
-// Reads only, so this talks to Base directly instead of paying for an anvil fork.
 const client = createPublicClient({ chain: base, transport: http(process.env.BASE_RPC_URL) })
 
 describe('shipped Base addresses', () => {

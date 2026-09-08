@@ -35,9 +35,6 @@ export type SpawnMultiVehicleParameters = {
 /**
  * Spawns a new MultiVehicle ecosystem via the MultiVehicleFactory.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
  * @param parameters - {@link SpawnMultiVehicleParameters}
  */
 export function buildSpawnMultiVehicleCall(parameters: SpawnMultiVehicleParameters) {

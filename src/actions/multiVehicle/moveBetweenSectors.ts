@@ -12,14 +12,8 @@ export type MoveBetweenSectorsParameters = {
 }
 
 /**
- * Builds the `sectorAccountingEngine.move()` call for {@link moveBetweenSectors} without sending it.
- * @param parameters - {@link MoveBetweenSectorsParameters}
- */
-/**
- * Moves assets or shares between accounting sectors on a multi-vehicle's SectorAccountingEngine. Requires the `MULTI_VEHICLE_MOVE` role scoped to the engine.
- *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
+ * Builds the `sectorAccountingEngine.move()` call, which moves assets or shares between accounting
+ * sectors on a multi-vehicle. Requires the `MULTI_VEHICLE_MOVE` role scoped to the engine.
  *
  * @param parameters - {@link MoveBetweenSectorsParameters}
  */

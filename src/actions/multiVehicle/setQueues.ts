@@ -20,9 +20,6 @@ export type SetQueuesParameters = {
 /**
  * Configures the deposit and redeem allocation queues on a multi-vehicle's QueueStrategyEngine. Each queue entry maps a vehicle to a target allocation and threshold.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
  * @param parameters - {@link SetQueuesParameters}
  */
 export function buildSetQueuesCall(parameters: SetQueuesParameters) {

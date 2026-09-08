@@ -8,9 +8,6 @@ export type EnableConduitParameters = {
 /**
  * Enables a conduit, transitioning it to an operational state. Can only be called by the conduit factory.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
  * @param parameters - {@link EnableConduitParameters}
  */
 export function buildEnableConduitCall(parameters: EnableConduitParameters) {

@@ -9,9 +9,6 @@ export type AuthorizeVehicleParameters = {
 /**
  * Authorizes a vehicle in a multi-vehicle's VehicleManager, allowing it to receive allocations.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
  * @param parameters - {@link AuthorizeVehicleParameters}
  */
 export function buildAuthorizeVehicleCall(parameters: AuthorizeVehicleParameters) {

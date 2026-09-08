@@ -12,9 +12,9 @@ export type GetInitialDepositAmountReturnType = bigint
 /**
  * Reads the initial deposit amount the factories pull from the caller when spawning a conduit or a vehicle for this asset.
  * Approve at least this amount to the factory before calling `spawnConduit`, `spawnMultiVehicle`, or `spawnAaveV3Vehicle`.
- * @returns The initial deposit amount, in the asset's own decimals
  *
  * @param parameters - {@link GetInitialDepositAmountParameters}
+ * @returns The initial deposit amount, in the asset's own decimals
  *
  * @example
  * import { getAddresses, getInitialDepositAmount } from '@railnetorg/railnet-sdk'

@@ -12,9 +12,6 @@ export type SpawnAccessControlParameters = {
 /**
  * Spawns a new ExternalAccessControl via the AccessControlFactory.
  *
- * Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`,
- * or to wagmi's `useWriteContract`.
- *
  * @param parameters - {@link SpawnAccessControlParameters}
  */
 export function buildSpawnAccessControlCall(parameters: SpawnAccessControlParameters) {
