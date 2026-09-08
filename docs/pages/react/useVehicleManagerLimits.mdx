@@ -1,0 +1,61 @@
+---
+description: Reads a multi vehicle's operational limits.
+---
+
+# useVehicleManagerLimits
+
+Reads a multi vehicle's auto-fulfill threshold, withdrawal buffer and deposit cap in one multicall.
+Returns a standard TanStack Query result with its `queryKey` attached.
+
+## Usage
+
+```tsx
+import { useVehicleManagerLimits } from '@railnetorg/railnet-sdk/react'
+import { formatUnits } from 'viem'
+
+export function LimitsPanel({ vehicleManager }: { vehicleManager: Address }) {
+  const { data: limits, isPending } = useVehicleManagerLimits({ vehicleManager })
+
+  if (isPending || !limits) return <Skeleton />
+
+  const uncapped = limits.maxTotalAssets === 2n ** 256n - 1n
+
+  return (
+    <dl>
+      <dt>Deposit cap</dt>
+      <dd>{uncapped ? 'none' : formatUnits(limits.maxTotalAssets, decimals)}</dd>
+      <dt>Withdrawal buffer</dt>
+      <dd>{formatUnits(limits.extraAssetsForWithdrawalRequests, decimals)}</dd>
+    </dl>
+  )
+}
+```
+
+Both `maxTotalAssets` and `minSharesForAutoFulfill` use `2n ** 256n - 1n` as their "no limit"
+value, so compare against it rather than rendering the raw number — see
+[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) for the units of each field.
+
+## Parameters
+
+### vehicleManager
+
+- **Type:** `Address`
+
+The multi vehicle's VehicleManager.
+
+### chainId
+
+- **Type:** `number`
+- **Optional.** Defaults to the connected chain.
+
+### enabled
+
+- **Type:** `boolean`
+- **Optional.** Defaults to `true`.
+
+## Returns
+
+A TanStack Query result over `VehicleManagerLimits`, with its `queryKey` attached.
+
+Compose it outside a hook with `vehicleManagerLimitsQueryOptions(client, parameters)`;
+`vehicleManagerLimitsQueryPrefix` invalidates the family across every chain.

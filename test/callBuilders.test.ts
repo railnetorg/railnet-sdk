@@ -11,16 +11,22 @@ import {
 } from 'viem'
 import {
   buildDepositConduitCall,
+  buildDispatchFeesCall,
   buildDispatchVehicleCall,
   buildGrantScopedRoleCall,
   buildMoveBetweenSectorsCall,
   buildRedeemConduitCall,
+  buildSetFeeRecipientsCall,
+  buildSetFeesCall,
   buildSpawnAaveV3VehicleCall,
   buildSpawnAccessControlCall,
   buildSpawnConduitCall,
+  buildSpawnFeeManagerCall,
   buildSpawnMultiVehicleCall,
   ConduitMode,
   externalAccessControlAbi,
+  feeManagerAbi,
+  feeManagerFactoryAbi,
   randomSalt,
   SECTOR_AVAILABLE,
   SECTOR_RESERVED,
@@ -354,5 +360,81 @@ describe('randomSalt', () => {
     for (const salt of salts) {
       expect(salt).toMatch(/^0x[0-9a-f]{64}$/)
     }
+  })
+
+  test('buildSpawnFeeManagerCall wraps the params the factory expects', () => {
+    const fees = {
+      performanceFeeBps: 1000,
+      managementFeeBps: 50,
+      depositFeeBps: 0,
+      redeemFeeBps: 0,
+    }
+    const maxFees = {
+      performanceFeeBps: 2000,
+      managementFeeBps: 200,
+      depositFeeBps: 100,
+      redeemFeeBps: 100,
+    }
+    const recipients = [{ target: USDC_ASSET, shareBps: 10000 }] as const
+
+    const prepared = buildSpawnFeeManagerCall({
+      factory: VEHICLE,
+      accessControl: zeroAddress,
+      initialFees: fees,
+      initialMaxFees: maxFees,
+      initialRecipients: recipients,
+      deploymentSalt: zeroHash,
+    })
+
+    expect(prepared.address).toBe(VEHICLE)
+    expect(prepared.abi).toBe(feeManagerFactoryAbi)
+    expect(prepared.functionName).toBe('spawn')
+    expect(prepared.args).toEqual([
+      {
+        accessControl: zeroAddress,
+        initialFees: fees,
+        initialMaxFees: maxFees,
+        initialRecipients: recipients,
+        deploymentSalt: zeroHash,
+      },
+    ])
+    expect(() =>
+      encodeFunctionData({ abi: feeManagerFactoryAbi, functionName: 'spawn', args: prepared.args }),
+    ).not.toThrow()
+  })
+
+  test('buildSetFeesCall and buildSetFeeRecipientsCall target the fee manager itself', () => {
+    const fees = {
+      performanceFeeBps: 1000,
+      managementFeeBps: 50,
+      depositFeeBps: 0,
+      redeemFeeBps: 0,
+    }
+    const setFees = buildSetFeesCall({ feeManager: VEHICLE, fees })
+    expect(setFees.address).toBe(VEHICLE)
+    expect(setFees.abi).toBe(feeManagerAbi)
+    expect(setFees.functionName).toBe('setFees')
+    expect(setFees.args).toEqual([fees])
+
+    // FeeManager._setRecipients requires strictly ascending targets summing to 10000 bps.
+    const recipients = [
+      { target: '0x0000000000000000000000000000000000000001', shareBps: 4000 },
+      { target: '0x0000000000000000000000000000000000000002', shareBps: 6000 },
+    ] as const
+    const setRecipients = buildSetFeeRecipientsCall({ feeManager: VEHICLE, recipients })
+    expect(setRecipients.functionName).toBe('setFeeRecipients')
+    expect(() =>
+      encodeFunctionData({
+        abi: feeManagerAbi,
+        functionName: 'setFeeRecipients',
+        args: setRecipients.args,
+      }),
+    ).not.toThrow()
+  })
+
+  test('buildDispatchFeesCall pays one token out to the recipients', () => {
+    const prepared = buildDispatchFeesCall({ feeManager: VEHICLE, token: USDC_ASSET })
+    expect(prepared.functionName).toBe('dispatchERC20')
+    expect(prepared.args).toEqual([USDC_ASSET])
   })
 })

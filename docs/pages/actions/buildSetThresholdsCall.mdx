@@ -1,0 +1,52 @@
+---
+description: Builds the call that sets a multi vehicle's auto-fulfill threshold and withdrawal buffer.
+---
+
+# buildSetThresholdsCall
+
+Builds the `vehicleManager.setThresholds()` call.
+
+It replaces **both** values outright — there is no partial update. Read
+[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) first and pass the current value for
+whichever field you are not changing, or you silently reset it.
+
+## Import
+
+```ts
+import { buildSetThresholdsCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { buildSetThresholdsCall, getVehicleManagerLimits } from '@railnetorg/railnet-sdk'
+
+const limits = await getVehicleManagerLimits(publicClient, { vehicleManager })
+
+const call = buildSetThresholdsCall({
+  vehicleManager,
+  thresholds: {
+    minSharesForAutoFulfill: 10n ** 18n,
+    // unchanged: carried over rather than reset
+    extraAssetsForWithdrawalRequests: limits.extraAssetsForWithdrawalRequests,
+  },
+})
+```
+
+## Returns
+
+A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actions/callBuilders).
+
+## Parameters
+
+### vehicleManager
+
+- **Type:** `Address`
+
+### thresholds
+
+- **Type:** `VehicleThresholds`
+
+`minSharesForAutoFulfill` is in **vehicle shares** (18 decimals); `2n ** 256n - 1n` disables
+auto-fulfill and is where a fresh deployment starts. `extraAssetsForWithdrawalRequests` is in the
+multi vehicle's **asset** units, capped on write at `type(uint128).max`.

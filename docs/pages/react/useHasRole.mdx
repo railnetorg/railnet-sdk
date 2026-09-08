@@ -1,0 +1,61 @@
+---
+description: Reads whether an account may act under a role, globally or scoped to a contract.
+---
+
+# useHasRole
+
+Reads whether an account may act under a role. Returns a standard TanStack Query result with its
+`queryKey` attached.
+
+It answers the same question the contracts ask themselves, so it is what to gate a UI on: a `false`
+means the write you are about to offer will revert on its role check. See
+[`getHasRole`](/actions/getHasRole) for the semantics.
+
+## Usage
+
+```tsx
+import { VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
+import { useHasRole } from '@railnetorg/railnet-sdk/react'
+import { useAccount } from 'wagmi'
+
+export function DepositGate({
+  accessControl,
+  vehicle,
+}: { accessControl: Address; vehicle: Address }) {
+  const { address } = useAccount()
+
+  const { data: allowed, isPending } = useHasRole({
+    accessControl,
+    role: VEHICLE_STEAM_DEPOSIT,
+    scope: vehicle,
+    account: address as Address,
+    enabled: Boolean(address),
+  })
+
+  if (isPending) return <Skeleton />
+  if (!allowed) return <p>This account is not authorised on this vehicle.</p>
+
+  return <DepositForm vehicle={vehicle} />
+}
+```
+
+## Parameters
+
+Everything [`getHasRole`](/actions/getHasRole) takes, plus:
+
+### chainId
+
+- **Type:** `number`
+- **Optional.** Defaults to the connected chain.
+
+### enabled
+
+- **Type:** `boolean`
+- **Optional.** Defaults to `true`.
+
+## Returns
+
+A TanStack Query result over `boolean`, with its `queryKey` attached.
+
+Compose it outside a hook with `hasRoleQueryOptions(client, parameters)`;
+`hasRoleQueryPrefix` invalidates the family across every chain.

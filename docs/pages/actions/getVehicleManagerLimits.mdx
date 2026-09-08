@@ -1,0 +1,69 @@
+---
+description: Reads a multi vehicle's operational limits in one multicall.
+---
+
+# getVehicleManagerLimits
+
+Reads a multi vehicle's operational limits — the auto-fulfill threshold, the withdrawal buffer and
+the deposit cap — in a single multicall.
+
+Worth reading before writing: `setThresholds` and `setMaxTotalAssets` each replace their value
+outright, with no partial update. A caller that does not start from the current state silently
+resets whatever it did not set.
+
+## Import
+
+```ts
+import { getVehicleManagerLimits } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { getVehicleManagerLimits } from '@railnetorg/railnet-sdk'
+
+const client = createPublicClient({ chain: mainnet, transport: http() })
+
+const limits = await getVehicleManagerLimits(client, { vehicleManager })
+```
+
+## Returns
+
+`VehicleManagerLimits`
+
+```ts
+type VehicleManagerLimits = {
+  minSharesForAutoFulfill: bigint
+  extraAssetsForWithdrawalRequests: bigint
+  maxTotalAssets: bigint
+}
+```
+
+### minSharesForAutoFulfill
+
+Unredeemable shares needed to trigger auto-fulfill on deposits, in **vehicle shares** (18 decimals).
+`2n ** 256n - 1n` disables auto-fulfill, and is the value a fresh deployment starts from.
+
+### extraAssetsForWithdrawalRequests
+
+Buffer added on top of a requested redeem, in the multi vehicle's **asset** units — not shares.
+Capped on write at `type(uint128).max`.
+
+### maxTotalAssets
+
+Hard cap on `totalAssets()`, enforced at deposit time, in asset units. `2n ** 256n - 1n` means
+uncapped. Operator-driven flows that grow `totalAssets()` without minting are exempt.
+
+## Parameters
+
+### vehicleManager
+
+- **Type:** `Address`
+
+The multi vehicle's VehicleManager.
+
+## React
+
+[`useVehicleManagerLimits`](/react/useVehicleManagerLimits) wraps the same read.

@@ -99,12 +99,32 @@ export default defineConfig({
           text: 'MultiVehicle',
           items: [
             {
+              text: 'getVehicleManagerLimits',
+              link: '/actions/getVehicleManagerLimits',
+            },
+            {
               text: 'buildSpawnMultiVehicleCall',
               link: '/actions/buildSpawnMultiVehicleCall',
             },
             {
               text: 'buildAuthorizeVehicleCall',
               link: '/actions/buildAuthorizeVehicleCall',
+            },
+            {
+              text: 'buildUnauthorizeVehicleCall',
+              link: '/actions/buildUnauthorizeVehicleCall',
+            },
+            {
+              text: 'buildConfigureVehicleCall',
+              link: '/actions/buildConfigureVehicleCall',
+            },
+            {
+              text: 'buildSetThresholdsCall',
+              link: '/actions/buildSetThresholdsCall',
+            },
+            {
+              text: 'buildSetMaxTotalAssetsCall',
+              link: '/actions/buildSetMaxTotalAssetsCall',
             },
             {
               text: 'buildSetQueuesCall',
@@ -121,8 +141,37 @@ export default defineConfig({
           ],
         },
         {
+          text: 'Fee Manager',
+          items: [
+            {
+              text: 'buildSpawnFeeManagerCall',
+              link: '/actions/buildSpawnFeeManagerCall',
+            },
+            {
+              text: 'predictFeeManagerDeployment',
+              link: '/actions/predictFeeManagerDeployment',
+            },
+            {
+              text: 'buildSetFeesCall',
+              link: '/actions/buildSetFeesCall',
+            },
+            {
+              text: 'buildSetFeeRecipientsCall',
+              link: '/actions/buildSetFeeRecipientsCall',
+            },
+            {
+              text: 'buildDispatchFeesCall',
+              link: '/actions/buildDispatchFeesCall',
+            },
+          ],
+        },
+        {
           text: 'Access Control',
           items: [
+            {
+              text: 'getHasRole',
+              link: '/actions/getHasRole',
+            },
             {
               text: 'buildSpawnAccessControlCall',
               link: '/actions/buildSpawnAccessControlCall',
@@ -243,6 +292,19 @@ export default defineConfig({
           ],
         },
         {
+          text: 'Protocol',
+          items: [
+            {
+              text: 'useHasRole',
+              link: '/react/useHasRole',
+            },
+            {
+              text: 'useVehicleManagerLimits',
+              link: '/react/useVehicleManagerLimits',
+            },
+          ],
+        },
+        {
           text: 'Sending a call',
           link: '/react/sendingCalls',
         },
@@ -275,6 +337,14 @@ export default defineConfig({
         {
           text: 'redeemConduitCallQueryOptions',
           link: '/query/redeemConduitCallQueryOptions',
+        },
+        {
+          text: 'hasRoleQueryOptions',
+          link: '/query/hasRoleQueryOptions',
+        },
+        {
+          text: 'vehicleManagerLimitsQueryOptions',
+          link: '/query/vehicleManagerLimitsQueryOptions',
         },
       ],
     },

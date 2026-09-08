@@ -1,0 +1,44 @@
+---
+description: Updates a fee manager's rates.
+---
+
+# buildSetFeesCall
+
+Sets the fee rates on a fee manager. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+
+The caller needs `FEE_MANAGER_SET_FEES`. Each rate is capped by the matching `initialMaxFees` fixed at spawn, and re-sending the current rates reverts `StateUnchanged`.
+
+## Import
+
+```ts
+import { buildSetFeesCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { buildSetFeesCall } from '@railnetorg/railnet-sdk'
+
+const call = buildSetFeesCall({
+  feeManager: '0x1234...',
+  fees: { performanceFeeBps: 1500, managementFeeBps: 100, depositFeeBps: 0, redeemFeeBps: 0 },
+})
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### feeManager
+
+- **Type:** `Address`
+
+The fee manager to update.
+
+### fees
+
+- **Type:** `Fees`
+
+The new rates in basis points: `{ performanceFeeBps, managementFeeBps, depositFeeBps, redeemFeeBps }`.

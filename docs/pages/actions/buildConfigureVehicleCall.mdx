@@ -1,0 +1,63 @@
+---
+description: Builds the call that sets a sub-vehicle's allocation mode and cap.
+---
+
+# buildConfigureVehicleCall
+
+Builds the `vehicleManager.configure()` call, setting a sub-vehicle's allocation mode and its cap.
+
+## Import
+
+```ts
+import { buildConfigureVehicleCall, VehicleMode } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { buildConfigureVehicleCall, VehicleMode } from '@railnetorg/railnet-sdk'
+
+const call = buildConfigureVehicleCall({
+  vehicleManager,
+  vehicle,
+  config: {
+    mode: VehicleMode.Automatic,
+    cap: { value: 500n * 10n ** 18n, threshold: 10n * 10n ** 18n },
+  },
+})
+```
+
+## Returns
+
+A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actions/callBuilders).
+
+## Parameters
+
+### vehicleManager
+
+- **Type:** `Address`
+
+### vehicle
+
+- **Type:** `Address`
+
+The sub-vehicle to configure. It must already be authorized — see
+[`buildAuthorizeVehicleCall`](/actions/buildAuthorizeVehicleCall).
+
+### config
+
+- **Type:** `VehicleConfig`
+
+```ts
+type VehicleConfig = {
+  mode: VehicleMode
+  cap: { value: bigint; threshold: bigint }
+}
+```
+
+`VehicleMode` is `Automatic` (0) or `Manual` (1); the declaration order is the on-chain encoding.
+
+`cap.value` is in the **sub-vehicle's** share units (18 decimals), not the multi vehicle's asset:
+the SectorAccountingEngine compares it against that vehicle's share holdings. `2n ** 256n - 1n`
+means unlimited and forces `threshold` to 0 on chain. `cap.threshold` is a tolerance margin in the
+same units, and must not exceed `value` on a finite cap.

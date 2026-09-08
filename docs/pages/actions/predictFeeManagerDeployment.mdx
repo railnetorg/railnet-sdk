@@ -1,0 +1,39 @@
+---
+description: Resolves the address a fee manager spawn will deploy to.
+---
+
+# predictFeeManagerDeployment
+
+Reads the address [`buildSpawnFeeManagerCall`](/actions/buildSpawnFeeManagerCall) will deploy to for the same parameters. Only `deploymentSalt` moves it, so one salt and factory always resolve to one address.
+
+## Import
+
+```ts
+import { predictFeeManagerDeployment } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { predictFeeManagerDeployment, getAddresses, randomSalt } from '@railnetorg/railnet-sdk'
+import { mainnet } from 'viem/chains'
+
+const { feeManagerFactory } = getAddresses(mainnet.id)
+
+const address = await predictFeeManagerDeployment(publicClient, {
+  factory: feeManagerFactory,
+  accessControl: '0x1234...',
+  initialFees: { performanceFeeBps: 1000, managementFeeBps: 50, depositFeeBps: 0, redeemFeeBps: 0 },
+  initialMaxFees: { performanceFeeBps: 2000, managementFeeBps: 200, depositFeeBps: 100, redeemFeeBps: 100 },
+  initialRecipients: [{ target: '0xd2135CfB216b74109775236E36d4b433F1DF507B', shareBps: 10000 }],
+  deploymentSalt: randomSalt(),
+})
+```
+
+## Returns
+
+`Address` — where the fee manager will land.
+
+## Parameters
+
+Same as [`buildSpawnFeeManagerCall`](/actions/buildSpawnFeeManagerCall).

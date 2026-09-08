@@ -1,0 +1,26 @@
+---
+description: TanStack Query options for a multi vehicle's operational limits.
+---
+
+# vehicleManagerLimitsQueryOptions
+
+Query options for [`getVehicleManagerLimits`](/actions/getVehicleManagerLimits), for composing
+outside of [`useVehicleManagerLimits`](/react/useVehicleManagerLimits).
+
+```ts
+import { vehicleManagerLimitsQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+const options = vehicleManagerLimitsQueryOptions(publicClient, { vehicleManager })
+```
+
+Resolves to `skipToken` when the client is missing.
+
+## Query key
+
+`['railnet', 'vehicleManagerLimits', { chainId, vehicleManager }]`
+
+`vehicleManagerLimitsQueryKey(chainId, parameters)` builds it, and
+`vehicleManagerLimitsQueryPrefix` invalidates the family across every chain.
+
+Invalidate it after a `setThresholds` or `setMaxTotalAssets` lands: both replace their value
+outright, so a stale read is what makes a caller reset a limit it never meant to touch.
