@@ -302,46 +302,6 @@ The factory pulls an initial deposit during spawn to protect against share infla
 
 Source: src/actions/assetRegistry/getInitialDepositAmount.ts
 
-### CRITICAL Reads and simulations do not belong on the wallet client
-
-Wrong:
-
-```typescript
-const { request } = await simulateContract(walletClient, { ...buildSpawnMultiVehicleCall({ ... }) })
-```
-
-Correct:
-
-```typescript
-const hash = writeContract(
-  client,
-  (await simulateContract(client, { ...buildSpawnMultiVehicleCall({ ... }), account: account.address })).request,
-)
-```
-
-Every write is a `build*Call` builder returning `{ address, abi, functionName, args }`. Simulate it, then send the request:
-
-```typescript
-const { request } = await simulateContract(client, { ...buildEnableConduitCall({ conduit }), account })
-const hash = await writeContract(client, request)
-```
-
-In React the hooks do this for you, and they simulate on `usePublicClient` rather than on the wallet: a wallet answers reads from whatever node it picked, at whatever freshness it keeps, so a preflight sent there can reject a valid call.
-
-Source: src/actions/multiVehicle/spawnMultiVehicle.ts:45-48
-
-### HIGH Sending the multi-vehicle steps out of order
-
-The sequence is eight or more transactions and the order is load-bearing:
-- every role grant must land before the authorization that checks it
-- most roles are scoped to the SectorAccountingEngine, not the MultiVehicle
-- `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM` need granting to the SubQueryEngine too
-
-A wrong scope succeeds silently and reverts later with `MissingRole`. Follow the order in
-"Deploy a Full Multi-Vehicle Ecosystem" above.
-
-Source: docs/pages/workflows/deployingAMultiVehicle.mdx
-
 ### HIGH The multi-vehicle spawn does not spawn vehicles
 
 Wrong:
@@ -421,13 +381,11 @@ All spawn actions return only a `Hash`. Use `extractMultiVehicleContracts`, `ext
 
 Source: src/utils/receipt.ts
 
-### MEDIUM Which roles the sequence grants, and which it does not
+If your security model requires role assignments other than the ones in "Deploy a Full
+Multi-Vehicle Ecosystem" above, skip the workflow and use individual `grantScopedRole` calls with
+correct scopes.
 
-Step 7 of the sequence checks, for `VEHICLE_STEAM_DEPOSIT` and `VEHICLE_STEAM_REDEEM` separately, whether the role is already public on each vehicle scope (via `isScopedRolePublic`). If not, grant that role to three specific addresses per vehicle: `multiVehicle`, `sectorAccountingEngine`, and `subQueryEngine`. Steps 5 and 6 grant `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` (scoped to VehicleManager) and `MULTI_VEHICLE_SET_QUEUES` (scoped to QueueStrategyEngine) to the admin.
-
-If your security model requires different role assignments, skip the workflow and use individual `grantScopedRole` calls with correct scopes.
-
-Source: docs/pages/workflows/deployingAMultiVehicle.mdx:147-238
+See also: railnet-core/SKILL.md § Common Mistakes — reads/simulations on the wallet client
 
 See also: railnet-access-control/SKILL.md
 

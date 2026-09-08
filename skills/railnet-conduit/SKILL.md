@@ -312,36 +312,6 @@ Source: src/actions/conduit/finalizeConduitDeposit.ts
 
 ## Common Mistakes
 
-### CRITICAL Reads and simulations do not belong on the wallet client
-
-Wrong:
-
-```typescript
-const { request } = await simulateContract(walletClient, {
-  ...buildDepositConduitCall({ /* … */ }),
-  account,
-})
-```
-
-Correct:
-
-```typescript
-const hash = writeContract(
-  client,
-  (await simulateContract(client, { ...buildDepositConduitCall({ /* … */ }), account: account })).request,
-)
-```
-
-A wallet client's transport is the wallet itself, so it answers reads from whatever node it picked,
-at whatever freshness it keeps — one was observed pinned to a block from before the approval was
-sent, which made the deposit simulate against a spent allowance and revert on state already on
-chain. Simulate on the public client, then send the request with the wallet. Only signing needs the
-wallet.
-
-A script with a single client uses it for both, which is fine: it chose that client's transport.
-
-Source: src/actions/conduit/getDepositConduitCall.ts
-
 ### CRITICAL Forgetting the sender parameter on a deposit or redeem
 
 Wrong:

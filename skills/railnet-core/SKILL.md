@@ -180,24 +180,24 @@ with the identity of the query it will create. See the conduit skill for the spe
 
 ## Common Mistakes
 
-### CRITICAL Using mainnet instead of Base
+### CRITICAL Calling getAddresses on Base from the main entry point
 
 Wrong:
 
 ```typescript
-import { mainnet } from 'viem/chains'
+import { base } from 'viem/chains'
 import { getAddresses } from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(mainnet.id)
+const addresses = getAddresses(base.id) // throws: no production deployment on Base
 ```
 
 Correct:
 
 ```typescript
-import { mainnet } from 'viem/chains'
-import { getAddresses } from '@railnetorg/railnet-sdk'
+import { base } from 'viem/chains'
+import { getAddresses } from '@railnetorg/railnet-sdk/staging'
 
-const addresses = getAddresses(mainnet.id)
+const addresses = getAddresses(base.id)
 ```
 
 `getAddresses` holds **production** deployments only, and throws on any other chain — including Base (8453), whose production deployment has not shipped. Use `isSupportedChain(chainId)` before calling.
