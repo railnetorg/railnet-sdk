@@ -1,0 +1,53 @@
+---
+description: Changing an account list's mode, lists and sanctions screening.
+---
+
+# Configuring an AccountList
+
+Every call here needs `ACCOUNT_LIST_MANAGER` on the account list's access control, and each returns a prepared call: `{ address, abi, functionName, args }`.
+
+## Import
+
+```ts
+import {
+  buildAddToAllowListCall,
+  buildAddToBlockListCall,
+  buildRemoveFromAllowListCall,
+  buildRemoveFromBlockListCall,
+  buildSetAllowlistModeCall,
+  buildSetSanctionsOracleCall,
+  buildToggleSanctionsCall,
+} from '@railnetorg/railnet-sdk'
+```
+
+## buildSetAllowlistModeCall
+
+```ts
+buildSetAllowlistModeCall({ accountList: '0x1234...', mode: AllowlistMode.STRICT })
+```
+
+Switching mode is always safe: it changes which operations consult the lists, never the lists themselves. Reverts `ModeUnchanged` when the mode already holds.
+
+## The four list calls
+
+```ts
+buildAddToAllowListCall({ accountList: '0x1234...', accounts: ['0xd213...'] })
+buildRemoveFromAllowListCall({ accountList: '0x1234...', accounts: ['0xd213...'] })
+buildAddToBlockListCall({ accountList: '0x1234...', accounts: ['0xd213...'] })
+buildRemoveFromBlockListCall({ accountList: '0x1234...', accounts: ['0xd213...'] })
+```
+
+Each takes a batch. Adding reverts `AddressAlreadyListed` on a duplicate or the zero address, removing reverts `AddressNotListed` when the account is absent.
+
+Blocking stops deposits, transfers and receipts, but not redemption: only sanctions take that away. To off-board a blocked holder, force-redeem them through the conduit.
+
+## Sanctions screening
+
+```ts
+buildSetSanctionsOracleCall({ accountList: '0x1234...', oracle: '0x5678...' })
+buildToggleSanctionsCall({ accountList: '0x1234...', enabled: true })
+```
+
+Set the oracle before enabling — `toggleSanctions(true)` reverts `SanctionsOracleRequired` without one, and the oracle may only return to the zero address while screening is off.
+
+Screening fails closed. An oracle that reverts, holds no code, or returns something malformed marks the account sanctioned, and a sanctioned account cannot deposit, transfer or redeem.

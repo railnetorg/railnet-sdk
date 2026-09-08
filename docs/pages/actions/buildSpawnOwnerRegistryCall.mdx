@@ -1,0 +1,55 @@
+---
+description: Deploys an OwnerRegistry for conduit query claims.
+---
+
+# buildSpawnOwnerRegistryCall
+
+Deploys an OwnerRegistry — the ERC-721 registry that records who owns a conduit's live queries, and lets that owner wrap the claim into a transferable token. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+
+The caller needs `FACTORY_SPAWN` on the factory's access control. The registry itself carries no access control.
+
+## Import
+
+```ts
+import { buildSpawnOwnerRegistryCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { buildSpawnOwnerRegistryCall, getAddresses, randomSalt } from '@railnetorg/railnet-sdk'
+import { base } from 'viem/chains'
+
+const { ownerRegistryFactory } = getAddresses(base.id)
+
+const call = buildSpawnOwnerRegistryCall({
+  factory: ownerRegistryFactory,
+  name: 'Railnet Query Claims',
+  symbol: 'RQC',
+  deploymentSalt: randomSalt(),
+})
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### factory
+
+- **Type:** `Address`
+
+The address of the owner registry factory contract.
+
+### name / symbol
+
+- **Type:** `string`
+
+ERC-721 metadata for the wrapped claims. The struct declares `symbol` first; the builder handles the ordering.
+
+### deploymentSalt
+
+- **Type:** `Hex`
+
+Fixes the deployed address. Generate it with [`randomSalt`](/utilities/randomSalt).
