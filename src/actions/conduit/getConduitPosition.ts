@@ -40,9 +40,7 @@ export async function getConduitPosition(
   parameters: GetConduitPositionParameters,
 ): Promise<GetConduitPositionReturnType> {
   const { conduit, account } = parameters
-  // cacheTime 0: viem caches the block number for `client.cacheTime` by default, which would pin
-  // the reads to a block up to a polling interval old — a position read right after a receipt
-  // would miss the deposit that receipt confirmed.
+  // viem caches the block number for `client.cacheTime`; a cached pin can predate a fresh receipt.
   const blockNumber = parameters.blockNumber ?? (await getBlockNumber(client, { cacheTime: 0 }))
 
   const shares = await readContract(client, {

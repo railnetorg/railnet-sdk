@@ -23,14 +23,11 @@ export type BuildDepositConduitCallParameters = {
    * create time against the vehicle's own estimate; omitted sets none. Derive it from
    * {@link estimateVehicle} and {@link applySlippage}.
    *
-   * Not from {@link estimateConduit}, which prices the same deposit in conduit shares — it converts
-   * the vehicle's output through the share rate and deducts conduit fees. The two are different
-   * denominations, so a floor taken from it is not a looser version of the one you asked for:
-   * depending on the share rate it widens the tolerance silently, or reverts deposits that should
-   * have gone through.
+   * Not from {@link estimateConduit}, which prices the same deposit in conduit shares — a different
+   * denomination, so the floor it yields is looser or tighter depending on the share rate.
    *
-   * The floor bounds the vehicle's output, never the conduit shares finally received — fees and the
-   * share rate sit in between — so it is not a "minimum received".
+   * It bounds the vehicle's output, never the conduit shares finally received, so it is not a
+   * "minimum received".
    */
   minOutput?: bigint
 }

@@ -8,9 +8,8 @@ Bringing up a multi-vehicle is several transactions against several factories, a
 an address the previous one returned. The SDK gives you the builders, the log parsers and the read
 you need for the initial deposit; the order is here.
 
-There is no `deployMultiVehicle` function. It existed, and it hid five transactions behind one
-call: you could not report progress, retry a single step, or see which one failed. Composing it
-yourself is longer, and it is the only version you can operate.
+There is no `deployMultiVehicle` function: the sequence is yours to send, so you can report
+progress, retry a single step, and see which one failed.
 
 ## The order
 

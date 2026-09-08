@@ -81,8 +81,6 @@ describe('getConduitPosition pins both reads to one block', () => {
     expect(position.assets).toBe(SHARES * 2n)
   })
 
-  // viem caches the block number for `client.cacheTime` by default. Cached, a read taken right
-  // after a receipt would pin to a block from before the transaction it just confirmed.
   test('does not serve the block number from viem cache', async () => {
     const { client, requests } = stubClient(21_000_000n)
 

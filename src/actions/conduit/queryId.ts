@@ -1,7 +1,7 @@
 import { type Address, encodeAbiParameters, type Hex, keccak256 } from 'viem'
 import type { Query } from './types.js'
 
-/** The `Query` struct as `abi.encode` lays it out. Asserted against the conduit ABI in the tests. */
+/** The `Query` struct as `abi.encode` lays it out. */
 export const queryAbiParameter = {
   type: 'tuple',
   components: [
@@ -37,8 +37,7 @@ export type ToQuerySaltParameters = {
 }
 
 /**
- * Derives the `query.salt` the conduit requires: `keccak256(abi.encode(sender, salt))`. Binding it
- * to the sender is what stops another account from occupying the query id, and it is why a call
+ * Derives the `query.salt` the conduit requires: `keccak256(abi.encode(sender, salt))`. A call
  * built for one sender reverts with `InvalidQuerySalt` when another one sends it.
  *
  * @param parameters - {@link ToQuerySaltParameters}
