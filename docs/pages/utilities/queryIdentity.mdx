@@ -27,8 +27,9 @@ The builders call it for you; you need it directly only to recognise a query you
 
 ```ts
 import { toQueryId } from '@railnetorg/railnet-sdk'
+import { mainnet } from 'viem/chains'
 
-const queryId = toQueryId({ chainId: base.id, vehicle, query })
+const queryId = toQueryId({ chainId: mainnet.id, vehicle, query })
 ```
 
 `keccak256(abi.encode(chainId, vehicle, query))` — the id the conduit emits in `QueryCreated`, and

@@ -41,7 +41,7 @@ import { mainnet } from 'viem/chains'
 import { railnetActions } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
-  chain: base,
+  chain: mainnet,
   transport: http(),
 }).extend(railnetActions)
 
@@ -89,7 +89,7 @@ import { mainnet } from 'viem/chains'
 import { conduitAbi } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
-  chain: base,
+  chain: mainnet,
   transport: http(),
 })
 
@@ -113,7 +113,7 @@ import { mainnet } from 'viem/chains'
 import { buildDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 const account = privateKeyToAccount('0x...')
-const client = createWalletClient({ account, chain: base, transport: http() })
+const client = createWalletClient({ account, chain: mainnet, transport: http() })
 
 // approve first, then deposit — the SDK does not approve for you
 const hash = writeContract(
@@ -169,7 +169,7 @@ const prepared = buildGrantScopedRoleCall({
 const hash = await walletClient.writeContract({
   ...prepared,
   account,
-  chain: base,
+  chain: mainnet,
 })
 ```
 

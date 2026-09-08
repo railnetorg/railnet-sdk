@@ -29,9 +29,9 @@ import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getAddresses } from '@railnetorg/railnet-sdk'
 
-const publicClient = createPublicClient({ chain: base, transport: http() })
+const publicClient = createPublicClient({ chain: mainnet, transport: http() })
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
-const walletClient = createWalletClient({ account, chain: base, transport: http() })
+const walletClient = createWalletClient({ account, chain: mainnet, transport: http() })
 const addresses = getAddresses(mainnet.id)
 ```
 
@@ -136,7 +136,7 @@ const prepared = buildRevokeScopedRoleCall({
   grantee: managerAddress,
 })
 
-const hash = await walletClient.writeContract({ ...prepared, account, chain: base })
+const hash = await walletClient.writeContract({ ...prepared, account, chain: mainnet })
 ```
 
 Useful for batching several role changes into one multicall or Safe transaction.

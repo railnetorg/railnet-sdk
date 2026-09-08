@@ -28,9 +28,9 @@ import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getAddresses } from '@railnetorg/railnet-sdk'
 
-const publicClient = createPublicClient({ chain: base, transport: http() })
+const publicClient = createPublicClient({ chain: mainnet, transport: http() })
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
-const walletClient = createWalletClient({ account, chain: base, transport: http() })
+const walletClient = createWalletClient({ account, chain: mainnet, transport: http() })
 
 const addresses = getAddresses(mainnet.id)
 ```
@@ -250,7 +250,7 @@ const prepared = buildSpawnAaveV3VehicleCall({
   deploymentSalt: randomSalt(),
 })
 
-const hash = await walletClient.writeContract({ ...prepared, account, chain: base })
+const hash = await walletClient.writeContract({ ...prepared, account, chain: mainnet })
 ```
 
 The vehicle address still has to come from the receipt via `extractAaveV3VehicleAddress`.

@@ -26,7 +26,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 // Read-only client for queries
 const publicClient = createPublicClient({
-  chain: base,
+  chain: mainnet,
   transport: http(),
 })
 
@@ -34,7 +34,7 @@ const publicClient = createPublicClient({
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
 const walletClient = createWalletClient({
   account,
-  chain: base,
+  chain: mainnet,
   transport: http(),
 })
 ```
@@ -239,7 +239,7 @@ const prepared = buildDepositConduitCall({
   salt: randomSalt(), // required here; depositConduit defaults it
 })
 
-const hash = await walletClient.writeContract({ ...prepared, account, chain: base })
+const hash = await walletClient.writeContract({ ...prepared, account, chain: mainnet })
 ```
 
 `buildRedeemConduitCall` likewise requires `outputAsset` and `salt`, which `redeemConduit` fills from
