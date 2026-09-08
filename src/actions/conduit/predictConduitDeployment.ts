@@ -14,9 +14,9 @@ export type PredictConduitDeploymentReturnType = Address
  *
  * @example
  * import { getAddresses, predictConduitDeployment } from '@railnetorg/railnet-sdk'
- * import { base } from 'viem/chains'
+ * import { mainnet } from 'viem/chains'
  *
- * const { conduitFactory } = getAddresses(base.id)
+ * const { conduitFactory } = getAddresses(mainnet.id)
  *
  * const predicted = await predictConduitDeployment(publicClient, {
  *   factory: conduitFactory,

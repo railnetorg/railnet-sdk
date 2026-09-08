@@ -25,14 +25,14 @@ ExternalAccessControl (EAC) is the central permissioning system for Railnet. It 
 
 ```typescript
 import { createWalletClient, createPublicClient, http, type Hex, type Address } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getAddresses } from '@railnetorg/railnet-sdk'
 
 const publicClient = createPublicClient({ chain: base, transport: http() })
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
 const walletClient = createWalletClient({ account, chain: base, transport: http() })
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 ```
 
 ## Core Patterns

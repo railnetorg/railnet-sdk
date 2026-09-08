@@ -28,7 +28,7 @@ This skill builds on railnet-core. Read it first for foundational concepts.
 
 ## Setup
 
-`@railnetorg/railnet-sdk/react` requires `wagmi` and `@tanstack/react-query`. Ensure your application is wrapped in both `WagmiProvider` and `QueryClientProvider`. The SDK ships addresses for Ethereum (`1`) and Base (`8453`).
+`@railnetorg/railnet-sdk/react` requires `wagmi` and `@tanstack/react-query`. Ensure your application is wrapped in both `WagmiProvider` and `QueryClientProvider`. The SDK ships production addresses for Ethereum (`1`); Base runs a staging deployment, exported from `@railnetorg/railnet-sdk/staging`.
 
 ```tsx
 import { WagmiProvider, createConfig, http } from 'wagmi'

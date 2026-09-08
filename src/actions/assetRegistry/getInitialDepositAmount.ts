@@ -18,9 +18,9 @@ export type GetInitialDepositAmountReturnType = bigint
  *
  * @example
  * import { getAddresses, getInitialDepositAmount } from '@railnetorg/railnet-sdk'
- * import { base } from 'viem/chains'
+ * import { mainnet } from 'viem/chains'
  *
- * const { assetRegistry, usdc } = getAddresses(base.id)
+ * const { assetRegistry, usdc } = getAddresses(mainnet.id)
  *
  * const amount = await getInitialDepositAmount(publicClient, { assetRegistry, asset: usdc })
  */

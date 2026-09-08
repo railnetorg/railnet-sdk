@@ -15,17 +15,17 @@ import { getAddresses } from '@railnetorg/railnet-sdk'
 ## Usage
 
 ```ts
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { getAddresses } from '@railnetorg/railnet-sdk'
 
-const { conduitFactory, usdc, aaveV3VehicleFactory } = getAddresses(base.id)
+const { conduitFactory, usdc, aaveV3VehicleFactory } = getAddresses(mainnet.id)
 ```
 
 ### With buildSpawnConduitCall
 
 ```ts
 import { createWalletClient, http } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { buildSpawnConduitCall, getAddresses, randomSalt } from '@railnetorg/railnet-sdk'
 
 const walletClient = createWalletClient({
@@ -33,7 +33,7 @@ const walletClient = createWalletClient({
   transport: http(),
 })
 
-const { conduitFactory } = getAddresses(base.id)
+const { conduitFactory } = getAddresses(mainnet.id)
 
 const hash = await walletClient.writeContract({
   ...buildSpawnConduitCall({
@@ -73,7 +73,6 @@ The chain ID to look up. Throws an error if the chain is not supported.
 | Chain | Chain ID |
 | --- | --- |
 | Ethereum | `1` |
-| Base | `8453` |
 
 All addresses are defined in [`src/contracts/addresses.ts`](https://github.com/railnetorg/railnet-sdk/blob/main/src/contracts/addresses.ts).
 
@@ -88,3 +87,11 @@ if (isSupportedChain(chainId)) {
   const addresses = getAddresses(chainId)
 }
 ```
+
+## Production only
+
+This entry point holds **production** deployments. Base is not here: it has no production
+deployment yet, so `getAddresses(8453)` throws rather than answering with the staging deployment
+Base runs today.
+
+Staging lives behind its own entry point — see [Staging deployments](/contracts/staging).

@@ -21,7 +21,7 @@ import { getInitialDepositAmount } from '@railnetorg/railnet-sdk'
 
 ```ts
 import { createPublicClient, http } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { getAddresses, getInitialDepositAmount } from '@railnetorg/railnet-sdk'
 
 const publicClient = createPublicClient({
@@ -29,7 +29,7 @@ const publicClient = createPublicClient({
   transport: http(),
 })
 
-const { assetRegistry, usdc } = getAddresses(base.id)
+const { assetRegistry, usdc } = getAddresses(mainnet.id)
 
 const amount = await getInitialDepositAmount(publicClient, {
   assetRegistry,
@@ -44,7 +44,7 @@ import { erc20Abi } from 'viem'
 import { buildSpawnConduitCall, getAddresses, getInitialDepositAmount } from '@railnetorg/railnet-sdk'
 
 const account = '0xd2135CfB216b74109775236E36d4b433F1DF507B'
-const { assetRegistry, conduitFactory, usdc } = getAddresses(base.id)
+const { assetRegistry, conduitFactory, usdc } = getAddresses(mainnet.id)
 
 const amount = await getInitialDepositAmount(walletClient, { assetRegistry, asset: usdc })
 

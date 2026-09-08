@@ -2,7 +2,7 @@
 name: railnet-core
 description: >
   Set up railnet-sdk with viem clients, use the railnetActions decorator,
-  understand chain support (Base 8453 only), contract addresses via
+  understand chain support (production: Ethereum 1; staging: 1 and 8453), contract addresses via
   getAddresses, ABIs (conduitAbi, conduitFactoryAbi,
   multiVehicleFactoryAbi, aaveV3VehicleFactoryAbi,
   accessControlFactoryAbi, externalAccessControlAbi,
@@ -37,7 +37,7 @@ The SDK extends viem clients with specialized read actions for Railnet contracts
 
 ```typescript
 import { createPublicClient, http } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { railnetActions } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
@@ -58,9 +58,9 @@ Retrieve factory and registry addresses for the supported chains (Ethereum and B
 
 ```typescript
 import { getAddresses } from '@railnetorg/railnet-sdk'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 // addresses.conduitFactory
 // addresses.coreFactory
 // addresses.multiVehicleFactory
@@ -85,7 +85,7 @@ Use exported ABIs for custom viem calls or event listening.
 
 ```typescript
 import { createPublicClient, http } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { conduitAbi } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
@@ -109,7 +109,7 @@ Writes are builders: simulate the call, then send the request. In React the hook
 ```typescript
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { buildDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 const account = privateKeyToAccount('0x...')
@@ -194,13 +194,15 @@ const addresses = getAddresses(mainnet.id)
 Correct:
 
 ```typescript
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { getAddresses } from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 ```
 
-`getAddresses` throws on any chain other than Ethereum (1) and Base (8453). Use `isSupportedChain(chainId)` to check before calling.
+`getAddresses` holds **production** deployments only, and throws on any other chain — including Base (8453), whose production deployment has not shipped. Use `isSupportedChain(chainId)` before calling.
+
+Staging runs on real mainnet chain ids, so a chain id cannot tell you the environment. The import path does: `@railnetorg/railnet-sdk/staging` exports the same `getAddresses`/`isSupportedChain` over the staging tables, and holds Base today. Never mix the two in one code path.
 
 Source: src/contracts/chains.ts
 

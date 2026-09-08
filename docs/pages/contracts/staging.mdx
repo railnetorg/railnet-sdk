@@ -1,0 +1,58 @@
+---
+description: The staging deployments, behind their own entry point.
+---
+
+# Staging deployments
+
+Railnet runs a staging deployment on real mainnet chain ids rather than on a testnet — chain
+`8453` under this entry point is **Base mainnet**, not a Base testnet. Testing against live Aave and
+Morpho liquidity is why; the cost is that a chain id no longer tells you which environment you are
+on.
+
+So the environment is the import path instead:
+
+```ts
+import { getAddresses } from '@railnetorg/railnet-sdk'          // production
+import { getAddresses } from '@railnetorg/railnet-sdk/staging'  // staging
+```
+
+Each entry point has one deployment per chain, so `getAddresses(chainId)` is unambiguous within
+either. A partner integrating against the root cannot reach a staging address by accident, and
+never sees one in autocomplete.
+
+## Usage
+
+```ts
+import { getAddresses } from '@railnetorg/railnet-sdk/staging'
+import { base } from 'viem/chains'
+
+const { conduitFactory, assetRegistry, usdc, startedAtBlock } = getAddresses(base.id)
+```
+
+## What is here
+
+| Chain | Deployment |
+| --- | --- |
+| Ethereum `1` | staging, alongside the production one in the root |
+| Base `8453` | staging — the only Base deployment today |
+
+Base has no production deployment yet, which is why `getAddresses(8453)` from the **root** throws.
+When it ships it lands in the root and this page loses its Base row; nothing else changes.
+
+## Picking one at runtime
+
+An app that builds for both takes the entry point as configuration rather than deriving it from the
+chain, which cannot distinguish them:
+
+```ts
+import { getAddresses } from '@railnetorg/railnet-sdk'
+import { getAddresses as getStagingAddresses } from '@railnetorg/railnet-sdk/staging'
+
+const lookup = process.env.RAILNET_ENV === 'staging' ? getStagingAddresses : getAddresses
+```
+
+## startedAtBlock
+
+Every deployment carries the block it started at, which is where an indexer or a log scan should
+begin. Reading a Railnet contract before it is pointless and, on a provider that caps log ranges,
+expensive.

@@ -21,7 +21,7 @@ sources:
 
 ```typescript
 import { createPublicClient, createWalletClient, http } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
 // Read-only client for queries
@@ -296,7 +296,7 @@ When spawning a conduit on an async vehicle, the initial deposit remains pending
 ```typescript
 import { getAddresses, buildFinalizeConduitDepositCall } from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 
 const hash = writeContract(
   client,

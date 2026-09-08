@@ -193,6 +193,10 @@ export default defineConfig({
           text: 'isSupportedChain',
           link: '/contracts/isSupportedChain',
         },
+        {
+          text: 'Staging deployments',
+          link: '/contracts/staging',
+        },
       ],
     },
     {

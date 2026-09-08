@@ -24,7 +24,7 @@ sources:
 
 ```typescript
 import { createPublicClient, createWalletClient, http, type Hex } from 'viem'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getAddresses } from '@railnetorg/railnet-sdk'
 
@@ -32,7 +32,7 @@ const publicClient = createPublicClient({ chain: base, transport: http() })
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
 const walletClient = createWalletClient({ account, chain: base, transport: http() })
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 ```
 
 ## Vehicle Types
@@ -53,7 +53,7 @@ Note: Factory addresses exist for ERC4626, Morpho Blue, and Wrapper vehicles (`a
 ```typescript
 import { extractAaveV3VehicleAddress, getAddresses, buildSpawnAaveV3VehicleCall, randomSalt } from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 
 const hash = writeContract(
   client,
@@ -150,7 +150,7 @@ Use individual actions when you need custom role configuration.
 ```typescript
 import { extractMultiVehicleContracts, getAddresses, buildSpawnMultiVehicleCall } from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(base.id)
+const addresses = getAddresses(mainnet.id)
 
 // Step 1: Approve factory for initial deposit
 // (must be done before spawnMultiVehicle)
