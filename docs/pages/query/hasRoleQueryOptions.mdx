@@ -1,0 +1,35 @@
+---
+description: TanStack Query options for a scoped role check.
+---
+
+# hasRoleQueryOptions
+
+Query options for [`getHasRole`](/actions/getHasRole), for composing outside of
+[`useHasRole`](/react/useHasRole) — a prefetch, a route loader, or a query with its own
+`staleTime`.
+
+```ts
+import { hasRoleQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+const options = hasRoleQueryOptions(publicClient, {
+  accessControl,
+  role: VEHICLE_STEAM_DEPOSIT,
+  scope: vehicle,
+  account,
+})
+```
+
+Resolves to `skipToken` when the client is missing, so it can be handed to `prefetchQuery`
+directly.
+
+## Query key
+
+`['railnet', 'hasRole', { chainId, accessControl, role, scope, account }]`
+
+`hasRoleQueryKey(chainId, parameters)` builds it, and `hasRoleQueryPrefix` invalidates the family
+across every chain. Addresses are lowercased for hashing.
+
+Roles change rarely, so this is a good candidate for a long `staleTime` — but invalidate it after
+any [`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall),
+[`buildRevokeScopedRoleCall`](/actions/buildRevokeScopedRoleCall) or
+[`buildSetScopedRolePublicCall`](/actions/buildSetScopedRolePublicCall) lands.

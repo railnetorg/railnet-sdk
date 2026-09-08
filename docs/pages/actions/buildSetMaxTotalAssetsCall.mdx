@@ -1,0 +1,48 @@
+---
+description: Builds the call that caps a multi vehicle's total assets.
+---
+
+# buildSetMaxTotalAssetsCall
+
+Builds the `vehicleManager.setMaxTotalAssets()` call — the hard cap on `totalAssets()`, enforced at
+deposit time.
+
+## Import
+
+```ts
+import { buildSetMaxTotalAssetsCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { buildSetMaxTotalAssetsCall } from '@railnetorg/railnet-sdk'
+import { parseUnits } from 'viem'
+
+const call = buildSetMaxTotalAssetsCall({
+  vehicleManager,
+  maxTotalAssets: parseUnits('10000000', 6),
+})
+```
+
+## Returns
+
+A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actions/callBuilders).
+
+## Parameters
+
+### vehicleManager
+
+- **Type:** `Address`
+
+### maxTotalAssets
+
+- **Type:** `bigint`
+
+In asset units. `2n ** 256n - 1n` means uncapped. Operator-driven flows that grow `totalAssets()`
+without minting shares are exempt from the cap, so it bounds deposits rather than the vehicle's
+size.
+
+Read the current value with
+[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) before lowering it: a cap below the
+current `totalAssets()` stops deposits without unwinding anything.

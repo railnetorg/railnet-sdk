@@ -1,0 +1,44 @@
+---
+description: Pays collected fees out to the recipients.
+---
+
+# buildDispatchFeesCall
+
+Pays the collected balance of one token out to the fee recipients, per their current split. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+
+The caller needs `FEE_MANAGER_DISPATCH_ERC20`.
+
+## Import
+
+```ts
+import { buildDispatchFeesCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { buildDispatchFeesCall, getAddresses } from '@railnetorg/railnet-sdk'
+import { mainnet } from 'viem/chains'
+
+const { usdc } = getAddresses(mainnet.id)
+
+const call = buildDispatchFeesCall({ feeManager: '0x1234...', token: usdc })
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### feeManager
+
+- **Type:** `Address`
+
+The fee manager holding the collected fees.
+
+### token
+
+- **Type:** `Address`
+
+The collected token to pay out, usually the vehicle's asset or its share token.

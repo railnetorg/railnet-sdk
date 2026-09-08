@@ -1,0 +1,47 @@
+---
+description: Replaces a fee manager's recipient split.
+---
+
+# buildSetFeeRecipientsCall
+
+Replaces the whole recipient split on a fee manager. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+
+The caller needs `FEE_MANAGER_SET_FEE_RECIPIENTS`.
+
+## Import
+
+```ts
+import { buildSetFeeRecipientsCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { buildSetFeeRecipientsCall } from '@railnetorg/railnet-sdk'
+
+const call = buildSetFeeRecipientsCall({
+  feeManager: '0x1234...',
+  recipients: [
+    { target: '0x1111111111111111111111111111111111111111', shareBps: 4000 },
+    { target: '0x2222222222222222222222222222222222222222', shareBps: 6000 },
+  ],
+})
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### feeManager
+
+- **Type:** `Address`
+
+The fee manager to update.
+
+### recipients
+
+- **Type:** `readonly FeeRecipient[]`
+
+The new split. Must be non-empty, sorted **strictly ascending by `target`**, carry no zero `shareBps`, and sum to exactly 10000. The list replaces the previous one wholesale.

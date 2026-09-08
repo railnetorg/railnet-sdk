@@ -1,0 +1,45 @@
+---
+description: Builds the call that drops a sub-vehicle's authorization from a multi vehicle.
+---
+
+# buildUnauthorizeVehicleCall
+
+Builds the `vehicleManager.unauthorize()` call, dropping a sub-vehicle's authorization and its
+configuration.
+
+It does **not** unwind holdings. A vehicle can be unauthorized while the multi vehicle still holds
+a position in it, which then cannot be dispatched to. Move the position out first — see
+[`buildMoveBetweenSectorsCall`](/actions/buildMoveBetweenSectorsCall) and
+[`buildDispatchVehicleCall`](/actions/buildDispatchVehicleCall) — unless stranding it is the intent.
+
+## Import
+
+```ts
+import { buildUnauthorizeVehicleCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { buildUnauthorizeVehicleCall } from '@railnetorg/railnet-sdk'
+
+const call = buildUnauthorizeVehicleCall({ vehicleManager, vehicle })
+```
+
+## Returns
+
+A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actions/callBuilders).
+
+## Parameters
+
+### vehicleManager
+
+- **Type:** `Address`
+
+### vehicle
+
+- **Type:** `Address`
+
+The sub-vehicle to unauthorize. Re-authorizing it later needs
+[`buildAuthorizeVehicleCall`](/actions/buildAuthorizeVehicleCall) and a fresh
+[`buildConfigureVehicleCall`](/actions/buildConfigureVehicleCall): the configuration went with it.
