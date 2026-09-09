@@ -1,6 +1,6 @@
 import type { Address } from 'viem'
 import { feeManagerAbi } from '../../abi/feeManager.js'
-import type { Fees } from './types.js'
+import { assertFees, type Fees } from './types.js'
 
 export type SetFeesParameters = {
   feeManager: Address
@@ -12,8 +12,11 @@ export type SetFeesParameters = {
  * `initialMaxFees` fixed at spawn, and re-sending the current rates reverts `StateUnchanged`.
  *
  * @param parameters - {@link SetFeesParameters}
+ * @throws Error if a rate is not an integer between 0 and 10000
  */
 export function buildSetFeesCall(parameters: SetFeesParameters) {
+  assertFees(parameters.fees)
+
   return {
     address: parameters.feeManager,
     abi: feeManagerAbi,

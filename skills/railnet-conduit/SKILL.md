@@ -3,7 +3,7 @@ name: railnet-conduit
 description: >
   Interact with Railnet Conduits — depositConduit, redeemConduit,
   getConduitPosition, getConduitInfo, estimateConduit,
-  predictConduitDeployment, buildSpawnConduitCall, buildEnableConduitCall,
+  predictConduitDeployment, buildSpawnConduitCall, buildFinalizeConduitDepositCall,
   buildFinalizeConduitDepositCall, processConduitQuery. Covers deposits,
   redemptions, position reads, estimates, async query lifecycle,
   and conduit deployment. Load when working with conduit operations.
@@ -64,10 +64,16 @@ async function checkPosition(conduit: Address, user: Address) {
 }
 ```
 
-### Spawning and Enabling a Conduit
+### Spawning a Conduit
+
+A conduit is enabled by the ConduitFactory, never by you: `conduit.enable()` accepts only the
+factory, which calls it once the seed deposit settles and `initialExpectedSupply` is reached.
+On a synchronous vehicle that happens inline in `spawn()`. On an async one the factory records a
+pending deposit and emits `PendingConduitDeposit`; send `buildFinalizeConduitDepositCall` once the
+vehicle's query settles, and the same path enables the conduit. There is no `buildEnableConduitCall`.
 
 ```typescript
-import { extractConduitAddress, getInitialDepositAmount, predictConduitDeployment, buildEnableConduitCall, buildSpawnConduitCall } from '@railnetorg/railnet-sdk'
+import { extractConduitAddress, getInitialDepositAmount, predictConduitDeployment, buildFinalizeConduitDepositCall, buildSpawnConduitCall } from '@railnetorg/railnet-sdk'
 import { erc20Abi } from 'viem'
 
 async function deployNewConduit() {
@@ -109,15 +115,20 @@ async function deployNewConduit() {
   const receipt = await publicClient.waitForTransactionReceipt({ hash })
   
   const conduit = extractConduitAddress(receipt, factory)
-  
-  if (conduit) {
-    writeContract(
-  client,
-  (await simulateContract(client, { ...buildEnableConduitCall({ 
-      conduit, 
-      account: walletClient.account.address 
-    }), account: account.address })).request,
-)
+  if (!conduit) throw new Error('no conduit in the logs')
+
+  // Synchronous vehicle: already enabled. Async: finalize once the seed deposit settles.
+  const { isEnabled } = await getConduitInfo(client, { conduit })
+  if (!isEnabled) {
+    await writeContract(
+      client,
+      (
+        await simulateContract(client, {
+          ...buildFinalizeConduitDepositCall({ factory, conduit }),
+          account: walletClient.account.address,
+        })
+      ).request,
+    )
   }
 }
 ```
@@ -221,7 +232,7 @@ second query with a different id.
 
 ### Call Builders
 
-`buildDepositConduitCall`, `buildRedeemConduitCall`, `buildSpawnConduitCall`, `buildEnableConduitCall`,
+`buildDepositConduitCall`, `buildRedeemConduitCall`, `buildSpawnConduitCall`, `buildEnableConduitTransfersCall`,
 `buildFinalizeConduitDepositCall` and `buildProcessConduitQueryCall` return the viem contract call
 without sending it — synchronous, no client. Use them to batch, simulate, or sign elsewhere.
 
@@ -253,7 +264,7 @@ When the underlying vehicle is async, `create()` returns state PROCESSING (not U
 Note: `create()` never produces REJECTED or RECOVERING — validation failures always revert. If `create()` succeeds, the query is in PROCESSING or UNLOCKING.
 
 ```typescript
-import { buildProcessConduitQueryCall, type ConduitMode } from '@railnetorg/railnet-sdk'
+import { buildProcessConduitQueryCall, type QueryMode } from '@railnetorg/railnet-sdk'
 import { encodeAbiParameters, keccak256 } from 'viem'
 import type { Address, Hex } from 'viem'
 
@@ -266,7 +277,7 @@ const query = {
   receiver: conduitAddress as Address,
   input: { asset: tokenAddress, value: depositAmount },
   output: { asset: zeroAddress, value: 0n },
-  mode: 0 as ConduitMode, // ConduitMode.DEPOSIT
+  mode: 0 as QueryMode, // QueryMode.DEPOSIT
   salt: keccak256(
     encodeAbiParameters(
       [{ type: 'address' }, { type: 'bytes32' }],
@@ -376,11 +387,11 @@ Source: src/actions/conduit/depositConduit.ts:29
 Wrong:
 
 ```typescript
-import { estimateConduit, ConduitMode, EstimationType } from '@railnetorg/railnet-sdk'
+import { estimateConduit, QueryMode, EstimationType } from '@railnetorg/railnet-sdk'
 
 const estimated = await estimateConduit(client, {
   conduit, asset: { asset: conduit, value: shares },
-  mode: ConduitMode.REDEEM, estimationType: EstimationType.OUTPUT,
+  mode: QueryMode.REDEEM, estimationType: EstimationType.OUTPUT,
 })
 ```
 

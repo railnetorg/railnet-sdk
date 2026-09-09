@@ -1,5 +1,5 @@
 import { type Address, encodeAbiParameters, type Hex, keccak256 } from 'viem'
-import type { Query } from './types.js'
+import type { Query } from '../../types.js'
 
 /** The `Query` struct as `abi.encode` lays it out. */
 export const queryAbiParameter = {

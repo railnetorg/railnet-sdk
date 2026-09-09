@@ -7,10 +7,11 @@ description: >
   multiVehicleFactoryAbi, aaveV3VehicleFactoryAbi,
   accessControlFactoryAbi, externalAccessControlAbi,
   queueStrategyEngineAbi, sectorAccountingEngineAbi,
-  vehicleManagerAbi), enums (ConduitMode, ConduitState,
+  vehicleManagerAbi), enums (QueryMode, QueryState,
   EstimationType), types (Asset, ConduitInfo,
-  ChainAddresses), and role constants. Load when installing railnet-sdk,
-  creating a client, or importing SDK utilities.
+  ChainAddresses), role constants, and revert handling with getRailnetError.
+  Load when installing railnet-sdk, creating a client, importing SDK utilities,
+  or interpreting a contract revert.
 metadata:
   type: core
   library: railnet-sdk
@@ -18,6 +19,8 @@ metadata:
 sources:
   - 'railnetorg/railnet-sdk:src/index.ts'
   - 'railnetorg/railnet-sdk:src/decorator.ts'
+  - 'railnetorg/railnet-sdk:src/errors.ts'
+  - 'railnetorg/railnet-sdk:src/types.ts'
   - 'railnetorg/railnet-sdk:src/contracts/chains.ts'
   - 'railnetorg/railnet-sdk:src/contracts/addresses.ts'
 ---
@@ -51,7 +54,30 @@ const info = await client.getConduitInfo({
 })
 ```
 
-The decorator exposes four read actions: `getConduitPosition`, `getConduitInfo`, `predictConduitDeployment`, and `estimateConduit`. Writes are call builders, not actions: the SDK builds them and never sends them — see railnet-conduit and railnet-vehicle skills.
+The decorator exposes every read action the package ships: `estimateConduit`, `estimateVehicle`,
+`getConduitInfo`, `getConduitPosition`, `getDepositConduitCall`, `getHasRole`,
+`getInitialDepositAmount`, `getMorphoBlueSingleton`, `getMorphoMarketAsset`,
+`getRedeemConduitCall`, `getVehicleManagerLimits`, `predictAccountListDeployment`,
+`predictConduitDeployment`, `predictFeeManagerDeployment`, `predictOwnerRegistryDeployment` and
+`simulateDispatchVehicle`. Writes are call builders, not actions: the SDK builds them and never
+sends them — see railnet-conduit and railnet-vehicle skills.
+
+### Handling reverts
+`getRailnetError(error)` walks whatever viem threw, returns the decoded custom error name, its
+arguments and — for the errors a caller can act on — what to do about it. It returns `null` when
+the failure was not a contract revert.
+
+```typescript
+import { getRailnetError } from '@railnetorg/railnet-sdk'
+
+try {
+  await simulateContract(client, { ...call, account })
+} catch (error) {
+  const reverted = getRailnetError(error)
+  if (reverted?.name === 'InsufficientAllowance') return approveFirst()
+  throw new Error(reverted?.hint ?? 'the call failed', { cause: error })
+}
+```
 
 ### Contract Address Lookup
 Retrieve factory and registry addresses for the supported chains (Ethereum and Base).
@@ -305,7 +331,7 @@ const hash = await writeContract(walletClient, request)
 Every write is a `build*Call` builder returning `{ address, abi, functionName, args }`. Simulate it, then send the request:
 
 ```typescript
-const { request } = await simulateContract(client, { ...buildEnableConduitCall({ conduit }), account })
+const { request } = await simulateContract(client, { ...buildEnableConduitTransfersCall({ conduit }), account })
 const hash = await writeContract(client, request)
 ```
 

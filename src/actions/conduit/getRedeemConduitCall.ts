@@ -1,9 +1,9 @@
 import type { Client, Hex } from 'viem'
 import { readContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
+import type { Asset } from '../../types.js'
 import { toQuerySalt } from './queryId.js'
 import { type BuildRedeemConduitCallParameters, buildRedeemConduitCall } from './redeemConduit.js'
-import type { Asset } from './types.js'
 
 export type GetRedeemConduitCallParameters = Omit<
   BuildRedeemConduitCallParameters,

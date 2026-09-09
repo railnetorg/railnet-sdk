@@ -322,7 +322,7 @@ const hash = writeContract(
 Every write is a `build*Call` builder returning `{ address, abi, functionName, args }`. Simulate it, then send the request:
 
 ```typescript
-const { request } = await simulateContract(client, { ...buildEnableConduitCall({ conduit }), account })
+const { request } = await simulateContract(client, { ...buildEnableConduitTransfersCall({ conduit }), account })
 const hash = await writeContract(client, request)
 ```
 

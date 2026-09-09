@@ -1,6 +1,6 @@
 import type { Address, Hex } from 'viem'
 import { conduitAbi } from '../../abi/conduit.js'
-import type { Asset } from './types.js'
+import type { Asset } from '../../types.js'
 
 export type BuildRedeemConduitCallParameters = {
   conduit: Address

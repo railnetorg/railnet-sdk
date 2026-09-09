@@ -1,12 +1,12 @@
 import type { Address, Client, Hex } from 'viem'
 import { getChainId, readContract } from 'viem/actions'
 import { conduitAbi } from '../../abi/conduit.js'
+import type { Query } from '../../types.js'
 import {
   type BuildDepositConduitCallParameters,
   buildDepositConduitCall,
 } from './depositConduit.js'
 import { toQueryId } from './queryId.js'
-import type { Query } from './types.js'
 
 export type GetDepositConduitCallParameters = Omit<BuildDepositConduitCallParameters, 'vehicle'> & {
   /** Read from `conduit.getVehicle()` when omitted. */

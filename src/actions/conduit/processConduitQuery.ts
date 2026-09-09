@@ -1,6 +1,6 @@
 import type { Address } from 'viem'
 import { conduitAbi } from '../../abi/conduit.js'
-import type { Query } from './types.js'
+import type { Query } from '../../types.js'
 
 export type ProcessConduitQueryParameters = {
   conduit: Address

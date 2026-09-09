@@ -1,13 +1,5 @@
 import type { Address, Hex } from 'viem'
-
-export type Interception = {
-  asset: Address
-  recipients: Array<{
-    target: Address
-    shareBps: bigint
-    chainId: bigint
-  }>
-}
+import type { Interception } from '../../types.js'
 
 export type SpawnConduitParameters = {
   factory: Address
@@ -23,34 +15,4 @@ export type SpawnConduitParameters = {
   ownerRegistry: Address
   querySalt: Hex
   deploymentSalt: Hex
-}
-
-export enum ConduitMode {
-  DEPOSIT = 0,
-  REDEEM = 1,
-}
-
-export enum ConduitState {
-  EMPTY = 0,
-  PROCESSING = 1,
-  PAUSED = 2,
-  UNLOCKING = 3,
-  RECOVERING = 4,
-  REJECTED = 5,
-  SETTLED = 6,
-}
-
-export type Asset = {
-  asset: Address
-  value: bigint
-}
-
-export type Query = {
-  owner: Address
-  receiver: Address
-  input: Asset
-  output: Asset
-  mode: ConduitMode
-  salt: Hex
-  data: Hex
 }
