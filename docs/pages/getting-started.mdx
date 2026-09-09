@@ -73,7 +73,9 @@ const position = await getConduitPosition(client, {
 
 ### Client Decorator
 
-You can also extend a viem client with all Railnet actions using the `railnetActions` decorator:
+You can also extend a viem client with every Railnet read action using the `railnetActions`
+decorator. Writes are absent by design — the SDK builds calls and you send them, so there is
+nothing to hang off a client. See [Sending a call](/react/sendingCalls).
 
 ```ts
 import { createPublicClient, http } from 'viem'

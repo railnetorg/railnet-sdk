@@ -13,11 +13,13 @@ freshness it keeps: a simulation sent there can reject a call on state that has 
 an approval it has not seen yet, for instance.
 
 ```tsx
-import { buildEnableConduitCall } from '@railnetorg/railnet-sdk'
+import { buildEnableConduitTransfersCall } from '@railnetorg/railnet-sdk'
 import { useSimulateContract, useWriteContract } from 'wagmi'
 
-export function EnableButton({ conduit }: { conduit: Address }) {
-  const { data: simulation, error } = useSimulateContract(buildEnableConduitCall({ conduit }))
+export function EnableTransfersButton({ conduit }: { conduit: Address }) {
+  const { data: simulation, error } = useSimulateContract(
+    buildEnableConduitTransfersCall({ conduit }),
+  )
   const { writeContract, isPending } = useWriteContract()
 
   return (
@@ -26,7 +28,7 @@ export function EnableButton({ conduit }: { conduit: Address }) {
         onClick={() => simulation && writeContract(simulation.request)}
         disabled={!simulation || isPending}
       >
-        Enable
+        Enable transfers
       </button>
       {error ? <p role="alert">{error.shortMessage ?? error.message}</p> : null}
     </>

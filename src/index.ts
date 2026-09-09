@@ -8,6 +8,10 @@ export * from './contracts/index.js'
 
 export { type RailnetActions, railnetActions } from './decorator.js'
 
+export * from './errors.js'
+
+export * from './types.js'
+
 export * from './utils/call.js'
 export * from './utils/receipt.js'
 export * from './utils/salt.js'

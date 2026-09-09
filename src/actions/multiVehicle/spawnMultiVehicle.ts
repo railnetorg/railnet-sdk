@@ -1,5 +1,6 @@
 import { type Address, type Hex, zeroAddress } from 'viem'
 import { multiVehicleFactoryAbi } from '../../abi/multiVehicleFactory.js'
+import type { Interception } from '../../types.js'
 
 export type MultiVehicleSalts = {
   multiVehicle: Hex
@@ -22,14 +23,7 @@ export type SpawnMultiVehicleParameters = {
   modulesManager?: Address
   forbiddenAddresses?: Address[]
   salts: MultiVehicleSalts
-  initialInterceptions?: Array<{
-    asset: Address
-    recipients: Array<{
-      target: Address
-      shareBps: bigint
-      chainId: bigint
-    }>
-  }>
+  initialInterceptions?: Array<Interception>
 }
 
 /**

@@ -1,7 +1,7 @@
 import type { Address, Client, Hex } from 'viem'
 import { readContract } from 'viem/actions'
 import { feeManagerFactoryAbi } from '../../abi/feeManagerFactory.js'
-import type { FeeRecipient, Fees } from './types.js'
+import { assertFeeRecipients, assertFeesWithinMax, type FeeRecipient, type Fees } from './types.js'
 
 export type SpawnFeeManagerParameters = {
   factory: Address
@@ -16,6 +16,9 @@ export type SpawnFeeManagerParameters = {
 }
 
 function toSpawnParams(parameters: SpawnFeeManagerParameters) {
+  assertFeesWithinMax(parameters.initialFees, parameters.initialMaxFees)
+  assertFeeRecipients(parameters.initialRecipients)
+
   return {
     accessControl: parameters.accessControl,
     initialFees: parameters.initialFees,
@@ -30,6 +33,8 @@ function toSpawnParams(parameters: SpawnFeeManagerParameters) {
  * the factory's access control. Unlike a conduit, nothing is pulled from the caller.
  *
  * @param parameters - {@link SpawnFeeManagerParameters}
+ * @throws Error if a rate is out of range or above its `initialMaxFees` ceiling, or the recipient
+ * split is empty, out of order, or does not total 10000 bps
  *
  * @example
  * import { buildSpawnFeeManagerCall, getAddresses, randomSalt } from '@railnetorg/railnet-sdk'

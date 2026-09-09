@@ -2,12 +2,12 @@ import { type Address, type Client, type Hex, maxUint256 } from 'viem'
 import { simulateContract } from 'viem/actions'
 import { sectorAccountingEngineAbi } from '../../abi/sectorAccountingEngine.js'
 import type { Sector } from '../../constants/sectors.js'
-import type { ConduitMode, ConduitState, Query } from '../conduit/types.js'
+import type { Query, QueryMode, QueryState } from '../../types.js'
 
 export type DispatchVehicleParameters = {
   sectorAccountingEngine: Address
   vehicle: Address
-  mode: ConduitMode
+  mode: QueryMode
   amount: bigint
   settledDestination: Sector
   rejectedDestination: Sector
@@ -18,7 +18,7 @@ export type DispatchVehicleParameters = {
 
 export type SimulateDispatchVehicleReturnType = {
   query: Query
-  state: ConduitState
+  state: QueryState
 }
 
 /**
@@ -66,11 +66,11 @@ export function buildDispatchVehicleCall(parameters: DispatchVehicleParameters) 
  * @returns The dispatched query, needed to progress it later, and the resulting state
  *
  * @example
- * import { ConduitState, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
+ * import { QueryState, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
  *
  * const { query, state } = await simulateDispatchVehicle(publicClient, dispatchParameters)
  *
- * if (state !== ConduitState.SETTLED) {
+ * if (state !== QueryState.SETTLED) {
  *   // async vehicle: keep `query` to progress it once the vehicle settles
  * }
  */

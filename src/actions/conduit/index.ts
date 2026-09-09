@@ -1,5 +1,5 @@
 export * from './depositConduit.js'
-export * from './enableConduit.js'
+export * from './enableConduitTransfers.js'
 export * from './estimateConduit.js'
 export * from './finalizeConduitDeposit.js'
 export * from './getConduitInfo.js'
