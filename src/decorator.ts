@@ -13,6 +13,8 @@ import { simulateDispatchVehicle } from './actions/multiVehicle/dispatchVehicle.
 import { getVehicleManagerLimits } from './actions/multiVehicle/getVehicleManagerLimits.js'
 import { predictOwnerRegistryDeployment } from './actions/ownerRegistry/spawnOwnerRegistry.js'
 import { estimateVehicle } from './actions/vehicle/estimateVehicle.js'
+import { getMorphoBlueSingleton } from './actions/vehicle/getMorphoBlueSingleton.js'
+import { getMorphoMarketAsset } from './actions/vehicle/getMorphoMarketAsset.js'
 
 /**
  * Viem client decorator adding every Railnet action that only reads. Use with
@@ -36,6 +38,8 @@ export function railnetActions(client: Client) {
     getDepositConduitCall: bind(getDepositConduitCall),
     getHasRole: bind(getHasRole),
     getInitialDepositAmount: bind(getInitialDepositAmount),
+    getMorphoBlueSingleton: bind(getMorphoBlueSingleton),
+    getMorphoMarketAsset: bind(getMorphoMarketAsset),
     getRedeemConduitCall: bind(getRedeemConduitCall),
     getVehicleManagerLimits: bind(getVehicleManagerLimits),
     predictAccountListDeployment: bind(predictAccountListDeployment),

@@ -1,2 +1,7 @@
 export * from './estimateVehicle.js'
+export * from './getMorphoBlueSingleton.js'
+export * from './getMorphoMarketAsset.js'
 export * from './spawnAaveV3Vehicle.js'
+export * from './spawnErc4626Vehicle.js'
+export * from './spawnMorphoBlueVehicle.js'
+export * from './spawnWrapperVehicle.js'
