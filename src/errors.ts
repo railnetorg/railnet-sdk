@@ -6,7 +6,7 @@ import { protocolErrorsAbi } from './abi/protocolErrors.js'
  * What to do about a revert, for the errors a caller can act on. Keyed by the custom error's name,
  * which viem decodes from the ABIs this package ships.
  *
- * Deliberately not exhaustive: the protocol declares 121 errors, and the OpenZeppelin, ERC-20 and
+ * Deliberately not exhaustive: the protocol declares 167 errors, and the OpenZeppelin, ERC-20 and
  * proxy ones say what they mean already. Only the entries where the name alone leaves a caller
  * guessing are here.
  */
@@ -19,10 +19,13 @@ export const railnetErrorHints: Readonly<Record<string, string>> = {
   AssetNotAuthorized:
     'The AssetRegistry has no initial deposit registered for this asset, so no factory will spawn against it.',
   CannotAuthorizeMultiVehicle: 'A multi vehicle cannot be authorized as its own sub-vehicle.',
+  CreateNotAllowed:
+    'The AccountList refuses the sender. A deposit needs an account that is not blocked, not sanctioned, and allow-listed under REGULAR or STRICT; a redeem only needs one that is not sanctioned.',
+  DefaultAdminCannotBePublic: 'DEFAULT_ADMIN_ROLE cannot be made public.',
   DepositLimitedByCap:
     'The sub-vehicle cap set by buildConfigureVehicleCall is reached. The cap is in share units of that vehicle, not in the asset of the multi vehicle.',
   DisabledConduit: 'The conduit has not been enabled yet, so it takes no deposits or redeems.',
-  DisabledVehicle: 'The vehicle is paused or frozen at the beacon.',
+  DisabledVehicle: 'The vehicle has not been enabled yet: its seed deposit has not finalized.',
   DispatchDepositAmountTooHigh:
     'The dispatch asks for more than the sector holds or than the vehicle accepts. Move assets into the sector first, or pass maxUint256 to send whatever is staged.',
   DispatchRedeemAmountTooHigh:
@@ -53,7 +56,7 @@ export const railnetErrorHints: Readonly<Record<string, string>> = {
   InvalidEstimatedAsset:
     'A vehicle answered estimate() with an asset that is not its own shares. The helper that raised this expects a single-asset vehicle.',
   InvalidPoolAddressesProvider:
-    'The Aave pool addresses provider is not the one the factory implementation was built against. Use the address from getAddresses.',
+    'The Aave pool addresses provider is the zero address or has no code. Use the address from getAddresses.',
   InvalidQueryOwnerOrReceiver:
     'The owner and receiver on the query are not what the conduit requires.',
   InvalidQuerySalt:
@@ -82,12 +85,13 @@ export const railnetErrorHints: Readonly<Record<string, string>> = {
   ModeUnchanged: 'The allow-list mode already holds that value.',
   NoPendingDeposit: 'The conduit has no async initial deposit waiting to be finalized.',
   NotAllowed:
-    'The AccountList blocks this account. Under REGULAR or STRICT the sender must be allow-listed; a blocked or sanctioned account is refused outright.',
+    'The AccountList refuses the pair for a third-party receiver. Neither side may be blocked or sanctioned, and under STRICT both must be allow-listed.',
   NotDeployedByFactory: 'The address was not spawned by the factory being asked about it.',
   NothingToFulfill: 'No redeem request is pending fulfilment.',
   NothingToRedeem: 'The holder has no position to redeem.',
   OracleUnchanged: 'The sanctions oracle already points there.',
-  PublicRoleAuthDenied: 'DEFAULT_ADMIN_ROLE cannot be made public.',
+  PublicRoleAuthDenied:
+    'The role is public for that scope, so per-account grant, revoke and renounce are refused. Turn it off with buildSetScopedRolePublicCall first.',
   QueryAlreadyExists:
     'A query already exists under that salt. A salt fixes the identity of a query, so use a fresh randomSalt() per operation.',
   RecipientsNotStrictlyAscending:
@@ -164,8 +168,8 @@ export function getRailnetError(error: unknown): RailnetError | null {
 }
 
 /**
- * Second pass for a revert viem left undecoded, against the `ErrorLib` errors no contract ABI
- * carries. See {@link protocolErrorsAbi}.
+ * Second pass for a revert viem left undecoded, against every error the protocol declares. See
+ * {@link protocolErrorsAbi}.
  */
 function decodeProtocolError(raw: Hex | undefined) {
   if (!raw) {
