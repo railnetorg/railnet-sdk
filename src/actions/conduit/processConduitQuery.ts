@@ -8,8 +8,11 @@ export type ProcessConduitQueryParameters = {
 }
 
 /**
- * Builds the `conduit.process()` call, which advances a query's state. Async vehicles need it; in
- * a deployment where a keeper drives settlement, this is its call, not an integration's.
+ * Builds the `conduit.process()` call, which advances a query's state. Async vehicles need it.
+ *
+ * The query's receiver may always call it, with no role; any other caller needs CONDUIT_PROCESS,
+ * which is what a keeper driving settlement holds. A query already in a terminal state returns that
+ * state without advancing, and one this conduit never created reverts `UnknownQuery`.
  *
  * @param parameters - {@link ProcessConduitQueryParameters}
  */

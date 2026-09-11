@@ -28,8 +28,9 @@ export type UpdateAccountListParameters = {
 }
 
 /**
- * The contract rejects a duplicate within the batch as readily as one already stored
- * (`AddressAlreadyListed`), and the zero address (`ZeroAddress`).
+ * The contract walks the batch entry by entry, so a repeat fails on its second pass exactly as a
+ * stored entry would — `AddressAlreadyListed` when adding, `AddressNotListed` when removing — and
+ * it rejects the zero address (`ZeroAddress`) on both.
  *
  * @throws Error if the batch is empty, holds the zero address, or repeats an account
  */
@@ -70,12 +71,15 @@ export function buildAddToAllowListCall(parameters: UpdateAccountListParameters)
 }
 
 /**
- * Removes accounts from the allow-list. Reverts `AddressNotListed` when one is absent. Needs
- * ACCOUNT_LIST_MANAGER.
+ * Removes accounts from the allow-list. Reverts `AddressNotListed` when one is absent and
+ * `ZeroAddress` on the zero address. Needs ACCOUNT_LIST_MANAGER.
  *
  * @param parameters - {@link UpdateAccountListParameters}
+ * @throws Error if the batch is empty, holds the zero address, or repeats an account
  */
 export function buildRemoveFromAllowListCall(parameters: UpdateAccountListParameters) {
+  assertListedAccounts(parameters.accounts)
+
   return {
     address: parameters.accountList,
     abi: accountListAbi,
@@ -87,8 +91,9 @@ export function buildRemoveFromAllowListCall(parameters: UpdateAccountListParame
 /**
  * Blocks accounts: they can no longer deposit, receive or transfer. They keep the right to redeem
  * their own position — only a sanctions hit takes that away — but blocking is also what lets a
- * CONDUIT_FORCE_REDEEM holder redeem on their behalf. Reverts `AddressOnOtherList` on an account
- * the allow-list already holds. Needs ACCOUNT_LIST_MANAGER.
+ * CONDUIT_FORCE_REDEEM holder redeem on their behalf. Reverts `AddressAlreadyListed` on an account
+ * already blocked, `ZeroAddress` on the zero address, and `AddressOnOtherList` on an account the
+ * allow-list already holds. Needs ACCOUNT_LIST_MANAGER.
  *
  * @param parameters - {@link UpdateAccountListParameters}
  */
@@ -104,11 +109,15 @@ export function buildAddToBlockListCall(parameters: UpdateAccountListParameters)
 }
 
 /**
- * Unblocks accounts. Reverts `AddressNotListed` when one is absent. Needs ACCOUNT_LIST_MANAGER.
+ * Unblocks accounts. Reverts `AddressNotListed` when one is absent and `ZeroAddress` on the zero
+ * address. Needs ACCOUNT_LIST_MANAGER.
  *
  * @param parameters - {@link UpdateAccountListParameters}
+ * @throws Error if the batch is empty, holds the zero address, or repeats an account
  */
 export function buildRemoveFromBlockListCall(parameters: UpdateAccountListParameters) {
+  assertListedAccounts(parameters.accounts)
+
   return {
     address: parameters.accountList,
     abi: accountListAbi,

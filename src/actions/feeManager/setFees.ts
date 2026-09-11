@@ -12,7 +12,8 @@ export type SetFeesParameters = {
  * `initialMaxFees` fixed at spawn, and re-sending the current rates reverts `StateUnchanged`.
  *
  * @param parameters - {@link SetFeesParameters}
- * @throws Error if a rate is not an integer between 0 and 10000
+ * @throws Error if a rate is not an integer within its ceiling: 10000 for the ongoing fees, 9999
+ * for the transactional ones, which stay reversible
  */
 export function buildSetFeesCall(parameters: SetFeesParameters) {
   assertFees(parameters.fees)

@@ -10,11 +10,13 @@ export type GetInitialDepositAmountParameters = {
 export type GetInitialDepositAmountReturnType = bigint
 
 /**
- * Reads the initial deposit amount the factories pull from the caller when spawning a conduit or a vehicle for this asset.
- * Approve at least this amount to the factory before calling `spawnConduit`, `spawnMultiVehicle`, or `spawnAaveV3Vehicle`.
+ * Reads the initial deposit amount the factories pull from the caller when spawning a conduit or a
+ * vehicle for this asset. Approve at least this amount to the factory before any spawn: every
+ * conduit and vehicle factory pulls it, not just some of them.
  *
  * @param parameters - {@link GetInitialDepositAmountParameters}
  * @returns The initial deposit amount, in the asset's own decimals
+ * @throws The read itself reverts `AssetNotAuthorized` when the registry does not authorize `asset`
  *
  * @example
  * import { getAddresses, getInitialDepositAmount } from '@railnetorg/railnet-sdk'

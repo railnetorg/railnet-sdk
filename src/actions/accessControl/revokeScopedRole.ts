@@ -9,7 +9,9 @@ export type RevokeScopedRoleParameters = {
 }
 
 /**
- * Revokes a previously granted scoped role from an address. The caller must be the default admin of the access control.
+ * Revokes a previously granted scoped role from an address. The caller must hold the role's admin role — `DEFAULT_ADMIN_ROLE` unless it was
+ * reassigned — either globally or scoped to the same `scope`.
+ * Reverts `PublicRoleAuthDenied` when that scoped role is already public.
  *
  * @param parameters - {@link RevokeScopedRoleParameters}
  */

@@ -4,6 +4,8 @@ import {
   AllowlistMode,
   buildAddToAllowListCall,
   buildAddToBlockListCall,
+  buildRemoveFromAllowListCall,
+  buildRemoveFromBlockListCall,
   buildSetFeeRecipientsCall,
   buildSetFeesCall,
   buildSpawnAccountListCall,
@@ -82,6 +84,17 @@ describe('buildSetFeeRecipientsCall', () => {
     expect(() => buildSetFeeRecipientsCall({ feeManager, recipients: [] })).toThrow(
       'must not be empty',
     )
+  })
+
+  // The contract checks the target before the share, and a zero target is the one entry the
+  // ascending-order pass cannot catch: it can only ever sit first.
+  it('rejects a zero target', () => {
+    expect(() =>
+      buildSetFeeRecipientsCall({
+        feeManager,
+        recipients: [{ target: zeroAddress, shareBps: 10_000 }],
+      }),
+    ).toThrow('zero address')
   })
 
   it('rejects a zero share', () => {
@@ -202,6 +215,18 @@ describe('account list batches', () => {
 
   it('rejects an empty batch', () => {
     expect(() => buildAddToAllowListCall({ accountList, accounts: [] })).toThrow(
+      'must not be empty',
+    )
+  })
+
+  it('validates a removal batch the same way as an addition', () => {
+    expect(() => buildRemoveFromAllowListCall({ accountList, accounts: [zeroAddress] })).toThrow(
+      'zero address',
+    )
+    expect(() => buildRemoveFromBlockListCall({ accountList, accounts: [LOW, LOW] })).toThrow(
+      'appears twice',
+    )
+    expect(() => buildRemoveFromBlockListCall({ accountList, accounts: [] })).toThrow(
       'must not be empty',
     )
   })
