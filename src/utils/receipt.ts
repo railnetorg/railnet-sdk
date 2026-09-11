@@ -4,7 +4,10 @@ import { aaveV3VehicleFactoryAbi } from '../abi/aaveV3VehicleFactory.js'
 import { accessControlFactoryAbi } from '../abi/accessControlFactory.js'
 import { conduitAbi } from '../abi/conduit.js'
 import { conduitFactoryAbi } from '../abi/conduitFactory.js'
+import { erc4626VehicleFactoryAbi } from '../abi/erc4626VehicleFactory.js'
+import { morphoBlueVehicleFactoryAbi } from '../abi/morphoBlueVehicleFactory.js'
 import { multiVehicleFactoryAbi } from '../abi/multiVehicleFactory.js'
+import { wrapperVehicleFactoryAbi } from '../abi/wrapperVehicleFactory.js'
 
 /**
  * Decodes the events one contract emitted in a receipt. Filtering by emitter matters: a factory's
@@ -57,6 +60,57 @@ export function extractAaveV3VehicleAddress(
     'SpawnedAaveV3Vehicle',
   )
 
+  return event?.args.vehicle ?? null
+}
+
+/**
+ * Extracts the deployed ERC-4626 Vehicle address from a {@link buildSpawnErc4626VehicleCall} receipt.
+ * @returns The deployed vehicle address, or `null` if the event is not found
+ */
+export function extractErc4626VehicleAddress(
+  receipt: TransactionReceipt,
+  factoryAddress: Address,
+): Address | null {
+  const [event] = eventsFrom(
+    receipt,
+    factoryAddress,
+    erc4626VehicleFactoryAbi,
+    'SpawnedERC4626Vehicle',
+  )
+  return event?.args.vehicle ?? null
+}
+
+/**
+ * Extracts the deployed Morpho Blue Vehicle address from a {@link buildSpawnMorphoBlueVehicleCall} receipt.
+ * @returns The deployed vehicle address, or `null` if the event is not found
+ */
+export function extractMorphoBlueVehicleAddress(
+  receipt: TransactionReceipt,
+  factoryAddress: Address,
+): Address | null {
+  const [event] = eventsFrom(
+    receipt,
+    factoryAddress,
+    morphoBlueVehicleFactoryAbi,
+    'SpawnedMorphoBlueVehicle',
+  )
+  return event?.args.vehicle ?? null
+}
+
+/**
+ * Extracts the deployed Wrapper Vehicle address from a {@link buildSpawnWrapperVehicleCall} receipt.
+ * @returns The deployed vehicle address, or `null` if the event is not found
+ */
+export function extractWrapperVehicleAddress(
+  receipt: TransactionReceipt,
+  factoryAddress: Address,
+): Address | null {
+  const [event] = eventsFrom(
+    receipt,
+    factoryAddress,
+    wrapperVehicleFactoryAbi,
+    'SpawnedWrapperVehicle',
+  )
   return event?.args.vehicle ?? null
 }
 
