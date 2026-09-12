@@ -1,15 +1,11 @@
 /**
- * Every error the protocol declares, as a fallback ABI fragment for a revert viem left undecoded.
+ * Every error the protocol declares, generated from the hangar artifacts. {@link getRailnetError}
+ * falls back to it because viem decodes against the ABI of the call, so a reachable error the
+ * called contract does not itself declare arrives as raw bytes: `InvalidOutput` is reverted from
+ * `ErrorLib` through assembly, which solc lists on no contract at all.
  *
- * viem decodes a revert against the ABI of the call, so an error the called contract does not
- * declare arrives as raw bytes even when it is genuinely reachable: `AssetNotAuthorized` is thrown
- * by the AssetRegistry during `conduitFactory.spawn`, `EnforcedPause` by the beacon on any call
- * routed through a vehicle proxy, the Aave reserve checks by a facet inside a spawn's initializer,
- * and `InvalidOutput` by `ErrorLib` through assembly, which solc lists on no contract at all.
- *
- * {@link getRailnetError} falls back to this fragment. It covers the 167 error names declared
- * across `hangar/src`; `QueryAlreadyRegistered` and `QueryAlreadyWrapped` each exist in two
- * signatures, hence 169 entries.
+ * 169 entries for 167 names: `QueryAlreadyRegistered` and `QueryAlreadyWrapped` each exist in two
+ * signatures.
  */
 export const protocolErrorsAbi = [
   {
