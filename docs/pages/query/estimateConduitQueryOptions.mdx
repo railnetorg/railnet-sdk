@@ -18,7 +18,7 @@ import { estimateConduitQueryOptions } from '@railnetorg/railnet-sdk/react'
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
 import { estimateConduitQueryOptions } from '@railnetorg/railnet-sdk/react'
-import { ConduitMode, EstimationType } from '@railnetorg/railnet-sdk'
+import { QueryMode, EstimationType } from '@railnetorg/railnet-sdk'
 
 function Estimate() {
   const client = usePublicClient()
@@ -27,7 +27,7 @@ function Estimate() {
     estimateConduitQueryOptions(client, {
       conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
       asset: { asset: '0x...', value: 1000000000000000000n },
-      mode: ConduitMode.DEPOSIT,
+      mode: QueryMode.DEPOSIT,
       estimationType: EstimationType.OUTPUT,
     }),
   )
@@ -66,7 +66,7 @@ The input asset for the estimation.
 
 #### mode
 
-- **Type:** `ConduitMode`
+- **Type:** `QueryMode`
 
 The mode for the estimation.
 

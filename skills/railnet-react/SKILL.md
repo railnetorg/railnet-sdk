@@ -76,10 +76,10 @@ which answers reads from whatever node it picked at whatever freshness it keeps.
 ### Sending a call
 
 ```tsx
-import { buildEnableConduitCall } from '@railnetorg/railnet-sdk'
+import { buildEnableConduitTransfersCall } from '@railnetorg/railnet-sdk'
 import { useSimulateContract, useWriteContract } from 'wagmi'
 
-const { data: simulation, error } = useSimulateContract(buildEnableConduitCall({ conduit }))
+const { data: simulation, error } = useSimulateContract(buildEnableConduitTransfersCall({ conduit }))
 const { writeContract, isPending } = useWriteContract()
 
 <button onClick={() => simulation && writeContract(simulation.request)} disabled={!simulation}>

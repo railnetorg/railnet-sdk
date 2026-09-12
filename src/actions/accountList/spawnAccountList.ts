@@ -1,4 +1,4 @@
-import type { Address, Client, Hex } from 'viem'
+import { type Address, type Client, type Hex, zeroAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { accountListFactoryAbi } from '../../abi/accountListFactory.js'
 import type { AllowlistMode } from './types.js'
@@ -17,6 +17,12 @@ export type SpawnAccountListParameters = {
 }
 
 function toSpawnParams(parameters: SpawnAccountListParameters) {
+  if (parameters.sanctionsEnabled && parameters.oracle === zeroAddress) {
+    throw new Error(
+      'sanctionsEnabled requires a non-zero oracle: the contract reverts SanctionsOracleRequired',
+    )
+  }
+
   return {
     accessControl: parameters.accessControl,
     mode: parameters.mode,
@@ -33,6 +39,7 @@ function toSpawnParams(parameters: SpawnAccountListParameters) {
  * needs FACTORY_SPAWN on the factory's access control.
  *
  * @param parameters - {@link SpawnAccountListParameters}
+ * @throws Error if `sanctionsEnabled` is set without an oracle
  */
 export function buildSpawnAccountListCall(parameters: SpawnAccountListParameters) {
   return {

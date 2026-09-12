@@ -1,13 +1,12 @@
 import type { Address, Client } from 'viem'
 import { readContract } from 'viem/actions'
 import { baseVehicleAbi } from '../../abi/baseVehicle.js'
-import type { EstimationType } from '../conduit/estimateConduit.js'
-import type { Asset, ConduitMode } from '../conduit/types.js'
+import type { Asset, EstimationType, QueryMode } from '../../types.js'
 
 export type EstimateVehicleParameters = {
   vehicle: Address
   asset: Asset
-  mode: ConduitMode
+  mode: QueryMode
   estimationType: EstimationType
 }
 
@@ -21,12 +20,12 @@ export type EstimateVehicleReturnType = Asset
  * @param parameters - {@link EstimateVehicleParameters}
  *
  * @example
- * import { ConduitMode, estimateVehicle, EstimationType } from '@railnetorg/railnet-sdk'
+ * import { estimateVehicle, EstimationType, QueryMode } from '@railnetorg/railnet-sdk'
  *
  * const estimation = await estimateVehicle(publicClient, {
  *   vehicle: vehicleAddress,
  *   asset: { asset: usdc, value: 1_000_000n },
- *   mode: ConduitMode.DEPOSIT,
+ *   mode: QueryMode.DEPOSIT,
  *   estimationType: EstimationType.OUTPUT,
  * })
  */

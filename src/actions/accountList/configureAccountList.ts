@@ -1,4 +1,4 @@
-import type { Address } from 'viem'
+import { type Address, zeroAddress } from 'viem'
 import { accountListAbi } from '../../abi/accountList.js'
 import type { AllowlistMode } from './types.js'
 
@@ -28,6 +28,30 @@ export type UpdateAccountListParameters = {
 }
 
 /**
+ * The contract rejects a duplicate within the batch as readily as one already stored
+ * (`AddressAlreadyListed`), and the zero address (`ZeroAddress`).
+ *
+ * @throws Error if the batch is empty, holds the zero address, or repeats an account
+ */
+function assertListedAccounts(accounts: readonly Address[]): void {
+  if (accounts.length === 0) {
+    throw new Error('accounts must not be empty')
+  }
+
+  const seen = new Set<string>()
+  for (const account of accounts) {
+    if (account === zeroAddress) {
+      throw new Error('accounts must not hold the zero address')
+    }
+    const key = account.toLowerCase()
+    if (seen.has(key)) {
+      throw new Error(`accounts must not repeat an entry: ${account} appears twice`)
+    }
+    seen.add(key)
+  }
+}
+
+/**
  * Adds accounts to the allow-list. Reverts `AddressAlreadyListed` on a duplicate, `ZeroAddress` on
  * the zero address, and `AddressOnOtherList` on an account the block-list already holds. Needs
  * ACCOUNT_LIST_MANAGER.
@@ -35,6 +59,8 @@ export type UpdateAccountListParameters = {
  * @param parameters - {@link UpdateAccountListParameters}
  */
 export function buildAddToAllowListCall(parameters: UpdateAccountListParameters) {
+  assertListedAccounts(parameters.accounts)
+
   return {
     address: parameters.accountList,
     abi: accountListAbi,
@@ -67,6 +93,8 @@ export function buildRemoveFromAllowListCall(parameters: UpdateAccountListParame
  * @param parameters - {@link UpdateAccountListParameters}
  */
 export function buildAddToBlockListCall(parameters: UpdateAccountListParameters) {
+  assertListedAccounts(parameters.accounts)
+
   return {
     address: parameters.accountList,
     abi: accountListAbi,

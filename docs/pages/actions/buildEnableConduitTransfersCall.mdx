@@ -1,0 +1,51 @@
+---
+description: Turns on conduit share transfers, a one-way latch.
+---
+
+# buildEnableConduitTransfersCall
+
+Turns on transfers of a conduit's shares. A one-way latch: there is no call that turns them back
+off, so an ERC-20 integration built on the shares cannot be bricked. Reverts `StateUnchanged` when
+they are already on.
+
+The caller needs `CONDUIT_SET_TRANSFER_ENABLED`, scoped to the conduit.
+
+:::info
+This does not enable the conduit itself. `conduit.enable()` accepts only the ConduitFactory, which
+calls it once the seed deposit settles and `initialExpectedSupply` is reached — inline in `spawn()`
+for a synchronous vehicle, or from
+[`buildFinalizeConduitDepositCall`](/actions/buildFinalizeConduitDepositCall) for an async one.
+There is no builder for it because no integration can send it.
+:::
+
+## Import
+
+```ts
+import { buildEnableConduitTransfersCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildEnableConduitTransfersCall } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...buildEnableConduitTransfersCall({ conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e' }),
+  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A built call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The conduit whose shares become transferable.
