@@ -68,10 +68,6 @@ Initial roles to grant. Defaults to `[]`.
 
 - **Type:** `Hex`
 
-Fixes the deployed address. Generate it with [`randomSalt`](/utilities/randomSalt) and keep the value.
-
-### account
-
-- **Type:** `Address`
-
-The address of the account executing the transaction.
+One ingredient of the deployed address: it is a CREATE2 over the proxy's init code, which also
+carries `initialDefaultAdmin`, `initialDelay` and `initialRoles`. Generate it with
+[`randomSalt`](/utilities/randomSalt) and keep the value.

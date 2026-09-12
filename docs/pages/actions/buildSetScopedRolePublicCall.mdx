@@ -4,7 +4,9 @@ description: Sets whether a scoped role is callable by any address.
 
 # buildSetScopedRolePublicCall
 
-Makes a scoped role public (callable by any address) or restricts it back to specific grantees, on the ExternalAccessControl contract. Requires a `WalletClient`. The caller must be the default admin.
+Makes a scoped role public (callable by any address) or restricts it back to specific grantees, on the ExternalAccessControl contract. Requires a `WalletClient`.
+
+The caller must hold the role's admin role — `DEFAULT_ADMIN_ROLE` unless it was reassigned — either globally or scoped to the same `scope`. `DEFAULT_ADMIN_ROLE` itself cannot be made public (`DefaultAdminCannotBePublic`), and re-sending the current status reverts `RolePublicStatusUnchanged`.
 
 ## Import
 
@@ -60,9 +62,3 @@ The scope (contract address) the role applies to.
 - **Type:** `boolean`
 
 `true` makes the scoped role callable by anyone on that scope, `false` restricts it back to explicit grantees.
-
-### account
-
-- **Type:** `Address`
-
-The address of the account executing the transaction.

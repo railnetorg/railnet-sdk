@@ -15,15 +15,15 @@ Requires the `MULTI_VEHICLE_DISPATCH` role scoped to the SectorAccountingEngine.
 
 :::warning
 On a synchronous vehicle the dispatch settles in the same transaction. On an async vehicle (Ethena,
-Syrup) it leaves the query in `PROCESSING`, and the funds are not where you want them until the query
-is progressed. Call `simulateDispatchVehicle` first if the difference matters — which it does whenever
-a second leg depends on the first.
+Syrup) it leaves the query short of settlement, and the funds are not where you want them until the
+query is progressed. Call `simulateDispatchVehicle` first if the difference matters — which it does
+whenever a second leg depends on the first.
 :::
 
 ## Import
 
 ```ts
-import { dispatchVehicle, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
+import { buildDispatchVehicleCall, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
@@ -57,17 +57,19 @@ const { query, state } = await simulateDispatchVehicle(walletClient, {
   /* same parameters */
 })
 
-if (state !== QueryState.SETTLED) {
-  // async vehicle: the redeem will sit in PROCESSING, keep `query` to progress it later
+if (state !== QueryState.SETTLED && state !== QueryState.REJECTED) {
+  // async vehicle: keep `query` to progress it once the vehicle settles
 }
 ```
 
 ## Returns
 
-`Hash` for `dispatchVehicle`.
+A prepared call: `{ address, abi, functionName, args }`.
 
-`{ query: Query; state: QueryState }` for `simulateDispatchVehicle`, which sends nothing. Keep the
-`query` if the state is not `SETTLED` — progressing an in-flight query later requires the exact struct.
+`{ query: Query; state: QueryState }` for `simulateDispatchVehicle`, which sends nothing. The engine
+bubbles the vehicle's state up unchanged, so it is any member of `QueryState`, not just `SETTLED` or
+`PROCESSING`. `SETTLED` and `REJECTED` are terminal and a rejected query can never be progressed;
+on any other state, keep the `query` — progressing an in-flight one later requires the exact struct.
 
 ## Parameters
 
@@ -125,9 +127,3 @@ Vehicle-specific payload forwarded to the STEAM call.
 - **Type:** `Hex`
 
 A caller-supplied identifier echoed in the `Dispatched`, `DispatchSkipped` and `Limited*` events.
-
-### account
-
-- **Type:** `Address`
-
-The address executing the transaction.

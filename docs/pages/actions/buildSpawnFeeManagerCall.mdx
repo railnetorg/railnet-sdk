@@ -78,4 +78,4 @@ The split, as `{ target, shareBps }`. Must be non-empty, sorted **strictly ascen
 
 - **Type:** `Hex`
 
-Fixes the deployed address. Generate it with [`randomSalt`](/utilities/randomSalt) and keep the value: [`predictFeeManagerDeployment`](/actions/predictFeeManagerDeployment) resolves the same address for the same salt.
+One ingredient of the deployed address: it is a CREATE2 over the proxy's init code, which also carries the access control and every fee field. Generate it with [`randomSalt`](/utilities/randomSalt), keep the value, and resolve the address with [`predictFeeManagerDeployment`](/actions/predictFeeManagerDeployment) using exactly the parameters you will send.

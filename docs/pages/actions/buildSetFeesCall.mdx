@@ -8,6 +8,8 @@ Sets the fee rates on a fee manager. Returns the call to send. Hand it to viem's
 
 The caller needs `FEE_MANAGER_SET_FEES`. Each rate is capped by the matching `initialMaxFees` fixed at spawn, and re-sending the current rates reverts `StateUnchanged`.
 
+The builder rejects a rate outside its own ceiling before the call is assembled: 10000 bps for the ongoing fees, 9999 for the transactional ones, which stay reversible.
+
 ## Import
 
 ```ts

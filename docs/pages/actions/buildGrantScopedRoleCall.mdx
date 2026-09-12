@@ -6,6 +6,8 @@ description: Grants a scoped role on the ExternalAccessControl.
 
 Grants a scoped role on the ExternalAccessControl contract. Requires a `WalletClient`.
 
+The caller must hold the role's admin role — `DEFAULT_ADMIN_ROLE` unless it was reassigned — either globally or scoped to the same `scope`. Reverts `PublicRoleAuthDenied` when that scoped role is already public: turn it off with [`buildSetScopedRolePublicCall`](/actions/buildSetScopedRolePublicCall) first.
+
 ## Import
 
 ```ts
@@ -65,9 +67,3 @@ The scope (contract address) for the role.
 - **Type:** `Address`
 
 The address receiving the role.
-
-### account
-
-- **Type:** `Address`
-
-The address of the account executing the transaction.

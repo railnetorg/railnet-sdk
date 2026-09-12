@@ -4,7 +4,7 @@ description: Resolves the address a fee manager spawn will deploy to.
 
 # predictFeeManagerDeployment
 
-Reads the address [`buildSpawnFeeManagerCall`](/actions/buildSpawnFeeManagerCall) will deploy to for the same parameters. Only `deploymentSalt` moves it, so one salt and factory always resolve to one address.
+Reads the address [`buildSpawnFeeManagerCall`](/actions/buildSpawnFeeManagerCall) will deploy to for the same parameters. It is a CREATE2 over the proxy's init code, which carries the access control and every fee field, so all of them move the address — not `deploymentSalt` alone. Predict with exactly the parameters you will send.
 
 ## Import
 

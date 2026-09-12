@@ -115,10 +115,8 @@ Salt for the spawn's initial query. Generate it with [`randomSalt`](/utilities/r
 
 - **Type:** `Hex`
 
-Fixes the deployed address. Generate it with [`randomSalt`](/utilities/randomSalt) and keep the value.
-
-### account
-
-- **Type:** `Address`
-
-The address of the account executing the transaction.
+One ingredient of the deployed address, and not enough to predict it: the factory folds its own
+`deploymentCounter` into the vehicle's generated name and symbol, so the same salt lands on a
+different address at every spawn. Generate it with [`randomSalt`](/utilities/randomSalt) and read
+the address back from the receipt with
+[`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehicleaddress).

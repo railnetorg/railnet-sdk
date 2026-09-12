@@ -37,7 +37,7 @@ buildAddToBlockListCall({ accountList: '0x1234...', accounts: ['0xd213...'] })
 buildRemoveFromBlockListCall({ accountList: '0x1234...', accounts: ['0xd213...'] })
 ```
 
-Each takes a batch. Adding reverts `AddressAlreadyListed` on a duplicate or the zero address, removing reverts `AddressNotListed` when the account is absent.
+Each takes a batch, and all four reject an empty batch, the zero address and a repeated account before the call is assembled. On chain the contract walks the batch entry by entry, so a repeat fails on its second pass exactly as a stored entry would: `AddressAlreadyListed` when adding, `AddressNotListed` when removing, `ZeroAddress` on either. Adding to the block-list also reverts `AddressOnOtherList` on an account the allow-list already holds.
 
 Blocking stops deposits, transfers and receipts, but not redemption: only sanctions take that away. To off-board a blocked holder, force-redeem them through the conduit.
 

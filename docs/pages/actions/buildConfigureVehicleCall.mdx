@@ -59,5 +59,10 @@ type VehicleConfig = {
 
 `cap.value` is in the **sub-vehicle's** share units (18 decimals), not the multi vehicle's asset:
 the SectorAccountingEngine compares it against that vehicle's share holdings. `2n ** 256n - 1n`
-means unlimited and forces `threshold` to 0 on chain. `cap.threshold` is a tolerance margin in the
-same units, and must not exceed `value` on a finite cap.
+means unlimited; `threshold` is then ignored, but stored as passed rather than normalised, so send
+0 to keep the stored config comparable. `cap.threshold` is a tolerance margin in the same units,
+and must not exceed `value` on a finite cap.
+
+The caller needs `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION`. Reverts `VehicleNotAuthorized` on a
+vehicle that was never authorized, `InvalidTarget` when a finite cap carries `threshold > value`,
+and `StateUnchanged` when the mode and cap already hold.
