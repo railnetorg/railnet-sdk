@@ -166,6 +166,28 @@ export default defineConfig({
           ],
         },
         {
+          text: 'Account List',
+          items: [
+            {
+              text: 'buildSpawnAccountListCall',
+              link: '/actions/buildSpawnAccountListCall',
+            },
+            {
+              text: 'Configuring an AccountList',
+              link: '/actions/accountListConfiguration',
+            },
+          ],
+        },
+        {
+          text: 'Owner Registry',
+          items: [
+            {
+              text: 'buildSpawnOwnerRegistryCall',
+              link: '/actions/buildSpawnOwnerRegistryCall',
+            },
+          ],
+        },
+        {
           text: 'Access Control',
           items: [
             {
