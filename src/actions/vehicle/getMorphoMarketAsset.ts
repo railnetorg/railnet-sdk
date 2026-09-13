@@ -2,8 +2,12 @@ import type { Address, Client, Hex } from 'viem'
 import { readContract } from 'viem/actions'
 
 /**
- * Minimal fragment of Morpho Blue's `IMorpho`, taken from the interface hangar vendors
- * (`@morpho/interfaces/IMorpho.sol`). Only the market lookup is needed here.
+ * Minimal fragment of Morpho Blue's `IMorphoStaticTyping`, from the interface hangar vendors at
+ * `lib/morpho-blue/src/interfaces/IMorpho.sol`. Only the market lookup is needed here.
+ *
+ * That file declares `idToMarketParams` twice. `IMorpho` returns `MarketParams memory`, a tuple;
+ * `IMorphoStaticTyping` returns the five members flat, which is what the deployed contract's
+ * `public` mapping getter encodes. Regenerate from `IMorphoStaticTyping`, never from `IMorpho`.
  */
 export const morphoMarketAbi = [
   {
