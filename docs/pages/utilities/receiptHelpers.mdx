@@ -14,8 +14,11 @@ import {
   extractAaveV3VehicleAddress,
   extractAccessControlAddress,
   extractConduitAddress,
+  extractErc4626VehicleAddress,
+  extractMorphoBlueVehicleAddress,
   extractMultiVehicleContracts,
   extractQueryIds,
+  extractWrapperVehicleAddress,
   randomSalt,
 } from '@railnetorg/railnet-sdk'
 ```
@@ -187,6 +190,43 @@ The address of the Aave V3 vehicle factory.
 `Address | null`
 
 The deployed Aave V3 vehicle address, or `null` if not found.
+
+## extractErc4626VehicleAddress
+
+Extracts the deployed vehicle address from a [`buildSpawnErc4626VehicleCall`](/actions/buildSpawnErc4626VehicleCall) transaction receipt.
+
+```ts
+const vehicleAddress = extractErc4626VehicleAddress(receipt, erc4626VehicleFactory)
+```
+
+Same signature as `extractAaveV3VehicleAddress`, reading this factory's own spawn event. Returns
+`Address | null`.
+
+## extractMorphoBlueVehicleAddress
+
+Extracts the deployed vehicle address from a [`buildSpawnMorphoBlueVehicleCall`](/actions/buildSpawnMorphoBlueVehicleCall) transaction receipt.
+
+```ts
+const vehicleAddress = extractMorphoBlueVehicleAddress(receipt, morphoBlueVehicleFactory)
+```
+
+Returns `Address | null`.
+
+## extractWrapperVehicleAddress
+
+Extracts the deployed vehicle address from a [`buildSpawnWrapperVehicleCall`](/actions/buildSpawnWrapperVehicleCall) transaction receipt.
+
+```ts
+const vehicleAddress = extractWrapperVehicleAddress(receipt, wrapperVehicleFactory)
+```
+
+Returns `Address | null`.
+
+:::info
+These are the only way to learn a vehicle's address. Every vehicle factory folds its own deployment
+counter into the salt or the init code, so the address cannot be derived from the spawn parameters
+before the transaction lands.
+:::
 
 ## extractQueryIds
 

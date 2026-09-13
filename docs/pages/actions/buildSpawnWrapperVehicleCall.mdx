@@ -1,0 +1,142 @@
+---
+description: Deploys a wrapper vehicle, which holds a token rather than supplying it anywhere.
+---
+
+# buildSpawnWrapperVehicleCall
+
+Deploys a wrapper vehicle: it holds the asset itself rather than supplying it anywhere, so it earns nothing. It exists to give a plain token a STEAM interface, which is what lets a conduit or a multi-vehicle treat it like any other vehicle. Returns the call to send.
+
+The caller needs `FACTORY_SPAWN` on the factory's access control.
+
+:::warning
+The factory is deployed in staging only. `wrapperVehicleFactory` is optional on
+[`ChainAddresses`](/types/ChainAddresses) and carries no value under the production entry point —
+read it from [`@railnetorg/railnet-sdk/staging`](/contracts/staging).
+:::
+
+:::warning
+The factory pulls an initial deposit from the caller and **burns the shares it mints**, as an
+inflation-attack guard. Approve the factory for at least
+[`getInitialDepositAmount`](/actions/getInitialDepositAmount) of `asset` first, and hold at least
+that much — this action sends no approval of its own, and the deposit does not come back.
+:::
+
+## Import
+
+```ts
+import { buildSpawnWrapperVehicleCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { erc20Abi } from 'viem'
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildSpawnWrapperVehicleCall, getInitialDepositAmount, randomSalt } from '@railnetorg/railnet-sdk'
+import { getAddresses } from '@railnetorg/railnet-sdk/staging'
+import { base } from 'viem/chains'
+
+const { assetRegistry, wrapperVehicleFactory, usdc } = getAddresses(base.id)
+
+const amount = await getInitialDepositAmount(client, { assetRegistry, asset: usdc })
+
+await writeContract(client, {
+  address: usdc,
+  abi: erc20Abi,
+  functionName: 'approve',
+  args: [wrapperVehicleFactory, amount],
+  account,
+})
+
+const { request } = await simulateContract(client, {
+  ...buildSpawnWrapperVehicleCall({
+    factory: wrapperVehicleFactory,
+    asset: usdc,
+    accessControl: '0x...',
+    queryRegistry: '0x...',
+    querySalt: randomSalt(),
+    deploymentSalt: randomSalt(),
+  }),
+  account,
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+:::info
+Use [`extractWrapperVehicleAddress`](/utilities/receiptHelpers#extractwrappervehicleaddress) to read the deployed address out of the transaction receipt.
+:::
+
+## Parameters
+
+### factory
+
+- **Type:** `Address`
+
+The wrapper vehicle factory, from the staging entry point.
+
+### asset
+
+- **Type:** `Address`
+
+The token the vehicle wraps one-for-one. Must be a contract (`InvalidWrappedAsset`) and authorized
+in the AssetRegistry, or the spawn reverts `AssetNotAuthorized`.
+
+### accessControl
+
+- **Type:** `Address`
+
+The ExternalAccessControl that gates the vehicle. It must have been spawned by the access control
+factory this one trusts, or the call reverts `NotDeployedByFactory`.
+
+### queryRegistry
+
+- **Type:** `Address`
+
+The query registry the vehicle records its queries in. Must be a contract (`InvalidQueryRegistry`).
+
+### feeManager (optional)
+
+- **Type:** `Address`
+- **Default:** `zeroAddress`
+
+Must have been spawned by the trusted FeeManager factory when set. The zero address skips the check
+and leaves the vehicle without one.
+
+### modulesManager (optional)
+
+- **Type:** `Address`
+- **Default:** `zeroAddress`
+
+Same rule as `feeManager`, against the trusted ModulesManager factory.
+
+### forbiddenAddresses (optional)
+
+- **Type:** `Address[]`
+- **Default:** `[]`
+
+Addresses barred from interacting with the vehicle.
+
+### querySalt
+
+- **Type:** `Hex`
+
+Salt for the spawn's seed deposit query. Generate it with [`randomSalt`](/utilities/randomSalt).
+
+### deploymentSalt
+
+- **Type:** `Hex`
+
+One ingredient of the deployed address, and not enough to predict it: the factory hashes the salt
+together with `asset` and its own `++deploymentCounter`, so the same salt lands on a different
+address at every spawn. Generate it with [`randomSalt`](/utilities/randomSalt) and read the address back from the
+receipt.
+
+:::info
+Unlike the other vehicle factories this one takes no `initialExpectedSupply`. It still pulls the
+seed deposit, but enforces no floor on the shares minted.
+:::

@@ -1,0 +1,186 @@
+---
+description: Deploys a vehicle supplying into one Morpho Blue market.
+---
+
+# buildSpawnMorphoBlueVehicleCall
+
+Deploys a vehicle that supplies into a single Morpho Blue market. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+
+Morpho Blue is one immutable singleton per chain hosting every isolated market. A market is `{ loanToken, collateralToken, oracle, irm, lltv }`, and its `Id` is the hash of that struct. The vehicle supplies the market's **loan token**, so the market id decides the asset and none is passed.
+
+The caller needs `FACTORY_SPAWN` on the factory's access control.
+
+:::warning
+The factory pulls an initial deposit from the caller and **burns the shares it mints**, as an
+inflation-attack guard. Approve the factory for at least
+[`getInitialDepositAmount`](/actions/getInitialDepositAmount) of the market's loan token first, and
+hold at least that much — this action sends no approval of its own, and the deposit does not come
+back.
+:::
+
+## Import
+
+```ts
+import {
+  buildSpawnMorphoBlueVehicleCall,
+  getMorphoBlueSingleton,
+  getMorphoMarketAsset,
+} from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+Neither address is meant to be hardcoded — resolve both, then approve and spawn:
+
+```ts
+import { erc20Abi } from 'viem'
+import { simulateContract, writeContract } from 'viem/actions'
+import {
+  buildSpawnMorphoBlueVehicleCall,
+  getAddresses,
+  getInitialDepositAmount,
+  getMorphoBlueSingleton,
+  getMorphoMarketAsset,
+  randomSalt,
+} from '@railnetorg/railnet-sdk'
+import { mainnet } from 'viem/chains'
+
+const { assetRegistry, morphoBlueVehicleFactory } = getAddresses(mainnet.id)
+const marketId = '0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49'
+
+const morpho = await getMorphoBlueSingleton(client, { factory: morphoBlueVehicleFactory })
+const asset = await getMorphoMarketAsset(client, { morpho, marketId })
+const amount = await getInitialDepositAmount(client, { assetRegistry, asset })
+
+await writeContract(client, {
+  address: asset,
+  abi: erc20Abi,
+  functionName: 'approve',
+  args: [morphoBlueVehicleFactory, amount],
+  account,
+})
+
+const { request } = await simulateContract(client, {
+  ...buildSpawnMorphoBlueVehicleCall({
+    factory: morphoBlueVehicleFactory,
+    morpho,
+    marketId,
+    accessControl: '0x...',
+    queryRegistry: '0x...',
+    initialExpectedSupply: 10n ** 18n,
+    querySalt: randomSalt(),
+    deploymentSalt: randomSalt(),
+  }),
+  account,
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+:::info
+Use [`extractMorphoBlueVehicleAddress`](/utilities/receiptHelpers#extractmorphobluevehicleaddress) to read the deployed address out of the transaction receipt.
+:::
+
+## Parameters
+
+### factory
+
+- **Type:** `Address`
+
+The Morpho Blue vehicle factory. Available as `morphoBlueVehicleFactory` from [`getAddresses`](/contracts/getAddresses).
+
+### morpho
+
+- **Type:** `Address`
+
+The Morpho Blue singleton. The spawn reverts `InvalidMorpho` unless it equals the factory
+implementation's own immutable `MORPHO`, so there is exactly one value that works — read it with
+`getMorphoBlueSingleton` rather than supplying it by hand.
+
+### marketId
+
+- **Type:** `Hex`
+
+32 bytes. Zero is rejected (`InvalidMarketId`), and a market the singleton does not know resolves
+to a zero loan token, which fails as `InvalidAsset`. That loan token must also be authorized in the
+AssetRegistry, or the spawn reverts `AssetNotAuthorized`.
+
+### accessControl
+
+- **Type:** `Address`
+
+The ExternalAccessControl that gates the vehicle. It must have been spawned by the access control
+factory this one trusts, or the call reverts `NotDeployedByFactory`.
+
+### queryRegistry
+
+- **Type:** `Address`
+
+The query registry the vehicle records its queries in. Must be a contract (`InvalidQueryRegistry`).
+
+### feeManager (optional)
+
+- **Type:** `Address`
+- **Default:** `zeroAddress`
+
+Must have been spawned by the trusted FeeManager factory when set. The zero address skips the check
+and leaves the vehicle without one.
+
+### modulesManager (optional)
+
+- **Type:** `Address`
+- **Default:** `zeroAddress`
+
+Same rule as `feeManager`, against the trusted ModulesManager factory.
+
+### forbiddenAddresses (optional)
+
+- **Type:** `Address[]`
+- **Default:** `[]`
+
+Addresses barred from interacting with the vehicle.
+
+### initialExpectedSupply
+
+- **Type:** `bigint`
+
+Floor on the shares the seed deposit must mint. Zero is rejected
+(`InvalidInitialExpectedSupply`), and a floor the deposit does not reach reverts
+`ExpectedSupplyNotReached`.
+
+### querySalt
+
+- **Type:** `Hex`
+
+Salt for the spawn's seed deposit query. Generate it with [`randomSalt`](/utilities/randomSalt).
+
+### deploymentSalt
+
+- **Type:** `Hex`
+
+One ingredient of the deployed address, and not enough to predict it: the factory hashes the salt
+together with `marketId` and its own `++deploymentCounter`, so the same salt lands on a different
+address at every spawn. Generate it with [`randomSalt`](/utilities/randomSalt) and read the address
+back from the receipt.
+
+## getMorphoBlueSingleton
+
+```ts
+const morpho = await getMorphoBlueSingleton(client, { factory: morphoBlueVehicleFactory })
+```
+
+Two reads — the factory's `IMPLEMENTATION`, then that clone's `MORPHO` — returning the only
+singleton address this factory accepts.
+
+## getMorphoMarketAsset
+
+```ts
+const asset = await getMorphoMarketAsset(client, { morpho, marketId })
+```
+
+The market's loan token, which is what a supplier deposits and therefore the vehicle's asset. Use
+it to know which token to approve, without stating the asset twice.
