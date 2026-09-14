@@ -8,6 +8,7 @@ import { getConduitInfo } from './actions/conduit/getConduitInfo.js'
 import { getConduitPosition } from './actions/conduit/getConduitPosition.js'
 import { getDepositConduitCall } from './actions/conduit/getDepositConduitCall.js'
 import { getRedeemConduitCall } from './actions/conduit/getRedeemConduitCall.js'
+import { getTransferability } from './actions/conduit/getTransferability.js'
 import { predictConduitDeployment } from './actions/conduit/predictConduitDeployment.js'
 import { predictFeeManagerDeployment } from './actions/feeManager/spawnFeeManager.js'
 import { simulateDispatchVehicle } from './actions/multiVehicle/dispatchVehicle.js'
@@ -45,6 +46,7 @@ export function railnetActions(client: Client) {
     getMorphoMarketAsset: bind(getMorphoMarketAsset),
     getRedeemConduitCall: bind(getRedeemConduitCall),
     getSectorBalance: bind(getSectorBalance),
+    getTransferability: bind(getTransferability),
     getVehicleManagerLimits: bind(getVehicleManagerLimits),
     predictAccountListDeployment: bind(predictAccountListDeployment),
     predictConduitDeployment: bind(predictConduitDeployment),

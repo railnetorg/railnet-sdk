@@ -19,12 +19,14 @@ import {
   buildDepositConduitCall,
   buildDispatchFeesCall,
   buildDispatchVehicleCall,
+  buildFeedQueryRedeemQueueCall,
   buildForceRedeemCall,
   buildGrantRoleCall,
   buildGrantScopedRoleCall,
   buildMoveBetweenSectorsCall,
   buildRedeemConduitCall,
   buildRenounceRoleCall,
+  buildRetrieveQueryRedeemQueueAssetsCall,
   buildRevokeRoleCall,
   buildSetFeeRecipientsCall,
   buildSetFeesCall,
@@ -123,6 +125,19 @@ describe('build*Call builders', () => {
     expect(encodeFunctionData(global).slice(0, 10)).toBe(
       toFunctionSelector('grantRole(bytes32,address)'),
     )
+  })
+
+  test('the redeem queue calls hit the vehicle manager', () => {
+    const vehicleManager = '0x4444444444444444444444444444444444444444' as const
+
+    const feed = buildFeedQueryRedeemQueueCall({ vehicleManager })
+    expect(feed.address).toBe(vehicleManager)
+    expect(feed.functionName).toBe('feedQueryRedeemQueue')
+    expect(feed.args).toEqual([])
+
+    const retrieve = buildRetrieveQueryRedeemQueueAssetsCall({ vehicleManager, amount: 1_000n })
+    expect(retrieve.functionName).toBe('retrieveQueryRedeemQueueAssets')
+    expect(retrieve.args).toEqual([1_000n])
   })
 
   test('buildDepositConduitCall emits the conduit.create call (no approve)', () => {
