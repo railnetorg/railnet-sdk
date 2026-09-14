@@ -1,6 +1,7 @@
 export * from './authorizeVehicle.js'
 export * from './configureVehicle.js'
 export * from './dispatchVehicle.js'
+export * from './getSectorBalance.js'
 export * from './getVehicleManagerLimits.js'
 export * from './moveBetweenSectors.js'
 export * from './rebalance.js'
