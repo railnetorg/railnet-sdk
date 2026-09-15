@@ -158,6 +158,10 @@ export default defineConfig({
               text: 'buildDispatchVehicleCall',
               link: '/actions/buildDispatchVehicleCall',
             },
+            {
+              text: 'buildProgressQueryCall',
+              link: '/actions/buildProgressQueryCall',
+            },
           ],
         },
         {
@@ -279,6 +283,10 @@ export default defineConfig({
         {
           text: 'Deploying a multi-vehicle',
           link: '/workflows/deployingAMultiVehicle',
+        },
+        {
+          text: 'Rebalancing between vehicles',
+          link: '/workflows/rebalancingBetweenVehicles',
         },
       ],
     },

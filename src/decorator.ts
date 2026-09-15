@@ -15,6 +15,7 @@ import { simulateDispatchVehicle } from './actions/multiVehicle/dispatchVehicle.
 import { getSectorBalance } from './actions/multiVehicle/getSectorBalance.js'
 import { getVehicleManagerLimits } from './actions/multiVehicle/getVehicleManagerLimits.js'
 import { predictOwnerRegistryDeployment } from './actions/ownerRegistry/spawnOwnerRegistry.js'
+import { getQueryClaim } from './actions/ownerRegistry/wrapQuery.js'
 import { estimateVehicle } from './actions/vehicle/estimateVehicle.js'
 import { getMorphoBlueSingleton } from './actions/vehicle/getMorphoBlueSingleton.js'
 import { getMorphoMarketAsset } from './actions/vehicle/getMorphoMarketAsset.js'
@@ -44,6 +45,7 @@ export function railnetActions(client: Client) {
     getInitialDepositAmount: bind(getInitialDepositAmount),
     getMorphoBlueSingleton: bind(getMorphoBlueSingleton),
     getMorphoMarketAsset: bind(getMorphoMarketAsset),
+    getQueryClaim: bind(getQueryClaim),
     getRedeemConduitCall: bind(getRedeemConduitCall),
     getSectorBalance: bind(getSectorBalance),
     getIsTransferable: bind(getIsTransferable),

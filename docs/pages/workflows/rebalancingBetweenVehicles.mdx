@@ -1,0 +1,97 @@
+---
+description: Moving a position from one sub-vehicle to another, in two transactions.
+---
+
+# Rebalancing between vehicles
+
+There is no `rebalance()` on the contracts. Moving a position from sub-vehicle **A** to sub-vehicle
+**B** is a redeem out of A, then a deposit into B, and the two cannot go in one transaction.
+
+## Why two
+
+On an asynchronous sub-vehicle (Ethena, an ERC-7540 vault) the redeem does not settle in its own
+transaction. It leaves a query in flight, and the proceeds only reach B's sector once that query
+progresses. Sending the deposit blind would dispatch against a sector that is still empty.
+
+The first half *is* batched, though, and deliberately: sent as two transactions and abandoned in
+between, the shares would sit in A's staging sector — out of `SECTOR_ALLOCATION`, not redeemed,
+with nothing earning on them.
+
+## 1. Redeem out of the source
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildRebalanceRedeemCall, randomSalt } from '@railnetorg/railnet-sdk'
+
+const operationId = randomSalt()
+
+const { request } = await simulateContract(client, {
+  ...buildRebalanceRedeemCall({
+    sectorAccountingEngine,
+    from: vehicleA,
+    to: vehicleB,
+    shares: 500n * 10n ** 18n,
+    operationId,
+  }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+One `multicall` holding a `move` and a `dispatch`. Needs `MULTI_VEHICLE_MOVE` and
+`MULTI_VEHICLE_DISPATCH`, both scoped to the SectorAccountingEngine.
+
+The proceeds settle into **B's sector**, not `SECTOR_AVAILABLE`. Left in `AVAILABLE` they are idle
+liquidity, and the queue strategy engine could re-allocate them before the second transaction lands.
+
+## 2. Wait for the proceeds to land
+
+```ts
+import { getSectorBalance, vehicleSector } from '@railnetorg/railnet-sdk'
+
+const staged = await getSectorBalance(client, {
+  sectorAccountingEngine,
+  sector: vehicleSector(vehicleB),
+  asset: baseAsset,
+})
+```
+
+Poll it. On a synchronous source it is already non-zero; on an asynchronous one it stays at zero
+until the query progresses, which [`buildProgressQueryCall`](/actions/buildProgressQueryCall)
+drives.
+
+## 3. Deposit into the destination
+
+There is no dedicated builder for this step — it is
+[`buildDispatchVehicleCall`](/actions/buildDispatchVehicleCall) with the sectors that close the
+loop:
+
+```ts
+import { buildDispatchVehicleCall, QueryMode, SECTOR_ALLOCATION, SECTOR_AVAILABLE } from '@railnetorg/railnet-sdk'
+import { maxUint256 } from 'viem'
+
+const { request } = await simulateContract(client, {
+  ...buildDispatchVehicleCall({
+    sectorAccountingEngine,
+    vehicle: vehicleB,
+    mode: QueryMode.DEPOSIT,
+    amount: maxUint256,                    // whatever step 1 staged
+    settledDestination: SECTOR_ALLOCATION, // where sub-vehicle shares live at rest
+    rejectedDestination: SECTOR_AVAILABLE, // refused: the asset stays liquid
+    operationId,                           // the same id as step 1
+  }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+`maxUint256` consumes the whole staged balance, so the redeemed amount never has to be computed off
+chain. `settledDestination` is `SECTOR_ALLOCATION` because that is where a multi vehicle holds
+sub-vehicle shares at rest; a rejected deposit falls back to `SECTOR_AVAILABLE`, where the asset is
+spendable again.
+
+Reuse the `operationId` from step 1 on both transactions: it is echoed in the `Moved` and
+`Dispatched` events, and it is the only thing that stitches the two halves back into one rebalance
+for an indexer.
