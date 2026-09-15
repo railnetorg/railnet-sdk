@@ -1,18 +1,8 @@
 /**
- * The `ErrorLib` errors no contract ABI carries.
- *
- * A rejection is encoded as `abi.encodeWithSelector(ErrorLib.X.selector, ...)` and reverted through
- * assembly, so solc never lists it on the contract that throws it — `InvalidOutput` reaches a
- * caller from `BaseVehicle._validateOutput` but appears in no vehicle or conduit ABI, and
- * `InvalidEstimation` is declared on a facet the caller never addresses. viem decodes a revert
- * against the ABI of the call, so both arrive as undecoded bytes.
- *
- * The same holds for an error a shared base declares: `MaxDepositTooLow` reaches a caller through
- * whichever vehicle a conduit deposit routes into, but viem decodes against the ABI of the call —
- * `conduitAbi` — which does not carry it.
- *
- * {@link getRailnetError} falls back to this fragment. Keep it in step with `src/libs/Error.sol`
- * and `src/vehicles/base/abstracts/BaseVehicleErrors.sol`.
+ * Errors a caller can hit that no ABI it holds declares. {@link getRailnetError} falls back to this
+ * fragment because viem decodes against the ABI of the call, so a reachable error the called
+ * contract does not itself declare arrives as raw bytes: `InvalidOutput` is reverted from
+ * `ErrorLib` through assembly, which solc lists on no contract at all.
  */
 export const protocolErrorsAbi = [
   {
