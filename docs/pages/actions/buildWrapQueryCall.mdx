@@ -29,26 +29,20 @@ const { request } = await simulateContract(client, {
 await writeContract(client, request)
 ```
 
-## Five conditions, all on chain
+## Preconditions
 
-| Condition | Error when unmet |
-| :--- | :--- |
-| The caller is the query's registered owner | `QueryNotRegistered`, `UnauthorizedWrap` |
-| The query is not wrapped already | `QueryAlreadyWrapped` |
-| The conduit lets the caller transfer to itself | `TransferNotAllowed` |
-| The query is still live | `NonWrappableState` on `EMPTY`, `SETTLED` or `REJECTED` |
-| `conduit` is not the zero address | `InvalidConduitAddress` |
+The caller must be the query's registered owner (`QueryNotRegistered`, `UnauthorizedWrap`), the
+query must not be wrapped already (`QueryAlreadyWrapped`) and must still be live —
+`NonWrappableState` on `EMPTY`, `SETTLED` or `REJECTED`, since a finalized query has no claim left
+to sell.
 
-The transfer condition is the same allow-list, block-list and sanctions screen a transfer faces — a
-wrapped query is a transferable claim, so only a holder who could transfer may wrap. Check it with
+The conduit must also let the caller transfer to itself (`TransferNotAllowed`): a wrapped query is
+a transferable claim, so it faces the same screen a transfer does. Check it first with
 [`getTransferability`](/actions/getTransferability):
 
 ```ts
 const canWrap = await getTransferability(client, { conduit, from: owner, to: owner })
 ```
-
-And the liveness condition is why it is worth wrapping at all: a finalized query has no claim left
-to sell.
 
 ## Returns
 
@@ -84,12 +78,8 @@ const claim = await getQueryClaim(publicClient, { ownerRegistry, conduit, queryI
 
 Who holds the claim, and whether it has been wrapped yet.
 
-:::info
-`wrap` moves the record from one field to the other: it clears `owner` and sets `tokenId`. So a zero
-`owner` means two opposite things — with `isWrapped` true, the **NFT holder** owns the claim; with
-it false, the registry **never knew** this query.
-:::
-
+`wrap` clears `owner` and sets `tokenId`, so a zero `owner` means two opposite things: with
+`isWrapped` true the NFT holder owns the claim, with it false the registry never knew this query.
 Reading all three in one multicall is what makes them distinguishable.
 
 ## No unwrap builder
