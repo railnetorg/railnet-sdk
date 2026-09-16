@@ -3,8 +3,10 @@ import type { FeeRecipient, Fees } from './types.js'
 const TOTAL_BPS = 10_000
 
 /**
- * A 100% deposit or redeem fee cannot be reversed — `_reverseFee` would divide by zero — so the
- * FeeManager caps both at `BPS_MAX - 1`, on the ceilings as well as on the rates.
+ * Stricter than the contract on the transactional fees, on purpose. `_setFees` checks all four
+ * against `BPS_MAX` alone, so a `depositFeeBps` of 10000 is settable — and then every deposit
+ * reverts `FeeTooHigh`, because `_reverseFee` refuses to divide by a zero remainder. 9999 is the
+ * highest that leaves the fee reversible.
  */
 const CEILINGS = {
   performanceFeeBps: TOTAL_BPS,
