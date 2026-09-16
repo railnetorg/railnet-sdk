@@ -52,7 +52,7 @@ function assertListedAccounts(accounts: readonly Address[]): void {
 }
 
 /**
- * Adds accounts to the allow-list. Reverts `AddressAlreadyListed` on a duplicate, `ZeroAddress` on
+ * Reverts `AddressAlreadyListed` on a duplicate, `ZeroAddress` on
  * the zero address, and `AddressOnOtherList` on an account the block-list already holds. Needs
  * ACCOUNT_LIST_MANAGER.
  *
@@ -70,7 +70,7 @@ export function buildAddToAllowListCall(parameters: UpdateAccountListParameters)
 }
 
 /**
- * Removes accounts from the allow-list. Reverts `AddressNotListed` when one is absent. Needs
+ * Reverts `AddressNotListed` when an account is absent from the allow-list. Needs
  * ACCOUNT_LIST_MANAGER.
  *
  * @param parameters - {@link UpdateAccountListParameters}

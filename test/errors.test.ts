@@ -55,8 +55,6 @@ describe('getRailnetError', () => {
     expect(railnetError?.hint).toBeUndefined()
   })
 
-  // No contract ABI declares InvalidOutput: it is encoded from ErrorLib and reverted through
-  // assembly, so viem cannot decode it against the ABI of the call.
   it('falls back to the protocol errors for a revert the call ABI cannot decode', () => {
     const queryOutput = { asset: `0x${'22'.repeat(20)}`, value: 0n }
     const thrown = revertWithProtocolError('InvalidOutput', [queryOutput])

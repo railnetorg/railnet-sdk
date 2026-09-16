@@ -32,8 +32,8 @@ export function isVehicleSector(sector: Sector): boolean {
 }
 
 /**
- * Extracts the vehicle address from a vehicle sector.
- * @returns The vehicle address, or `undefined` if the sector is not a vehicle sector
+ * @returns The vehicle address, or `undefined` for a static or query sector, which doubles as a
+ * decoder when reading sectors back from events
  */
 export function sectorToVehicle(sector: Sector): Address | undefined {
   if (!isVehicleSector(sector)) return undefined

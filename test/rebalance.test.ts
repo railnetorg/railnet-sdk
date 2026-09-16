@@ -64,7 +64,6 @@ describe('buildRebalanceRedeemCall', () => {
 
     expect(dispatch.vehicle).toBe(from)
     expect(dispatch.mode).toBe(QueryMode.REDEEM)
-    // maxUint256 cap-limits instead of reverting, and requires minOutput to be 0.
     expect(dispatch.amount).toBe(maxUint256)
     expect(dispatch.minOutput).toBe(0n)
   })
