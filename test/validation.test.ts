@@ -4,6 +4,8 @@ import {
   AllowlistMode,
   buildAddToAllowListCall,
   buildAddToBlockListCall,
+  buildRemoveFromAllowListCall,
+  buildRemoveFromBlockListCall,
   buildSetFeeRecipientsCall,
   buildSetFeesCall,
   buildSpawnAccountListCall,
@@ -217,6 +219,19 @@ describe('account list batches', () => {
   it('rejects an empty batch', () => {
     expect(() => buildAddToAllowListCall({ accountList, accounts: [] })).toThrow(
       'must not be empty',
+    )
+  })
+
+  /** `_updateList` has no length check, so an empty removal is a transaction that does nothing. */
+  it('holds the removals to the same batch invariants', () => {
+    expect(() => buildRemoveFromAllowListCall({ accountList, accounts: [] })).toThrow(
+      'must not be empty',
+    )
+    expect(() => buildRemoveFromBlockListCall({ accountList, accounts: [LOW, LOW] })).toThrow(
+      'appears twice',
+    )
+    expect(() => buildRemoveFromAllowListCall({ accountList, accounts: [zeroAddress] })).toThrow(
+      'zero address',
     )
   })
 })

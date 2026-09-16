@@ -29,7 +29,9 @@ export type UpdateAccountListParameters = {
 
 /**
  * The contract rejects a duplicate within the batch as readily as one already stored
- * (`AddressAlreadyListed`), and the zero address (`ZeroAddress`).
+ * (`AddressAlreadyListed` adding, `AddressNotListed` removing), and the zero address
+ * (`ZeroAddress`). It has no length check either way, so an empty batch is a transaction that
+ * succeeds having done nothing.
  *
  * @throws Error if the batch is empty, holds the zero address, or repeats an account
  */
@@ -74,8 +76,11 @@ export function buildAddToAllowListCall(parameters: UpdateAccountListParameters)
  * ACCOUNT_LIST_MANAGER.
  *
  * @param parameters - {@link UpdateAccountListParameters}
+ * @throws Error if the batch is empty, holds the zero address, or repeats an account
  */
 export function buildRemoveFromAllowListCall(parameters: UpdateAccountListParameters) {
+  assertListedAccounts(parameters.accounts)
+
   return {
     address: parameters.accountList,
     abi: accountListAbi,
@@ -107,8 +112,11 @@ export function buildAddToBlockListCall(parameters: UpdateAccountListParameters)
  * Unblocks accounts. Reverts `AddressNotListed` when one is absent. Needs ACCOUNT_LIST_MANAGER.
  *
  * @param parameters - {@link UpdateAccountListParameters}
+ * @throws Error if the batch is empty, holds the zero address, or repeats an account
  */
 export function buildRemoveFromBlockListCall(parameters: UpdateAccountListParameters) {
+  assertListedAccounts(parameters.accounts)
+
   return {
     address: parameters.accountList,
     abi: accountListAbi,
