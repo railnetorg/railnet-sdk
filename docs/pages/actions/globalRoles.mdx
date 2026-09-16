@@ -6,11 +6,9 @@ description: Granting, revoking and publishing a role across every scope.
 
 The unscoped half of the ExternalAccessControl surface. Each returns a prepared call: `{ address, abi, functionName, args }`.
 
-:::warning
-A **global** grant applies to every scope. Prefer
+A global grant applies to every scope. Prefer
 [`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall), which confines the role to the one
 contract that performs the gated call.
-:::
 
 ## Import
 
@@ -54,10 +52,7 @@ buildSetRolePublicCall({ accessControl: '0x1234...', role: VEHICLE_STEAM_DEPOSIT
 
 Makes a role callable by any address across every scope, or restricts it back.
 
-:::warning
-Unlike its scoped variant, this one is **`DEFAULT_ADMIN_ROLE` only** — not the role's own admin. The
-asymmetry is in the contract.
-:::
+Unlike its scoped variant, this one takes `DEFAULT_ADMIN_ROLE` only, not the role's own admin.
 
 `DEFAULT_ADMIN_ROLE` cannot be made public (`DefaultAdminCannotBePublic`), and re-sending the
 current status reverts `RolePublicStatusUnchanged`. While a role is public, per-account grant,

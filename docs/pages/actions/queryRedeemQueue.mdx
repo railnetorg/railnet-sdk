@@ -24,10 +24,8 @@ buildFeedQueryRedeemQueueCall({ vehicleManager })
 Fulfills pending redeem requests out of what the multi vehicle can currently withdraw. Needs
 `MULTI_VEHICLE_FEED_QUERY_REDEEM_QUEUE`.
 
-:::info
-It **skips the `minSharesForAutoFulfill` threshold** that auto-fulfillment normally has to cross, so
+It skips the `minSharesForAutoFulfill` threshold that auto-fulfillment normally has to cross, so
 this is how a queue sitting below that floor gets served.
-:::
 
 Reverts `NothingToFulfill` when no request is redeemable against the current withdrawable balance.
 Stage liquidity into `SECTOR_AVAILABLE` first — read the threshold with

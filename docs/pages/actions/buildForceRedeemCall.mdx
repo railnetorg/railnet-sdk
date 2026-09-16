@@ -6,15 +6,14 @@ description: Ejects a blocked or sanctioned holder from a conduit without their 
 
 Burns a holder's conduit shares and pays them out without their signature. This is how a blocked or sanctioned account is off-boarded.
 
-:::warning
-`accountList.canForceRedeem(user, caller)` gates both sides. `user` must be **sanctioned or
-block-listed**, and the caller must hold `CONDUIT_FORCE_REDEEM` globally or scoped to the account
-list. A clean holder can never be ejected, whatever the caller holds.
-:::
+The account list gates both sides: `user` must be sanctioned or block-listed, and the caller needs
+`CONDUIT_FORCE_REDEEM`. A clean holder cannot be ejected, whatever the caller holds — check with
+[`getAccountListStatus`](/actions/getAccountListStatus) first. The proceeds go to `user`, never to
+the caller.
 
-The proceeds go to `user`, never to the caller. Read
-[`getAccountListStatus`](/actions/getAccountListStatus) first rather than learning it from
-`ForceRedeemNotAllowed`.
+Reverts `ForceRedeemNotAllowed` when either side fails, `ForceRedeemUnavailable` on a conduit with
+no account list, `DisabledConduit` before the conduit is enabled, and `NothingToRedeem` on a zero
+`amount`.
 
 ## Import
 
@@ -75,11 +74,3 @@ Conduit shares to burn from `user`. Zero reverts `NothingToRedeem`.
 
 The asset `user` is paid in, from `conduit.asset()`. A zero `value` disables the amount floor.
 
-## Errors
-
-| Error | Why |
-| :--- | :--- |
-| `ForceRedeemNotAllowed` | `user` is neither blocked nor sanctioned, or the caller lacks `CONDUIT_FORCE_REDEEM`. |
-| `ForceRedeemUnavailable` | The conduit has no account list, so there is nothing to authorize against. |
-| `DisabledConduit` | The conduit has not been enabled yet. |
-| `NothingToRedeem` | `amount` is zero. |
