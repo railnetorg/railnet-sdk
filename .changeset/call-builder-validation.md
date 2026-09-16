@@ -2,15 +2,11 @@
 '@railnetorg/railnet-sdk': minor
 ---
 
-**Breaking:** Call builders now throw on input the contracts reject, instead of encoding a call
-that reverts on chain.
+**Breaking:** Changed the call builders to throw on input the contracts reject, rather than encode
+a call that reverts on chain ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
 
 - A fee split that is empty, out of order, or short of 10000 bps.
-- A rate above its ceiling: `depositFeeBps` and `redeemFeeBps` cap at 9999, not 10000.
-- `sanctionsEnabled` without an oracle.
-- A zero address or a duplicate in an allow- or block-list batch.
-- `buildSpawnFeeManagerCall` checks `initialFees` against `initialMaxFees`.
-
-Added `assertFeeRecipients` and `assertFees` to validate a split before building. `buildSpawnConduitCall`
-and `predictConduitDeployment` now share one `SpawnParams` mapping, so a prediction cannot drift from
-the call it predicts.
+- A rate above its ceiling. `depositFeeBps` and `redeemFeeBps` cap at 9999, not 10000.
+- `sanctionsEnabled` set without an oracle.
+- A zero address, or a duplicate, in an allow-list or block-list batch.
+- `initialFees` above the matching `initialMaxFees` at spawn.

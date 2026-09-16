@@ -3,8 +3,8 @@
 ---
 
 Added AccountList, the compliance module a conduit takes at spawn — `buildSpawnAccountListCall`,
-`predictAccountListDeployment`, and the manager calls for the mode, both lists, and sanctions
-screening.
+`predictAccountListDeployment`, and the manager calls for the mode, both lists and sanctions
+screening ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
 
 - Precedence runs backwards from most allow-list systems: sanctions beat the block-list, which
   beats the allow-list.

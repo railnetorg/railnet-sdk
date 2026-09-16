@@ -2,17 +2,13 @@
 '@railnetorg/railnet-sdk': minor
 ---
 
-**Breaking:** Renamed the conduit-scoped protocol types to the query-scoped names the contracts
-use, and moved them to `src/types.ts` alongside `Asset`, `Query`, `Interception` and
-`EstimationType`. All six stay exported from the package root.
+**Breaking:** Renamed the two conduit-scoped protocol enums to the query-scoped names the contracts
+use ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
 
 ```diff
-- import { ConduitMode, ConduitState, buildEnableConduitCall } from '@railnetorg/railnet-sdk'
-+ import { QueryMode, QueryState, buildEnableConduitTransfersCall } from '@railnetorg/railnet-sdk'
-
-- const call = buildEnableConduitCall({ conduit })
-+ const call = buildEnableConduitTransfersCall({ conduit })
+- import { ConduitMode, ConduitState } from '@railnetorg/railnet-sdk'
++ import { QueryMode, QueryState } from '@railnetorg/railnet-sdk'
 ```
 
-`buildEnableConduitTransfersCall` builds `conduit.enableTransfers()`, which is what the old name
-already called.
+- Neither was conduit-specific: vehicles, the sector accounting engine and the estimators all read
+  the same values.
