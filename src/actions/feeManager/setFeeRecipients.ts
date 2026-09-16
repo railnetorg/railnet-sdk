@@ -1,6 +1,7 @@
 import type { Address } from 'viem'
 import { feeManagerAbi } from '../../abi/feeManager.js'
-import { assertFeeRecipients, type FeeRecipient } from './types.js'
+import { assertFeeRecipients } from './assertions.js'
+import type { FeeRecipient } from './types.js'
 
 export type SetFeeRecipientsParameters = {
   feeManager: Address

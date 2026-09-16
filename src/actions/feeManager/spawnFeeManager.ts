@@ -1,7 +1,8 @@
 import type { Address, Client, Hex } from 'viem'
 import { readContract } from 'viem/actions'
 import { feeManagerFactoryAbi } from '../../abi/feeManagerFactory.js'
-import { assertFeeRecipients, assertFeesWithinMax, type FeeRecipient, type Fees } from './types.js'
+import { assertFeeRecipients, assertFeesWithinMax } from './assertions.js'
+import type { FeeRecipient, Fees } from './types.js'
 
 export type SpawnFeeManagerParameters = {
   factory: Address

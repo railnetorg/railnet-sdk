@@ -1,3 +1,4 @@
+export * from './assertions.js'
 export * from './dispatchFees.js'
 export * from './setFeeRecipients.js'
 export * from './setFees.js'
