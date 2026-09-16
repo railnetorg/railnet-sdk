@@ -17,7 +17,7 @@ export const SECTOR_EXIT: Sector =
  * @example
  * import { vehicleSector } from '@railnetorg/railnet-sdk'
  *
- * vehicleSector('0x2ec94b8979868Bf5586f8550733092A77Cd77c9E')
+ * vehicleSector('0x2Ec94b8979868bF5586f8550733092a77Cd77C9E')
  * // 0x0100000000000000000000002ec94b8979868bf5586f8550733092a77cd77c9e
  */
 export function vehicleSector(vehicle: Address): Sector {
