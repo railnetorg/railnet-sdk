@@ -118,7 +118,9 @@ Optional initial reward interception routes for the conduit. Defaults to `[]`.
 
 - **Type:** `Hex`
 
-The salt for the query operation. Required for prediction.
+Required, because the prediction takes the whole `SpawnParams` tuple. It does not move the address:
+only `deploymentSalt` and the fields `ConduitFactory._getInitCode` reads (`name`, `symbol`,
+`vehicle`, the four module addresses, `transferEnabled`, `initialInterceptions`) do.
 
 ### deploymentSalt
 
