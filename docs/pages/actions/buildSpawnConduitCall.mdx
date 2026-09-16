@@ -6,6 +6,9 @@ description: Deploys a new conduit via the factory.
 
 Deploys a new conduit via the factory contract. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
 
+The caller needs `CONDUIT_SPAWN` on the factory's access control, scoped to the factory. It is the
+one factory that does not gate on `FACTORY_SPAWN`.
+
 :::warning
 The factory pulls an initial deposit from the caller. Approve the factory for at least
 [`getInitialDepositAmount`](/actions/getInitialDepositAmount) of the vehicle's asset first, and hold
