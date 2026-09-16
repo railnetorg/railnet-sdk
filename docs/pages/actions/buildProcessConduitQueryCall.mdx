@@ -6,6 +6,10 @@ description: Processes a query on a conduit.
 
 Processes a query on a conduit. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
 
+The query's owner may send it without a role; anyone else needs `CONDUIT_PROCESS` scoped to the
+conduit. A query already in a terminal state (`SETTLED` or `REJECTED`) returns early for an
+unauthorized caller rather than reverting.
+
 ## Import
 
 ```ts
