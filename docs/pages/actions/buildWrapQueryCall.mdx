@@ -1,0 +1,99 @@
+---
+description: Mints an ERC-721 over a live conduit query so the claim becomes transferable.
+---
+
+# buildWrapQueryCall
+
+Mints an ERC-721 over a live query, so the claim on its proceeds becomes transferable. Returns the `tokenId`.
+
+The OwnerRegistry records who owns a conduit's live queries; wrapping turns that record into a token
+someone else can buy or receive.
+
+## Import
+
+```ts
+import { buildWrapQueryCall, getQueryClaim } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildWrapQueryCall } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...buildWrapQueryCall({ ownerRegistry, query, conduit }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+## Five conditions, all on chain
+
+| Condition | Error when unmet |
+| :--- | :--- |
+| The caller is the query's registered owner | `QueryNotRegistered`, `UnauthorizedWrap` |
+| The query is not wrapped already | `QueryAlreadyWrapped` |
+| The conduit lets the caller transfer to itself | `TransferNotAllowed` |
+| The query is still live | `NonWrappableState` on `EMPTY`, `SETTLED` or `REJECTED` |
+| `conduit` is not the zero address | `InvalidConduitAddress` |
+
+The transfer condition is the same allow-list, block-list and sanctions screen a transfer faces — a
+wrapped query is a transferable claim, so only a holder who could transfer may wrap. Check it with
+[`getTransferability`](/actions/getTransferability):
+
+```ts
+const canWrap = await getTransferability(client, { conduit, from: owner, to: owner })
+```
+
+And the liveness condition is why it is worth wrapping at all: a finalized query has no claim left
+to sell.
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`. On chain it returns the minted `tokenId`.
+
+## Parameters
+
+### ownerRegistry
+
+- **Type:** `Address`
+
+The registry the conduit was spawned with. Fixed at spawn, with no setter.
+
+### query
+
+- **Type:** [`Query`](/utilities/queryIdentity)
+
+The query to wrap, exactly as the conduit created it.
+
+### conduit
+
+- **Type:** `Address`
+
+The conduit that owns the query. The registry namespaces every record by it, so the same query id
+under two conduits is two records.
+
+## getQueryClaim
+
+```ts
+const claim = await getQueryClaim(publicClient, { ownerRegistry, conduit, queryId })
+// { owner, isWrapped, tokenId }
+```
+
+Who holds the claim, and whether it has been wrapped yet.
+
+:::info
+`wrap` moves the record from one field to the other: it clears `owner` and sets `tokenId`. So a zero
+`owner` means two opposite things — with `isWrapped` true, the **NFT holder** owns the claim; with
+it false, the registry **never knew** this query.
+:::
+
+Reading all three in one multicall is what makes them distinguishable.
+
+## No unwrap builder
+
+`unwrap` is keyed on `msg.sender` as the conduit namespace, so only the owning conduit can reach it,
+and it does so at finalization — burning the spent claim before it can be transferred again. A
+builder for it would be surface no integrator can call.

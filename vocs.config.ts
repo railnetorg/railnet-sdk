@@ -210,6 +210,10 @@ export default defineConfig({
           text: 'Owner Registry',
           items: [
             {
+              text: 'buildWrapQueryCall',
+              link: '/actions/buildWrapQueryCall',
+            },
+            {
               text: 'buildSpawnOwnerRegistryCall',
               link: '/actions/buildSpawnOwnerRegistryCall',
             },
