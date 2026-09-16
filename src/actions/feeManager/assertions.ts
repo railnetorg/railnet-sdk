@@ -3,10 +3,11 @@ import type { FeeRecipient, Fees } from './types.js'
 const TOTAL_BPS = 10_000
 
 /**
- * Stricter than the contract on the transactional fees, on purpose. `_setFees` checks all four
- * against `BPS_MAX` alone, so a `depositFeeBps` of 10000 is settable — and then every deposit
- * reverts `FeeTooHigh`, because `_reverseFee` refuses to divide by a zero remainder. 9999 is the
- * highest that leaves the fee reversible.
+ * The contract's own ceilings, mirrored so a bad rate fails where it was assembled. A 100%
+ * transactional fee is not reversible (`_reverseFee` would divide by zero), so `_setMaxFees` caps
+ * `depositFeeBps` and `redeemFeeBps` at `BPS_MAX - 1`. It runs once from `__FeeManager_init` and
+ * has no external setter, so that ceiling is immutable, and `_setFees` checks each rate against
+ * the stored ceiling rather than against `BPS_MAX`: 10000 is never settable on either.
  */
 const CEILINGS = {
   performanceFeeBps: TOTAL_BPS,
