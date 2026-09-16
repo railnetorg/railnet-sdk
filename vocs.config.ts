@@ -99,6 +99,10 @@ export default defineConfig({
           text: 'MultiVehicle',
           items: [
             {
+              text: 'getSectorBalance',
+              link: '/actions/getSectorBalance',
+            },
+            {
               text: 'getVehicleManagerLimits',
               link: '/actions/getVehicleManagerLimits',
             },
