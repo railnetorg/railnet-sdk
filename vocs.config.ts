@@ -93,6 +93,18 @@ export default defineConfig({
               text: 'buildProcessConduitQueryCall',
               link: '/actions/buildProcessConduitQueryCall',
             },
+            {
+              text: 'buildForceRedeemCall',
+              link: '/actions/buildForceRedeemCall',
+            },
+            {
+              text: 'getTransferability',
+              link: '/actions/getTransferability',
+            },
+            {
+              text: 'setInterceptions',
+              link: '/actions/setInterceptions',
+            },
           ],
         },
         {
@@ -101,6 +113,10 @@ export default defineConfig({
             {
               text: 'getSectorBalance',
               link: '/actions/getSectorBalance',
+            },
+            {
+              text: 'queryRedeemQueue',
+              link: '/actions/queryRedeemQueue',
             },
             {
               text: 'getVehicleManagerLimits',
@@ -173,6 +189,10 @@ export default defineConfig({
           text: 'Account List',
           items: [
             {
+              text: 'getAccountListStatus',
+              link: '/actions/getAccountListStatus',
+            },
+            {
               text: 'buildSpawnAccountListCall',
               link: '/actions/buildSpawnAccountListCall',
             },
@@ -194,6 +214,10 @@ export default defineConfig({
         {
           text: 'Access Control',
           items: [
+            {
+              text: 'globalRoles',
+              link: '/actions/globalRoles',
+            },
             {
               text: 'getHasRole',
               link: '/actions/getHasRole',

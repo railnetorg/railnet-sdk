@@ -1,0 +1,64 @@
+---
+description: The two operator calls on a MultiVehicle's redeem queue.
+---
+
+# The redeem queue
+
+Two operator overrides on the queue a MultiVehicle fulfills redeem requests from. Both are on the VehicleManager.
+
+## Import
+
+```ts
+import {
+  buildFeedQueryRedeemQueueCall,
+  buildRetrieveQueryRedeemQueueAssetsCall,
+} from '@railnetorg/railnet-sdk'
+```
+
+## buildFeedQueryRedeemQueueCall
+
+```ts
+buildFeedQueryRedeemQueueCall({ vehicleManager })
+```
+
+Fulfills pending redeem requests out of what the multi vehicle can currently withdraw. Needs
+`MULTI_VEHICLE_FEED_QUERY_REDEEM_QUEUE`.
+
+:::info
+It **skips the `minSharesForAutoFulfill` threshold** that auto-fulfillment normally has to cross, so
+this is how a queue sitting below that floor gets served.
+:::
+
+Reverts `NothingToFulfill` when no request is redeemable against the current withdrawable balance.
+Stage liquidity into `SECTOR_AVAILABLE` first — read the threshold with
+[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits).
+
+## buildRetrieveQueryRedeemQueueAssetsCall
+
+```ts
+buildRetrieveQueryRedeemQueueAssetsCall({ vehicleManager, amount: 1_000_000n })
+```
+
+Pulls assets back out of the queue and deposits them into `SECTOR_AVAILABLE`. Needs
+`MULTI_VEHICLE_RETRIEVE_QUERY_REDEEM_QUEUE_ASSETS`.
+
+:::warning
+**No shares are minted against the deposit**, so the amount raises the per-share rate for every
+holder. The surplus is treated as yield, and the performance fee is charged on it.
+:::
+
+`amount` is in the multi vehicle's asset units.
+
+## Parameters
+
+### vehicleManager
+
+- **Type:** `Address`
+
+The VehicleManager of the MultiVehicle, from `extractMultiVehicleContracts`.
+
+### amount
+
+- **Type:** `bigint`
+
+Only on `buildRetrieveQueryRedeemQueueAssetsCall`. In the multi vehicle's asset units.

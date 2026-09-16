@@ -1,0 +1,85 @@
+---
+description: Ejects a blocked or sanctioned holder from a conduit without their signature.
+---
+
+# buildForceRedeemCall
+
+Burns a holder's conduit shares and pays them out without their signature. This is how a blocked or sanctioned account is off-boarded.
+
+:::warning
+`accountList.canForceRedeem(user, caller)` gates both sides. `user` must be **sanctioned or
+block-listed**, and the caller must hold `CONDUIT_FORCE_REDEEM` globally or scoped to the account
+list. A clean holder can never be ejected, whatever the caller holds.
+:::
+
+The proceeds go to `user`, never to the caller. Read
+[`getAccountListStatus`](/actions/getAccountListStatus) first rather than learning it from
+`ForceRedeemNotAllowed`.
+
+## Import
+
+```ts
+import { buildForceRedeemCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildForceRedeemCall, getAccountListStatus } from '@railnetorg/railnet-sdk'
+
+const status = await getAccountListStatus(client, { accountList, account: user })
+if (!status.isBlocked && !status.isSanctioned) return
+
+const { request } = await simulateContract(client, {
+  ...buildForceRedeemCall({
+    conduit,
+    user,
+    amount: shares,
+    outputAsset: { asset: usdc, value: 0n },
+  }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`. On chain it returns `(queryId, state)`;
+on an async vehicle the redeem settles in a later `process` call.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+The conduit holding the shares.
+
+### user
+
+- **Type:** `Address`
+
+The holder being ejected, and the address the proceeds are paid to.
+
+### amount
+
+- **Type:** `bigint`
+
+Conduit shares to burn from `user`. Zero reverts `NothingToRedeem`.
+
+### outputAsset
+
+- **Type:** [`Asset`](/types/Asset)
+
+The asset `user` is paid in, from `conduit.asset()`. A zero `value` disables the amount floor.
+
+## Errors
+
+| Error | Why |
+| :--- | :--- |
+| `ForceRedeemNotAllowed` | `user` is neither blocked nor sanctioned, or the caller lacks `CONDUIT_FORCE_REDEEM`. |
+| `ForceRedeemUnavailable` | The conduit has no account list, so there is nothing to authorize against. |
+| `DisabledConduit` | The conduit has not been enabled yet. |
+| `NothingToRedeem` | `amount` is zero. |
