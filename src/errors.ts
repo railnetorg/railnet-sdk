@@ -39,7 +39,7 @@ export const railnetErrorHints: Readonly<Record<string, string>> = {
   ForceRedeemNotAllowed: 'The caller lacks CONDUIT_FORCE_REDEEM for that holder.',
   IneffectiveMove: 'Source and destination sector are the same, so the move is a no-op.',
   InsufficientAllowance:
-    'Approve the factory or the conduit first. For a spawn, the amount comes from getInitialDepositAmount.',
+    'A factory spawn was not approved for its initial deposit; the amount comes from getInitialDepositAmount. Only the factories raise this. A conduit deposit short on allowance reverts with the ERC-20 error of the token instead.',
   InterceptionSharesTooHigh: 'The interception recipients total more than 10000 bps of the flow.',
   InvalidBps: 'A basis-point value is outside [0, 10000].',
   InvalidEstimation:
