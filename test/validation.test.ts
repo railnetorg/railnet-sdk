@@ -41,6 +41,19 @@ describe('buildSetFeeRecipientsCall', () => {
     ).toThrow('must total 10000 bps, got 9999')
   })
 
+  // FeeManager._setRecipients runs CheckLib.checkAddress on every target.
+  it('rejects the zero address as a target', () => {
+    expect(() =>
+      buildSetFeeRecipientsCall({
+        feeManager,
+        recipients: [
+          { target: zeroAddress, shareBps: 4000 },
+          { target: HIGH, shareBps: 6000 },
+        ],
+      }),
+    ).toThrow('must not hold the zero address')
+  })
+
   it('rejects a split that is not strictly ascending', () => {
     expect(() =>
       buildSetFeeRecipientsCall({

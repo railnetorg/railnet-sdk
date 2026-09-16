@@ -1,3 +1,4 @@
+import { zeroAddress } from 'viem'
 import type { FeeRecipient, Fees } from './types.js'
 
 const TOTAL_BPS = 10_000
@@ -21,7 +22,8 @@ const CEILINGS = {
  * assembled rather than as a revert. Addresses are compared lowercased: a checksummed address
  * sorts by case otherwise, and the contract orders them as `uint160`.
  *
- * @throws Error if the list is empty, out of order, or does not total 10000 bps
+ * @throws Error if the list is empty, holds the zero address, is out of order, or does not total
+ * 10000 bps
  */
 export function assertFeeRecipients(recipients: readonly FeeRecipient[]): void {
   if (recipients.length === 0) {
@@ -32,6 +34,10 @@ export function assertFeeRecipients(recipients: readonly FeeRecipient[]): void {
   let previous = ''
 
   for (const recipient of recipients) {
+    if (recipient.target === zeroAddress) {
+      throw new Error('fee recipients must not hold the zero address')
+    }
+
     if (!Number.isInteger(recipient.shareBps) || recipient.shareBps <= 0) {
       throw new Error(
         `fee recipient ${recipient.target} has shareBps ${recipient.shareBps}: it must be a positive integer`,
