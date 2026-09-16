@@ -1,5 +1,114 @@
 # @railnetorg/railnet-sdk
 
+## 0.8.0
+
+### Minor Changes
+
+- cd1da36: Added AccountList, the compliance module a conduit takes at spawn — `buildSpawnAccountListCall`,
+  `predictAccountListDeployment`, and the manager calls for the mode, both lists and sanctions
+  screening ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - Precedence runs backwards from most allow-list systems: sanctions beat the block-list, which
+    beats the allow-list.
+  - Redeem consults sanctions alone, so a blocked holder can still take its own money out.
+  - Screening fails closed: an oracle that reverts or has no code marks everyone sanctioned, and a
+    sanctioned account cannot exit.
+  - Fixed on the conduit at spawn, with no setter afterwards.
+
+- cd1da36: **Breaking:** Changed the call builders to throw on input the contracts reject, rather than encode
+  a call that reverts on chain ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - A fee split that is empty, out of order, or short of 10000 bps.
+  - A rate above its ceiling. `depositFeeBps` and `redeemFeeBps` cap at 9999, not 10000.
+  - `sanctionsEnabled` set without an oracle.
+  - A zero address, or a duplicate, in an allow-list or block-list batch.
+  - `initialFees` above the matching `initialMaxFees` at spawn.
+
+- cd1da36: **Breaking:** Renamed `buildEnableConduitCall` to `buildEnableConduitTransfersCall`, which is the
+  call it already built ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+
+  ```diff
+  - const call = buildEnableConduitCall({ conduit })
+  + const call = buildEnableConduitTransfersCall({ conduit })
+  ```
+
+  - The old name suggested it enabled the conduit. `conduit.enable()` takes the ConduitFactory alone,
+    which calls it once the seed deposit settles.
+  - A one-way latch either way: no call turns transfers back off.
+
+- cd1da36: Added `assertFeeRecipients` and `assertFees`, which validate a fee split and a rate set before a
+  call is built ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - Exported so a form can check a draft split before a call is assembled.
+  - Addresses are compared lowercased: the contract orders recipients as `uint160`, so a checksummed
+    address would otherwise sort by case.
+
+- cd1da36: Added OwnerRegistry, which records who owns a conduit's live queries — `buildSpawnOwnerRegistryCall`
+  and `predictOwnerRegistryDeployment` ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - An owner can wrap the claim into a transferable ERC-721.
+  - It carries no access control of its own; the caller needs FACTORY_SPAWN on the factory's.
+  - Fixed on the conduit at spawn, with no setter afterwards, as AccountList is.
+
+- cd1da36: **Breaking:** Renamed the two conduit-scoped protocol enums to the query-scoped names the contracts
+  use ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+
+  ```diff
+  - import { ConduitMode, ConduitState } from '@railnetorg/railnet-sdk'
+  + import { QueryMode, QueryState } from '@railnetorg/railnet-sdk'
+  ```
+
+  - Neither was conduit-specific: vehicles, the sector accounting engine and the estimators all read
+    the same values.
+
+- cd1da36: Added the remaining twelve read actions to the `railnetActions` decorator, which held four ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+- cd1da36: Added `buildRebalanceRedeemCall`, which redeems a position out of one sub-vehicle and stages the
+  proceeds in another's sector as a single `multicall` ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - A rebalance is two transactions. Deposit the staged proceeds with `buildDispatchVehicleCall`, as
+    a `DEPOSIT` of `maxUint256` settling into `SECTOR_ALLOCATION`.
+  - Thread one `operationId` through both, so the events stitch back into a single rebalance.
+
+- cd1da36: Added `getRailnetError`, which reads a revert out of whatever viem threw and returns its decoded
+  name, arguments and a hint, or `null` when the failure was not a contract revert ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+
+  ```ts
+  const reverted = getRailnetError(error);
+  if (reverted?.name === "InsufficientAllowance") return approveFirst();
+  ```
+
+  - `railnetErrorHints` is the hint table itself, keyed by error name.
+  - `protocolErrorsAbi` is the fallback fragment it decodes against. viem decodes a revert using the
+    ABI of the call, so an error the called contract does not itself declare arrives as raw bytes.
+  - Six such errors now decode, `InvalidOutput` and `InvalidEstimation` among them. Both are reverted
+    from `ErrorLib` through assembly, which solc lists on no contract at all.
+
+- cd1da36: Added the three remaining vehicle factories, each with the receipt helper that reads its deployed
+  address back ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)). Only Aave V3 had one.
+  - `buildSpawnErc4626VehicleCall` and `buildSpawnMorphoBlueVehicleCall` derive the asset from their
+    target rather than taking one, so neither can be handed an asset the vault or market disagrees
+    with.
+  - `buildSpawnWrapperVehicleCall` takes no `initialExpectedSupply`. It still pulls a seed deposit,
+    but enforces no floor on the shares minted.
+  - Added `getMorphoBlueSingleton`: `spawn` reverts on any `morpho` other than the factory
+    implementation's own, so it is read rather than hardcoded.
+  - Added `getMorphoMarketAsset`. The market's loan token is what a supplier deposits, and so is the
+    vehicle's asset.
+
+### Patch Changes
+
+- cd1da36: Fixed `getAddresses(8453)` resolving silently ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)). The root entry point holds production
+  deployments only and Base has none, but the supported-chains table still listed it, so a caller got
+  staging addresses under the name of production.
+  - It throws now. Base lives at `@railnetorg/railnet-sdk/staging`.
+
+- cd1da36: Fixed `predictConduitDeployment` returning an address the matching spawn would not deploy to
+  ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)). It built its own `SpawnParams` tuple, so any field the two mapped differently moved the
+  CREATE2 result; both now share one mapping.
+- cd1da36: Fixed `buildSetFeeRecipientsCall` and `buildSpawnFeeManagerCall` accepting a zero-address fee
+  recipient, which the FeeManager rejects through `CheckLib.checkAddress`. The split now fails where
+  it is assembled, as the other recipient invariants already did.
+- cd1da36: Fixed the `InsufficientAllowance` hint, which sent callers to approve a conduit for an error only
+  the factories raise. `FactoryLib.validateDepositRequirements` is the sole source; a conduit deposit
+  short on allowance reverts with the ERC-20 error of the token, which carries its own name.
+  - `VehicleNotAuthorized` is raised by `VehicleManager`, not by a factory. The conduit error
+    reference said otherwise and now names `buildAuthorizeVehicleCall` as the fix.
+
 ## 0.7.0
 
 ### Minor Changes
