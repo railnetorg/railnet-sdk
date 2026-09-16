@@ -4,7 +4,8 @@ description: Builds the call that sets a multi vehicle's auto-fulfill threshold 
 
 # buildSetThresholdsCall
 
-Builds the `vehicleManager.setThresholds()` call.
+Builds the `vehicleManager.setThresholds()` call. The caller needs `MULTI_VEHICLE_SET_THRESHOLDS`
+scoped to the VehicleManager, not to the multi vehicle.
 
 It replaces **both** values outright — there is no partial update. Read
 [`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) first and pass the current value for

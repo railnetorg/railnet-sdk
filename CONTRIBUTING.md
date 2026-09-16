@@ -10,27 +10,29 @@ bun run format    # biome check --fix
 bun run docs:dev  # vocs documentation site
 ```
 
-The test suite forks Base, so it needs an RPC endpoint and [Foundry](https://getfoundry.sh) on your `PATH` for `anvil`. Create a `.env.test` (gitignored):
+The test suite forks Base, so it needs an RPC endpoint and [Foundry](https://getfoundry.sh) on your `PATH` for `anvil`. The address guard also reads the production book on Ethereum. Create a `.env.test` (gitignored):
 
 ```
 BASE_RPC_URL=https://base-rpc.publicnode.com
+MAINNET_RPC_URL=https://ethereum-rpc.publicnode.com
 ```
 
-Then `bun run test`. Without it three fork suites fail; the rest still run.
+Then `bun run test`. Without them the fork and address suites fail; the rest still run.
 
 ## Architecture
 
 ```
 src/
 ├── abi/               Contract ABIs
-├── actions/           Core read/write actions (organized by domain)
+├── actions/           Read actions and call builders (organized by domain)
 │   └── conduit/       Conduit domain actions + types
 ├── react/
 │   ├── query/         TanStack Query options (usable without React)
 │   └── hooks/         React hooks wrapping query options
-├── decorator.ts       client.extend(railnetActions)
+├── decorator.ts       client.extend(railnetActions) — every read action
+├── errors.ts          getRailnetError + the revert hint table
 ├── utils/
-└── types.ts           Shared types
+└── types.ts           Protocol-wide types: Asset, Query, QueryMode, QueryState, ...
 ```
 
 ### Layers
@@ -40,27 +42,31 @@ Hook (useConduitPosition)                    → useQuery(queryOptions)
   ↓
 QueryOptions (conduitPositionQueryOptions)   → queryKey + queryFn
   ↓
-Action (getConduitPosition)                  → viem readContract / writeContract
+Action (getConduitPosition)                  → viem readContract
   ↓
 ABI (conduitAbi)
 ```
 
 ## Conventions
 
-**Actions** follow the viem pattern:
-- Read: `(client: Client, params) → Promise<result>`
-- Write: `(client: Client, params & { account: Address }) → Promise<result>`
+**Reads** follow the viem pattern: `(client: Client, params) → Promise<result>`.
+
+**Writes are not actions.** A `build{X}Call(params)` builder returns `{ address, abi, functionName,
+args }` and sends nothing — the caller simulates and signs. A builder throws only for an invariant
+the contract documents and a caller can check without a node.
 
 **Naming** - `{verb}{Domain}.ts`: `depositConduit`, `getConduitPosition`, `estimateConduit`
 
 ## Adding a New Action
 
 1. Add ABI entries to `abi/{contract}.ts` if needed
-2. Add types to `actions/{domain}/types.ts` if shared, or in the action file if local
+2. Add types to `src/types.ts` if the protocol shares them, `actions/{domain}/types.ts` if the
+   domain does, or the action file if they are local
 3. Create `actions/{domain}/{actionName}.ts`
 4. Export from `actions/{domain}/index.ts`
-5. If read action → add to `decorator.ts`
-6. If needs React hook → add `react/query/{name}.ts` + `react/hooks/use{Name}.ts` + export from barrels
+5. If read action → add to `decorator.ts`. `test/decorator.test.ts` fails until you do
+6. If it can revert in a way a caller should handle → add a hint to `railnetErrorHints`
+7. If needs React hook → add `react/query/{name}.ts` + `react/hooks/use{Name}.ts` + export from barrels
 
 ## Build & Publish
 

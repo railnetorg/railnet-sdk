@@ -1,13 +1,9 @@
 import { conduitFactoryAbi } from '../../abi/conduitFactory.js'
 import type { SpawnConduitParameters } from './types.js'
 
-/**
- * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams)`. `querySalt` and `deploymentSalt` are required fields of the spawn params; `deploymentSalt` fixes the conduit's address. Use {@link randomSalt} to generate them.
- *
- * @param parameters - {@link SpawnConduitParameters}
- */
-export function buildSpawnConduitCall(parameters: SpawnConduitParameters) {
-  const spawnParams = {
+/** The `SpawnParams` tuple the factory takes, in its declared field order. */
+export function toConduitSpawnParams(parameters: SpawnConduitParameters) {
+  return {
     name: parameters.name,
     symbol: parameters.symbol,
     vehicle: parameters.vehicle,
@@ -21,11 +17,18 @@ export function buildSpawnConduitCall(parameters: SpawnConduitParameters) {
     querySalt: parameters.querySalt,
     deploymentSalt: parameters.deploymentSalt,
   } as const
+}
 
+/**
+ * Spawns a new Conduit via `conduitFactory.spawn(SpawnParams)`. `querySalt` and `deploymentSalt` are required fields of the spawn params; `deploymentSalt` fixes the conduit's address. Use {@link randomSalt} to generate them.
+ *
+ * @param parameters - {@link SpawnConduitParameters}
+ */
+export function buildSpawnConduitCall(parameters: SpawnConduitParameters) {
   return {
     address: parameters.factory,
     abi: conduitFactoryAbi,
     functionName: 'spawn',
-    args: [spawnParams],
+    args: [toConduitSpawnParams(parameters)],
   } as const
 }

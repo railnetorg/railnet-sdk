@@ -16,13 +16,13 @@ import { useEstimateConduit } from '@railnetorg/railnet-sdk/react'
 
 ```tsx
 import { useEstimateConduit } from '@railnetorg/railnet-sdk/react'
-import { ConduitMode, EstimationType } from '@railnetorg/railnet-sdk'
+import { QueryMode, EstimationType } from '@railnetorg/railnet-sdk'
 
 function Estimate() {
   const { data, isLoading } = useEstimateConduit({
     conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
     asset: { asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F', value: 1000000000000000000n },
-    mode: ConduitMode.DEPOSIT,
+    mode: QueryMode.DEPOSIT,
     estimationType: EstimationType.OUTPUT,
   })
 
@@ -64,7 +64,7 @@ The input asset for the estimation. See [`Asset`](/types/Asset).
 
 ### mode
 
-- **Type:** `ConduitMode`
+- **Type:** `QueryMode`
 
 The mode for the estimation. See [`Enums`](/types/Enums).
 
@@ -89,7 +89,7 @@ import { base } from 'viem/chains'
 const result = useEstimateConduit({
   conduit: '0x...',
   asset: { asset: '0x...', value: 1_000_000n },
-  mode: ConduitMode.DEPOSIT,
+  mode: QueryMode.DEPOSIT,
   estimationType: EstimationType.OUTPUT,
   chainId: base.id, // [!code focus]
 })

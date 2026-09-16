@@ -1,7 +1,7 @@
 import type { Address, Hex } from 'viem'
 import { conduitAbi } from '../../abi/conduit.js'
+import { type Query, QueryMode } from '../../types.js'
 import { toQuerySalt } from './queryId.js'
-import { ConduitMode, type Query } from './types.js'
 
 export type BuildDepositConduitCallParameters = {
   conduit: Address
@@ -47,7 +47,7 @@ export function buildDepositConduitQuery(parameters: BuildDepositConduitCallPara
     input: { asset: token, value: amount },
     // BaseVehicle._validateOutput reverts unless a DEPOSIT names the vehicle as its output asset.
     output: { asset: vehicle, value: minOutput ?? 0n },
-    mode: ConduitMode.DEPOSIT,
+    mode: QueryMode.DEPOSIT,
     salt: toQuerySalt({ sender, salt }),
     data: '0x',
   }

@@ -17,7 +17,7 @@ export const SECTOR_EXIT: Sector =
  * @example
  * import { vehicleSector } from '@railnetorg/railnet-sdk'
  *
- * vehicleSector('0x2ec94b8979868Bf5586f8550733092A77Cd77c9E')
+ * vehicleSector('0x2Ec94b8979868bF5586f8550733092a77Cd77C9E')
  * // 0x0100000000000000000000002ec94b8979868bf5586f8550733092a77cd77c9e
  */
 export function vehicleSector(vehicle: Address): Sector {
@@ -32,8 +32,8 @@ export function isVehicleSector(sector: Sector): boolean {
 }
 
 /**
- * Extracts the vehicle address from a vehicle sector.
- * @returns The vehicle address, or `undefined` if the sector is not a vehicle sector
+ * @returns The vehicle address, or `undefined` for a static or query sector, which doubles as a
+ * decoder when reading sectors back from events
  */
 export function sectorToVehicle(sector: Sector): Address | undefined {
   if (!isVehicleSector(sector)) return undefined

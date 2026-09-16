@@ -4,20 +4,21 @@ description: Enum definitions for the Railnet SDK.
 
 # Enums
 
-Enum definitions used throughout the Railnet SDK.
+The protocol-wide enums, shipped from the package root. They are not conduit-specific: vehicles,
+the sector accounting engine and the estimators read the same values.
 
 ## Import
 
 ```ts
-import { ConduitMode, ConduitState, EstimationType } from '@railnetorg/railnet-sdk'
+import { QueryMode, QueryState, EstimationType } from '@railnetorg/railnet-sdk'
 ```
 
-## ConduitMode
+## QueryMode
 
-Represents the mode of a query.
+Direction of a STEAM query.
 
 ```ts
-enum ConduitMode {
+enum QueryMode {
   DEPOSIT = 0,
   REDEEM = 1,
 }
@@ -35,12 +36,12 @@ Deposit mode.
 
 Redeem mode.
 
-## ConduitState
+## QueryState
 
 Represents the state of a query within the STEAM state machine.
 
 ```ts
-enum ConduitState {
+enum QueryState {
   EMPTY = 0,
   PROCESSING = 1,
   PAUSED = 2,

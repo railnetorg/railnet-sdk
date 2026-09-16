@@ -17,7 +17,7 @@ import { estimateConduit } from '@railnetorg/railnet-sdk'
 ```ts
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { estimateConduit, ConduitMode, EstimationType } from '@railnetorg/railnet-sdk'
+import { estimateConduit, QueryMode, EstimationType } from '@railnetorg/railnet-sdk'
 
 const client = createPublicClient({
   chain: base,
@@ -27,7 +27,7 @@ const client = createPublicClient({
 const estimatedAsset = await estimateConduit(client, {
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   asset: { asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F', value: 1000000000000000000n },
-  mode: ConduitMode.DEPOSIT,
+  mode: QueryMode.DEPOSIT,
   estimationType: EstimationType.OUTPUT,
 })
 ```
@@ -57,7 +57,7 @@ The address of the conduit contract.
 const estimatedAsset = await estimateConduit(client, {
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
   asset: { ... },
-  mode: ConduitMode.DEPOSIT,
+  mode: QueryMode.DEPOSIT,
   estimationType: EstimationType.OUTPUT,
 })
 ```
@@ -72,14 +72,14 @@ The input asset for the estimation. See [`Asset`](/types/Asset).
 const estimatedAsset = await estimateConduit(client, {
   conduit: '0x...',
   asset: { asset: '0x...', value: 1000000000000000000n }, // [!code focus]
-  mode: ConduitMode.DEPOSIT,
+  mode: QueryMode.DEPOSIT,
   estimationType: EstimationType.OUTPUT,
 })
 ```
 
 ### mode
 
-- **Type:** `ConduitMode`
+- **Type:** `QueryMode`
 
 The conduit mode for the estimation. See [`Enums`](/types/Enums).
 
@@ -87,7 +87,7 @@ The conduit mode for the estimation. See [`Enums`](/types/Enums).
 const estimatedAsset = await estimateConduit(client, {
   conduit: '0x...',
   asset: { ... },
-  mode: ConduitMode.DEPOSIT, // [!code focus]
+  mode: QueryMode.DEPOSIT, // [!code focus]
   estimationType: EstimationType.OUTPUT,
 })
 ```
@@ -102,7 +102,7 @@ The type of estimation to perform. See [`Enums`](/types/Enums).
 const estimatedAsset = await estimateConduit(client, {
   conduit: '0x...',
   asset: { ... },
-  mode: ConduitMode.DEPOSIT,
+  mode: QueryMode.DEPOSIT,
   estimationType: EstimationType.OUTPUT, // [!code focus]
 })
 ```

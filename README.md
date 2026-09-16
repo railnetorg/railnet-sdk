@@ -96,13 +96,19 @@ function Position() {
 |---|---|
 | `@railnetorg/railnet-sdk` | Core actions, ABIs, types and utilities |
 | `@railnetorg/railnet-sdk/react` | React hooks and TanStack Query integrations |
+| `@railnetorg/railnet-sdk/staging` | Staging address book, on the same mainnet chain ids |
 
 ## Supported chains
 
-| Chain | ID |
-|---|---|
-| Base | `8453` |
-| Ethereum | `1` |
+The import path selects the deployment, not the chain id: Railnet runs staging on real mainnet
+chain ids, so `8453` means Base either way.
+
+| Chain | ID | `@railnetorg/railnet-sdk` | `@railnetorg/railnet-sdk/staging` |
+|---|---|---|---|
+| Ethereum | `1` | yes | yes |
+| Base | `8453` | not yet | yes |
+
+`getAddresses(8453)` throws from the root export: Base has no production deployment.
 
 ## Contributing
 

@@ -36,7 +36,7 @@ const { request } = await simulateContract(client, {
   ...buildDispatchVehicleCall({
     sectorAccountingEngine: '0x...',
     vehicle: aaveV3Vehicle,
-    mode: ConduitMode.REDEEM,
+    mode: QueryMode.REDEEM,
     amount: 1000000n,
     settledDestination: SECTOR_AVAILABLE,
     rejectedDestination: vehicleSector(aaveV3Vehicle),
@@ -51,13 +51,13 @@ const hash = await writeContract(client, request)
 Checking whether it will settle in one transaction:
 
 ```ts
-import { ConduitState, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
+import { QueryState, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
 
 const { query, state } = await simulateDispatchVehicle(walletClient, {
   /* same parameters */
 })
 
-if (state !== ConduitState.SETTLED) {
+if (state !== QueryState.SETTLED) {
   // async vehicle: the redeem will sit in PROCESSING, keep `query` to progress it later
 }
 ```
@@ -66,7 +66,7 @@ if (state !== ConduitState.SETTLED) {
 
 `Hash` for `dispatchVehicle`.
 
-`{ query: Query; state: ConduitState }` for `simulateDispatchVehicle`, which sends nothing. Keep the
+`{ query: Query; state: QueryState }` for `simulateDispatchVehicle`, which sends nothing. Keep the
 `query` if the state is not `SETTLED` — progressing an in-flight query later requires the exact struct.
 
 ## Parameters
@@ -86,9 +86,9 @@ do not, so an unauthorized-but-funded vehicle can always be unwound.
 
 ### mode
 
-- **Type:** `ConduitMode`
+- **Type:** `QueryMode`
 
-`ConduitMode.DEPOSIT` to allocate into the vehicle, `ConduitMode.REDEEM` to pull out of it.
+`QueryMode.DEPOSIT` to allocate into the vehicle, `QueryMode.REDEEM` to pull out of it.
 
 ### amount
 

@@ -4,6 +4,10 @@ This reference provides the complete mapping of roles to their required scopes w
 
 ## Role to Scope Mapping
 
+The scope is always the contract that performs the check: every `_onlyGatedRole` passes
+`address(this)`. `MULTI_VEHICLE_*` is a family name, not a scope, so most of them are granted
+against an engine rather than against the multi vehicle.
+
 | Role | Must be scoped to |
 |------|-------------------|
 | `VEHICLE_STEAM_DEPOSIT` | Vehicle or Multi-Vehicle contract |
@@ -12,11 +16,11 @@ This reference provides the complete mapping of roles to their required scopes w
 | `MULTI_VEHICLE_MOVE` | `SectorAccountingEngine` |
 | `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` | `VehicleManager` |
 | `MULTI_VEHICLE_DEPOSIT` | `SectorAccountingEngine` |
-| `MULTI_VEHICLE_SET_THRESHOLDS` | `SectorAccountingEngine` |
+| `MULTI_VEHICLE_SET_THRESHOLDS` | `VehicleManager` |
 | `MULTI_VEHICLE_SET_QUEUES` | `QueueStrategyEngine` |
 | `MULTI_VEHICLE_PROGRESS_QUERY` | `SubQueryEngine` |
-| `MULTI_VEHICLE_FEED_QUERY_REDEEM_QUEUE` | Multi-Vehicle |
-| `MULTI_VEHICLE_RETRIEVE_QUERY_REDEEM_QUEUE_ASSETS` | Multi-Vehicle |
+| `MULTI_VEHICLE_FEED_QUERY_REDEEM_QUEUE` | `VehicleManager` |
+| `MULTI_VEHICLE_RETRIEVE_QUERY_REDEEM_QUEUE_ASSETS` | `VehicleManager` |
 | `FEE_MANAGER_SET_FEES` | `FeeManager` |
 | `FEE_MANAGER_SET_FEE_RECIPIENTS` | `FeeManager` |
 | `FEE_MANAGER_DISPATCH_ERC20` | `FeeManager` |

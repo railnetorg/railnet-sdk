@@ -74,8 +74,8 @@ export default defineConfig({
               link: '/actions/buildSpawnConduitCall',
             },
             {
-              text: 'buildEnableConduitCall',
-              link: '/actions/buildEnableConduitCall',
+              text: 'buildEnableConduitTransfersCall',
+              link: '/actions/buildEnableConduitTransfersCall',
             },
             {
               text: 'estimateConduit',
@@ -250,6 +250,7 @@ export default defineConfig({
         { text: 'randomSalt', link: '/utilities/randomSalt' },
         { text: 'Query identity', link: '/utilities/queryIdentity' },
         { text: 'toCall', link: '/utilities/toCall' },
+        { text: 'Handling reverts', link: '/utilities/errors' },
       ],
     },
     {

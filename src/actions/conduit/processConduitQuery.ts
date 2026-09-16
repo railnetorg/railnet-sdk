@@ -1,6 +1,6 @@
 import type { Address } from 'viem'
 import { conduitAbi } from '../../abi/conduit.js'
-import type { Query } from './types.js'
+import type { Query } from '../../types.js'
 
 export type ProcessConduitQueryParameters = {
   conduit: Address
@@ -10,6 +10,8 @@ export type ProcessConduitQueryParameters = {
 /**
  * Builds the `conduit.process()` call, which advances a query's state. Async vehicles need it; in
  * a deployment where a keeper drives settlement, this is its call, not an integration's.
+ *
+ * The query's owner may send it without a role; anyone else needs CONDUIT_PROCESS.
  *
  * @param parameters - {@link ProcessConduitQueryParameters}
  */

@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test'
-import { EstimationType, estimateConduit } from '../src/actions/conduit/estimateConduit.js'
-import { ConduitMode } from '../src/actions/conduit/types.js'
+import { estimateConduit } from '../src/actions/conduit/estimateConduit.js'
+import { EstimationType, QueryMode } from '../src/types.js'
 import type { createRailnetTestClient } from './client.js'
 import { TEST_CONDUIT, USDC } from './constants.js'
 import { setupAnvil, teardownAnvil } from './setup.js'
@@ -19,7 +19,7 @@ describe('estimateConduit', () => {
     const estimation = await estimateConduit(client, {
       conduit: TEST_CONDUIT,
       asset: { asset: USDC, value: 1_000_000n },
-      mode: ConduitMode.DEPOSIT,
+      mode: QueryMode.DEPOSIT,
       estimationType: EstimationType.OUTPUT,
     })
 
@@ -31,7 +31,7 @@ describe('estimateConduit', () => {
     const estimation = await estimateConduit(client, {
       conduit: TEST_CONDUIT,
       asset: { asset: TEST_CONDUIT, value: 10n ** 18n },
-      mode: ConduitMode.REDEEM,
+      mode: QueryMode.REDEEM,
       estimationType: EstimationType.OUTPUT,
     })
 

@@ -7,6 +7,9 @@ description: Builds the call that caps a multi vehicle's total assets.
 Builds the `vehicleManager.setMaxTotalAssets()` call — the hard cap on `totalAssets()`, enforced at
 deposit time.
 
+It shares a role with [`buildSetThresholdsCall`](/actions/buildSetThresholdsCall): the caller needs
+`MULTI_VEHICLE_SET_THRESHOLDS` scoped to the VehicleManager, not to the multi vehicle.
+
 ## Import
 
 ```ts

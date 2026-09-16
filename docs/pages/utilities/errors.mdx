@@ -1,0 +1,112 @@
+---
+description: Read a Railnet revert out of whatever viem threw, with what to do about it.
+---
+
+# Handling reverts
+
+Every call the SDK builds carries the contract's ABI, so viem decodes a custom error's name and
+arguments for you. What it cannot know is what to do about it. `getRailnetError` walks the error
+chain, hands back the decoded revert, and attaches that advice when the SDK has any.
+
+## Import
+
+```ts
+import { getRailnetError, railnetErrorHints } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract } from 'viem/actions'
+import { buildDepositConduitCall, getRailnetError } from '@railnetorg/railnet-sdk'
+
+try {
+  await simulateContract(client, { ...buildDepositConduitCall(parameters), account })
+} catch (error) {
+  const reverted = getRailnetError(error)
+
+  if (reverted?.name === 'InsufficientAllowance') {
+    return approveThenRetry()
+  }
+
+  throw new Error(reverted?.hint ?? 'the deposit failed', { cause: error })
+}
+```
+
+Simulate before you send and the revert reaches you before the user is asked to sign — that is the
+whole reason [`useSimulateContract`](/react/sendingCalls) comes first in every example here.
+
+## Return Type
+
+`RailnetError | null`
+
+`null` for a failure that was not a contract revert: a rejected signature, a transport error and a
+gas estimation failure all land there.
+
+### name
+
+- **Type:** `string`
+
+The custom error's name as the contract declares it — `MissingRole`, `InvalidQuerySalt`,
+`QueryAlreadyExists`.
+
+### args
+
+- **Type:** `readonly unknown[]`
+
+Its decoded arguments, in declaration order. `MissingRole` carries `[role, scope, caller]`, so the
+role that was missing and the scope it was checked against are both in hand. Empty for an error
+that takes none.
+
+### hint
+
+- **Type:** `string | undefined`
+
+What to do about it, when this package knows. `undefined` is not a failure — it means the name
+already says what happened.
+
+### cause
+
+- **Type:** `ContractFunctionRevertedError`
+
+The viem error this was read from, for the raw data and the full message.
+
+## Errors no contract ABI declares
+
+A rejection is encoded from `ErrorLib` and reverted through assembly, so solc never lists it on the
+contract that throws it. viem decodes a revert against the ABI of the call, so those arrive as raw
+bytes — including the two most common deposit failures, `InvalidOutput` and `InvalidEstimation`.
+
+`getRailnetError` falls back to `protocolErrorsAbi` for exactly this, so both decode normally. The
+fragment is exported if you need to hand it to `decodeErrorResult` yourself.
+
+## railnetErrorHints
+
+The hint table itself, keyed by error name. Useful to render a whole error map in an operator UI,
+or to check coverage:
+
+```ts
+import { railnetErrorHints } from '@railnetorg/railnet-sdk'
+
+railnetErrorHints.MissingRole
+// 'The caller lacks the role for that scope. Scope a grant to the contract that performs the
+//  gated call — MULTI_VEHICLE_SET_QUEUES to the queue strategy engine, not to the multi vehicle.
+//  Check with getHasRole first.'
+```
+
+It is deliberately not exhaustive. The protocol declares 121 errors and the OpenZeppelin, ERC-20
+and proxy ones say what they mean already; only the entries where the name alone leaves a caller
+guessing are here.
+
+## The ones that catch people
+
+| Error | Why it fires |
+| :--- | :--- |
+| `MissingRole` | The grant was scoped to the multi vehicle instead of the engine that performs the check. |
+| `InvalidQuerySalt` | The call was built for one `sender` and sent by another — a Safe, a batch or a relayer is the sender, not the user. |
+| `InvalidOutput` | The query names an output asset the vehicle will not produce: a DEPOSIT must name the vehicle, a REDEEM its underlying asset. |
+| `InvalidEstimation` | The `minOutput` floor was not met. The second argument is what the vehicle would actually produce. |
+| `InsufficientAllowance` | The factory or conduit was never approved. For a spawn the amount comes from [`getInitialDepositAmount`](/actions/getInitialDepositAmount). |
+| `AssetNotAuthorized` | The AssetRegistry has nothing registered for that asset, so no factory will spawn against it. |
+| `MinOutputRequiresPinnedAmount` | A dispatch combined `minOutput` with `maxUint256`. |
+| `StateUnchanged` | The write re-sends the values already stored. |

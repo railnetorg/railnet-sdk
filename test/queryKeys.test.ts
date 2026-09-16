@@ -2,14 +2,13 @@ import { describe, expect, it } from 'bun:test'
 import { hashKey } from '@tanstack/react-query'
 import { type Address, getAddress } from 'viem'
 import { base } from 'viem/chains'
-import { EstimationType } from '../src/actions/conduit/estimateConduit.js'
-import { ConduitMode } from '../src/actions/conduit/types.js'
 import {
   conduitPositionQueryKey,
   conduitPositionQueryPrefix,
   estimateConduitQueryKey,
   predictConduitDeploymentQueryKey,
 } from '../src/react/query/index.js'
+import { EstimationType, QueryMode } from '../src/types.js'
 
 const CONDUIT = '0x43ea8bd0b15780ba5659086c60f72fafd1cfccd9' as Address
 const ACCOUNT = '0x000000000000000000000000000000000000beef' as Address
@@ -20,7 +19,7 @@ describe('query keys', () => {
     const key = estimateConduitQueryKey(base.id, {
       conduit: CONDUIT,
       asset: { asset: ASSET, value: 100_000_000n },
-      mode: ConduitMode.DEPOSIT,
+      mode: QueryMode.DEPOSIT,
       estimationType: EstimationType.OUTPUT,
     })
 
