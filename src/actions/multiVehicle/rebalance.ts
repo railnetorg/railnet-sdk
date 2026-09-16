@@ -1,44 +1,43 @@
 import { type Address, encodeFunctionData, type Hex, maxUint256 } from 'viem'
 import { sectorAccountingEngineAbi } from '../../abi/sectorAccountingEngine.js'
-import { SECTOR_ALLOCATION, SECTOR_AVAILABLE, vehicleSector } from '../../constants/sectors.js'
+import { SECTOR_ALLOCATION, vehicleSector } from '../../constants/sectors.js'
 import { QueryMode } from '../../types.js'
 
-export type RebalanceLegOneParameters = {
+export type RebalanceRedeemParameters = {
   sectorAccountingEngine: Address
   /** Sub-vehicle the position leaves. */
   from: Address
-  /** Sub-vehicle the position lands in. */
+  /** Sub-vehicle the proceeds are staged for. Its sector receives them; nothing is deposited yet. */
   to: Address
   /** Shares of `from` to move, in that vehicle's share units (18 decimals). */
   shares: bigint
-  /** Threaded through both legs so indexers stitch the Moved/Dispatched events into one rebalance. */
+  /** Echoed in the `Moved` and `Dispatched` events, so an indexer can stitch both halves together. */
   operationId: Hex
 }
 
 /**
- * First leg of a rebalance, as a single `multicall`: stage the shares out of ALLOCATION into the
- * source vehicle's sector, then dispatch a redeem.
+ * Redeems a position out of one sub-vehicle and stages the proceeds in another's sector, as a
+ * single `multicall` of a move and a dispatch. Needs MULTI_VEHICLE_MOVE and
+ * MULTI_VEHICLE_DISPATCH.
  *
- * Batched deliberately. Run as two transactions, an abandoned sequence would leave the shares
- * stranded in the source's staging sector with no position earning on them.
+ * Batched because the two steps are not independent: sent separately and abandoned in between, the
+ * shares sit in the source's staging sector, out of ALLOCATION and earning nothing.
  *
- * `settledDestination` is the destination vehicle's sector rather than AVAILABLE, so the proceeds
- * never sit anywhere the queue-strategy engine could re-allocate them mid-rebalance.
- * `rejectedDestination` is ALLOCATION, where the shares came from.
+ * The proceeds settle into `to`'s sector rather than AVAILABLE, where the queue strategy engine
+ * could re-allocate them before the rebalance finishes. Depositing them into `to` is a second
+ * transaction, because an async source only settles once its query progresses: dispatch a DEPOSIT
+ * of `maxUint256` from that sector, settling into ALLOCATION.
  *
- * @param parameters - {@link RebalanceLegOneParameters}
+ * @param parameters - {@link RebalanceRedeemParameters}
  */
-export function buildRebalanceLegOneCall(parameters: RebalanceLegOneParameters) {
-  const sourceSector = vehicleSector(parameters.from)
-  const targetSector = vehicleSector(parameters.to)
-
+export function buildRebalanceRedeemCall(parameters: RebalanceRedeemParameters) {
   const move = encodeFunctionData({
     abi: sectorAccountingEngineAbi,
     functionName: 'move',
     args: [
       {
         from: SECTOR_ALLOCATION,
-        to: sourceSector,
+        to: vehicleSector(parameters.from),
         // Moving the sub-vehicle's own shares, so the "asset" is that vehicle.
         asset: parameters.from,
         amount: parameters.shares,
@@ -57,7 +56,7 @@ export function buildRebalanceLegOneCall(parameters: RebalanceLegOneParameters) 
         // Consume whatever the move just staged. The sentinel cap-limits instead of reverting, and
         // requires minOutput to be 0 (MinOutputRequiresPinnedAmount otherwise).
         amount: maxUint256,
-        settledDestination: targetSector,
+        settledDestination: vehicleSector(parameters.to),
         rejectedDestination: SECTOR_ALLOCATION,
         minOutput: 0n,
         data: '0x',
@@ -71,43 +70,5 @@ export function buildRebalanceLegOneCall(parameters: RebalanceLegOneParameters) 
     abi: sectorAccountingEngineAbi,
     functionName: 'multicall',
     args: [[move, redeem]],
-  } as const
-}
-
-export type RebalanceLegTwoParameters = {
-  sectorAccountingEngine: Address
-  /** Sub-vehicle the staged proceeds are deposited into. */
-  to: Address
-  /** The same id leg one used. */
-  operationId: Hex
-}
-
-/**
- * Second leg: deposit whatever leg one's redeem left staged at the destination.
- *
- * Separate on purpose — an asynchronous source redeem only reaches the destination's sector once its
- * query settles, so this cannot be batched with leg one. Poll the query state rather than sending
- * blind retries. The uint256 sentinel consumes the whole staged balance, so the redeemed amount
- * never has to be computed off-chain.
- *
- * @param parameters - {@link RebalanceLegTwoParameters}
- */
-export function buildRebalanceLegTwoCall(parameters: RebalanceLegTwoParameters) {
-  return {
-    address: parameters.sectorAccountingEngine,
-    abi: sectorAccountingEngineAbi,
-    functionName: 'dispatch',
-    args: [
-      {
-        vehicle: parameters.to,
-        mode: QueryMode.DEPOSIT,
-        amount: maxUint256,
-        settledDestination: SECTOR_ALLOCATION,
-        rejectedDestination: SECTOR_AVAILABLE,
-        minOutput: 0n,
-        data: '0x',
-        operationId: parameters.operationId,
-      },
-    ],
   } as const
 }
