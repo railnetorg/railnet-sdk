@@ -10,11 +10,12 @@ export type ProcessConduitQueryParameters = {
 /**
  * Builds the `conduit.process()` call, which advances a query's state. Async vehicles need it.
  *
- * The query's receiver may always call it, with no role; any other caller needs CONDUIT_PROCESS,
- * which is what a keeper driving settlement holds. A query already in a terminal state returns that
- * state without advancing, and one this conduit never created reverts `UnknownQuery`.
+ * The authorized sender is whatever `_ownerOf` resolves to: the `receiver` the query was created
+ * for, or — once an OwnerRegistry has wrapped the claim — the holder of its ERC-721. Anyone else
+ * needs CONDUIT_PROCESS, which is what a keeper driving settlement holds.
  *
- * The query's owner may send it without a role; anyone else needs CONDUIT_PROCESS.
+ * A query already SETTLED or REJECTED returns that state without advancing and without any
+ * authorization check; one this conduit never created reverts `UnknownQuery`.
  *
  * @param parameters - {@link ProcessConduitQueryParameters}
  */

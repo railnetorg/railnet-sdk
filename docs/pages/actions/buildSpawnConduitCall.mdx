@@ -15,10 +15,9 @@ The factory pulls an initial deposit from the caller. Approve the factory for at
 at least that much — this action sends no approval of its own.
 :::
 
-The caller needs `CONDUIT_SPAWN` on the factory's access control — not the `FACTORY_SPAWN` that
-gates every other factory. `feeManager`, `accountList`, `ownerRegistry` and `accessControl` must
-each have been spawned by the factory this one trusts for that module, or the call reverts
-`NotDeployedByFactory`. `initialExpectedSupply` must be non-zero.
+`feeManager`, `accountList`, `ownerRegistry` and `accessControl` must each have been spawned by
+the factory this one trusts for that module, or the call reverts `NotDeployedByFactory`.
+`initialExpectedSupply` must be non-zero.
 
 ## Import
 
