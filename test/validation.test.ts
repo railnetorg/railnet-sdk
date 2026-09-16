@@ -121,8 +121,8 @@ describe('buildSetFeesCall', () => {
     ).toThrow('performanceFeeBps must be an integer between 0 and 10000')
   })
 
-  // The builder is stricter than `_setFees`, which takes 10000: a transactional fee that high
-  // passes the setter and then reverts every deposit in `_reverseFee`.
+  // `_setMaxFees` caps the transactional ceilings at BPS_MAX - 1 and has no external setter, so
+  // `_setFees` rejects 10000 on either of them however high maxFees was spawned.
   it('rejects a 100% deposit fee while allowing a 100% performance fee', () => {
     expect(() =>
       buildSetFeesCall({ feeManager, fees: { ...validFees, depositFeeBps: 10_000 } }),
