@@ -1,4 +1,4 @@
-import { type Address, encodeFunctionData, type Hex, maxUint256 } from 'viem'
+import { type Address, encodeFunctionData, type Hex } from 'viem'
 import { sectorAccountingEngineAbi } from '../../abi/sectorAccountingEngine.js'
 import { SECTOR_ALLOCATION, vehicleSector } from '../../constants/sectors.js'
 import { QueryMode } from '../../types.js'
@@ -15,6 +15,8 @@ export type RebalanceRedeemParameters = {
   to: Address
   /** Shares of `from` to move, in that vehicle's share units (18 decimals). */
   shares: bigint
+  /** Floor on the assets the redeem must produce. Defaults to none. */
+  minOutput?: bigint
   /** Echoed in the `Moved` and `Dispatched` events, so an indexer can stitch both halves together. */
   operationId: Hex
 }
@@ -31,6 +33,9 @@ export type RebalanceRedeemParameters = {
  * could re-allocate them before the rebalance finishes. Depositing them into `to` is a second
  * transaction, because an async source only settles once its query progresses: dispatch a DEPOSIT
  * of `maxUint256` from that sector, settling into ALLOCATION.
+ *
+ * Redeems exactly `shares`, so it reverts `DispatchRedeemAmountTooHigh` where a sweep would have
+ * quietly moved a different amount.
  *
  * @param parameters - {@link RebalanceRedeemParameters}
  */
@@ -57,12 +62,13 @@ export function buildRebalanceRedeemCall(parameters: RebalanceRedeemParameters) 
       {
         vehicle: parameters.from,
         mode: QueryMode.REDEEM,
-        // Consume whatever the move just staged. The sentinel cap-limits instead of reverting, and
-        // requires minOutput to be 0 (MinOutputRequiresPinnedAmount otherwise).
-        amount: maxUint256,
+        // Pinned rather than the maxUint256 sentinel, which resolves to the whole sector balance
+        // and so would also sweep a prior rebalance's leftovers. A pinned amount is what lets
+        // minOutput bind at all (MinOutputRequiresPinnedAmount otherwise).
+        amount: parameters.shares,
         settledDestination: vehicleSector(parameters.to),
         rejectedDestination: SECTOR_ALLOCATION,
-        minOutput: 0n,
+        minOutput: parameters.minOutput ?? 0n,
         data: '0x',
         operationId: parameters.operationId,
       },

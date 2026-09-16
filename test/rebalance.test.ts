@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { type Address, decodeFunctionData, maxUint256 } from 'viem'
+import { type Address, decodeFunctionData } from 'viem'
 import {
   buildRebalanceRedeemCall,
   QueryMode,
@@ -59,13 +59,37 @@ describe('buildRebalanceRedeemCall', () => {
     expect(dispatch.rejectedDestination).toBe(SECTOR_ALLOCATION)
   })
 
-  it('redeems the whole staged balance and takes no slippage floor', () => {
+  /**
+   * The maxUint256 sentinel resolves to the whole sector balance, so a rebalance abandoned between
+   * its two transactions would have its leftovers swept by the next one.
+   */
+  it('redeems exactly the shares asked for, never the sector balance', () => {
     const dispatch = paramsOf(1)
 
     expect(dispatch.vehicle).toBe(from)
     expect(dispatch.mode).toBe(QueryMode.REDEEM)
-    expect(dispatch.amount).toBe(maxUint256)
-    expect(dispatch.minOutput).toBe(0n)
+    expect(dispatch.amount).toBe(10n ** 18n)
+  })
+
+  it('takes no slippage floor unless one is given', () => {
+    expect(paramsOf(1).minOutput).toBe(0n)
+
+    const floored = buildRebalanceRedeemCall({
+      sectorAccountingEngine,
+      from,
+      to,
+      shares: 10n ** 18n,
+      minOutput: 995n * 10n ** 15n,
+      operationId,
+    })
+    const dispatch = decodeFunctionData({
+      abi: sectorAccountingEngineAbi,
+      data: (floored.args[0] as readonly `0x${string}`[])[1] as `0x${string}`,
+    })
+
+    expect((dispatch.args as readonly unknown[])[0]).toMatchObject({
+      minOutput: 995n * 10n ** 15n,
+    })
   })
 
   it('threads one operationId through both halves', () => {
