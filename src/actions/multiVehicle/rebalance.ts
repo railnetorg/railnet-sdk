@@ -7,7 +7,11 @@ export type RebalanceRedeemParameters = {
   sectorAccountingEngine: Address
   /** Sub-vehicle the position leaves. */
   from: Address
-  /** Sub-vehicle the proceeds are staged for. Its sector receives them; nothing is deposited yet. */
+  /**
+   * Sub-vehicle the proceeds are staged for. Its sector receives them; nothing is deposited yet.
+   * It must be authorized: a redeem's settled destination goes through the engine's asset-sector
+   * check, which rejects an unauthorized vehicle sector with `InvalidVehicleSector`.
+   */
   to: Address
   /** Shares of `from` to move, in that vehicle's share units (18 decimals). */
   shares: bigint
