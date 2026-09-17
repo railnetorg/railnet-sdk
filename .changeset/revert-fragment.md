@@ -1,13 +1,14 @@
 ---
-'@railnetorg/railnet-sdk': patch
+'@railnetorg/railnet-sdk': minor
 ---
 
-Fixed `getRailnetError` returning `null` for a revert raised by a different contract in the same
-transaction ([#51](https://github.com/railnetorg/railnet-sdk/pull/51)). `protocolErrorsAbi` carried 16 errors; viem decodes against the ABI of the call,
-so the rest arrived as raw bytes.
+Added the 167 error names the protocol declares to `protocolErrorsAbi` ([#51](https://github.com/railnetorg/railnet-sdk/pull/51)). viem decodes a
+revert against the ABI of the call, so an error raised by another contract in the same transaction
+arrives as raw bytes.
 
-- `buildSpawnConduitCall` could not decode `AssetNotAuthorized`, the most common spawn failure.
-- `buildSpawnAaveV3VehicleCall` could not decode the reserve checks its facet runs at initialization.
-- `estimateVehicle` decoded nothing at all: `baseVehicleAbi` ships no error entries.
-- The fragment now holds the 167 names hangar declares, 169 entries because two exist in two
-  signatures. Selectors are unique across the set, so the fallback cannot mis-attribute a revert.
+- `buildSpawnConduitCall` reaches `AssetNotAuthorized`, raised by the AssetRegistry.
+- `buildSpawnAaveV3VehicleCall` reaches the reserve checks its facet runs at initialization.
+- `estimateVehicle` reaches both reverts `BaseVehicle.estimate` raises; `baseVehicleAbi` declares
+  no errors of its own.
+- 169 entries for 167 names: two exist in two signatures. Selectors are unique across the set, so
+  the fallback cannot mis-attribute a revert.
