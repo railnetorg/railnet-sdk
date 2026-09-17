@@ -1,6 +1,12 @@
-import type { Hex } from 'viem'
+import type { ContractErrorName, Hex } from 'viem'
 import { BaseError, ContractFunctionRevertedError, decodeErrorResult } from 'viem'
+import type * as abis from './abi/index.js'
 import { protocolErrorsAbi } from './abi/protocolErrors.js'
+
+/** Every custom error name declared by an ABI this package ships. */
+export type ProtocolErrorName = ContractErrorName<
+  Extract<(typeof abis)[keyof typeof abis], readonly unknown[]>
+>
 
 /**
  * What to do about a revert, for the errors a caller can act on. Keyed by the custom error's name,
@@ -10,7 +16,7 @@ import { protocolErrorsAbi } from './abi/protocolErrors.js'
  * proxy ones say what they mean already. Only the entries where the name alone leaves a caller
  * guessing are here.
  */
-export const railnetErrorHints: Readonly<Record<string, string>> = {
+export const railnetErrorHints: Readonly<Partial<Record<ProtocolErrorName, string>>> = {
   AddressAlreadyListed:
     'The account is already on that list, or appears twice in the batch. Diff against the current list before sending.',
   AddressNotListed: 'The account is not on the list being removed from.',
@@ -158,9 +164,7 @@ export function getRailnetError(error: unknown): RailnetError | null {
   return {
     name: decoded.errorName,
     args: decoded.args ?? [],
-    hint: Object.hasOwn(railnetErrorHints, decoded.errorName)
-      ? railnetErrorHints[decoded.errorName]
-      : undefined,
+    hint: isHintedError(decoded.errorName) ? railnetErrorHints[decoded.errorName] : undefined,
     cause: reverted,
   }
 }
@@ -179,4 +183,12 @@ function decodeProtocolError(raw: Hex | undefined) {
   } catch {
     return undefined
   }
+}
+
+/**
+ * viem decodes the name against the ABI the caller passed to the failing call, so it arrives as a
+ * plain `string` and may not be one of ours at all.
+ */
+function isHintedError(errorName: string): errorName is ProtocolErrorName {
+  return Object.hasOwn(railnetErrorHints, errorName)
 }
