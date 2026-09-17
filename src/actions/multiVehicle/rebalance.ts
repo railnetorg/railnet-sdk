@@ -34,8 +34,8 @@ export type RebalanceRedeemParameters = {
  * transaction, because an async source only settles once its query progresses: dispatch a DEPOSIT
  * of `maxUint256` from that sector, settling into ALLOCATION.
  *
- * Redeems exactly `shares`, so it reverts `DispatchRedeemAmountTooHigh` where a sweep would have
- * quietly moved a different amount.
+ * Redeems exactly `shares`, so a request above what the sector holds reverts
+ * `DispatchRedeemAmountTooHigh`.
  *
  * @param parameters - {@link RebalanceRedeemParameters}
  */
@@ -62,9 +62,8 @@ export function buildRebalanceRedeemCall(parameters: RebalanceRedeemParameters) 
       {
         vehicle: parameters.from,
         mode: QueryMode.REDEEM,
-        // Pinned rather than the maxUint256 sentinel, which resolves to the whole sector balance
-        // and so would also sweep a prior rebalance's leftovers. A pinned amount is what lets
-        // minOutput bind at all (MinOutputRequiresPinnedAmount otherwise).
+        // Pinned, not the maxUint256 sentinel: that resolves to the whole sector balance, and a
+        // pinned amount is what lets minOutput bind (MinOutputRequiresPinnedAmount otherwise).
         amount: parameters.shares,
         settledDestination: vehicleSector(parameters.to),
         rejectedDestination: SECTOR_ALLOCATION,
