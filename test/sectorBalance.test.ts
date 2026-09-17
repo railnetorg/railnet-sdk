@@ -12,7 +12,7 @@ import { getSectorBalance } from '../src/actions/multiVehicle/getSectorBalance.j
 import { SECTOR_AVAILABLE, vehicleSector } from '../src/constants/sectors.js'
 
 const sectorAccountingEngine: Address = '0x1111111111111111111111111111111111111111'
-const vehicle: Address = '0x2ec94b8979868Bf5586f8550733092A77Cd77c9E'
+const vehicle: Address = '0x2Ec94b8979868bF5586f8550733092a77Cd77C9E'
 const asset: Address = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
 
 function capturingClient(balance: bigint) {
