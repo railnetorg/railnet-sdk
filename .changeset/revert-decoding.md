@@ -15,3 +15,6 @@ if (reverted?.name === 'InsufficientAllowance') return approveFirst()
   ABI of the call, so an error the called contract does not itself declare arrives as raw bytes.
 - Six such errors now decode, `InvalidOutput` and `InvalidEstimation` among them. Both are reverted
   from `ErrorLib` through assembly, which solc lists on no contract at all.
+- A hint names the contract that raises the error. `InsufficientAllowance` comes from a factory
+  pulling its initial deposit, not from a conduit; a conduit deposit short on allowance reverts
+  with the token's own ERC-20 error.
