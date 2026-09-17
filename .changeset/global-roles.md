@@ -2,8 +2,7 @@
 '@railnetorg/railnet-sdk': minor
 ---
 
-Added the unscoped half of the role surface ([#54](https://github.com/railnetorg/railnet-sdk/pull/54)). Only the scoped variants shipped, while
-`getHasRole` already read `hasRoleOrScopedRole`, so a global role could be read and never written.
+Added the unscoped half of the ExternalAccessControl role surface ([#54](https://github.com/railnetorg/railnet-sdk/pull/54)).
 
 - `buildGrantRoleCall` and `buildRevokeRoleCall` apply to every scope. Prefer the scoped builder,
   which confines a role to the contract performing the gated call.
