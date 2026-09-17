@@ -71,14 +71,20 @@ already says what happened.
 
 The viem error this was read from, for the raw data and the full message.
 
-## Errors no contract ABI declares
+## Reverts viem leaves undecoded
 
-A rejection is encoded from `ErrorLib` and reverted through assembly, so solc never lists it on the
-contract that throws it. viem decodes a revert against the ABI of the call, so those arrive as raw
-bytes — including the two most common deposit failures, `InvalidOutput` and `InvalidEstimation`.
+viem decodes a revert against the ABI of the call, and a contract's ABI lists only the errors its
+own code reverts with. Two cases fall outside that and arrive as raw bytes:
 
-`getRailnetError` falls back to `protocolErrorsAbi` for exactly this, so both decode normally. The
-fragment is exported if you need to hand it to `decodeErrorResult` yourself.
+- A rejection encoded from `ErrorLib` and reverted through assembly, which solc lists on no contract
+  at all — including the two most common deposit failures, `InvalidOutput` and `InvalidEstimation`.
+- An error thrown by a contract further down the call. `AssetNotAuthorized` comes from the
+  AssetRegistry during `conduitFactory.spawn`, `EnforcedPause` from the beacon on any call routed
+  through a vehicle proxy, the Aave reserve checks from a facet inside a spawn's initializer.
+
+`getRailnetError` falls back to `protocolErrorsAbi`, which carries every error the protocol declares,
+so both decode normally. The fragment is exported if you need to hand it to `decodeErrorResult`
+yourself.
 
 ## railnetErrorHints
 
@@ -94,7 +100,7 @@ railnetErrorHints.MissingRole
 //  Check with getHasRole first.'
 ```
 
-It is deliberately not exhaustive. The protocol declares 121 errors and the OpenZeppelin, ERC-20
+It is deliberately not exhaustive. The protocol declares 167 errors and the OpenZeppelin, ERC-20
 and proxy ones say what they mean already; only the entries where the name alone leaves a caller
 guessing are here.
 
