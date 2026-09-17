@@ -2,14 +2,17 @@
 '@railnetorg/railnet-sdk': minor
 ---
 
-**Breaking:** Renamed `buildEnableConduitCall` to `buildEnableConduitTransfersCall`, which is the
-call it already built ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+Added `buildEnableConduitTransfersCall`, which builds `conduit.enableTransfers()`, and deprecated
+`buildEnableConduitCall` ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
 
 ```diff
 - const call = buildEnableConduitCall({ conduit })
 + const call = buildEnableConduitTransfersCall({ conduit })
 ```
 
-- The old name suggested it enabled the conduit. `conduit.enable()` takes the ConduitFactory alone,
-  which calls it once the seed deposit settles.
-- A one-way latch either way: no call turns transfers back off.
+- Not a rename. `buildEnableConduitCall` builds `conduit.enable()`, a different selector that
+  accepts the ConduitFactory alone and reverts `InvalidCaller` for anyone else — it calls it once
+  the seed deposit settles.
+- Take the migration above only if that revert is what you were getting. `enableTransfers()` is a
+  one-way latch on holder transfers, and no call turns it back off.
+- `buildEnableConduitCall` is removed in 0.9.0.

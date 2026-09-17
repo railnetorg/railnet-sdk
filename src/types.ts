@@ -28,6 +28,11 @@ export enum QueryMode {
   REDEEM = 1,
 }
 
+/** @deprecated Renamed to {@link QueryMode}, and removed in 0.9.0. */
+export const ConduitMode = QueryMode
+/** @deprecated Renamed to {@link QueryMode}, and removed in 0.9.0. */
+export type ConduitMode = QueryMode
+
 /** Which side of a query an estimate prices. */
 export enum EstimationType {
   INPUT = 0,
@@ -44,6 +49,11 @@ export enum QueryState {
   REJECTED = 5,
   SETTLED = 6,
 }
+
+/** @deprecated Renamed to {@link QueryState}, and removed in 0.9.0. */
+export const ConduitState = QueryState
+/** @deprecated Renamed to {@link QueryState}, and removed in 0.9.0. */
+export type ConduitState = QueryState
 
 /**
  * A STEAM query, the unit of work every deposit and redeem travels as. Its id is
