@@ -219,6 +219,18 @@ export default defineConfig({
               text: 'buildSpawnAaveV3VehicleCall',
               link: '/actions/buildSpawnAaveV3VehicleCall',
             },
+            {
+              text: 'buildSpawnErc4626VehicleCall',
+              link: '/actions/buildSpawnErc4626VehicleCall',
+            },
+            {
+              text: 'buildSpawnMorphoBlueVehicleCall',
+              link: '/actions/buildSpawnMorphoBlueVehicleCall',
+            },
+            {
+              text: 'buildSpawnWrapperVehicleCall',
+              link: '/actions/buildSpawnWrapperVehicleCall',
+            },
           ],
         },
         {

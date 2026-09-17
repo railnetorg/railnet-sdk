@@ -1,0 +1,147 @@
+---
+description: Deploys a vehicle wrapping any ERC-4626 vault.
+---
+
+# buildSpawnErc4626VehicleCall
+
+Deploys a vehicle that supplies into an ERC-4626 vault. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+
+The vehicle's asset is the vault's own `asset()`, so none is passed. The caller needs `FACTORY_SPAWN` on the factory's access control.
+
+:::warning
+The factory pulls an initial deposit from the caller and **burns the shares it mints**, as an
+inflation-attack guard. Approve the factory for at least
+[`getInitialDepositAmount`](/actions/getInitialDepositAmount) of the vault's asset first, and hold
+at least that much — this action sends no approval of its own, and the deposit does not come back.
+:::
+
+## Import
+
+```ts
+import { buildSpawnErc4626VehicleCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { erc20Abi, erc4626Abi } from 'viem'
+import { readContract, simulateContract, writeContract } from 'viem/actions'
+import {
+  buildSpawnErc4626VehicleCall,
+  getAddresses,
+  getInitialDepositAmount,
+  randomSalt,
+} from '@railnetorg/railnet-sdk'
+import { mainnet } from 'viem/chains'
+
+const { assetRegistry, erc4626VehicleFactory } = getAddresses(mainnet.id)
+const vault = '0x1234...'
+
+const asset = await readContract(client, { address: vault, abi: erc4626Abi, functionName: 'asset' })
+const amount = await getInitialDepositAmount(client, { assetRegistry, asset })
+
+await writeContract(client, {
+  address: asset,
+  abi: erc20Abi,
+  functionName: 'approve',
+  args: [erc4626VehicleFactory, amount],
+  account,
+})
+
+const { request } = await simulateContract(client, {
+  ...buildSpawnErc4626VehicleCall({
+    factory: erc4626VehicleFactory,
+    vault,
+    accessControl: '0x...',
+    queryRegistry: '0x...',
+    initialExpectedSupply: 10n ** 18n,
+    querySalt: randomSalt(),
+    deploymentSalt: randomSalt(),
+  }),
+  account,
+})
+
+const hash = await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+:::info
+Use [`extractErc4626VehicleAddress`](/utilities/receiptHelpers#extracterc4626vehicleaddress) to read the deployed address out of the transaction receipt.
+:::
+
+## Parameters
+
+### factory
+
+- **Type:** `Address`
+
+The ERC-4626 vehicle factory. Available as `erc4626VehicleFactory` from [`getAddresses`](/contracts/getAddresses).
+
+### vault
+
+- **Type:** `Address`
+
+The ERC-4626 vault to wrap. It must be a contract (`InvalidVault`) whose `asset()` is one too
+(`InvalidAsset`), and that asset must be authorized in the AssetRegistry — the spawn reads its
+initial deposit amount and reverts `AssetNotAuthorized` when there is none.
+
+### accessControl
+
+- **Type:** `Address`
+
+The ExternalAccessControl that gates the vehicle. It must have been spawned by the access control
+factory this one trusts, or the call reverts `NotDeployedByFactory`.
+
+### queryRegistry
+
+- **Type:** `Address`
+
+The query registry the vehicle records its queries in. Must be a contract (`InvalidQueryRegistry`).
+
+### feeManager (optional)
+
+- **Type:** `Address`
+- **Default:** `zeroAddress`
+
+Must have been spawned by the trusted FeeManager factory when set. The zero address skips the check
+and leaves the vehicle without one.
+
+### modulesManager (optional)
+
+- **Type:** `Address`
+- **Default:** `zeroAddress`
+
+Same rule as `feeManager`, against the trusted ModulesManager factory.
+
+### forbiddenAddresses (optional)
+
+- **Type:** `Address[]`
+- **Default:** `[]`
+
+Addresses barred from interacting with the vehicle.
+
+### initialExpectedSupply
+
+- **Type:** `bigint`
+
+Floor on the shares the seed deposit must mint. Zero is rejected
+(`InvalidInitialExpectedSupply`), and a floor the deposit does not reach reverts
+`ExpectedSupplyNotReached`.
+
+### querySalt
+
+- **Type:** `Hex`
+
+Salt for the spawn's seed deposit query. Generate it with [`randomSalt`](/utilities/randomSalt).
+
+### deploymentSalt
+
+- **Type:** `Hex`
+
+One ingredient of the deployed address, and not enough to predict it: the factory folds its own
+`deploymentCounter` into the vehicle's generated name and symbol, so the same salt lands on a
+different address at every spawn. Generate it with [`randomSalt`](/utilities/randomSalt) and read
+the address back from the receipt.
