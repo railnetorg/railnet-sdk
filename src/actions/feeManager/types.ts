@@ -9,9 +9,9 @@ export type Fees = {
 }
 
 /**
- * One share of the collected fees. `shareBps` must be non-zero, and a recipient list must be
- * sorted strictly ascending by `target` and sum to exactly 10000 — the FeeManager reverts
- * `RecipientsNotStrictlyAscending` and `InvalidBpsValue` otherwise.
+ * One share of the collected fees. The FeeManager requires a non-zero `target` (`ZeroAddress`) and
+ * `shareBps` (`ZeroValue`), and a list that is non-empty (`ZeroLength`), sorted strictly ascending
+ * by `target` (`RecipientsNotStrictlyAscending`) and summing to exactly 10000 (`InvalidBpsValue`).
  */
 export type FeeRecipient = {
   target: Address

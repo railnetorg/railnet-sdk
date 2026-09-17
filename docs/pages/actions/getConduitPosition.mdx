@@ -72,3 +72,12 @@ const position = await getConduitPosition(client, {
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
 })
 ```
+
+### blockNumber (optional)
+
+- **Type:** `bigint`
+- **Default:** the current block
+
+Both reads are pinned to this block. `convert` takes the share balance, so the two cannot be
+batched — without a pin, a deposit landing between them reports shares at one rate and assets at
+another.

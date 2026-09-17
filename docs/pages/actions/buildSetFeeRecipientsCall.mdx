@@ -44,4 +44,4 @@ The fee manager to update.
 
 - **Type:** `readonly FeeRecipient[]`
 
-The new split. Must be non-empty, sorted **strictly ascending by `target`**, carry no zero `shareBps`, and sum to exactly 10000. The list replaces the previous one wholesale.
+The new split. Must be non-empty, sorted **strictly ascending by `target`**, carry no zero `target` and no zero `shareBps`, and sum to exactly 10000. The builder checks all of it before assembling the call. The list replaces the previous one wholesale.

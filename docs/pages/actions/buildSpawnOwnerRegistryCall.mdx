@@ -52,4 +52,5 @@ ERC-721 metadata for the wrapped claims. The struct declares `symbol` first; the
 
 - **Type:** `Hex`
 
-Fixes the deployed address. Generate it with [`randomSalt`](/utilities/randomSalt).
+One ingredient of the deployed address: it is a CREATE2 over the proxy's init code, which also
+carries `name` and `symbol`. Generate it with [`randomSalt`](/utilities/randomSalt).
