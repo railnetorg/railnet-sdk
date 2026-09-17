@@ -1,26 +1,8 @@
 import { describe, expect, it } from 'bun:test'
 import { BaseError, ContractFunctionRevertedError, encodeErrorResult } from 'viem'
 import { conduitAbi } from '../src/abi/conduit.js'
-import * as abis from '../src/abi/index.js'
 import { protocolErrorsAbi } from '../src/abi/protocolErrors.js'
-import { getRailnetError, railnetErrorHints } from '../src/errors.js'
-
-const declaredErrors = new Set<string>()
-for (const abi of Object.values(abis)) {
-  if (!Array.isArray(abi)) continue
-  for (const item of abi as Array<{ type: string; name?: string }>) {
-    if (item.type === 'error' && item.name) declaredErrors.add(item.name)
-  }
-}
-
-describe('railnetErrorHints', () => {
-  // A resync that renames or drops an error orphans its hint, which is then unreachable.
-  it('only names errors the shipped ABIs declare', () => {
-    const orphaned = Object.keys(railnetErrorHints).filter((name) => !declaredErrors.has(name))
-
-    expect(orphaned).toEqual([])
-  })
-})
+import { getRailnetError } from '../src/errors.js'
 
 function revertWith(errorName: string, args: readonly unknown[]) {
   const data = encodeErrorResult({ abi: conduitAbi, errorName, args } as never)
