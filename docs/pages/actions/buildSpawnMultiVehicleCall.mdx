@@ -117,9 +117,9 @@ Optional list of addresses forbidden from interacting with the MultiVehicle.
 
 - **Type:** `MultiVehicleSalts`
 
-Six deployment salts, one per contract, and `initialDepositQuery` for the seed deposit's query.
-Each proxy is deployed before it is initialized, so its salt alone fixes its address — generate
-each with [`randomSalt`](/utilities/randomSalt) and keep them.
+Six deployment salts, one per contract, plus `initialDepositQuery` for the seed deposit. Each proxy
+is deployed before it is initialized, so its salt alone fixes its address — generate each with
+[`randomSalt`](/utilities/randomSalt) and keep them.
 
 ```ts
 type MultiVehicleSalts = {

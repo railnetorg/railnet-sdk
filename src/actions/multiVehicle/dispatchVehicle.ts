@@ -59,10 +59,9 @@ export function buildDispatchVehicleCall(parameters: DispatchVehicleParameters) 
 
 /**
  * Simulates a dispatch without sending a transaction, returning the query it would create and the
- * state it would reach. `SETTLED` and `REJECTED` are terminal, and a rejected query can never be
+ * state it would reach. The engine bubbles the vehicle's state up unchanged, so it is any member
+ * of {@link QueryState}. `SETTLED` and `REJECTED` are terminal — a rejected query can never be
  * progressed; any other state means the vehicle is async and the query still needs progressing.
- * The engine bubbles the state up unchanged, so it is any member of {@link QueryState}, not just
- * `SETTLED` or `PROCESSING`.
  *
  * @param parameters - {@link DispatchVehicleParameters}
  * @returns The dispatched query, needed to progress it later, and the resulting state

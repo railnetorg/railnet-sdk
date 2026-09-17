@@ -13,8 +13,7 @@ export type VehicleCap = {
   /**
    * Cap in the SUB-VEHICLE's share units (18 decimals) — not the multi vehicle's asset:
    * SectorAccountingEngine compares it against that vehicle's share holdings. `2n ** 256n - 1n`
-   * means unlimited; `threshold` is then ignored but stored as passed, so send 0 to keep the
-   * stored config comparable.
+   * means unlimited; `threshold` is then ignored but stored as passed, so send 0.
    */
   value: bigint
   /** Tolerance margin, same share units. Must not exceed `value` on a finite cap. */

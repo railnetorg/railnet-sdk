@@ -63,8 +63,8 @@ export function buildSpawnFeeManagerCall(parameters: SpawnFeeManagerParameters) 
 
 /**
  * The address {@link buildSpawnFeeManagerCall} will deploy to for these parameters. A CREATE2 over
- * the proxy's init code, which carries the access control and every fee field, so all of them move
- * the address, not `deploymentSalt` alone: predict with exactly the parameters you will send.
+ * the proxy's init code, which carries the access control and every fee field — predict with
+ * exactly the parameters you will send.
  *
  * @param parameters - {@link SpawnFeeManagerParameters}
  */

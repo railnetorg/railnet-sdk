@@ -14,7 +14,7 @@ export type SetFeesParameters = {
  *
  * @param parameters - {@link SetFeesParameters}
  * @throws Error if a rate is not an integer within its ceiling: 10000 for the ongoing fees, 9999
- * for the transactional ones, which stay reversible
+ * for the transactional ones
  */
 export function buildSetFeesCall(parameters: SetFeesParameters) {
   assertFees(parameters.fees)

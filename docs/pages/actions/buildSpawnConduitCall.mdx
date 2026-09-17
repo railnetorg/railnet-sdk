@@ -122,7 +122,6 @@ The address of the account list contract.
 
 The address of the owner registry contract.
 
-
 ### initialInterceptions (optional)
 
 - **Type:** [`Interception[]`](/types/Interception)
@@ -139,8 +138,8 @@ Salt for the spawn's initial query. Generate it with [`randomSalt`](/utilities/r
 
 - **Type:** `Hex`
 
-One ingredient of the deployed address, not the whole of it: the address is a CREATE2 over the
-proxy's init code, which carries every module and metadata field above. Change any of them and the
-address moves. Generate the salt with [`randomSalt`](/utilities/randomSalt), keep the value, and
-resolve the address with [`predictConduitDeployment`](/actions/predictConduitDeployment) using
-exactly the parameters you will send.
+One ingredient of the deployed address: it is a CREATE2 over the proxy's init code, which carries
+every module and metadata field above. Generate the salt with
+[`randomSalt`](/utilities/randomSalt), keep the value, and resolve the address with
+[`predictConduitDeployment`](/actions/predictConduitDeployment) using exactly the parameters you
+will send.

@@ -67,9 +67,9 @@ if (state !== QueryState.SETTLED && state !== QueryState.REJECTED) {
 A prepared call: `{ address, abi, functionName, args }`.
 
 `{ query: Query; state: QueryState }` for `simulateDispatchVehicle`, which sends nothing. The engine
-bubbles the vehicle's state up unchanged, so it is any member of `QueryState`, not just `SETTLED` or
-`PROCESSING`. `SETTLED` and `REJECTED` are terminal and a rejected query can never be progressed;
-on any other state, keep the `query` — progressing an in-flight one later requires the exact struct.
+bubbles the vehicle's state up unchanged, so it is any member of `QueryState`. `SETTLED` and
+`REJECTED` are terminal and a rejected query can never be progressed; on any other state, keep the
+`query` — progressing an in-flight one later requires the exact struct.
 
 ## Parameters
 
