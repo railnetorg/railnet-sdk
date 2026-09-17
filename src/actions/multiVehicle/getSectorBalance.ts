@@ -17,11 +17,12 @@ export type GetSectorBalanceParameters = {
 export type GetSectorBalanceReturnType = bigint
 
 /**
- * Reads what one accounting sector holds of one asset, in that asset's own units.
+ * Reads what one accounting sector holds of one asset, in that asset's own units —
+ * `sectorAccountingEngine.getSectorBalance()`.
  *
- * This is how a rebalance is driven. {@link buildRebalanceRedeemCall} settles its redeem into the
- * destination vehicle's sector, and on an async source that only happens once the query progresses,
- * so the deposit that follows has to wait for a non-zero balance there rather than be sent blind.
+ * {@link buildRebalanceRedeemCall} settles its redeem into the destination vehicle's sector, and on
+ * an async source that lands only once the query progresses. Poll here for a non-zero balance
+ * before dispatching the deposit that follows.
  *
  * @param parameters - {@link GetSectorBalanceParameters}
  *

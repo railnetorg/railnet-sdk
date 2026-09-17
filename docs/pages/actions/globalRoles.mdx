@@ -21,15 +21,22 @@ import {
 } from '@railnetorg/railnet-sdk'
 ```
 
+| Builder | Caller must hold | Refuses |
+| :--- | :--- | :--- |
+| `buildGrantRoleCall` | the role's admin | `PublicRoleAuthDenied` on a public role |
+| `buildRevokeRoleCall` | the role's admin | `PublicRoleAuthDenied` on a public role |
+| `buildRenounceRoleCall` | the role itself | `DefaultAdminCannotBeRenounced` |
+| `buildSetRolePublicCall` | `DEFAULT_ADMIN_ROLE` | `DefaultAdminCannotBePublic`, `RolePublicStatusUnchanged` |
+
+The role's admin is `DEFAULT_ADMIN_ROLE` unless it was reassigned. `buildSetRolePublicCall` is the
+asymmetry to watch: its scoped variant takes the role's own admin, this one does not.
+
 ## buildGrantRoleCall / buildRevokeRoleCall
 
 ```ts
 buildGrantRoleCall({ accessControl: '0x1234...', role: FACTORY_SPAWN, account: '0x5678...' })
 buildRevokeRoleCall({ accessControl: '0x1234...', role: FACTORY_SPAWN, account: '0x5678...' })
 ```
-
-The caller must hold the role's admin role — `DEFAULT_ADMIN_ROLE` unless it was reassigned. Both
-revert `PublicRoleAuthDenied` when the role is already public, since a public role needs no grantee.
 
 Revoking a global role does **not** touch a scoped grant of the same role. Use
 [`buildRevokeScopedRoleCall`](/actions/buildRevokeScopedRoleCall) for that.
@@ -40,9 +47,7 @@ Revoking a global role does **not** touch a scoped grant of the same role. Use
 buildRenounceRoleCall({ accessControl: '0x1234...', role: FACTORY_SPAWN, callerConfirmation: sender })
 ```
 
-Gives up a role the caller holds. `callerConfirmation` must be the sender: the contract compares it
-against `msg.sender`. `DEFAULT_ADMIN_ROLE` cannot be renounced this way
-(`DefaultAdminCannotBeRenounced`) — hand it over with the two-step default-admin transfer instead.
+Hand `DEFAULT_ADMIN_ROLE` over with the two-step default-admin transfer instead.
 
 ## buildSetRolePublicCall
 
@@ -50,13 +55,7 @@ against `msg.sender`. `DEFAULT_ADMIN_ROLE` cannot be renounced this way
 buildSetRolePublicCall({ accessControl: '0x1234...', role: VEHICLE_STEAM_DEPOSIT, isPublic: true })
 ```
 
-Makes a role callable by any address across every scope, or restricts it back.
-
-Unlike its scoped variant, this one takes `DEFAULT_ADMIN_ROLE` only, not the role's own admin.
-
-`DEFAULT_ADMIN_ROLE` cannot be made public (`DefaultAdminCannotBePublic`), and re-sending the
-current status reverts `RolePublicStatusUnchanged`. While a role is public, per-account grant,
-revoke and renounce on it are all refused.
+While a role is public, per-account grant, revoke and renounce on it are all refused.
 
 ## Parameters
 
