@@ -79,6 +79,23 @@ describe('getRailnetError', () => {
     expect(railnetError?.hint).toContain('output floor')
   })
 
+  /** `railnetErrorHints` is a bare object literal, so it inherits `toString` from the prototype. */
+  it('reads no hint off the prototype chain', () => {
+    const inheritedName = [{ type: 'error', name: 'toString', inputs: [] }] as const
+    const railnetError = getRailnetError(
+      new BaseError('simulation failed', {
+        cause: new ContractFunctionRevertedError({
+          abi: inheritedName,
+          data: encodeErrorResult({ abi: inheritedName, errorName: 'toString' }),
+          functionName: 'create',
+        }),
+      }),
+    )
+
+    expect(railnetError?.name).toBe('toString')
+    expect(railnetError?.hint).toBeUndefined()
+  })
+
   it('returns null for a failure that is not a contract revert', () => {
     expect(getRailnetError(new Error('user rejected the request'))).toBeNull()
     expect(getRailnetError(new BaseError('http request failed'))).toBeNull()

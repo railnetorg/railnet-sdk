@@ -158,7 +158,9 @@ export function getRailnetError(error: unknown): RailnetError | null {
   return {
     name: decoded.errorName,
     args: decoded.args ?? [],
-    hint: railnetErrorHints[decoded.errorName],
+    hint: Object.hasOwn(railnetErrorHints, decoded.errorName)
+      ? railnetErrorHints[decoded.errorName]
+      : undefined,
     cause: reverted,
   }
 }
