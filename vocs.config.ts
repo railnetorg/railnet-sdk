@@ -98,8 +98,8 @@ export default defineConfig({
               link: '/actions/buildForceRedeemCall',
             },
             {
-              text: 'getTransferability',
-              link: '/actions/getTransferability',
+              text: 'getIsTransferable',
+              link: '/actions/getIsTransferable',
             },
             {
               text: 'setInterceptions',
