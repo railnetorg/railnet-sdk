@@ -32,7 +32,7 @@ const books: Book[] = [
     chain: mainnet,
     rpcUrl: process.env.MAINNET_RPC_URL,
     book: productionAddresses[1],
-    usdcAuthorized: false,
+    usdcAuthorized: true,
   },
 ]
 
