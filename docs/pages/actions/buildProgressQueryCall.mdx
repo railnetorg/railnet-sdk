@@ -4,20 +4,15 @@ description: Advances a dispatch that did not settle in its own transaction.
 
 # buildProgressQueryCall
 
-Advances a sub-vehicle query that a dispatch left in flight. This is what
-[`simulateDispatchVehicle`](/actions/buildDispatchVehicleCall) means by keeping the query to
-progress it later.
+Advances a sub-vehicle query that a dispatch left in flight.
 
-The caller needs `MULTI_VEHICLE_PROGRESS_QUERY` scoped to the SubQueryEngine; the engine itself may
-also drive it, so a query can progress without this call.
-
-On an asynchronous sub-vehicle the dispatch stops short of settlement, and the proceeds do not reach
-the destination sector until this runs. Watch for them with
-[`getSectorBalance`](/actions/getSectorBalance).
-
-Reverts `UnknownSubQuery` when the engine never issued this sub-query or a field does not match the
-dispatch, `SubQueryAlreadyFinalized` once it is terminal, and `QueryMismatch` when `query` does not
-hash to the bound id.
+- Needs `MULTI_VEHICLE_PROGRESS_QUERY` scoped to the SubQueryEngine. The engine may also drive a
+  query itself, without this call.
+- The proceeds do not reach the destination sector until this runs. Watch for them with
+  [`getSectorBalance`](/actions/getSectorBalance).
+- Reverts `UnknownSubQuery` when the engine never issued this sub-query or a field does not match
+  the dispatch, `SubQueryAlreadyFinalized` once it is terminal, and `QueryMismatch` when `query`
+  does not hash to the bound id.
 
 ## Import
 
@@ -27,7 +22,7 @@ import { buildProgressQueryCall, toSubQuery } from '@railnetorg/railnet-sdk'
 
 ## Usage
 
-Every field comes from the dispatch you sent — `queryId` is derived for you:
+Every field comes from the dispatch. `queryId` is derived for you.
 
 ```ts
 import { simulateContract, writeContract } from 'viem/actions'
@@ -48,8 +43,8 @@ const { request } = await simulateContract(client, {
 await writeContract(client, request)
 ```
 
-One call can chain several transitions — the engine runs its handlers as a cascade — so the state
-it reaches is not necessarily the next one. Repeat until it is terminal.
+One call can chain several transitions, so the state it reaches is not necessarily the next one.
+Repeat until it is terminal.
 
 ## Returns
 
@@ -79,15 +74,14 @@ The sub-vehicle the dispatch targeted.
 
 - **Type:** `Query`
 
-The query the dispatch created, unchanged.
+Unchanged from the dispatch.
 
 ### settledDestination / rejectedDestination
 
 - **Type:** [`Sector`](/types/Sector)
 
-Both exactly as the dispatch carried them. They are part of the sub-query's identity, so a value
-that differs by one bit resolves to a different id and reverts `UnknownSubQuery` instead of
-progressing the wrong thing.
+Exactly as the dispatch carried them. They are part of the sub-query's identity, so a value that
+differs by one bit reverts `UnknownSubQuery`.
 
 ## toSubQuery
 
@@ -96,5 +90,5 @@ const subQuery = toSubQuery(parameters)
 // { vehicle, queryId, settledDestination, rejectedDestination }
 ```
 
-The struct the builder assembles, exported for anyone who needs it alone — to compute a sub-query id
-off chain, or to compare against an event.
+The struct the builder assembles, for computing a sub-query id off chain or comparing against an
+event.

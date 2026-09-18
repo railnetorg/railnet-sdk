@@ -13,9 +13,9 @@ On an asynchronous sub-vehicle (Ethena, an ERC-7540 vault) the redeem does not s
 transaction. It leaves a query in flight, and the proceeds only reach B's sector once that query
 progresses. Sending the deposit blind would dispatch against a sector that is still empty.
 
-The first half *is* batched, though, and deliberately: sent as two transactions and abandoned in
-between, the shares would sit in A's staging sector — out of `SECTOR_ALLOCATION`, not redeemed,
-with nothing earning on them.
+The first half is batched. Sent as two transactions and abandoned in between, the shares would
+sit in A's staging sector, out of `SECTOR_ALLOCATION`, not redeemed, with nothing earning on
+them.
 
 ## 1. Redeem out of the source
 
@@ -63,9 +63,9 @@ drives.
 
 ## 3. Deposit into the destination
 
-There is no dedicated builder for this step — it is
+There is no dedicated builder for this step. It is
 [`buildDispatchVehicleCall`](/actions/buildDispatchVehicleCall) with the sectors that close the
-loop:
+loop.
 
 ```ts
 import { buildDispatchVehicleCall, QueryMode, SECTOR_ALLOCATION, SECTOR_AVAILABLE } from '@railnetorg/railnet-sdk'

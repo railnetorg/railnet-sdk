@@ -26,8 +26,7 @@ export type SubQuery = {
 /**
  * Rebuilds the `SubQuery` the engine bound a dispatch to. Its id is
  * `keccak256(abi.encode(chainId, engine, subQuery))`, so a field that differs from the dispatch by
- * one bit resolves to a different id and reverts `UnknownSubQuery` rather than progressing the
- * wrong thing.
+ * one bit resolves to a different id.
  *
  * @param parameters - {@link ProgressQueryParameters}
  */
@@ -46,16 +45,9 @@ export function toSubQuery(parameters: ProgressQueryParameters): SubQuery {
 
 /**
  * Builds the `subQueryEngine.progressQuery()` call, which advances a dispatch that did not settle
- * in its own transaction. Needs MULTI_VEHICLE_PROGRESS_QUERY.
- *
- * This is what {@link simulateDispatchVehicle} means by keeping the query to progress it later. On
- * an async sub-vehicle the dispatch stops short of settlement and the proceeds do not reach the
- * destination sector until this runs; watch for them with {@link getSectorBalance}.
- *
- * One call can chain several transitions — the engine runs its handlers as a cascade — so the
- * returned state is not necessarily the next one. Repeat until it is terminal. A query already
- * finalized reverts `SubQueryAlreadyFinalized` rather than returning its state, which distinguishes
- * it from a sub-query the engine never issued (`UnknownSubQuery`).
+ * in its own transaction. Needs MULTI_VEHICLE_PROGRESS_QUERY scoped to the SubQueryEngine. Reverts
+ * `UnknownSubQuery`, `SubQueryAlreadyFinalized` once terminal, and `QueryMismatch` when `query`
+ * does not hash to the bound id.
  *
  * @param parameters - {@link ProgressQueryParameters}
  */

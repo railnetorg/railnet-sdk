@@ -12,18 +12,10 @@ export type WrapQueryParameters = {
 }
 
 /**
- * Builds the `ownerRegistry.wrap()` call, which mints an ERC-721 over a live query so the claim on
- * its proceeds becomes transferable. Returns the `tokenId`.
- *
- * Five conditions, all checked on chain. The caller must be the query's registered owner
- * (`QueryNotRegistered`, `UnauthorizedWrap`); the query must not be wrapped already
- * (`QueryAlreadyWrapped`); the conduit must let the caller transfer to itself, so the same
- * allow-list, block-list and sanctions screen a transfer faces applies (`TransferNotAllowed` —
- * check it with {@link getTransferability}); and the query must still be live, since a finalized
- * one has no claim left to sell (`NonWrappableState` on `EMPTY`, `SETTLED` or `REJECTED`).
- *
- * There is deliberately no unwrap builder: `unwrap` is keyed on `msg.sender` as the conduit
- * namespace, so only the owning conduit can reach it, and it does so at finalization.
+ * Builds the `ownerRegistry.wrap()` call, which mints an ERC-721 over a live query. Returns the
+ * `tokenId`. Reverts `QueryNotRegistered` or `UnauthorizedWrap` unless the caller is the registered
+ * owner, `QueryAlreadyWrapped`, `TransferNotAllowed` when the conduit refuses the caller a transfer
+ * to itself, and `NonWrappableState` on `EMPTY`, `SETTLED` or `REJECTED`.
  *
  * @param parameters - {@link WrapQueryParameters}
  */
@@ -55,9 +47,8 @@ export type GetQueryClaimReturnType = QueryClaim
 /**
  * Who holds the claim on a query, and whether it has been wrapped into a token yet.
  *
- * `wrap` moves the record from one to the other: it clears `owner` and sets `tokenId`, so a zero
- * `owner` with `isWrapped` true means the NFT holder owns the claim, while a zero `owner` with
- * `isWrapped` false means the registry never knew this query.
+ * A zero `owner` reads two ways. With `isWrapped` true the NFT holder owns the claim, with it false
+ * the registry never knew this query.
  *
  * @param parameters - {@link GetQueryClaimParameters}
  */

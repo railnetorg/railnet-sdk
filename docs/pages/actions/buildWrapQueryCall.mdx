@@ -6,8 +6,12 @@ description: Mints an ERC-721 over a live conduit query so the claim becomes tra
 
 Mints an ERC-721 over a live query, so the claim on its proceeds becomes transferable. Returns the `tokenId`.
 
-The OwnerRegistry records who owns a conduit's live queries; wrapping turns that record into a token
-someone else can buy or receive.
+- The caller must be the query's registered owner. `QueryNotRegistered`, `UnauthorizedWrap`.
+- The query must not be wrapped already. `QueryAlreadyWrapped`.
+- The query must still be live. `NonWrappableState` on `EMPTY`, `SETTLED` or `REJECTED`.
+- The conduit must let the caller transfer to itself. `TransferNotAllowed`. Check it with
+  [`getIsTransferable`](/actions/getIsTransferable).
+- `unwrap` is reachable only by the owning conduit, at finalization. There is no builder for it.
 
 ## Import
 
@@ -27,21 +31,6 @@ const { request } = await simulateContract(client, {
 })
 
 await writeContract(client, request)
-```
-
-## Preconditions
-
-The caller must be the query's registered owner (`QueryNotRegistered`, `UnauthorizedWrap`), the
-query must not be wrapped already (`QueryAlreadyWrapped`) and must still be live —
-`NonWrappableState` on `EMPTY`, `SETTLED` or `REJECTED`, since a finalized query has no claim left
-to sell.
-
-The conduit must also let the caller transfer to itself (`TransferNotAllowed`): a wrapped query is
-a transferable claim, so it faces the same screen a transfer does. Check it first with
-[`getTransferability`](/actions/getTransferability):
-
-```ts
-const canWrap = await getTransferability(client, { conduit, from: owner, to: owner })
 ```
 
 ## Returns
@@ -78,12 +67,5 @@ const claim = await getQueryClaim(publicClient, { ownerRegistry, conduit, queryI
 
 Who holds the claim, and whether it has been wrapped yet.
 
-`wrap` clears `owner` and sets `tokenId`, so a zero `owner` means two opposite things: with
-`isWrapped` true the NFT holder owns the claim, with it false the registry never knew this query.
-Reading all three in one multicall is what makes them distinguishable.
-
-## No unwrap builder
-
-`unwrap` is keyed on `msg.sender` as the conduit namespace, so only the owning conduit can reach it,
-and it does so at finalization — burning the spent claim before it can be transferred again. A
-builder for it would be surface no integrator can call.
+A zero `owner` reads two ways. With `isWrapped` true the NFT holder owns the claim, with it false
+the registry never knew this query.
