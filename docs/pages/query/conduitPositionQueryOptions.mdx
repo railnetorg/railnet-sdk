@@ -8,13 +8,13 @@ Query options for fetching a conduit position.
 
 ## Import
 
-```ts
+```ts twoslash
 import { conduitPositionQueryOptions } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
 
-```ts
+```ts twoslash
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
 import { conduitPositionQueryOptions } from '@railnetorg/railnet-sdk/react'
@@ -34,7 +34,7 @@ function Position() {
 
 ### Prefetching
 
-```ts
+```ts twoslash
 import { QueryClient } from '@tanstack/react-query'
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
@@ -105,7 +105,7 @@ Reach for the builder when the hook is not mounted where you invalidate — a mu
 
 You can use `conduitPositionQueryKey` to construct the query key manually for cache invalidation:
 
-```ts
+```ts twoslash
 import { useQueryClient } from '@tanstack/react-query'
 import { base } from 'viem/chains'
 import { conduitPositionQueryKey } from '@railnetorg/railnet-sdk/react'

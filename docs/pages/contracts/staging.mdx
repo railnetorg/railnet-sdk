@@ -22,7 +22,7 @@ never sees one in autocomplete.
 
 ## Usage
 
-```ts
+```ts twoslash
 import { getAddresses } from '@railnetorg/railnet-sdk/staging'
 import { base } from 'viem/chains'
 
@@ -44,7 +44,7 @@ When it ships it lands in the root and this page loses its Base row; nothing els
 An app that builds for both takes the entry point as configuration rather than deriving it from the
 chain, which cannot distinguish them:
 
-```ts
+```ts twoslash
 import { getAddresses } from '@railnetorg/railnet-sdk'
 import { getAddresses as getStagingAddresses } from '@railnetorg/railnet-sdk/staging'
 

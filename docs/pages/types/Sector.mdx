@@ -36,7 +36,7 @@ Each sub-vehicle has its own sector, holding that vehicle's staged shares. The i
 address padded to 32 bytes: it is `0x01`, then eleven zero bytes, then the twenty address bytes.
 Build it with `vehicleSector`, never by hand.
 
-```ts
+```ts twoslash
 import { vehicleSector, sectorToVehicle, isVehicleSector } from '@railnetorg/railnet-sdk'
 
 const sector = vehicleSector('0x2Ec94b8979868bF5586f8550733092a77Cd77C9E')

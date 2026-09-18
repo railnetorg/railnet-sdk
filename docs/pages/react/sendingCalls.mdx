@@ -12,7 +12,7 @@ your app configured. A wallet provider answers reads from whatever node it picke
 freshness it keeps: a simulation sent there can reject a call on state that has already changed —
 an approval it has not seen yet, for instance.
 
-```tsx
+```tsx twoslash
 import type { Address } from 'viem'
 import { buildEnableConduitTransfersCall } from '@railnetorg/railnet-sdk'
 import { useSimulateContract, useWriteContract } from 'wagmi'
