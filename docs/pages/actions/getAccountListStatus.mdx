@@ -1,0 +1,87 @@
+---
+description: Every verdict an AccountList holds on one account, in one multicall.
+---
+
+# getAccountListStatus
+
+Every verdict an [AccountList](/actions/accountListConfiguration) holds on one account, in one multicall.
+
+Read it to answer the question before sending, rather than reading `CreateNotAllowed` or
+`NotAllowed` out of a revert.
+
+## Import
+
+```ts
+import { getAccountListStatus } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { getAccountListStatus } from '@railnetorg/railnet-sdk'
+
+const status = await getAccountListStatus(publicClient, { accountList, account })
+
+if (!status.canDeposit) {
+  return status.isSanctioned ? refuse() : requestAllowListing()
+}
+```
+
+The three raw flags come back alongside the verdicts because **which one is false** is what tells an
+operator what to do: unblock, allow-list, or nothing at all because it is a sanctions hit.
+
+## Returns
+
+`AccountListStatus`
+
+```ts
+type AccountListStatus = {
+  canDeposit: boolean
+  canRedeem: boolean
+  canReceive: boolean
+  isAllowListed: boolean
+  isBlocked: boolean
+  isSanctioned: boolean
+  mode: AllowlistMode
+}
+```
+
+### canDeposit
+
+Not blocked, not sanctioned, and allow-listed under `REGULAR` or `STRICT`.
+
+### canRedeem
+
+Sanctions alone gate a redeem, so a **blocked holder still passes this**. Only a sanctions hit stops
+someone taking their own money out.
+
+### canReceive
+
+Whether the account may be the receiver of a transfer or a third-party query.
+
+### isSanctioned
+
+Screening fails closed: an oracle that reverts, holds no code, or returns something malformed marks
+the account sanctioned.
+
+### mode
+
+The [`AllowlistMode`](/types/Enums#allowlistmode) the list runs in, which decides whether `isAllowListed` is
+consulted at all.
+
+## Parameters
+
+### accountList
+
+- **Type:** `Address`
+
+The AccountList the conduit was spawned with. It is fixed at spawn, with no setter.
+
+### account
+
+- **Type:** `Address`
+
+The account to screen.
+
+`canTransfer` and `canForceRedeem` take a pair rather than one account, so they are not part of this
+read. For a transfer use [`getIsTransferable`](/actions/getIsTransferable).

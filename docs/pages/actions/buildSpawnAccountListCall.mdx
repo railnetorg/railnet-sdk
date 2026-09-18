@@ -61,9 +61,7 @@ Gates every later change to the list. Fixed at initialization.
 
 ### mode
 
-- **Type:** `AllowlistMode`
-
-`OPEN` ignores the allow-list, `REGULAR` gates deposits with it, `STRICT` gates deposits and transfers, both sides included.
+- **Type:** [`AllowlistMode`](/types/Enums#allowlistmode)
 
 Precedence across every check is sanctions, then the block-list, then this. Redeem consults sanctions alone: a blocked holder can always exit.
 

@@ -6,6 +6,7 @@ import {
   keccak256,
   maxUint256,
   toFunctionSelector,
+  toHex,
   zeroAddress,
   zeroHash,
 } from 'viem'
@@ -18,11 +19,18 @@ import {
   buildDepositConduitCall,
   buildDispatchFeesCall,
   buildDispatchVehicleCall,
+  buildFeedQueryRedeemQueueCall,
+  buildForceRedeemCall,
+  buildGrantRoleCall,
   buildGrantScopedRoleCall,
   buildMoveBetweenSectorsCall,
   buildRedeemConduitCall,
+  buildRenounceRoleCall,
+  buildRetrieveQueryRedeemQueueAssetsCall,
+  buildRevokeRoleCall,
   buildSetFeeRecipientsCall,
   buildSetFeesCall,
+  buildSetRolePublicCall,
   buildSpawnAaveV3VehicleCall,
   buildSpawnAccessControlCall,
   buildSpawnAccountListCall,
@@ -63,6 +71,73 @@ describe('build*Call builders', () => {
     expect(prepared.abi).toBe(externalAccessControlAbi)
     expect(prepared.functionName).toBe('grantScopedRole')
     expect(prepared.args).toEqual([zeroHash, zeroAddress, zeroAddress])
+  })
+
+  test('buildForceRedeemCall pays the ejected holder, not the caller', () => {
+    const user = '0x1111111111111111111111111111111111111111' as const
+    const prepared = buildForceRedeemCall({
+      conduit: zeroAddress,
+      user,
+      amount: 100n,
+      outputAsset: { asset: USDC_ASSET, value: 0n },
+    })
+
+    expect(prepared.functionName).toBe('forceRedeem')
+    expect(prepared.args).toEqual([user, 100n, { asset: USDC_ASSET, value: 0n }])
+    // The conduit derives both the burn source and the payout target from `user`; the caller's
+    // address never enters the calldata.
+    expect(encodeFunctionData(prepared).toLowerCase()).not.toContain(sender.slice(2).toLowerCase())
+  })
+
+  test('the global role builders hit the unscoped entrypoints', () => {
+    const role = keccak256(toHex('FACTORY_SPAWN'))
+    const account = '0x2222222222222222222222222222222222222222' as const
+
+    expect(buildGrantRoleCall({ accessControl: zeroAddress, role, account })).toMatchObject({
+      functionName: 'grantRole',
+      args: [role, account],
+    })
+    expect(buildRevokeRoleCall({ accessControl: zeroAddress, role, account })).toMatchObject({
+      functionName: 'revokeRole',
+      args: [role, account],
+    })
+    expect(
+      buildRenounceRoleCall({ accessControl: zeroAddress, role, callerConfirmation: account }),
+    ).toMatchObject({ functionName: 'renounceRole', args: [role, account] })
+    expect(
+      buildSetRolePublicCall({ accessControl: zeroAddress, role, isPublic: true }),
+    ).toMatchObject({ functionName: 'setRolePublic', args: [role, true] })
+  })
+
+  test('a global grant and a scoped grant are different calls', () => {
+    const role = keccak256(toHex('FACTORY_SPAWN'))
+    const account = '0x2222222222222222222222222222222222222222' as const
+
+    const global = buildGrantRoleCall({ accessControl: zeroAddress, role, account })
+    const scoped = buildGrantScopedRoleCall({
+      accessControl: zeroAddress,
+      role,
+      scope: VEHICLE,
+      grantee: account,
+    })
+
+    expect(encodeFunctionData(global)).not.toBe(encodeFunctionData(scoped as never))
+    expect(encodeFunctionData(global).slice(0, 10)).toBe(
+      toFunctionSelector('grantRole(bytes32,address)'),
+    )
+  })
+
+  test('the redeem queue calls hit the vehicle manager', () => {
+    const vehicleManager = '0x4444444444444444444444444444444444444444' as const
+
+    const feed = buildFeedQueryRedeemQueueCall({ vehicleManager })
+    expect(feed.address).toBe(vehicleManager)
+    expect(feed.functionName).toBe('feedQueryRedeemQueue')
+    expect(feed.args).toEqual([])
+
+    const retrieve = buildRetrieveQueryRedeemQueueAssetsCall({ vehicleManager, amount: 1_000n })
+    expect(retrieve.functionName).toBe('retrieveQueryRedeemQueueAssets')
+    expect(retrieve.args).toEqual([1_000n])
   })
 
   test('buildDepositConduitCall emits the conduit.create call (no approve)', () => {

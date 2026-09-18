@@ -1,0 +1,57 @@
+---
+description: Reads what one accounting sector of a MultiVehicle holds of one asset.
+---
+
+# getSectorBalance
+
+Reads what one [sector](/types/Sector) holds of one asset, in that asset's own units.
+
+`buildRebalanceRedeemCall` settles its redeem into the destination vehicle's sector, and on an
+asynchronous source that lands only once the query progresses. Poll here for a non-zero balance
+before dispatching the deposit that follows.
+
+## Import
+
+```ts
+import { getSectorBalance } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { getSectorBalance, vehicleSector } from '@railnetorg/railnet-sdk'
+
+const staged = await getSectorBalance(publicClient, {
+  sectorAccountingEngine,
+  sector: vehicleSector(destinationVehicle),
+  asset: baseAsset,
+})
+```
+
+## Returns
+
+`bigint`
+
+The balance, in the asset's own units. `0n` for a sector that holds nothing of it, which is not an
+error: most sectors hold one asset and nothing of the others.
+
+## Parameters
+
+### sectorAccountingEngine
+
+- **Type:** `Address`
+
+The SectorAccountingEngine of the MultiVehicle, from `extractMultiVehicleContracts`.
+
+### sector
+
+- **Type:** [`Sector`](/types/Sector)
+
+A static sector, or `vehicleSector(address)` for a sub-vehicle's own.
+
+### asset
+
+- **Type:** `Address`
+
+The base asset for an asset sector, **the sub-vehicle's own address** for a share sector. The engine
+indexes a balance by both, so a vehicle sector holding shares is read with that vehicle as `asset`.

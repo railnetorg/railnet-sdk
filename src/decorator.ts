@@ -1,15 +1,18 @@
 import type { Client } from 'viem'
 import { getHasRole } from './actions/accessControl/getHasRole.js'
+import { getAccountListStatus } from './actions/accountList/getAccountListStatus.js'
 import { predictAccountListDeployment } from './actions/accountList/spawnAccountList.js'
 import { getInitialDepositAmount } from './actions/assetRegistry/getInitialDepositAmount.js'
 import { estimateConduit } from './actions/conduit/estimateConduit.js'
 import { getConduitInfo } from './actions/conduit/getConduitInfo.js'
 import { getConduitPosition } from './actions/conduit/getConduitPosition.js'
 import { getDepositConduitCall } from './actions/conduit/getDepositConduitCall.js'
+import { getIsTransferable } from './actions/conduit/getIsTransferable.js'
 import { getRedeemConduitCall } from './actions/conduit/getRedeemConduitCall.js'
 import { predictConduitDeployment } from './actions/conduit/predictConduitDeployment.js'
 import { predictFeeManagerDeployment } from './actions/feeManager/spawnFeeManager.js'
 import { simulateDispatchVehicle } from './actions/multiVehicle/dispatchVehicle.js'
+import { getSectorBalance } from './actions/multiVehicle/getSectorBalance.js'
 import { getVehicleManagerLimits } from './actions/multiVehicle/getVehicleManagerLimits.js'
 import { predictOwnerRegistryDeployment } from './actions/ownerRegistry/spawnOwnerRegistry.js'
 import { estimateVehicle } from './actions/vehicle/estimateVehicle.js'
@@ -32,6 +35,7 @@ export function railnetActions(client: Client) {
 
   return {
     estimateConduit: bind(estimateConduit),
+    getAccountListStatus: bind(getAccountListStatus),
     estimateVehicle: bind(estimateVehicle),
     getConduitInfo: bind(getConduitInfo),
     getConduitPosition: bind(getConduitPosition),
@@ -41,6 +45,8 @@ export function railnetActions(client: Client) {
     getMorphoBlueSingleton: bind(getMorphoBlueSingleton),
     getMorphoMarketAsset: bind(getMorphoMarketAsset),
     getRedeemConduitCall: bind(getRedeemConduitCall),
+    getSectorBalance: bind(getSectorBalance),
+    getIsTransferable: bind(getIsTransferable),
     getVehicleManagerLimits: bind(getVehicleManagerLimits),
     predictAccountListDeployment: bind(predictAccountListDeployment),
     predictConduitDeployment: bind(predictConduitDeployment),

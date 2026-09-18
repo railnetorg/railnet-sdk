@@ -1,0 +1,50 @@
+---
+description: Whether a conduit would let one address send shares to another.
+---
+
+# getIsTransferable
+
+Asks `conduit.isTransferable()` whether `from` may send shares to `to`. Three conditions have to
+hold at once. Transfers enabled on the conduit, and, when it has an account list, neither party
+blocked or sanctioned with both allow-listed under `STRICT`.
+
+The answer belongs to the pair, not to the conduit, and the OwnerRegistry consults the same
+predicate before it moves a wrapped query.
+
+## Import
+
+```ts
+import { getIsTransferable } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { getIsTransferable } from '@railnetorg/railnet-sdk'
+
+if (!(await getIsTransferable(publicClient, { conduit, from, to }))) {
+  return refuse()
+}
+```
+
+Before wrapping a query, the registry asks it about the caller against itself:
+
+```ts
+const canWrap = await getIsTransferable(publicClient, { conduit, from: owner, to: owner })
+```
+
+## Returns
+
+`boolean`
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+### from / to
+
+- **Type:** `Address`
+
+Sender and receiver. Both sides are screened, and under `STRICT` both must be allow-listed.

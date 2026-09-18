@@ -1,4 +1,5 @@
 export * from './getHasRole.js'
+export * from './globalRoles.js'
 export * from './grantScopedRole.js'
 export * from './revokeScopedRole.js'
 export * from './setScopedRolePublic.js'

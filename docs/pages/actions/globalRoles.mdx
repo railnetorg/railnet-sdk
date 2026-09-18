@@ -1,0 +1,85 @@
+---
+description: Granting, revoking and publishing a role across every scope.
+---
+
+# Global roles
+
+The unscoped half of the ExternalAccessControl surface. Each returns a prepared call: `{ address, abi, functionName, args }`.
+
+A global grant applies to every scope. Prefer
+[`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall), which confines the role to the one
+contract that performs the gated call.
+
+## Import
+
+```ts
+import {
+  buildGrantRoleCall,
+  buildRenounceRoleCall,
+  buildRevokeRoleCall,
+  buildSetRolePublicCall,
+} from '@railnetorg/railnet-sdk'
+```
+
+| Builder | Caller must hold | Refuses |
+| :--- | :--- | :--- |
+| `buildGrantRoleCall` | the role's admin | `PublicRoleAuthDenied` on a public role, `AccessControlEnforcedDefaultAdminRules` on `DEFAULT_ADMIN_ROLE` |
+| `buildRevokeRoleCall` | the role's admin | `PublicRoleAuthDenied` on a public role, `AccessControlEnforcedDefaultAdminRules` on `DEFAULT_ADMIN_ROLE` |
+| `buildRenounceRoleCall` | the role itself | `DefaultAdminCannotBeRenounced` |
+| `buildSetRolePublicCall` | `DEFAULT_ADMIN_ROLE` | `DefaultAdminCannotBePublic`, `RolePublicStatusUnchanged` |
+
+The role's admin is `DEFAULT_ADMIN_ROLE` unless it was reassigned. `buildSetRolePublicCall` is the
+asymmetry to watch: its scoped variant takes the role's own admin, this one does not.
+
+## buildGrantRoleCall / buildRevokeRoleCall
+
+```ts
+buildGrantRoleCall({ accessControl: '0x1234...', role: FACTORY_SPAWN, account: '0x5678...' })
+buildRevokeRoleCall({ accessControl: '0x1234...', role: FACTORY_SPAWN, account: '0x5678...' })
+```
+
+Revoking a global role does **not** touch a scoped grant of the same role. Use
+[`buildRevokeScopedRoleCall`](/actions/buildRevokeScopedRoleCall) for that.
+
+## buildRenounceRoleCall
+
+```ts
+buildRenounceRoleCall({ accessControl: '0x1234...', role: FACTORY_SPAWN, callerConfirmation: sender })
+```
+
+`DEFAULT_ADMIN_ROLE` moves only through the two-step default-admin transfer. Grant, revoke and renounce all refuse it.
+
+## buildSetRolePublicCall
+
+```ts
+buildSetRolePublicCall({ accessControl: '0x1234...', role: VEHICLE_STEAM_DEPOSIT, isPublic: true })
+```
+
+While a role is public, per-account grant, revoke and renounce on it are all refused.
+
+## Parameters
+
+### accessControl
+
+- **Type:** `Address`
+
+The ExternalAccessControl contract.
+
+### role
+
+- **Type:** `Hex`
+
+A **base** role, as `keccak256(name)`. This is the form the [role constants](/constants/roles) take.
+
+:::danger
+Never a role already encoded against a scope. `grantRole` cannot tell the two apart and would grant
+the encoded value as a base role under the global admin, skipping every scoped-role semantic. A
+scoped role is `keccak256(role, scope)`, indistinguishable in shape, so no client-side check can
+catch it.
+:::
+
+### account
+
+- **Type:** `Address`
+
+The grantee, or the account losing the role.
