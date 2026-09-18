@@ -1,4 +1,4 @@
-import { defineConfig, McpSource } from 'vocs/config'
+import { Changelog, defineConfig, McpSource } from 'vocs/config'
 
 export default defineConfig({
   title: 'Railnet SDK',
@@ -15,6 +15,11 @@ export default defineConfig({
     enabled: true,
     sources: [McpSource.github({ name: 'railnet-sdk', repo: 'railnetorg/railnet-sdk' })],
   },
+  topNav: [
+    { text: 'Docs', link: '/getting-started', match: (path) => path !== '/changelog' },
+    { text: 'Changelog', link: '/changelog' },
+  ],
+  changelog: Changelog.github({ repo: 'railnetorg/railnet-sdk' }),
   accentColor: 'light-dark(#cc3f00, #ff9465)',
   iconUrl: '/favicon.png',
   logoUrl: {
@@ -33,6 +38,10 @@ export default defineConfig({
     {
       text: 'AI Agents',
       link: '/agents',
+    },
+    {
+      text: 'Changelog',
+      link: '/changelog',
     },
     {
       text: 'Actions',
