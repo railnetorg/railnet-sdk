@@ -24,6 +24,7 @@ export default defineConfig({
   editLink: {
     link: 'https://github.com/railnetorg/railnet-sdk/edit/main/docs/pages/:path',
   },
+  socials: [{ icon: 'github', link: 'https://github.com/railnetorg/railnet-sdk' }],
   sidebar: [
     {
       text: 'Introduction',
