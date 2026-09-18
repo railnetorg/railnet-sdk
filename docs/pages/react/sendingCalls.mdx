@@ -13,6 +13,7 @@ freshness it keeps: a simulation sent there can reject a call on state that has 
 an approval it has not seen yet, for instance.
 
 ```tsx
+import type { Address } from 'viem'
 import { buildEnableConduitTransfersCall } from '@railnetorg/railnet-sdk'
 import { useSimulateContract, useWriteContract } from 'wagmi'
 
@@ -30,7 +31,7 @@ export function EnableTransfersButton({ conduit }: { conduit: Address }) {
       >
         Enable transfers
       </button>
-      {error ? <p role="alert">{error.shortMessage ?? error.message}</p> : null}
+      {error ? <p role="alert">{error.message}</p> : null}
     </>
   )
 }

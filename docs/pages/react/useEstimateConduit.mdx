@@ -28,12 +28,12 @@ function Estimate() {
 
   if (isLoading) return <div>Loading...</div>
 
+  if (!data) return null
+
   return (
-    <div>
-      {data?.map((a, i) => (
-        <p key={i}>{a.asset}: {a.value.toString()}</p>
-      ))}
-    </div>
+    <p>
+      {data.asset}: {data.value.toString()}
+    </p>
   )
 }
 ```
