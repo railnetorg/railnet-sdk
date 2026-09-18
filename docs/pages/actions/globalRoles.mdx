@@ -23,8 +23,8 @@ import {
 
 | Builder | Caller must hold | Refuses |
 | :--- | :--- | :--- |
-| `buildGrantRoleCall` | the role's admin | `PublicRoleAuthDenied` on a public role |
-| `buildRevokeRoleCall` | the role's admin | `PublicRoleAuthDenied` on a public role |
+| `buildGrantRoleCall` | the role's admin | `PublicRoleAuthDenied` on a public role, `AccessControlEnforcedDefaultAdminRules` on `DEFAULT_ADMIN_ROLE` |
+| `buildRevokeRoleCall` | the role's admin | `PublicRoleAuthDenied` on a public role, `AccessControlEnforcedDefaultAdminRules` on `DEFAULT_ADMIN_ROLE` |
 | `buildRenounceRoleCall` | the role itself | `DefaultAdminCannotBeRenounced` |
 | `buildSetRolePublicCall` | `DEFAULT_ADMIN_ROLE` | `DefaultAdminCannotBePublic`, `RolePublicStatusUnchanged` |
 
@@ -47,7 +47,7 @@ Revoking a global role does **not** touch a scoped grant of the same role. Use
 buildRenounceRoleCall({ accessControl: '0x1234...', role: FACTORY_SPAWN, callerConfirmation: sender })
 ```
 
-Hand `DEFAULT_ADMIN_ROLE` over with the two-step default-admin transfer instead.
+`DEFAULT_ADMIN_ROLE` moves only through the two-step default-admin transfer. Grant, revoke and renounce all refuse it.
 
 ## buildSetRolePublicCall
 

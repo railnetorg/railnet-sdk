@@ -15,7 +15,7 @@ export type GlobalRoleParameters = {
 
 /**
  * Grants a role across every scope. Needs the role's admin role. Reverts `PublicRoleAuthDenied`
- * when the role is already public.
+ * when the role is already public, `AccessControlEnforcedDefaultAdminRules` for `DEFAULT_ADMIN_ROLE`.
  *
  * @param parameters - {@link GlobalRoleParameters}
  */
@@ -30,7 +30,8 @@ export function buildGrantRoleCall(parameters: GlobalRoleParameters) {
 
 /**
  * Revokes a role across every scope. Needs the role's admin role. Reverts `PublicRoleAuthDenied`
- * when the role is already public. A scoped grant of the same role is untouched.
+ * when the role is already public, `AccessControlEnforcedDefaultAdminRules` for `DEFAULT_ADMIN_ROLE`.
+ * A scoped grant of the same role is untouched.
  *
  * @param parameters - {@link GlobalRoleParameters}
  */
