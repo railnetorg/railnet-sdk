@@ -7,11 +7,8 @@ export type FeedQueryRedeemQueueParameters = {
 
 /**
  * Builds the `vehicleManager.feedQueryRedeemQueue()` call, which fulfills pending redeem requests
- * out of what the multi vehicle can currently withdraw. Needs MULTI_VEHICLE_FEED_QUERY_REDEEM_QUEUE.
- *
- * Skips the `minSharesForAutoFulfill` threshold auto-fulfillment has to cross. Reverts
- * `NothingToFulfill` when no request is redeemable against the current withdrawable balance — stage
- * liquidity into `SECTOR_AVAILABLE` first.
+ * out of the withdrawable balance. Needs MULTI_VEHICLE_FEED_QUERY_REDEEM_QUEUE. Reverts
+ * `NothingToFulfill` when no request is redeemable against it.
  *
  * @param parameters - {@link FeedQueryRedeemQueueParameters}
  */
@@ -31,12 +28,8 @@ export type RetrieveQueryRedeemQueueAssetsParameters = {
 }
 
 /**
- * Builds the `vehicleManager.retrieveQueryRedeemQueueAssets()` call, which pulls assets back out of
- * the redeem queue and deposits them into `SECTOR_AVAILABLE`. Needs
- * MULTI_VEHICLE_RETRIEVE_QUERY_REDEEM_QUEUE_ASSETS.
- *
- * No shares are minted against the deposit, so the amount raises the per-share rate for every
- * holder, and the surplus is charged a performance fee as yield would be.
+ * Builds the `vehicleManager.retrieveQueryRedeemQueueAssets()` call, which deposits `amount` into
+ * `SECTOR_AVAILABLE`. Needs MULTI_VEHICLE_RETRIEVE_QUERY_REDEEM_QUEUE_ASSETS.
  *
  * @param parameters - {@link RetrieveQueryRedeemQueueAssetsParameters}
  */

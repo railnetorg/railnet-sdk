@@ -14,20 +14,10 @@ export type ForceRedeemParameters = {
 
 /**
  * Builds the `conduit.forceRedeem()` call, which burns a holder's shares and opens a redeem query
- * paid to them, without their signature — how a blocked or sanctioned account is off-boarded.
+ * paid to them. Needs CONDUIT_FORCE_REDEEM, and `user` must be sanctioned or block-listed.
  *
- * It does not complete the exit. `forceRedeem` returns `(queryId, state)`, and against an async
- * vehicle that state is `PROCESSING` when the transaction lands: the shares are burned, the payout
- * has not happened. Read the id with {@link extractQueryIds} and settle it with
- * {@link buildProcessConduitQueryCall}.
- *
- * `accountList.canForceRedeem(user, caller)` gates it, and it takes both sides: `user` has to be
- * sanctioned or block-listed, and the caller has to hold CONDUIT_FORCE_REDEEM globally or scoped to
- * the account list. A clean holder can never be ejected, whatever the caller holds — read
- * {@link getAccountListStatus} first rather than learning it from `ForceRedeemNotAllowed`.
- *
- * The proceeds go to `user`, never to the caller. A conduit with no account list reverts
- * `ForceRedeemUnavailable`, and one not yet enabled reverts `DisabledConduit`.
+ * Returns `(queryId, state)`. That state is `PROCESSING` against an async vehicle, so the shares
+ * are burned before the payout. Settle with {@link buildProcessConduitQueryCall}.
  *
  * @param parameters - {@link ForceRedeemParameters}
  */

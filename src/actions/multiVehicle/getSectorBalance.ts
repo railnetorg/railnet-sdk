@@ -7,7 +7,7 @@ export type GetSectorBalanceParameters = {
   sectorAccountingEngine: Address
   sector: Sector
   /**
-   * The base asset for an asset sector, the sub-vehicle's own address for a share sector — the
+   * The base asset for an asset sector, the sub-vehicle's own address for a share sector. The
    * engine indexes a balance by both, so a vehicle sector holding shares is read with the vehicle
    * as `asset`.
    */
@@ -17,12 +17,7 @@ export type GetSectorBalanceParameters = {
 export type GetSectorBalanceReturnType = bigint
 
 /**
- * Reads what one accounting sector holds of one asset, in that asset's own units —
- * `sectorAccountingEngine.getSectorBalance()`.
- *
- * {@link buildRebalanceRedeemCall} settles its redeem into the destination vehicle's sector, and on
- * an async source that lands only once the query progresses. Poll here for a non-zero balance
- * before dispatching the deposit that follows.
+ * Reads what one accounting sector holds of one asset, in that asset's own units.
  *
  * @param parameters - {@link GetSectorBalanceParameters}
  *

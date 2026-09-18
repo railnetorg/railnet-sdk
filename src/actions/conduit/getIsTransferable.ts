@@ -11,11 +11,8 @@ export type GetIsTransferableParameters = {
 export type GetIsTransferableReturnType = boolean
 
 /**
- * Whether the conduit would let `from` send shares to `to` — `conduit.isTransferable()`.
- *
- * Three conditions at once: transfers enabled on the conduit at all, and — when it has an account
- * list — neither party blocked or sanctioned, with both allow-listed under STRICT. The OwnerRegistry
- * consults the same predicate before it moves a wrapped query.
+ * Whether `conduit.isTransferable()` would let `from` send shares to `to`. Transfers have to be
+ * enabled on the conduit, and its account list has to clear both parties.
  *
  * @param parameters - {@link GetIsTransferableParameters}
  *

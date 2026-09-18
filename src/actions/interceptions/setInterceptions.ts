@@ -6,8 +6,8 @@ import type { Interception } from '../../types.js'
 const BPS_MAX = 10_000n
 
 /**
- * Each interception's recipients may sum to at most 10000 bps — unlike a fee split, which must sum
- * to exactly that. A shortfall is legal and simply leaves the remainder undistributed.
+ * Each interception's recipients may sum to at most 10000 bps, where a fee split must total exactly
+ * that. A shortfall is legal and leaves the remainder undistributed.
  *
  * @throws Error if an interception's shares exceed 10000 bps
  */
@@ -37,15 +37,8 @@ export type SetConduitInterceptionsParameters = {
 }
 
 /**
- * Builds the `conduit.setInterceptions()` call, which rewrites how intercepted rewards are routed.
+ * Builds the `conduit.setInterceptions()` call, which replaces the stored interception rules.
  * Needs CONDUIT_SET_INTERCEPTIONS.
- *
- * Interceptions are only settable at spawn otherwise, through `initialInterceptions`. The rules are
- * read by off-chain distribution rather than moving funds on chain, so a wrong list misroutes a
- * reward without reverting anything.
- *
- * Within one entry, `asset` is `zeroAddress` for every asset, and a recipient's `chainId` is `0n`
- * for every network.
  *
  * @param parameters - {@link SetConduitInterceptionsParameters}
  * @throws Error if an interception's shares exceed 10000 bps
@@ -68,8 +61,8 @@ export type SetVehicleInterceptionsParameters = {
 }
 
 /**
- * The vehicle-side counterpart of {@link buildSetConduitInterceptionsCall}. Same struct and same
- * ceiling, but the role is VEHICLE_SET_INTERCEPTIONS and it is scoped to the vehicle.
+ * The vehicle-side counterpart of {@link buildSetConduitInterceptionsCall}. Needs
+ * VEHICLE_SET_INTERCEPTIONS, scoped to the vehicle.
  *
  * @param parameters - {@link SetVehicleInterceptionsParameters}
  * @throws Error if an interception's shares exceed 10000 bps

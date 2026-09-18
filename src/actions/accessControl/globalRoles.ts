@@ -4,7 +4,7 @@ import { externalAccessControlAbi } from '../../abi/externalAccessControl.js'
 export type GlobalRoleParameters = {
   accessControl: Address
   /**
-   * A base role, as `keccak256(name)` — the form the `constants/roles` exports take. Never a role
+   * A base role, as `keccak256(name)`, the form the `constants/roles` exports take. Never a role
    * already encoded against a scope: `grantRole` cannot tell the two apart and would grant the
    * encoded value as a base role under the global admin, skipping every scoped-role semantic.
    * Use {@link buildGrantScopedRoleCall} for a role that applies to one contract.
@@ -14,12 +14,8 @@ export type GlobalRoleParameters = {
 }
 
 /**
- * Grants a role across every scope. The caller must hold the role's admin role —
- * `DEFAULT_ADMIN_ROLE` unless it was reassigned. Reverts `PublicRoleAuthDenied` when the role is
- * already public, since a public role needs no grantee.
- *
- * A global grant is the wide one: prefer {@link buildGrantScopedRoleCall}, which confines the role
- * to the contract that performs the gated call.
+ * Grants a role across every scope. Needs the role's admin role. Reverts `PublicRoleAuthDenied`
+ * when the role is already public.
  *
  * @param parameters - {@link GlobalRoleParameters}
  */
@@ -33,9 +29,8 @@ export function buildGrantRoleCall(parameters: GlobalRoleParameters) {
 }
 
 /**
- * Revokes a global role. Same admin requirement and same `PublicRoleAuthDenied` on a public role as
- * {@link buildGrantRoleCall}. It does not touch a scoped grant of the same role — revoke that with
- * {@link buildRevokeScopedRoleCall}.
+ * Revokes a role across every scope. Needs the role's admin role. Reverts `PublicRoleAuthDenied`
+ * when the role is already public. A scoped grant of the same role is untouched.
  *
  * @param parameters - {@link GlobalRoleParameters}
  */
@@ -56,8 +51,8 @@ export type RenounceRoleParameters = {
 }
 
 /**
- * Gives up a global role held by the caller. `DEFAULT_ADMIN_ROLE` cannot be renounced this way
- * (`DefaultAdminCannotBeRenounced`) — hand it over with the two-step default-admin transfer instead.
+ * Gives up a global role held by the caller. `DEFAULT_ADMIN_ROLE` reverts
+ * `DefaultAdminCannotBeRenounced`.
  *
  * @param parameters - {@link RenounceRoleParameters}
  */
@@ -77,12 +72,9 @@ export type SetRolePublicParameters = {
 }
 
 /**
- * Makes a role callable by any address across every scope, or restricts it back. Unlike the scoped
- * variant this one is `DEFAULT_ADMIN_ROLE` only, not the role's own admin.
- *
- * `DEFAULT_ADMIN_ROLE` cannot be made public (`DefaultAdminCannotBePublic`), and re-sending the
- * current status reverts `RolePublicStatusUnchanged`. While a role is public, per-account grant,
- * revoke and renounce on it are all refused.
+ * Makes a role callable by any address across every scope, or restricts it back. Needs
+ * `DEFAULT_ADMIN_ROLE`, not the role's own admin. Reverts `DefaultAdminCannotBePublic` on
+ * `DEFAULT_ADMIN_ROLE` and `RolePublicStatusUnchanged` on the status already stored.
  *
  * @param parameters - {@link SetRolePublicParameters}
  */

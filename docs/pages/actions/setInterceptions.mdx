@@ -52,7 +52,7 @@ Two sentinels worth knowing: `asset: zeroAddress` matches **every** asset, and a
 `chainId: 0n` matches **every** network.
 
 :::warning
-Each entry's shares may sum to **at most** 10000 bps — a ceiling, not an exact total as a
+Each entry's shares may sum to **at most** 10000 bps. It is a ceiling, not an exact total as a
 [fee split](/actions/buildSetFeeRecipientsCall) requires. A shortfall is legal and leaves the
 remainder undistributed. Going over reverts `InterceptionSharesTooHigh`.
 :::

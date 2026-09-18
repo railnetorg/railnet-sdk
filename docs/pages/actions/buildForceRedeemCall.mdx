@@ -4,13 +4,13 @@ description: Ejects a blocked or sanctioned holder from a conduit without their 
 
 # buildForceRedeemCall
 
-Burns a holder's conduit shares and opens a redeem query paid to them, without their signature — how a blocked or sanctioned account is off-boarded.
+Burns a holder's conduit shares and opens a redeem query paid to them, without their signature. This is how a blocked or sanctioned account is off-boarded.
 
 It does not complete the exit. Against an async vehicle the query is still `PROCESSING` when the
 transaction lands: the shares are burned, the payout has not happened. Settle it with
 [`buildProcessConduitQueryCall`](/actions/buildProcessConduitQueryCall).
 
-The account list gates both sides — `user` must be sanctioned or block-listed, and the caller needs
+The account list gates both sides. `user` must be sanctioned or block-listed, and the caller needs
 `CONDUIT_FORCE_REDEEM`. Check with [`getAccountListStatus`](/actions/getAccountListStatus) first.
 Reverts `ForceRedeemNotAllowed` when either side fails, `ForceRedeemUnavailable` on a conduit with
 no account list, `DisabledConduit` before the conduit is enabled, and `NothingToRedeem` on a zero

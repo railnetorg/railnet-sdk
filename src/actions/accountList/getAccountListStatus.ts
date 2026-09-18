@@ -24,13 +24,7 @@ export type GetAccountListStatusParameters = {
 export type GetAccountListStatusReturnType = AccountListStatus
 
 /**
- * Every verdict an AccountList holds on one account, in one multicall — what a conduit checks
- * before it lets a deposit, a redeem or a receipt through.
- *
- * Read it to answer the question before sending, rather than reading `CreateNotAllowed` or
- * `NotAllowed` out of a revert. The three raw flags come back too, since which one is false is what
- * tells an operator whether to unblock, to allow-list, or to do nothing because it is a sanctions
- * hit.
+ * Every verdict an AccountList holds on one account, in one multicall.
  *
  * @param parameters - {@link GetAccountListStatusParameters}
  *
