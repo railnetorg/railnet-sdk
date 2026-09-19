@@ -11,8 +11,7 @@ Advances a sub-vehicle query that a dispatch left in flight.
 - The proceeds do not reach the destination sector until this runs. Watch for them with
   [`getSectorBalance`](/actions/getSectorBalance).
 - Reverts `UnknownSubQuery` when the engine never issued this sub-query or a field does not match
-  the dispatch, `SubQueryAlreadyFinalized` once it is terminal, and `QueryMismatch` when `query`
-  does not hash to the bound id.
+  the dispatch, and `SubQueryAlreadyFinalized` once it is terminal.
 
 ## Import
 

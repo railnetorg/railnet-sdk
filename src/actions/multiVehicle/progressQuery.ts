@@ -9,7 +9,7 @@ export type ProgressQueryParameters = {
   chainId: number
   /** The sub-vehicle the dispatch targeted. */
   vehicle: Address
-  /** The query the dispatch created, as {@link simulateDispatchVehicle} returned it. */
+  /** The query the dispatch created, as `simulateDispatchVehicle` returned it. */
   query: Query
   /** Both destinations exactly as the dispatch carried them: they are part of the sub-query's id. */
   settledDestination: Sector
@@ -46,8 +46,7 @@ export function toSubQuery(parameters: ProgressQueryParameters): SubQuery {
 /**
  * Builds the `subQueryEngine.progressQuery()` call, which advances a dispatch that did not settle
  * in its own transaction. Needs MULTI_VEHICLE_PROGRESS_QUERY scoped to the SubQueryEngine. Reverts
- * `UnknownSubQuery`, `SubQueryAlreadyFinalized` once terminal, and `QueryMismatch` when `query`
- * does not hash to the bound id.
+ * `UnknownSubQuery` when a field differs from the dispatch, `SubQueryAlreadyFinalized` once terminal.
  *
  * @param parameters - {@link ProgressQueryParameters}
  */
