@@ -4,7 +4,7 @@ description: Deploys a vehicle supplying into one Morpho Blue market.
 
 # buildSpawnMorphoBlueVehicleCall
 
-Deploys a vehicle that supplies into a single Morpho Blue market. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+Deploys a vehicle that supplies into a single Morpho Blue market.
 
 Morpho Blue is one immutable singleton per chain hosting every isolated market. A market is `{ loanToken, collateralToken, oracle, irm, lltv }`, and its `Id` is the hash of that struct. The vehicle supplies the market's **loan token**, so the market id decides the asset and none is passed.
 

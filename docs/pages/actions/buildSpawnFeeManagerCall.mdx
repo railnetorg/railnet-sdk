@@ -4,7 +4,7 @@ description: Deploys a FeeManager contract via factory.
 
 # buildSpawnFeeManagerCall
 
-Deploys a FeeManager via the factory. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+Deploys a FeeManager via the factory.
 
 The caller needs `FACTORY_SPAWN` on the factory's access control. Nothing is pulled from the caller, unlike a conduit spawn.
 
