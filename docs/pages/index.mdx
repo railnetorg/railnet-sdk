@@ -2,16 +2,18 @@
 description: TypeScript SDK for interacting with the Railnet protocol.
 ---
 
+import { Card, Cards } from 'vocs'
+
 # Railnet SDK
 
 TypeScript SDK for interacting with the Railnet protocol. Built on top of [viem](https://viem.sh), with first-class support for [React](https://react.dev) and [TanStack Query](https://tanstack.com/query).
 
-## Features
-
-- **Viem Actions** - Standalone async functions that work with any viem `Client`.
-- **React Hooks** - Wagmi-powered hooks with automatic re-fetching and caching.
-- **TanStack Query** - Query options for full control over caching and data fetching.
-- **Type-safe** - End-to-end type safety with TypeScript.
+<Cards>
+  <Card title="Actions" description="Reads and call builders for any viem Client." to="/actions/callBuilders" />
+  <Card title="React" description="Wagmi hooks and TanStack Query options." to="/react/sendingCalls" />
+  <Card title="Workflows" description="The order to send a multi-step deployment." to="/workflows/deployingAMultiVehicle" />
+  <Card title="AI Agents" description="Intent skills, llms.txt and the MCP server." to="/agents" />
+</Cards>
 
 ## Quick Start
 
@@ -31,7 +33,7 @@ npm install @railnetorg/railnet-sdk viem
 
 :::
 
-```ts
+```ts twoslash
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { getConduitPosition } from '@railnetorg/railnet-sdk'
