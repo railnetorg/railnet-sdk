@@ -8,6 +8,12 @@ export default defineConfig({
   renderStrategy: 'partial-static',
   baseUrl: 'https://sdk.railnet.org',
   sitemap: false,
+  // viem's JSDoc links to /docs/actions/public/introduction; twoslash hovers surface it as a dead link.
+  checkDeadlinks: 'warn',
+  twoslash: {
+    // 4 is ts.JsxEmit.ReactJSX; importing typescript here would bundle it into the client config.
+    twoslashOptions: { compilerOptions: { jsx: 4 } },
+  },
   head: { meta: { robots: 'noindex, nofollow' } },
   ogImageUrl: (pagePath, { baseUrl }) =>
     `${baseUrl}/api/og?title=%title&description=%description&section=${pagePath.split('/').filter(Boolean)[0] ?? ''}`,

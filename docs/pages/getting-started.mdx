@@ -55,7 +55,7 @@ The package ships Intent skills so your coding agent can learn the SDK from `nod
 
 Actions are standalone async functions that take a viem `Client` as first argument. No framework required.
 
-```ts
+```ts twoslash
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { getConduitPosition } from '@railnetorg/railnet-sdk'
@@ -77,7 +77,7 @@ You can also extend a viem client with every Railnet read action using the `rail
 decorator. Writes are absent by design — the SDK builds calls and you send them, so there is
 nothing to hang off a client. See [Sending a call](/react/sendingCalls).
 
-```ts
+```ts twoslash
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
 import { railnetActions } from '@railnetorg/railnet-sdk'

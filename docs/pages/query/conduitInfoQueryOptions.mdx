@@ -8,13 +8,13 @@ Query options for fetching conduit information.
 
 ## Import
 
-```ts
+```ts twoslash
 import { conduitInfoQueryOptions } from '@railnetorg/railnet-sdk/react'
 ```
 
 ## Usage
 
-```ts
+```ts twoslash
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
 import { conduitInfoQueryOptions } from '@railnetorg/railnet-sdk/react'
@@ -33,7 +33,7 @@ function ConduitInfo() {
 
 ### Prefetching
 
-```ts
+```ts twoslash
 import { QueryClient } from '@tanstack/react-query'
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
@@ -97,7 +97,7 @@ Reach for the builder when the hook is not mounted where you invalidate — a mu
 
 You can use `conduitInfoQueryKey` to construct the query key manually for cache invalidation:
 
-```ts
+```ts twoslash
 import { useQueryClient } from '@tanstack/react-query'
 import { base } from 'viem/chains'
 import { conduitInfoQueryKey } from '@railnetorg/railnet-sdk/react'
