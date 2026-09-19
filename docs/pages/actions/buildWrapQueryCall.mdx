@@ -1,0 +1,71 @@
+---
+description: Mints an ERC-721 over a live conduit query so the claim becomes transferable.
+---
+
+# buildWrapQueryCall
+
+Mints an ERC-721 over a live query, so the claim on its proceeds becomes transferable. Returns the `tokenId`.
+
+- The caller must be the query's registered owner. `QueryNotRegistered`, `UnauthorizedWrap`.
+- The query must not be wrapped already. `QueryAlreadyWrapped`.
+- The query must still be live. `NonWrappableState` on `EMPTY`, `SETTLED` or `REJECTED`.
+- The conduit must let the caller transfer to itself. `TransferNotAllowed`. Check it with
+  [`getIsTransferable`](/actions/getIsTransferable).
+- `unwrap` is reachable only by the owning conduit, at finalization. There is no builder for it.
+
+## Import
+
+```ts
+import { buildWrapQueryCall, getQueryClaim } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildWrapQueryCall } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...buildWrapQueryCall({ ownerRegistry, query, conduit }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`. On chain it returns the minted `tokenId`.
+
+## Parameters
+
+### ownerRegistry
+
+- **Type:** `Address`
+
+The registry the conduit was spawned with. Fixed at spawn, with no setter.
+
+### query
+
+- **Type:** [`Query`](/utilities/queryIdentity)
+
+The query to wrap, exactly as the conduit created it.
+
+### conduit
+
+- **Type:** `Address`
+
+The conduit that owns the query. The registry namespaces every record by it, so the same query id
+under two conduits is two records.
+
+## getQueryClaim
+
+```ts
+const claim = await getQueryClaim(publicClient, { ownerRegistry, conduit, queryId })
+// { owner, isWrapped, tokenId }
+```
+
+Who holds the claim, and whether it has been wrapped yet.
+
+A zero `owner` reads two ways. With `isWrapped` true the NFT holder owns the claim, with it false
+the registry never knew this query.

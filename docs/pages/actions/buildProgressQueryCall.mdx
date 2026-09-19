@@ -1,0 +1,93 @@
+---
+description: Advances a dispatch that did not settle in its own transaction.
+---
+
+# buildProgressQueryCall
+
+Advances a sub-vehicle query that a dispatch left in flight.
+
+- Needs `MULTI_VEHICLE_PROGRESS_QUERY` scoped to the SubQueryEngine. The engine may also drive a
+  query itself, without this call.
+- The proceeds do not reach the destination sector until this runs. Watch for them with
+  [`getSectorBalance`](/actions/getSectorBalance).
+- Reverts `UnknownSubQuery` when the engine never issued this sub-query or a field does not match
+  the dispatch, and `SubQueryAlreadyFinalized` once it is terminal.
+
+## Import
+
+```ts
+import { buildProgressQueryCall, toSubQuery } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+Every field comes from the dispatch. `queryId` is derived for you.
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildProgressQueryCall, QueryState } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...buildProgressQueryCall({
+    subQueryEngine,
+    chainId: base.id,
+    vehicle: sourceVehicle,
+    query,                                  // as simulateDispatchVehicle returned it
+    settledDestination: vehicleSector(destinationVehicle),
+    rejectedDestination: SECTOR_ALLOCATION,
+  }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+One call can chain several transitions, so the state it reaches is not necessarily the next one.
+Repeat until it is terminal.
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### subQueryEngine
+
+- **Type:** `Address`
+
+The MultiVehicle's SubQueryEngine, from `extractMultiVehicleContracts`.
+
+### chainId
+
+- **Type:** `number`
+
+Folded into the query id, which is `keccak256(abi.encode(chainId, vehicle, query))`.
+
+### vehicle
+
+- **Type:** `Address`
+
+The sub-vehicle the dispatch targeted.
+
+### query
+
+- **Type:** `Query`
+
+Unchanged from the dispatch.
+
+### settledDestination / rejectedDestination
+
+- **Type:** [`Sector`](/types/Sector)
+
+Exactly as the dispatch carried them. They are part of the sub-query's identity, so a value that
+differs by one bit reverts `UnknownSubQuery`.
+
+## toSubQuery
+
+```ts
+const subQuery = toSubQuery(parameters)
+// { vehicle, queryId, settledDestination, rejectedDestination }
+```
+
+The struct the builder assembles, for computing a sub-query id off chain or comparing against an
+event.
