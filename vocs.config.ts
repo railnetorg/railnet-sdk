@@ -27,6 +27,10 @@ export default defineConfig({
     light: '/logo-light.svg',
     dark: '/logo-dark.svg',
   },
+  editLink: {
+    link: 'https://github.com/railnetorg/railnet-sdk/edit/main/docs/pages/:path',
+  },
+  socials: [{ icon: 'github', link: 'https://github.com/railnetorg/railnet-sdk' }],
   sidebar: [
     {
       text: 'Introduction',
