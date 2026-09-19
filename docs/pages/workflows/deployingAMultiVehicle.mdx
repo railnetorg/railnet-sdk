@@ -13,23 +13,43 @@ progress, retry a single step, and see which one failed.
 
 ## The order
 
-1. **Read the initial deposit amount.** The factory rejects a spawn whose asset has none
-   registered — see [`getInitialDepositAmount`](/actions/getInitialDepositAmount).
-2. **Approve the multi-vehicle factory** for that amount. A plain ERC-20 call.
-3. **Spawn the access control**, unless you are reusing one —
-   [`buildSpawnAccessControlCall`](/actions/buildSpawnAccessControlCall). Read its address back out of
-   the receipt with `extractAccessControlAddress`.
-4. **Spawn the multi-vehicle** — [`buildSpawnMultiVehicleCall`](/actions/buildSpawnMultiVehicleCall).
-   `extractMultiVehicleContracts` returns the multi-vehicle, its vehicle manager, its queue
-   strategy engine and its sector accounting engine.
-5. **Grant the admin roles** — [`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall). Scope
-   each role to the engine that checks it, not to the multi-vehicle: `MULTI_VEHICLE_SET_QUEUES`
-   goes to the queue strategy engine, `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` to the vehicle
-   manager. The wrong scope succeeds silently and every later call reverts with `MissingRole`.
-6. **Authorize each vehicle** — [`buildAuthorizeVehicleCall`](/actions/buildAuthorizeVehicleCall) on
-   the vehicle manager.
-7. **Set the queues** — [`buildSetQueuesCall`](/actions/buildSetQueuesCall) on the queue strategy
-   engine, with a deposit and a redeem target per vehicle.
+::::steps
+##### Read the initial deposit amount
+
+The factory rejects a spawn whose asset has none registered. See
+[`getInitialDepositAmount`](/actions/getInitialDepositAmount).
+
+##### Approve the multi-vehicle factory for that amount
+
+A plain ERC-20 call.
+
+##### Spawn the access control, unless you are reusing one
+
+[`buildSpawnAccessControlCall`](/actions/buildSpawnAccessControlCall). Read its address back out of
+the receipt with `extractAccessControlAddress`.
+
+##### Spawn the multi-vehicle
+
+[`buildSpawnMultiVehicleCall`](/actions/buildSpawnMultiVehicleCall). `extractMultiVehicleContracts`
+returns the multi-vehicle, its vehicle manager, its queue strategy engine and its sector accounting
+engine.
+
+##### Grant the admin roles
+
+[`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall). Scope each role to the engine that
+checks it, not to the multi-vehicle: `MULTI_VEHICLE_SET_QUEUES` goes to the queue strategy engine,
+`MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` to the vehicle manager. The wrong scope succeeds silently
+and every later call reverts with `MissingRole`.
+
+##### Authorize each vehicle
+
+[`buildAuthorizeVehicleCall`](/actions/buildAuthorizeVehicleCall) on the vehicle manager.
+
+##### Set the queues
+
+[`buildSetQueuesCall`](/actions/buildSetQueuesCall) on the queue strategy engine, with a deposit and
+a redeem target per vehicle.
+::::
 
 ## Sending each step
 
