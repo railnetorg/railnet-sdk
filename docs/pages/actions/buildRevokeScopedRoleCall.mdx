@@ -4,7 +4,7 @@ description: Revokes a scoped role on the ExternalAccessControl.
 
 # buildRevokeScopedRoleCall
 
-Revokes a scoped role on the ExternalAccessControl contract. Requires a `WalletClient`.
+Revokes a scoped role on the ExternalAccessControl contract.
 
 The caller must hold the role's admin role — `DEFAULT_ADMIN_ROLE` unless it was reassigned — either globally or scoped to the same `scope`. Reverts `PublicRoleAuthDenied` when that scoped role is already public: turn it off with [`buildSetScopedRolePublicCall`](/actions/buildSetScopedRolePublicCall) first.
 
