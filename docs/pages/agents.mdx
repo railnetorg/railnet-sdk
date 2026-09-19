@@ -2,7 +2,13 @@
 description: Set up the Railnet SDK's Intent skills in your coding agent.
 ---
 
+import { Prompt } from 'vocs'
+
 # AI Agents
+
+This site also serves [`/llms.txt`](https://sdk.railnet.org/llms.txt), [`/llms-full.txt`](https://sdk.railnet.org/llms-full.txt) and every page as
+Markdown at the same path with a `.md` suffix. An MCP server at `/api/mcp` searches these docs and
+the source on GitHub.
 
 The package ships five [TanStack Intent](https://github.com/TanStack/intent) skills —
 `railnet-core`, `railnet-conduit`, `railnet-vehicle`, `railnet-access-control`, `railnet-react` — so
@@ -23,3 +29,7 @@ The agent takes it from there:
 ```bash
 bunx @tanstack/intent@latest load @railnetorg/railnet-sdk#railnet-conduit
 ```
+
+Or hand the whole setup to the agent:
+
+<Prompt value="Install the TanStack Intent skills with `bunx @tanstack/intent@latest install`, then load `@railnetorg/railnet-sdk#railnet-core` and the skill for the module I am working on before writing any Railnet SDK code." />
