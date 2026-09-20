@@ -1,5 +1,239 @@
 # @railnetorg/railnet-sdk
 
+## 0.8.0
+
+### Minor Changes
+
+- 621f886: Added `getAccountListStatus`, which returns every verdict an AccountList holds on one account in a
+  single multicall ([#54](https://github.com/railnetorg/railnet-sdk/pull/54)).
+  - The three raw flags come back alongside the verdicts, because which one is false decides whether
+    to unblock, to allow-list, or to do nothing on a sanctions hit.
+  - `canRedeem` passes for a blocked holder: sanctions alone gate an exit.
+  - On `railnetActions`.
+
+- cd1da36: Added AccountList, the compliance module a conduit takes at spawn — `buildSpawnAccountListCall`,
+  `predictAccountListDeployment`, and the manager calls for the mode, both lists and sanctions
+  screening ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - Precedence runs backwards from most allow-list systems: sanctions beat the block-list, which
+    beats the allow-list.
+  - Redeem consults sanctions alone, so a blocked holder can still take its own money out.
+  - Screening fails closed: an oracle that reverts or has no code marks everyone sanctioned, and a
+    sanctioned account cannot exit.
+  - Fixed on the conduit at spawn, with no setter afterwards.
+
+- cd1da36: **Breaking:** Changed the call builders to throw on input the contracts reject, rather than encode
+  a call that reverts on chain ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - A fee split that is empty, out of order, or short of 10000 bps.
+  - A rate above its ceiling. `depositFeeBps` and `redeemFeeBps` cap at 9999, not 10000.
+  - `sanctionsEnabled` set without an oracle.
+  - An empty batch, a zero address or a duplicate, adding to or removing from either account list.
+  - `initialFees` above the matching `initialMaxFees` at spawn.
+
+- cd1da36: Added `buildEnableConduitTransfersCall`, which builds `conduit.enableTransfers()`, and deprecated
+  `buildEnableConduitCall` ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+
+  ```diff
+  - const call = buildEnableConduitCall({ conduit })
+  + const call = buildEnableConduitTransfersCall({ conduit })
+  ```
+
+  - Not a rename. `buildEnableConduitCall` builds `conduit.enable()`, a different selector that
+    accepts the ConduitFactory alone and reverts `InvalidCaller` for anyone else — it calls it once
+    the seed deposit settles.
+  - Take the migration above only if that revert is what you were getting. `enableTransfers()` is a
+    one-way latch on holder transfers, and no call turns it back off.
+  - `buildEnableConduitCall` is removed in 0.9.0.
+
+- cd1da36: Added `assertFeeRecipients` and `assertFees`, which validate a fee split and a rate set before a
+  call is built ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - Exported so a form can check a draft split before a call is assembled.
+  - A recipient's `target` must be non-zero, its `shareBps` positive, and the list must total exactly 10000.
+  - Addresses are compared lowercased: the contract orders recipients as `uint160`, so a checksummed
+    address would otherwise sort by case.
+
+- 621f886: Added `buildForceRedeemCall`, which burns a blocked or sanctioned holder's shares and opens a redeem
+  query paid to them, without their signature ([#54](https://github.com/railnetorg/railnet-sdk/pull/54)).
+  - It does not complete the exit. Against an async vehicle the query is still `PROCESSING` when the
+    transaction lands — read the id with `extractQueryIds` and settle it with
+    `buildProcessConduitQueryCall`.
+  - The account list gates both sides: the holder must be sanctioned or block-listed, and the caller
+    needs CONDUIT_FORCE_REDEEM. A clean holder cannot be ejected whatever the caller holds.
+  - The proceeds go to the holder, never to the caller.
+
+- 621f886: Added the unscoped half of the ExternalAccessControl role surface ([#54](https://github.com/railnetorg/railnet-sdk/pull/54)).
+  - `buildGrantRoleCall` and `buildRevokeRoleCall` apply to every scope. Prefer the scoped builder,
+    which confines a role to the contract performing the gated call.
+  - `buildRenounceRoleCall` gives up a role the caller holds. `DEFAULT_ADMIN_ROLE` is refused.
+  - `buildSetRolePublicCall` takes `DEFAULT_ADMIN_ROLE` only, unlike its scoped variant, which takes
+    the role's own admin.
+  - Pass a base role, never one already encoded against a scope: the contract cannot tell them apart
+    and would grant the encoded value under the global admin.
+
+- 621f886: Added `buildSetConduitInterceptionsCall` and `buildSetVehicleInterceptionsCall`, which rewrite
+  reward routing after deployment ([#54](https://github.com/railnetorg/railnet-sdk/pull/54)). Interceptions were settable at spawn and never again.
+  - `assertInterceptions` checks an entry's shares against the 10000 bps ceiling before the call is
+    assembled. It is a ceiling, not an exact total as a fee split requires, so a shortfall is legal.
+  - The ceiling is per entry, not across assets.
+  - The rules are read by off-chain distribution, so a wrong list misroutes a reward without
+    reverting.
+
+- 621f886: Added `getIsTransferable`, which asks a conduit whether it would let one address send shares to
+  another ([#54](https://github.com/railnetorg/railnet-sdk/pull/54)).
+  - It takes a pair: the same conduit is transferable for one pair and not another.
+  - The same predicate gates wrapping a query in the OwnerRegistry.
+  - On `railnetActions`.
+
+- cd1da36: Added OwnerRegistry, which records who owns a conduit's live queries — `buildSpawnOwnerRegistryCall`
+  and `predictOwnerRegistryDeployment` ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - An owner can wrap the claim into a transferable ERC-721.
+  - It carries no access control of its own; the caller needs FACTORY_SPAWN on the factory's.
+  - Fixed on the conduit at spawn, with no setter afterwards, as AccountList is.
+
+- d8c4eaa: Added `buildProgressQueryCall`, which advances a dispatch that did not settle in its own transaction
+  ([#55](https://github.com/railnetorg/railnet-sdk/pull/55)).
+  - The engine keys a sub-query on a hash of its four fields, so a struct assembled by hand reverts
+    `UnknownSubQuery` for one wrong byte. The builder takes the dispatch parameters and derives the
+    rest.
+  - One call can chain several transitions, so the state it reaches is not necessarily the next one.
+  - `toSubQuery` is exported for the struct alone.
+  - Ships the `SubQueryEngine` ABI, generated from the hangar artifacts.
+
+- cd1da36: Renamed the two conduit-scoped protocol enums to the query-scoped names the contracts use, and
+  deprecated the old names ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+
+  ```diff
+  - import { ConduitMode, ConduitState } from '@railnetorg/railnet-sdk'
+  + import { QueryMode, QueryState } from '@railnetorg/railnet-sdk'
+  ```
+
+  - Neither was conduit-specific: vehicles, the sector accounting engine and the estimators all read
+    the same values.
+  - `ConduitMode` and `ConduitState` still resolve, with identical members, and are removed in 0.9.0.
+
+- cd1da36: Added the remaining twelve read actions to the `railnetActions` decorator, which held four ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+- cd1da36: Added `buildRebalanceRedeemCall`, which redeems a position out of one sub-vehicle and stages the
+  proceeds in another's sector as a single `multicall` ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - A rebalance is two transactions. Deposit the staged proceeds with `buildDispatchVehicleCall`,
+    settling into `SECTOR_ALLOCATION`.
+  - Thread one `operationId` through both, so the events stitch back into a single rebalance.
+  - `shares` is the exact amount redeemed, in the source vehicle's share units. The dispatch reverts
+    `DispatchRedeemAmountTooHigh` rather than redeeming whatever else the sector happens to hold.
+  - `minOutput` is an optional floor on the proceeds, off by default.
+
+- 621f886: Added `buildFeedQueryRedeemQueueCall` and `buildRetrieveQueryRedeemQueueAssetsCall`, the two
+  operator overrides on a MultiVehicle's redeem queue ([#54](https://github.com/railnetorg/railnet-sdk/pull/54)).
+  - `buildFeedQueryRedeemQueueCall` skips the `minSharesForAutoFulfill` threshold auto-fulfillment has
+    to cross, so a queue below that floor can still be served.
+  - `buildRetrieveQueryRedeemQueueAssetsCall` deposits without minting, which raises the per-share
+    rate for every holder.
+
+- cd1da36: Added `getRailnetError`, which reads a revert out of whatever viem threw and returns its decoded
+  name, arguments and a hint, or `null` when the failure was not a contract revert ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+
+  ```ts
+  const reverted = getRailnetError(error);
+  if (reverted?.name === "InsufficientAllowance") return approveFirst();
+  ```
+
+  - `railnetErrorHints` is the hint table itself, keyed by error name.
+  - `protocolErrorsAbi` is the fallback fragment it decodes against. viem decodes a revert using the
+    ABI of the call, so an error the called contract does not itself declare arrives as raw bytes.
+  - Six such errors now decode, `InvalidOutput` and `InvalidEstimation` among them. Both are reverted
+    from `ErrorLib` through assembly, which solc lists on no contract at all.
+  - A hint names the contract that raises the error. `InsufficientAllowance` comes from a factory
+    pulling its initial deposit, not from a conduit; a conduit deposit short on allowance reverts
+    with the token's own ERC-20 error.
+
+- c0ea160: Added the 167 error names the protocol declares to `protocolErrorsAbi` ([#51](https://github.com/railnetorg/railnet-sdk/pull/51)). viem decodes a
+  revert against the ABI of the call, so an error raised by another contract in the same transaction
+  arrives as raw bytes.
+  - `buildSpawnConduitCall` reaches `AssetNotAuthorized`, raised by the AssetRegistry.
+  - `buildSpawnAaveV3VehicleCall` reaches the reserve checks its facet runs at initialization.
+  - `estimateVehicle` reaches both reverts `BaseVehicle.estimate` raises; `baseVehicleAbi` declares
+    no errors of its own.
+  - 169 entries for 167 names: two exist in two signatures. Selectors are unique across the set, so
+    the fallback cannot mis-attribute a revert.
+
+- c0ea160: Added `CreateNotAllowed` and `DefaultAdminCannotBePublic` to `railnetErrorHints`, and pointed four
+  entries at the condition they describe ([#51](https://github.com/railnetorg/railnet-sdk/pull/51)).
+  - `DisabledVehicle` is the vehicle's own `enabled` flag, not the beacon; a paused beacon raises
+    `EnforcedPause`.
+  - `PublicRoleAuthDenied` fires when a scoped role is public, refusing per-account grants.
+  - `NotAllowed` screens a third-party receiver; the sender being refused is `CreateNotAllowed`.
+  - `InvalidPoolAddressesProvider` checks for a zero address or no code, nothing else.
+
+- 621f886: Added `getSectorBalance`, which reads what one accounting sector holds of one asset ([#54](https://github.com/railnetorg/railnet-sdk/pull/54)).
+  - `buildRebalanceRedeemCall` settles into the destination vehicle's sector, and on an asynchronous
+    source that lands only once the query progresses. Poll here before dispatching the deposit that
+    follows.
+  - A share sector is read with the sub-vehicle's own address as `asset`.
+  - On `railnetActions`.
+
+- 93200b1: **Breaking:** Keyed `railnetErrorHints` by `ProtocolErrorName`, the union of every custom error the shipped ABIs declare. Indexing it with an arbitrary `string` no longer compiles.
+  - `getRailnetError` resolves the hint itself and is unaffected.
+  - So are `Object.entries(railnetErrorHints)` and static access like `railnetErrorHints.MissingRole`.
+  - `ProtocolErrorName` is exported, for narrowing a name yourself.
+
+  ```diff
+  - const hint = railnetErrorHints[errorName]
+  + const hint = getRailnetError(error)?.hint
+  ```
+
+- cd1da36: Added the three remaining vehicle factories, each with the receipt helper that reads its deployed
+  address back ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)). Only Aave V3 had one.
+  - `buildSpawnErc4626VehicleCall` and `buildSpawnMorphoBlueVehicleCall` derive the asset from their
+    target rather than taking one, so neither can be handed an asset the vault or market disagrees
+    with.
+  - `buildSpawnWrapperVehicleCall` takes no `initialExpectedSupply`. It still pulls a seed deposit,
+    but enforces no floor on the shares minted.
+  - Added `getMorphoBlueSingleton`: `spawn` reverts on any `morpho` other than the factory
+    implementation's own, so it is read rather than hardcoded.
+  - Added `getMorphoMarketAsset`. The market's loan token is what a supplier deposits, and so is the
+    vehicle's asset.
+
+- d8c4eaa: Added `buildWrapQueryCall` and `getQueryClaim`, which mint an ERC-721 over a live conduit query and
+  read who holds the claim ([#55](https://github.com/railnetorg/railnet-sdk/pull/55)).
+  - Wrapping needs the caller to be the registered owner, the query to be live, and the conduit to
+    allow the caller a transfer to itself.
+  - `wrap` clears the owner and sets a token id, so a zero owner means the token holder owns the
+    claim or the registry never knew the query, depending on the flag. `getQueryClaim` reads all three
+    at once.
+  - `unwrap` is keyed on `msg.sender` as the conduit namespace, so only the owning conduit can call
+    it. There is no builder.
+  - Ships the `OwnerRegistry` ABI, generated from the hangar artifacts.
+
+### Patch Changes
+
+- 999562f: Fixed twelve documentation pages listing `account` as a call-builder parameter ([#52](https://github.com/railnetorg/railnet-sdk/pull/52)). Builders take
+  no account; it goes to `simulateContract`.
+
+  ```diff
+  - buildProcessConduitQueryCall({ conduit, account, query })
+  + simulateContract(client, { ...buildProcessConduitQueryCall({ conduit, query }), account })
+  ```
+
+- 1b13f94: Fixed two entries in the bundled conduit error reference that named the wrong contract ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)).
+  - `InsufficientAllowance` is raised by the factories pulling a spawn's initial deposit. A conduit
+    deposit short on allowance reverts with the token's own ERC-20 error instead.
+  - `VehicleNotAuthorized` comes from the multi vehicle's VehicleManager, not from a factory.
+    `buildAuthorizeVehicleCall` is the fix.
+
+- cd1da36: Fixed `predictConduitDeployment` returning an address the matching spawn would not deploy to
+  ([#41](https://github.com/railnetorg/railnet-sdk/pull/41)). It built its own `SpawnParams` tuple, so any field the two mapped differently moved the
+  CREATE2 result; both now share one mapping.
+- 999562f: Fixed nine documented claims the contracts contradict, four of which broke a transaction for anyone
+  following them ([#52](https://github.com/railnetorg/railnet-sdk/pull/52)).
+  - `getInitialDepositAmount` named three of the seven factories that pull the deposit, and a `0n`
+    return the read cannot produce: an unauthorized asset reverts `AssetNotAuthorized`.
+  - `buildSpawnConduitCall` documented no role. It needs CONDUIT_SPAWN, not the FACTORY_SPAWN every
+    other spawn builder names.
+  - `buildSetQueuesCall` documented no validation against eight on-chain checks, one rejecting the
+    `2n ** 256n - 1n` the SDK teaches as unlimited elsewhere.
+  - The three scoped-role builders required the default admin; the contract takes the role's own
+    admin, held globally or scoped to the same scope.
+  - `predictFeeManagerDeployment` said only `deploymentSalt` moved the address. Every factory folds
+    its whole initializer into the init code the CREATE2 hashes.
+
 ## 0.7.0
 
 ### Minor Changes
