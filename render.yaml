@@ -17,4 +17,4 @@ projects:
             envVars:
               # The node runtime picks up Bun from bun.lock; this pins the version.
               - key: BUN_VERSION
-                value: "1.3.10"
+                value: "1.4.2"
