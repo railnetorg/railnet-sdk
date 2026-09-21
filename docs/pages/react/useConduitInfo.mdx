@@ -89,3 +89,14 @@ const result = useConduitInfo({
   enabled: false, // [!code focus]
 })
 ```
+
+## Query options
+
+[`conduitInfoQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`conduitInfoQueryKey` and `conduitInfoQueryPrefix` for invalidation.
+
+```ts
+import { conduitInfoQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+await queryClient.prefetchQuery(conduitInfoQueryOptions(client, parameters))
+```

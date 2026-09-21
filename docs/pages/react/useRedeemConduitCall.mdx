@@ -52,3 +52,14 @@ A TanStack Query result over `{ call, querySalt, outputAsset }`, with its `query
 There is no `queryId`: the conduit assembles a redeem's query at the share ratio of the including
 block, so its id is only knowable once the transaction lands. Read it from the receipt with
 [`extractQueryIds`](/utilities/receiptHelpers), or join an indexer on `querySalt`.
+
+## Query options
+
+[`redeemConduitCallQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`redeemConduitCallQueryKey` and `redeemConduitCallQueryPrefix` for invalidation.
+
+```ts
+import { redeemConduitCallQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+await queryClient.prefetchQuery(redeemConduitCallQueryOptions(client, parameters))
+```

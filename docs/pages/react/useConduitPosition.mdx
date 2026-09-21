@@ -131,6 +131,17 @@ const result = useConduitPosition({
 })
 ```
 
+## Query options
+
+[`conduitPositionQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`conduitPositionQueryKey` and `conduitPositionQueryPrefix` for invalidation.
+
+```ts
+import { conduitPositionQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+await queryClient.prefetchQuery(conduitPositionQueryOptions(client, parameters))
+```
+
 ## Action
 
 - [`getConduitPosition`](/actions/getConduitPosition)

@@ -99,3 +99,14 @@ const result = useEstimateConduit({
 - **Default:** `true`
 
 Whether the query should be enabled.
+
+## Query options
+
+[`estimateConduitQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`estimateConduitQueryKey` and `estimateConduitQueryPrefix` for invalidation.
+
+```ts
+import { estimateConduitQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+await queryClient.prefetchQuery(estimateConduitQueryOptions(client, parameters))
+```

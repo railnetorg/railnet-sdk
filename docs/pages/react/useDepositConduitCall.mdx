@@ -88,3 +88,14 @@ A TanStack Query result over `{ call, query, queryId, vehicle }`, with its `quer
 
 `sender` is whoever will send the transaction, not whoever owns the position. Through a Safe or a
 batch that is the smart account: a call built with the user's EOA reverts with `InvalidQuerySalt`.
+
+## Query options
+
+[`depositConduitCallQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`depositConduitCallQueryKey` and `depositConduitCallQueryPrefix` for invalidation.
+
+```ts
+import { depositConduitCallQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+await queryClient.prefetchQuery(depositConduitCallQueryOptions(client, parameters))
+```

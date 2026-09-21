@@ -77,3 +77,14 @@ const result = usePredictConduitDeployment({
 - **Default:** `true`
 
 Whether the query should be enabled.
+
+## Query options
+
+[`predictConduitDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictConduitDeploymentQueryKey` and `predictConduitDeploymentQueryPrefix` for invalidation.
+
+```ts
+import { predictConduitDeploymentQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+await queryClient.prefetchQuery(predictConduitDeploymentQueryOptions(client, parameters))
+```
