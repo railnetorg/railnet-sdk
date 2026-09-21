@@ -53,7 +53,8 @@ The package ships Intent skills so your coding agent can learn the SDK from `nod
 
 ### Standalone Actions
 
-Actions are standalone async functions that take a viem `Client` as first argument. No framework required.
+Actions are standalone async functions that take a viem `Client` as first argument. No framework
+required. Every protocol address comes from [`getAddresses`](/contracts/getAddresses).
 
 ```ts twoslash
 import { createPublicClient, http } from 'viem'
@@ -75,7 +76,7 @@ const position = await getConduitPosition(client, {
 
 You can also extend a viem client with every Railnet read action using the `railnetActions`
 decorator. Writes are absent by design — the SDK builds calls and you send them, so there is
-nothing to hang off a client. See [Sending a call](/react/sendingCalls).
+nothing to hang off a client. See [Sending from React](/guides/sendingFromReact).
 
 ```ts twoslash
 import { createPublicClient, http } from 'viem'

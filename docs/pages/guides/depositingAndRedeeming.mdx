@@ -1,0 +1,54 @@
+---
+description: Approve, build, simulate, send, then follow the query.
+---
+
+# Depositing and redeeming
+
+A deposit is two transactions. A redeem is one. Both create a query on the conduit, and both are
+built for the account that sends them.
+
+## Deposit
+
+1. **Approve the conduit** for `amount` of the asset. A plain ERC-20 call; the deposit spends the
+   allowance. On a wallet that supports EIP-5792, [`toCall`](/utilities/toCall) batches the pair
+   into one confirmation.
+2. **Build the call** with [`buildDepositConduitCall`](/actions/buildDepositConduitCall), or let
+   [`getDepositConduitCall`](/actions/getDepositConduitCall) read the vehicle for you and hand back
+   the query id.
+3. **Simulate, then send.** `simulateContract` returns the revert before the user signs. From
+   React, see [Sending from React](/guides/sendingFromReact).
+
+## Redeem
+
+[`buildRedeemConduitCall`](/actions/buildRedeemConduitCall) burns shares the conduit already holds
+for the account. No approval. [`getRedeemConduitCall`](/actions/getRedeemConduitCall) reads the
+output asset for you.
+
+## The sender
+
+`conduit.create()` binds the query salt to `msg.sender`: `query.salt` must equal
+`keccak256(abi.encode(msg.sender, salt))`. The call is encoded for one sender and reverts
+`InvalidQuerySalt` from any other. Through a Safe, an EIP-5792 batch or a relayer, `msg.sender`
+is that contract. Build the call for it and set `receiver` to the user.
+
+## The salt
+
+The salt is the operation's identity. Generate it once with [`randomSalt`](/utilities/randomSalt)
+when the user starts the operation, and hold it across simulation, signature and retry. A retry
+with a fresh salt is a second query. [`toQueryId`](/utilities/queryIdentity#toqueryid) turns the
+built query into the id an indexer holds.
+
+## Slippage
+
+`minOutput` is a floor on the vehicle's output, in vehicle shares. Derive it from `estimateVehicle`
+and `applySlippage`. [`estimateConduit`](/actions/estimateConduit) prices the same deposit in
+conduit shares, a different denomination; a floor taken from it is wrong in one direction or the
+other. Fees and the share rate sit between the vehicle's output and the conduit shares the user
+receives, so the floor is not a minimum received.
+
+## After the transaction
+
+On a synchronous vehicle the query settles in the same transaction. On an async vehicle it stays
+short of settlement until [`buildProcessConduitQueryCall`](/actions/buildProcessConduitQueryCall)
+advances it, sent by the query's receiver or by a holder of `CONDUIT_PROCESS`.
+[`extractQueryIds`](/utilities/receiptHelpers) reads the query ids out of the receipt.

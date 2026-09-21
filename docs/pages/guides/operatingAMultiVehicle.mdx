@@ -1,0 +1,44 @@
+---
+description: Queues, dispatches, moves and limits, and which engine each one lives on.
+---
+
+# Operating a multi-vehicle
+
+A multi-vehicle is four contracts. Every operator call goes to one of them, and its role is scoped
+to that one.
+
+| Call | Contract | Role |
+| --- | --- | --- |
+| authorize, configure a vehicle | VehicleManager | `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` |
+| thresholds, max total assets | VehicleManager | `MULTI_VEHICLE_SET_THRESHOLDS` |
+| queues | QueueStrategyEngine | `MULTI_VEHICLE_SET_QUEUES` |
+| dispatch | SectorAccountingEngine | `MULTI_VEHICLE_DISPATCH` |
+| move | SectorAccountingEngine | `MULTI_VEHICLE_MOVE` |
+
+A role granted to the multi-vehicle itself is invisible to the engine that checks it. The grant
+succeeds and every later call reverts `MissingRole`.
+
+## Allocation
+
+The queues drive automatic allocation. [`buildSetQueuesCall`](/actions/buildSetQueuesCall) sets a
+deposit queue and a redeem queue, one target per sub-vehicle, in order. A vehicle in `Manual`
+mode, set with [`buildConfigureVehicleCall`](/actions/buildConfigureVehicleCall), cannot sit in a
+queue and only moves on an operator dispatch.
+
+## Dispatch and move
+
+[`buildDispatchVehicleCall`](/actions/buildDispatchVehicleCall) deposits into or redeems from one
+sub-vehicle. Reallocating between two vehicles is a redeem dispatch followed by a deposit dispatch.
+On an async vehicle the redeem does not settle in the transaction. Call `simulateDispatchVehicle`
+first when a second leg depends on the first, and keep the returned `query` to progress it.
+
+[`buildMoveBetweenSectorsCall`](/actions/buildMoveBetweenSectorsCall) moves balances between
+[sectors](/types/Sector) without touching a sub-vehicle.
+[`getSectorBalance`](/actions/getSectorBalance) reads them.
+
+## Limits
+
+[`buildSetThresholdsCall`](/actions/buildSetThresholdsCall) replaces both thresholds at once. Read
+[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) first and pass back the one you are
+not changing. [`buildSetMaxTotalAssetsCall`](/actions/buildSetMaxTotalAssetsCall) caps
+`totalAssets()` at deposit time; operator flows that grow it without minting shares are exempt.

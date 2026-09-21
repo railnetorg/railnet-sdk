@@ -1,40 +1,24 @@
 ---
-description: Read a Railnet revert out of whatever viem threw, with what to do about it.
+description: getRailnetError, railnetErrorHints, protocolErrorsAbi, and the reverts that most often reach an integration.
 ---
 
-# Handling reverts
+# Errors
 
-Every call the SDK builds carries the contract's ABI, so viem decodes a custom error's name and
-arguments for you. What it cannot know is what to do about it. `getRailnetError` walks the error
-chain, hands back the decoded revert, and attaches that advice when the SDK has any.
+`getRailnetError` decodes a Railnet revert out of whatever viem threw. [Handling reverts](/guides/handlingReverts) shows where it sits in a call.
 
 ## Import
 
 ```ts twoslash
-import { getRailnetError, railnetErrorHints } from '@railnetorg/railnet-sdk'
+import { getRailnetError, protocolErrorsAbi, railnetErrorHints } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
 
 ```ts
-import { simulateContract } from 'viem/actions'
-import { buildDepositConduitCall, getRailnetError } from '@railnetorg/railnet-sdk'
+import { getRailnetError } from '@railnetorg/railnet-sdk'
 
-try {
-  await simulateContract(client, { ...buildDepositConduitCall(parameters), account })
-} catch (error) {
-  const reverted = getRailnetError(error)
-
-  if (reverted?.name === 'InsufficientAllowance') {
-    return approveThenRetry()
-  }
-
-  throw new Error(reverted?.hint ?? 'the deposit failed', { cause: error })
-}
+const reverted = getRailnetError(error)
 ```
-
-Simulate before you send and the revert reaches you before the user is asked to sign — that is the
-whole reason [`useSimulateContract`](/react/sendingCalls) comes first in every example here.
 
 ## Return Type
 
@@ -71,19 +55,10 @@ already says what happened.
 
 The viem error this was read from, for the raw data and the full message.
 
-## Reverts viem leaves undecoded
+## protocolErrorsAbi
 
-viem decodes a revert against the ABI of the call, and a contract's ABI lists only the errors its
-own code reverts with. Two cases fall outside that and arrive as raw bytes:
-
-- A rejection encoded from `ErrorLib` and reverted through assembly, which solc lists on no contract
-  at all — including the two most common deposit failures, `InvalidOutput` and `InvalidEstimation`.
-- An error thrown by a contract further down the call. `AssetNotAuthorized` comes from the
-  AssetRegistry during `conduitFactory.spawn`, `EnforcedPause` from the beacon on any call routed
-  through a vehicle proxy, the Aave reserve checks from a facet inside a spawn's initializer.
-
-`getRailnetError` falls back to `protocolErrorsAbi`, which carries every error the protocol declares,
-so both decode normally. The fragment is exported if you need to hand it to `decodeErrorResult`
+Every custom error the protocol declares, on one ABI fragment. `getRailnetError` falls back to it
+for a revert the call's own ABI does not carry. Hand it to `decodeErrorResult` to decode one
 yourself.
 
 ## railnetErrorHints

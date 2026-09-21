@@ -1,0 +1,50 @@
+---
+description: Simulate first, read the revert with getRailnetError, act on its name.
+---
+
+# Handling reverts
+
+Every call the SDK builds carries the contract's ABI, so viem decodes a custom error's name and
+arguments. [`getRailnetError`](/utilities/errors) reads that revert out of whatever viem threw and
+attaches a hint when the SDK has one.
+
+## Simulate before you send
+
+`simulateContract` runs the call and returns the revert before the user is asked to sign. Every
+example in these docs simulates first for that reason, and the React path does the same with
+`useSimulateContract` ([Sending from React](/guides/sendingFromReact)).
+
+```ts
+import { simulateContract } from 'viem/actions'
+import { buildDepositConduitCall, getRailnetError } from '@railnetorg/railnet-sdk'
+
+try {
+  await simulateContract(client, { ...buildDepositConduitCall(parameters), account })
+} catch (error) {
+  const reverted = getRailnetError(error)
+
+  if (reverted?.name === 'InsufficientAllowance') {
+    return approveThenRetry()
+  }
+
+  throw new Error(reverted?.hint ?? 'the deposit failed', { cause: error })
+}
+```
+
+`getRailnetError` returns `null` for anything that was not a contract revert: a rejected
+signature, a transport error, a failed gas estimate.
+
+## Reverts viem leaves undecoded
+
+viem decodes a revert against the ABI of the call, and a contract's ABI lists only the errors its
+own code reverts with. Two kinds arrive as raw bytes. A rejection encoded from `ErrorLib` and
+reverted through assembly is on no contract's ABI at all; `InvalidOutput` and `InvalidEstimation`,
+the two most common deposit failures, are of that kind. An error thrown further down the call is
+on another contract's ABI: `AssetNotAuthorized` comes from the AssetRegistry during
+`conduitFactory.spawn`, `EnforcedPause` from the beacon behind a vehicle proxy. `getRailnetError`
+falls back to `protocolErrorsAbi`, which lists every error the protocol declares, so both decode.
+
+## The ones that catch people
+
+The errors that most often reach an integration, with the mechanism behind each, are listed on
+[Errors](/utilities/errors#the-ones-that-catch-people).
