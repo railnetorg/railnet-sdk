@@ -6,6 +6,7 @@ description: Deploys a new MultiVehicle ecosystem via the factory.
 
 Deploys a new MultiVehicle ecosystem via the factory contract.
 
+- The caller needs `FACTORY_SPAWN` on the factory's access control.
 - The factory pulls the initial deposit of `asset` from the caller. Approve it for at least
   [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first.
 - [Deploying a multi-vehicle](/guides/deployingAMultiVehicle) gives the order.
