@@ -49,27 +49,6 @@ const hash = await writeContract(client, request)
 [`toCall`](/utilities/toCall) into `sendCalls`. The ABI and args stay literal, so viem keeps full
 type inference.
 
-## Available builders
-
-| Builder | Call |
-| --- | --- |
-| `buildGrantScopedRoleCall` | `externalAccessControl.grantScopedRole()` |
-| `buildRevokeScopedRoleCall` | `externalAccessControl.revokeScopedRole()` |
-| `buildSetScopedRolePublicCall` | `externalAccessControl.setScopedRolePublic()` |
-| `buildSpawnAccessControlCall` | `accessControlFactory.spawn()` |
-| `buildSpawnConduitCall` | `conduitFactory.spawn()` |
-| `buildEnableConduitTransfersCall` | `conduit.enableTransfers()` |
-| `buildFinalizeConduitDepositCall` | `conduitFactory.finalizeConduitDeposit()` |
-| `buildProcessConduitQueryCall` | `conduit.process()` |
-| `buildDepositConduitCall` | `conduit.create()` |
-| `buildRedeemConduitCall` | `conduit.createRedeemFromConduitShares()` |
-| `buildAuthorizeVehicleCall` | `vehicleManager.authorize()` |
-| `buildSetQueuesCall` | `queueStrategyEngine.setQueues()` |
-| `buildSpawnMultiVehicleCall` | `multiVehicleFactory.spawn()` |
-| `buildSpawnAaveV3VehicleCall` | `aaveV3VehicleFactory.spawn()` |
-| `buildMoveBetweenSectorsCall` | `sectorAccountingEngine.move()` |
-| `buildDispatchVehicleCall` | `sectorAccountingEngine.dispatch()` |
-
 A builder takes only what the call needs to be encoded: no client, no transaction overrides, and no
 `sender` unless the encoding depends on it.
 
