@@ -6,7 +6,9 @@ description: Sets whether a scoped role is callable by any address.
 
 Makes a scoped role public (callable by any address) or restricts it back to specific grantees, on the ExternalAccessControl contract.
 
-The caller must hold the role's admin role — `DEFAULT_ADMIN_ROLE` unless it was reassigned — either globally or scoped to the same `scope`. `DEFAULT_ADMIN_ROLE` itself cannot be made public (`DefaultAdminCannotBePublic`), and re-sending the current status reverts `RolePublicStatusUnchanged`.
+- Requires the role's admin role, held globally or scoped to `scope`. See [Managing roles](/guides/managingRoles#scoped-first).
+- Reverts `DefaultAdminCannotBePublic` on `DEFAULT_ADMIN_ROLE`, and `RolePublicStatusUnchanged` when
+  the status already holds.
 
 ## Import
 

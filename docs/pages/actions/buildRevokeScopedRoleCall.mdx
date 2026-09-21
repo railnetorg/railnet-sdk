@@ -6,7 +6,9 @@ description: Revokes a scoped role on the ExternalAccessControl.
 
 Revokes a scoped role on the ExternalAccessControl contract.
 
-The caller must hold the role's admin role — `DEFAULT_ADMIN_ROLE` unless it was reassigned — either globally or scoped to the same `scope`. Reverts `PublicRoleAuthDenied` when that scoped role is already public: turn it off with [`buildSetScopedRolePublicCall`](/actions/buildSetScopedRolePublicCall) first.
+- Requires the role's admin role, held globally or scoped to `scope`. See [Managing roles](/guides/managingRoles#scoped-first).
+- Reverts `PublicRoleAuthDenied` while the scoped role is public.
+  [`buildSetScopedRolePublicCall`](/actions/buildSetScopedRolePublicCall) turns it off.
 
 ## Import
 
