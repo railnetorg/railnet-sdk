@@ -67,6 +67,29 @@ All role constants are precomputed as `keccak256(toHex('ROLE_NAME'))`. Use the c
 - `CONDUIT_SET_TRANSFER_ENABLED`
 - `CONDUIT_PROCESS`
 - `KEEPER_ON_REPORT`
+- `VEHICLE_PROCESS_QUEUE`
+
+## Enumerating roles
+
+`ROLES` is every role the protocol defines, as `{ name, hash }`. Use it to build a picker rather
+than hard-coding a list that drifts.
+
+```typescript
+import { ROLES } from '@railnetorg/railnet-sdk'
+
+const options = ROLES.map((role) => ({ label: role.name, value: role.hash }))
+```
+
+`DEFAULT_ADMIN_ROLE` is the zero hash, and is not in `ROLES`.
+
+`roleName(hash)` goes the other way, turning a hash back into its name or `null` when it is not a
+protocol role. Use it to render a `MissingRole(role, scope, caller)` revert legibly.
+
+```typescript
+import { roleName } from '@railnetorg/railnet-sdk'
+
+roleName(reverted.args.role) ?? reverted.args.role
+```
 
 ## ExternalAccessControl Errors
 
