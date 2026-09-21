@@ -15,7 +15,7 @@ description: >
 metadata:
   type: core
   library: railnet-sdk
-  library_version: '0.3.1'
+  library_version: '0.8.0'
 sources:
   - 'railnetorg/railnet-sdk:src/index.ts'
   - 'railnetorg/railnet-sdk:src/decorator.ts'
@@ -57,15 +57,18 @@ const info = await client.getConduitInfo({
 The decorator exposes every read action the package ships: `estimateConduit`, `estimateVehicle`,
 `getConduitInfo`, `getConduitPosition`, `getDepositConduitCall`, `getHasRole`,
 `getInitialDepositAmount`, `getMorphoBlueSingleton`, `getMorphoMarketAsset`,
-`getRedeemConduitCall`, `getVehicleManagerLimits`, `predictAccountListDeployment`,
-`predictConduitDeployment`, `predictFeeManagerDeployment`, `predictOwnerRegistryDeployment` and
-`simulateDispatchVehicle`. Writes are call builders, not actions: the SDK builds them and never
+`getRedeemConduitCall`, `getVehicleManagerLimits`, `getAccountListStatus`, `getIsTransferable`,
+`getQueryClaim`, `getSectorBalance`, `predictAccountListDeployment`, `predictConduitDeployment`,
+`predictFeeManagerDeployment`, `predictOwnerRegistryDeployment` and `simulateDispatchVehicle`. Writes are call builders, not actions: the SDK builds them and never
 sends them — see railnet-conduit and railnet-vehicle skills.
 
 ### Handling reverts
 `getRailnetError(error)` walks whatever viem threw, returns the decoded custom error name, its
-arguments and — for the errors a caller can act on — what to do about it. It returns `null` when
-the failure was not a contract revert.
+arguments and, for the errors a caller can act on, what to do about it. It returns `null` when the
+failure was not a contract revert.
+
+It returns a `RailnetError`, whose `name` is a `ProtocolErrorName`. `railnetErrorHints` is the
+underlying name-to-hint map, exported for rendering a message without catching a throw.
 
 ```typescript
 import { getRailnetError } from '@railnetorg/railnet-sdk'
@@ -80,7 +83,8 @@ try {
 ```
 
 ### Contract Address Lookup
-Retrieve factory and registry addresses for the supported chains (Ethereum and Base).
+Retrieve factory and registry addresses. `getAddresses` holds production deployments, which
+today means Ethereum alone.
 
 ```typescript
 import { getAddresses } from '@railnetorg/railnet-sdk'
@@ -93,7 +97,7 @@ const addresses = getAddresses(mainnet.id)
 // addresses.aaveV3VehicleFactory
 // addresses.erc4626VehicleFactory
 // addresses.morphoBlueVehicleFactory
-// addresses.wrapperVehicleFactory
+// addresses.wrapperVehicleFactory  — optional: absent where the deployment ships no wrapper
 // addresses.eacFactory              — ExternalAccessControl factory
 // addresses.adminEac                — Admin ExternalAccessControl
 // addresses.feeManagerFactory
@@ -103,7 +107,8 @@ const addresses = getAddresses(mainnet.id)
 // addresses.assetRegistry           — per-asset initial deposit amounts
 // addresses.queryRegistry           — required to spawn a multi-vehicle or a vehicle
 // addresses.aavePoolAddressesProvider
-// addresses.usdc                    — USDC on Base
+// addresses.usdc                    — USDC on the deployment's chain
+// addresses.startedAtBlock          — where an indexer or log scan should begin
 ```
 
 ### Direct ABI Usage
@@ -127,7 +132,47 @@ const balance = await client.readContract({
 })
 ```
 
-Nine ABIs are exported: `conduitAbi`, `conduitFactoryAbi`, `multiVehicleFactoryAbi`, `aaveV3VehicleFactoryAbi`, `accessControlFactoryAbi`, `externalAccessControlAbi`, `queueStrategyEngineAbi`, `sectorAccountingEngineAbi`, `vehicleManagerAbi`.
+Twenty-two ABIs are exported, one per contract the SDK touches: `conduitAbi`, `conduitFactoryAbi`,
+`baseVehicleAbi`, `multiVehicleFactoryAbi`, `aaveV3VehicleFactoryAbi`, `erc4626VehicleFactoryAbi`,
+`morphoBlueVehicleAbi`, `morphoBlueVehicleFactoryAbi`, `wrapperVehicleFactoryAbi`,
+`accessControlFactoryAbi`, `externalAccessControlAbi`, `queueStrategyEngineAbi`,
+`sectorAccountingEngineAbi`, `subQueryEngineAbi`, `vehicleManagerAbi`, `feeManagerAbi`,
+`feeManagerFactoryAbi`, `accountListAbi`, `accountListFactoryAbi`, `ownerRegistryAbi`,
+`ownerRegistryFactoryAbi` and `assetRegistryAbi`.
+
+### Types and enums
+
+| Name | Notes |
+| --- | --- |
+| `Asset` | `{ asset, value }`, the pair every query input and output takes |
+| `Query` | The STEAM query struct: `owner`, `receiver`, `input`, `output`, `mode`, `salt`, `data` |
+| `Interception` | `{ asset, recipients }`, where a recipient carries `shareBps` and `chainId` as `bigint` |
+| `QueryMode` | `DEPOSIT` or `REDEEM` |
+| `EstimationType` | `INPUT` or `OUTPUT`, which side of a query an estimate prices |
+| `QueryState` | `EMPTY`, `PROCESSING`, `PAUSED`, `UNLOCKING`, `RECOVERING`, `REJECTED`, `SETTLED` |
+
+`SETTLED` reached in one transaction means the vehicle is synchronous. `ConduitState` and
+`ConduitMode` are deprecated aliases of `QueryState` and `QueryMode`, removed in 0.9.0.
+
+`ROLES` lists every role as `{ name, hash }`, for building a picker rather than a hard-coded list.
+
+### Utilities
+
+```typescript
+import { extractQueryIds, randomSalt, toCall } from '@railnetorg/railnet-sdk'
+
+const salt = randomSalt()
+
+// EIP-5792: sendCalls names its target `to`, not `address`.
+const batched = [toCall(approveCall), toCall(depositCall)]
+
+// Query ids a transaction actually created, read back from the receipt.
+const created = extractQueryIds(receipt, conduit)
+```
+
+Batching an approval with a deposit is one confirmation on a wallet that supports it. Check the
+wallet's capabilities before relying on the two landing atomically, and build the call for the
+address that ends up as `msg.sender`.
 
 ### Write Operations (Single-Client Pattern)
 Writes are builders: simulate the call, then send the request. In React the hooks simulate on `usePublicClient` and sign on `useWalletClient`.
@@ -183,11 +228,11 @@ return the viem contract call so you can batch it, simulate it, or route it thro
 There is no other path: the SDK sends nothing, in React either.
 
 ```typescript
-import { buildGrantScopedRoleCall } from '@railnetorg/railnet-sdk'
+import { buildGrantScopedRoleCall, CONDUIT_SET_INTERCEPTIONS } from '@railnetorg/railnet-sdk'
 
 const prepared = buildGrantScopedRoleCall({
   accessControl: eacAddress,
-  role: ROLE_CONDUIT_MANAGER,
+  role: CONDUIT_SET_INTERCEPTIONS,
   scope: conduitAddress,
   grantee: managerAddress,
 })
@@ -206,31 +251,28 @@ with the identity of the query it will create. See the conduit skill for the spe
 
 ## Common Mistakes
 
-### CRITICAL Using mainnet instead of Base
+### CRITICAL Reading the environment off the chain id
 
-Wrong:
-
-```typescript
-import { mainnet } from 'viem/chains'
-import { getAddresses } from '@railnetorg/railnet-sdk'
-
-const addresses = getAddresses(mainnet.id)
-```
-
-Correct:
+`getAddresses` throws on a chain with no production deployment, and today that means every chain but
+Ethereum. Base has no production deployment yet. Guard with `isSupportedChain(chainId)`, which
+narrows the type, rather than assuming a chain is there.
 
 ```typescript
-import { mainnet } from 'viem/chains'
-import { getAddresses } from '@railnetorg/railnet-sdk'
+import { getAddresses, isSupportedChain } from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(mainnet.id)
+if (!isSupportedChain(chainId)) return unsupported()
+const addresses = getAddresses(chainId)
 ```
 
-`getAddresses` holds **production** deployments only, and throws on any other chain — including Base (8453), whose production deployment has not shipped. Use `isSupportedChain(chainId)` before calling.
+Staging runs on real mainnet chain ids: chain 1 is Ethereum and chain 8453 is Base mainnet, not a
+testnet. So a chain id cannot tell you which environment you are in. The import path can.
+`@railnetorg/railnet-sdk/staging` exports the same `getAddresses` and `isSupportedChain` over the
+staging tables, and it is where Base lives today.
 
-Staging runs on real mainnet chain ids, so a chain id cannot tell you the environment. The import path does: `@railnetorg/railnet-sdk/staging` exports the same `getAddresses`/`isSupportedChain` over the staging tables, and holds Base today. Never mix the two in one code path.
+Never mix the two in one code path. A staging address book with a production client sends real
+transactions to the wrong contracts.
 
-Source: src/contracts/chains.ts
+Source: src/contracts/chains.ts, src/staging/index.ts
 
 ### HIGH Importing React hooks from wrong entry point
 

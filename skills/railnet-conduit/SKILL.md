@@ -1,18 +1,28 @@
 ---
 name: railnet-conduit
 description: >
-  Interact with Railnet Conduits — depositConduit, redeemConduit,
-  getConduitPosition, getConduitInfo, estimateConduit,
-  predictConduitDeployment, buildSpawnConduitCall, buildFinalizeConduitDepositCall,
-  buildFinalizeConduitDepositCall, processConduitQuery. Covers deposits,
-  redemptions, position reads, estimates, async query lifecycle,
-  and conduit deployment. Load when working with conduit operations.
+  Interact with Railnet Conduits and the modules a conduit is assembled from —
+  depositConduit, redeemConduit, getConduitPosition, getConduitInfo,
+  estimateConduit, predictConduitDeployment, buildSpawnConduitCall,
+  buildFinalizeConduitDepositCall, buildProcessConduitQueryCall,
+  buildForceRedeemCall, getIsTransferable, buildEnableConduitTransfersCall,
+  plus the FeeManager, AccountList, OwnerRegistry and interception modules that
+  spawnConduit takes as parameters (buildSpawnFeeManagerCall, buildSetFeesCall,
+  buildSpawnAccountListCall, getAccountListStatus, buildSpawnOwnerRegistryCall,
+  buildWrapQueryCall, buildSetConduitInterceptionsCall). Covers deposits,
+  redemptions, position reads, estimates, the async query lifecycle, compliance
+  screening, fee configuration, share transfers and conduit deployment. Load
+  when working with conduit operations or configuring a conduit's modules.
 metadata:
   type: core
   library: railnet-sdk
-  library_version: '0.3.1'
+  library_version: '0.8.0'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/conduit/*.ts'
+  - 'railnetorg/railnet-sdk:src/actions/feeManager/*.ts'
+  - 'railnetorg/railnet-sdk:src/actions/accountList/*.ts'
+  - 'railnetorg/railnet-sdk:src/actions/ownerRegistry/*.ts'
+  - 'railnetorg/railnet-sdk:src/actions/interceptions/*.ts'
 ---
 
 # Railnet Conduit Operations
@@ -24,19 +34,11 @@ import { createPublicClient, createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
-// Read-only client for queries
-const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-})
+const publicClient = createPublicClient({ chain: mainnet, transport: http() })
 
-// Wallet client signs; the public client above simulates and reads
+// The wallet client signs. The public client above simulates and reads.
 const account = privateKeyToAccount('0xYOUR_PRIVATE_KEY')
-const walletClient = createWalletClient({
-  account,
-  chain: mainnet,
-  transport: http(),
-})
+const walletClient = createWalletClient({ account, chain: mainnet, transport: http() })
 ```
 
 ## Core Patterns
@@ -45,93 +47,137 @@ const walletClient = createWalletClient({
 
 ```typescript
 import { getConduitInfo, getConduitPosition } from '@railnetorg/railnet-sdk'
-import type { Address } from 'viem'
 
-async function checkPosition(conduit: Address, user: Address) {
-  const info = await getConduitInfo(publicClient, { conduit })
-  const position = await getConduitPosition(publicClient, { 
-    conduit, 
-    account: user 
-  })
+const info = await getConduitInfo(publicClient, { conduit })
+const position = await getConduitPosition(publicClient, { conduit, account: user })
 
-  console.log(`Conduit: ${info.name} (${info.symbol})`)
-  console.log(`Decimals: ${info.decimals}`)
-  console.log(`Total Supply: ${info.totalSupply}`)
-  console.log(`Total Assets: ${info.totalAssets}`)
-  console.log(`Holdings: ${info.holdings}`)
-  console.log(`User Shares: ${position.shares}`)
-  console.log(`User Assets: ${position.assets}`)
-}
+// info: conduit, asset, name, symbol, decimals, totalSupply, totalAssets, holdings, isEnabled
+// position: shares, assets
 ```
+
+### Assembling a conduit's modules
+
+`buildSpawnConduitCall` takes four module addresses and an optional interception list. Each is an
+address, so spawn the module first or pass one already deployed.
+
+| Parameter | Module | What it decides |
+| --- | --- | --- |
+| `accessControl` | ExternalAccessControl | Who may call every gated function |
+| `feeManager` | FeeManager | Fee rates, and who the collected fees are paid to |
+| `accountList` | AccountList | Who may deposit, receive and transfer |
+| `ownerRegistry` | OwnerRegistry | Who owns each live query, and whether it can be wrapped |
+| `initialInterceptions` | inline on the conduit | Where a share of each asset is diverted |
+
+```typescript
+import {
+  buildSpawnAccountListCall, buildSpawnFeeManagerCall, buildSpawnOwnerRegistryCall,
+  AllowlistMode, randomSalt,
+} from '@railnetorg/railnet-sdk'
+
+// Fees: every rate is capped forever by the matching initialMaxFees set here.
+const feeManagerCall = buildSpawnFeeManagerCall({
+  factory: addresses.feeManagerFactory,
+  accessControl,
+  initialFees: { performanceFeeBps: 1000, managementFeeBps: 50, depositFeeBps: 0, redeemFeeBps: 0 },
+  initialMaxFees: { performanceFeeBps: 2000, managementFeeBps: 200, depositFeeBps: 100, redeemFeeBps: 100 },
+  initialRecipients: [{ target: treasury, shareBps: 10000 }], // sorted ascending, totals 10000
+  deploymentSalt: randomSalt(),
+})
+
+// Compliance: OPEN ignores the allow-list, REGULAR gates deposits, STRICT gates transfers too.
+const accountListCall = buildSpawnAccountListCall({
+  factory: addresses.accountListFactory,
+  accessControl,
+  mode: AllowlistMode.REGULAR,
+  initialAllowList: [],
+  initialBlockList: [],
+  sanctionsEnabled: false,
+  oracle: zeroAddress, // a non-zero oracle is required before sanctionsEnabled can be true
+  deploymentSalt: randomSalt(),
+})
+
+const ownerRegistryCall = buildSpawnOwnerRegistryCall({
+  factory: addresses.ownerRegistryFactory,
+  name: 'My Conduit Queries',
+  symbol: 'MYCQ',
+  deploymentSalt: randomSalt(),
+})
+```
+
+Each factory exposes a matching `predict…Deployment(client, parameters)` that returns the CREATE2
+address for those exact parameters, so the three module addresses are known before any of them is
+sent. None of these three pulls tokens from the caller; only the ConduitFactory does.
+
+Full parameter and revert tables: [Module Reference](references/modules.md).
 
 ### Spawning a Conduit
 
-A conduit is enabled by the ConduitFactory, never by you: `conduit.enable()` accepts only the
-factory, which calls it once the seed deposit settles and `initialExpectedSupply` is reached.
-On a synchronous vehicle that happens inline in `spawn()`. On an async one the factory records a
-pending deposit and emits `PendingConduitDeposit`; send `buildFinalizeConduitDepositCall` once the
-vehicle's query settles, and the same path enables the conduit. There is no `buildEnableConduitCall`.
+A conduit is enabled by the ConduitFactory, never by you. `conduit.enable()` accepts only the
+factory, which calls it once the seed deposit settles and `initialExpectedSupply` is reached. On a
+synchronous vehicle that happens inline in `spawn()`. On an async one the factory records a pending
+deposit and emits `PendingConduitDeposit`; send `buildFinalizeConduitDepositCall` once the vehicle's
+query settles, and the same path enables the conduit.
+
+`buildEnableConduitCall` is deprecated and removed in 0.9.0: it builds `conduit.enable()`, which
+reverts `InvalidCaller` for anyone but the factory. To let holders move their shares, the call is
+`buildEnableConduitTransfersCall`.
 
 ```typescript
-import { extractConduitAddress, getInitialDepositAmount, predictConduitDeployment, buildFinalizeConduitDepositCall, buildSpawnConduitCall } from '@railnetorg/railnet-sdk'
+import {
+  buildFinalizeConduitDepositCall, buildSpawnConduitCall, extractConduitAddress,
+  getConduitInfo, getInitialDepositAmount,
+} from '@railnetorg/railnet-sdk'
 import { erc20Abi } from 'viem'
+import { simulateContract, writeContract } from 'viem/actions'
 
-async function deployNewConduit() {
-  const factory = '0x...'
-  const params = {
-    factory,
-    name: 'My Conduit',
-    symbol: 'MYC',
-    vehicle: '0x...',
-    feeManager: '0x...',
-    accountList: '0x...',
-    ownerRegistry: '0x...',
-    accessControl: '0x...',
-    transferEnabled: false,
-    initialExpectedSupply: 1000000n,
-    account: walletClient.account.address,
-    // Optional: initialInterceptions — Array<{ asset, recipients:
-    //   Array<{ target, shareBps, chainId }> }>
-  }
+const params = {
+  factory: addresses.conduitFactory,
+  name: 'My Conduit',
+  symbol: 'MYC',
+  vehicle,
+  feeManager, accountList, ownerRegistry, accessControl,
+  transferEnabled: false,
+  initialExpectedSupply: 1_000_000n,
+  account: account.address,
+  // initialInterceptions optional — Array<{ asset, recipients: Array<{ target, shareBps: bigint, chainId: bigint }> }>
+}
 
-  // The factory pulls an initial deposit sized by the AssetRegistry — approve it first
-  const initialDepositAmount = await getInitialDepositAmount(walletClient, {
-    assetRegistry: addresses.assetRegistry,
-    asset: vehicleAsset,
-  })
-  await walletClient.writeContract({
-    address: vehicleAsset,
-    abi: erc20Abi,
-    functionName: 'approve',
-    args: [factory, initialDepositAmount],
-    account: walletClient.account.address,
-  })
+// The factory pulls a seed deposit sized by the AssetRegistry. Approve that exact amount.
+const initialDepositAmount = await getInitialDepositAmount(publicClient, {
+  assetRegistry: addresses.assetRegistry,
+  asset: vehicleAsset,
+})
+await writeContract(walletClient, {
+  address: vehicleAsset, abi: erc20Abi, functionName: 'approve',
+  args: [params.factory, initialDepositAmount], account: account.address,
+})
 
-  // querySalt and deploymentSalt are required; deploymentSalt fixes the conduit address
-  const hash = writeContract(
-  client,
-  (await simulateContract(client, { ...buildSpawnConduitCall(params), account: walletClient.account.address })).request,
+const hash = await writeContract(
+  walletClient,
+  (await simulateContract(publicClient, { ...buildSpawnConduitCall(params), account: account.address })).request,
 )
-  const receipt = await publicClient.waitForTransactionReceipt({ hash })
-  
-  const conduit = extractConduitAddress(receipt, factory)
-  if (!conduit) throw new Error('no conduit in the logs')
+const receipt = await publicClient.waitForTransactionReceipt({ hash })
 
-  // Synchronous vehicle: already enabled. Async: finalize once the seed deposit settles.
-  const { isEnabled } = await getConduitInfo(client, { conduit })
-  if (!isEnabled) {
-    await writeContract(
-      client,
-      (
-        await simulateContract(client, {
-          ...buildFinalizeConduitDepositCall({ factory, conduit }),
-          account: walletClient.account.address,
-        })
-      ).request,
-    )
-  }
+const conduit = extractConduitAddress(receipt, params.factory)
+if (!conduit) throw new Error('no conduit in the logs')
+
+// Synchronous vehicle: already enabled. Async: finalize once the seed deposit settles.
+const { isEnabled } = await getConduitInfo(publicClient, { conduit })
+if (!isEnabled) {
+  await writeContract(
+    walletClient,
+    (await simulateContract(publicClient, {
+      ...buildFinalizeConduitDepositCall({ factory: params.factory, conduit }),
+      account: account.address,
+    })).request,
+  )
 }
 ```
+
+`finalizeConduitDeposit` is sent to the **factory**, not the conduit. It burns the initial shares
+and opens the conduit to the public.
+
+Source: src/actions/conduit/spawnConduit.ts, src/actions/conduit/finalizeConduitDeposit.ts
 
 ### Depositing and Redeeming
 
@@ -140,62 +186,54 @@ allowance is spent by the deposit — a later deposit of the same size needs a n
 does not approve for you.
 
 ```typescript
+import { conduitAbi, buildDepositConduitCall, buildRedeemConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 import { erc20Abi } from 'viem'
 import { readContract, simulateContract, waitForTransactionReceipt, writeContract } from 'viem/actions'
-import { conduitAbi, buildDepositConduitCall, buildRedeemConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 // 1. approve — a plain ERC-20 call, nothing Railnet-specific
 const approveHash = await writeContract(walletClient, {
-  address: usdcAddress,
-  abi: erc20Abi,
-  functionName: 'approve',
-  args: [conduitAddress, 1_000_000n],
-  account: account.address,
+  address: usdcAddress, abi: erc20Abi, functionName: 'approve',
+  args: [conduitAddress, 1_000_000n], account: account.address,
 })
 await waitForTransactionReceipt(publicClient, { hash: approveHash })
 
 // 2. deposit — calls conduit.create() with a DEPOSIT query
 const vehicle = await readContract(publicClient, {
-  address: conduitAddress,
-  abi: conduitAbi,
-  functionName: 'getVehicle',
+  address: conduitAddress, abi: conduitAbi, functionName: 'getVehicle',
 })
 
-const depositHash = writeContract(
+const depositHash = await writeContract(
   walletClient,
   (await simulateContract(publicClient, {
     ...buildDepositConduitCall({
-    conduit: conduitAddress,
-    token: usdcAddress,
-    amount: 1_000_000n, // 1 USDC (6 decimals)
-    sender: account.address,
-    vehicle, // names the query's output asset; the deposit reverts without it
-    salt: randomSalt(),
-    // receiver optional — defaults to sender
-    // minOutput optional — a floor on the VEHICLE shares produced, from estimateVehicle + applySlippage
-  }),
+      conduit: conduitAddress,
+      token: usdcAddress,
+      amount: 1_000_000n, // 1 USDC (6 decimals)
+      sender: account.address,
+      vehicle, // names the query's output asset; the deposit reverts without it
+      salt: randomSalt(),
+      // receiver optional — defaults to sender
+      // minOutput optional — a floor in VEHICLE shares, from estimateVehicle + applySlippage
+    }),
     account: account.address,
   })).request,
 )
 
 // Redeem: no approval, the conduit burns the caller's shares.
-// Calls conduit.createRedeemFromConduitShares().
 const asset = await readContract(publicClient, {
-  address: conduitAddress,
-  abi: conduitAbi,
-  functionName: 'asset',
+  address: conduitAddress, abi: conduitAbi, functionName: 'asset',
 })
 
-const redeemHash = writeContract(
+const redeemHash = await writeContract(
   walletClient,
   (await simulateContract(publicClient, {
     ...buildRedeemConduitCall({
-    conduit: conduitAddress,
-    shares: 500_000n,
-    sender: account.address,
-    outputAsset: { asset, value: 0n }, // value is a floor; 0n sets none
-    salt: randomSalt(),
-  }),
+      conduit: conduitAddress,
+      shares: 500_000n,
+      sender: account.address,
+      outputAsset: { asset, value: 0n }, // value is a floor; 0n sets none
+      salt: randomSalt(),
+    }),
     account: account.address,
   })).request,
 )
@@ -211,17 +249,14 @@ identity of the query the call will create:
 import { getDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 const { call, queryId } = await getDepositConduitCall(publicClient, {
-  conduit: conduitAddress,
-  token: usdcAddress,
-  amount: 1_000_000n,
-  sender: account.address,
-  salt: randomSalt(),
+  conduit: conduitAddress, token: usdcAddress, amount: 1_000_000n,
+  sender: account.address, salt: randomSalt(),
 })
 ```
 
-`queryId` is `keccak256(abi.encode(chainId, vehicle, query))` — the value the conduit emits in
-`QueryCreated`, and the key an indexer holds. It is known **before** the transaction is sent,
-because a deposit's query is built off chain.
+`queryId` is `keccak256(abi.encode(chainId, vehicle, query))`, the value the conduit emits in
+`QueryCreated` and the key an indexer holds. It is known **before** the transaction is sent, because
+a deposit's query is built off chain.
 
 A redeem's is not: the conduit assembles that query at the share ratio of the including block, so
 `getRedeemConduitCall` returns `querySalt` (`keccak256(abi.encode(sender, salt))`, a field of the
@@ -232,94 +267,109 @@ second query with a different id.
 
 ### Call Builders
 
-`buildDepositConduitCall`, `buildRedeemConduitCall`, `buildSpawnConduitCall`, `buildEnableConduitTransfersCall`,
-`buildFinalizeConduitDepositCall` and `buildProcessConduitQueryCall` return the viem contract call
+`buildDepositConduitCall`, `buildRedeemConduitCall`, `buildSpawnConduitCall`,
+`buildEnableConduitTransfersCall`, `buildFinalizeConduitDepositCall`, `buildForceRedeemCall`,
+`buildSetConduitInterceptionsCall` and `buildProcessConduitQueryCall` return the viem contract call
 without sending it — synchronous, no client. Use them to batch, simulate, or sign elsewhere.
 
-The deposit and redeem builders take what a synchronous builder cannot read for itself:
-
-```typescript
-import { buildDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
-
-const prepared = buildDepositConduitCall({
-  conduit: conduitAddress,
-  token: usdcAddress,
-  amount: 1_000_000n,
-  sender: account.address,
-  vehicle: vehicleAddress, // required here; depositConduit reads it from the conduit
-  salt: randomSalt(), // required here; depositConduit defaults it
-})
-
-const hash = await walletClient.writeContract({ ...prepared, account, chain: mainnet })
-```
-
-`buildRedeemConduitCall` likewise requires `outputAsset` and `salt`, which `redeemConduit` fills from
-`conduit.asset()` and `randomSalt()`. A prepared deposit also skips the ERC-20 approval that
-`depositConduit` sends for you — approve separately before submitting.
+A builder takes what it cannot read for itself. `buildDepositConduitCall` requires `vehicle` and
+`salt`, which `depositConduit` reads from the conduit and defaults; `buildRedeemConduitCall`
+requires `outputAsset` and `salt`, which `redeemConduit` fills from `conduit.asset()` and
+`randomSalt()`. A prepared deposit also skips the ERC-20 approval that `depositConduit` sends for
+you, so approve separately before submitting.
 
 ### Handling Async Queries (Ethena/Syrup)
 
-When the underlying vehicle is async, `create()` returns state PROCESSING (not UNLOCKING). The query must be processed later once the vehicle settles.
+When the underlying vehicle is async, `create()` returns state PROCESSING, not UNLOCKING. The query
+must be processed later, once the vehicle settles.
 
-Note: `create()` never produces REJECTED or RECOVERING — validation failures always revert. If `create()` succeeds, the query is in PROCESSING or UNLOCKING.
+`create()` never produces REJECTED or RECOVERING — validation failures always revert. If `create()`
+succeeds, the query is in PROCESSING or UNLOCKING.
 
-```typescript
-import { buildProcessConduitQueryCall, type QueryMode } from '@railnetorg/railnet-sdk'
-import { encodeAbiParameters, keccak256 } from 'viem'
-import type { Address, Hex } from 'viem'
-
-// The query struct must match exactly what was used to create the query.
-// Save these values from the original depositConduit/redeemConduit call.
-// query.salt is not the salt you passed in: the conduit derives it as
-// keccak256(abi.encode(depositor, sourceSalt)). Rebuild it the same way.
-const query = {
-  owner: conduitAddress as Address,
-  receiver: conduitAddress as Address,
-  input: { asset: tokenAddress, value: depositAmount },
-  output: { asset: zeroAddress, value: 0n },
-  mode: 0 as QueryMode, // QueryMode.DEPOSIT
-  salt: keccak256(
-    encodeAbiParameters(
-      [{ type: 'address' }, { type: 'bytes32' }],
-      [account.address, originalSalt as Hex],
-    ),
-  ),
-  data: '0x' as Hex,
-}
-
-// Call once the vehicle reaches UNLOCKING state
-const hash = writeContract(
-  client,
-  (await simulateContract(client, { ...buildProcessConduitQueryCall({
-      conduit: conduitAddress,
-      query,
-      account: account.address,
-    }), account: account.address })).request,
-)
-
-await publicClient.waitForTransactionReceipt({ hash })
-```
-
-### Finalizing Async Conduit Deployment
-
-When spawning a conduit on an async vehicle, the initial deposit remains pending. After the vehicle settles the initial query, call `finalizeConduitDeposit` on the **factory** (not the conduit) to burn initial shares and enable public access.
+Processing needs the exact struct the conduit created. Do not hand-roll it: keep the original call
+parameters and rebuild it with `buildDepositConduitQuery`, which is the same struct
+`buildDepositConduitCall` encoded.
 
 ```typescript
-import { getAddresses, buildFinalizeConduitDepositCall } from '@railnetorg/railnet-sdk'
+import {
+  buildDepositConduitQuery, buildProcessConduitQueryCall, toQueryId, toQuerySalt,
+} from '@railnetorg/railnet-sdk'
 
-const addresses = getAddresses(mainnet.id)
+const query = buildDepositConduitQuery({
+  conduit: conduitAddress, token: usdcAddress, amount: depositAmount,
+  sender: account.address, vehicle, salt: originalSalt,
+})
 
-const hash = writeContract(
-  client,
-  (await simulateContract(client, { ...buildFinalizeConduitDepositCall({
-      factory: addresses.conduitFactory,
-      conduit: conduitAddress,
-      account: account.address,
-    }), account: account.address })).request,
+// query.salt is not the salt passed in. toQuerySalt derives it: keccak256(abi.encode(sender, salt)).
+// toQueryId gives the id QueryCreated carries, for joining against an indexer.
+const querySalt = toQuerySalt({ sender: account.address, salt: originalSalt })
+const queryId = toQueryId({ chainId: mainnet.id, vehicle, query })
+
+// Send once the vehicle reaches UNLOCKING
+await writeContract(
+  walletClient,
+  (await simulateContract(publicClient, {
+    ...buildProcessConduitQueryCall({ conduit: conduitAddress, query, account: account.address }),
+    account: account.address,
+  })).request,
 )
 ```
 
-Source: src/actions/conduit/finalizeConduitDeposit.ts
+A redeem's query has no off-chain equivalent: the conduit assembles it at the share ratio of the
+including block. Recover it from the receipt with `extractQueryIds`, or join on `querySalt`.
+
+Source: src/actions/conduit/processConduitQuery.ts, src/actions/conduit/queryId.ts
+
+### Transfers, screening and forced exit
+
+Share transfers are off until `buildEnableConduitTransfersCall` turns them on. That is a one-way
+latch: no call turns them back off, and re-sending it reverts `StateUnchanged`. It needs
+CONDUIT_SET_TRANSFER_ENABLED.
+
+Once transfers are on, each one is still screened by the AccountList. `getIsTransferable` answers
+both questions in one read, so check it before offering a transfer in a UI.
+
+```typescript
+import { buildForceRedeemCall, getAccountListStatus, getIsTransferable } from '@railnetorg/railnet-sdk'
+
+if (!(await getIsTransferable(publicClient, { conduit, from, to }))) return refuse()
+
+// Why a party failed: canDeposit, canRedeem, canReceive, isAllowListed, isBlocked, isSanctioned, mode
+const status = await getAccountListStatus(publicClient, { accountList, account: to })
+
+// Ejecting a holder. Only works on a sanctioned or block-listed user, and needs CONDUIT_FORCE_REDEEM.
+const call = buildForceRedeemCall({
+  conduit, user: sanctionedHolder, amount: shares,
+  outputAsset: { asset, value: 0n },
+})
+```
+
+`forceRedeem` burns the shares and opens a redeem query paid to the holder. Against an async vehicle
+that query is PROCESSING, so the shares are gone before the payout lands. Settle it with
+`buildProcessConduitQueryCall` like any other query.
+
+Source: src/actions/conduit/forceRedeem.ts, src/actions/conduit/getIsTransferable.ts
+
+### Wrapping a query claim
+
+The OwnerRegistry records who owns each live query. `buildWrapQueryCall` mints an ERC-721 over one,
+which makes a pending position transferable before it settles.
+
+```typescript
+import { buildWrapQueryCall, getQueryClaim } from '@railnetorg/railnet-sdk'
+
+const claim = await getQueryClaim(publicClient, { ownerRegistry, conduit, queryId })
+// A zero owner reads two ways: with isWrapped true the NFT holder owns the claim,
+// with it false the registry never knew this query.
+
+const call = buildWrapQueryCall({ ownerRegistry, query, conduit })
+```
+
+Wrapping reverts `NonWrappableState` on EMPTY, SETTLED or REJECTED, so it only applies to a query
+still in flight. It also reverts `UnauthorizedWrap` unless the caller is the registered owner, and
+`TransferNotAllowed` when the conduit would refuse that caller a transfer to itself.
+
+Source: src/actions/ownerRegistry/wrapQuery.ts
 
 ## Common Mistakes
 
@@ -328,23 +378,18 @@ Source: src/actions/conduit/finalizeConduitDeposit.ts
 Wrong:
 
 ```typescript
-const { request } = await simulateContract(walletClient, {
-  ...buildDepositConduitCall({ /* … */ }),
-  account,
-})
+const { request } = await simulateContract(walletClient, { ...buildDepositConduitCall({ /* … */ }), account })
 ```
 
 Correct:
 
 ```typescript
-const hash = writeContract(
-  client,
-  (await simulateContract(client, { ...buildDepositConduitCall({ /* … */ }), account: account })).request,
-)
+const { request } = await simulateContract(publicClient, { ...buildDepositConduitCall({ /* … */ }), account })
+await writeContract(walletClient, request)
 ```
 
 A wallet client's transport is the wallet itself, so it answers reads from whatever node it picked,
-at whatever freshness it keeps — one was observed pinned to a block from before the approval was
+at whatever freshness it keeps. One was observed pinned to a block from before the approval was
 sent, which made the deposit simulate against a spent allowance and revert on state already on
 chain. Simulate on the public client, then send the request with the wallet. Only signing needs the
 wallet.
@@ -354,23 +399,6 @@ A script with a single client uses it for both, which is fine: it chose that cli
 Source: src/actions/conduit/getDepositConduitCall.ts
 
 ### CRITICAL Forgetting the sender parameter on a deposit or redeem
-
-Wrong:
-
-```typescript
-buildDepositConduitCall({
-  conduit: '0x...', token: '0x...', amount: 1000000n, vehicle: '0x...', salt: randomSalt(),
-})
-```
-
-Correct:
-
-```typescript
-buildDepositConduitCall({
-  conduit: '0x...', token: '0x...', amount: 1000000n, sender: '0xYourAddress',
-  vehicle: '0x...', salt: randomSalt(),
-})
-```
 
 The deposit and redeem builders take `sender` because the query salt is derived from `msg.sender`:
 `query.salt` must equal `keccak256(abi.encode(msg.sender, salt))`, so the call cannot be encoded
@@ -382,93 +410,55 @@ to override when the shares should land elsewhere.
 
 Source: src/actions/conduit/depositConduit.ts:29
 
+### CRITICAL Assuming a blocked holder cannot redeem, or a sanctioned one can
+
+Precedence across every predicate is sanctions, then block-list, then the allow-list. Redeem is
+gated by sanctions alone, so a blocked holder can always exit, and that is deliberate — blocking is
+what makes a holder eligible for `forceRedeem`, not what traps them.
+
+Screening fails closed. An oracle that reverts, or returns anything other than 32 bytes, marks the
+account sanctioned; an EOA set as the oracle returns nothing and so sanctions everyone. A sanctioned
+account cannot redeem at all. Read `getAccountListStatus` rather than inferring a verdict from the
+lists.
+
+Source: src/actions/accountList/getAccountListStatus.ts, src/actions/accountList/types.ts
+
 ### HIGH Using estimate for share valuation instead of position
 
-Wrong:
-
-```typescript
-import { estimateConduit, QueryMode, EstimationType } from '@railnetorg/railnet-sdk'
-
-const estimated = await estimateConduit(client, {
-  conduit, asset: { asset: conduit, value: shares },
-  mode: QueryMode.REDEEM, estimationType: EstimationType.OUTPUT,
-})
-```
-
-Correct:
-
-```typescript
-import { getConduitPosition } from '@railnetorg/railnet-sdk'
-
-const position = await getConduitPosition(client, { conduit, account })
-console.log(position.assets)
-```
-
-`estimateConduit` includes fees in its calculation. For fee-free share-to-asset conversion, use `getConduitPosition` which calls `convert()` internally.
+`estimateConduit` includes fees. For fee-free share-to-asset conversion use `getConduitPosition`,
+which calls `convert()` internally.
 
 Do NOT derive `minOutput` from it. The floor in `query.output.value` is compared against the
 VEHICLE's own estimate, in vehicle shares. `Conduit._estimate` delegates to the vehicle, then
 converts the result through the conduit's share rate and deducts conduit fees, so what it returns is
-in conduit shares — a different denomination. A floor taken from it is looser or tighter than the
-one you asked for depending on the share rate, and at some rates every deposit reverts. Use
+in conduit shares, a different denomination. A floor taken from it is looser or tighter than the one
+you asked for depending on the share rate, and at some rates every deposit reverts. Use
 `estimateVehicle` with `applySlippage`. The floor never bounds the conduit shares the user receives
-either — fees and the share rate sit in between — so never show it as a minimum received.
+either, so never show it as a minimum received.
 
 Source: Protocol docs — estimate() vs convert()
 
 ### HIGH Not handling async conduit queries
 
-Wrong:
-
-```typescript
-const hash = writeContract(
-  client,
-  (await simulateContract(client, { ...buildDepositConduitCall({ conduit, token, amount: 1000000n, sender, vehicle, salt: randomSalt() }), account: account })).request,
-)
-// Assumes deposit is settled immediately
-```
-
-Correct:
-
-```typescript
-const hash = writeContract(
-  client,
-  (await simulateContract(client, { ...buildDepositConduitCall({ conduit, token, amount: 1000000n, sender, vehicle, salt: randomSalt() }), account: account })).request,
-)
-// For async vehicles (Ethena, Syrup): deposit enters PROCESSING state.
-// Monitor vehicle Updated events or poll vehicle.state(query).
-// When state reaches UNLOCKING, call:
-writeContract(
-  client,
-  (await simulateContract(client, { ...buildProcessConduitQueryCall({ conduit, query, account }), account: account.address })).request,
-)
-```
-
-When the underlying vehicle is async, the deposit/redeem creates a query in PROCESSING state. Settlement requires calling `buildProcessConduitQueryCall` after the vehicle reaches UNLOCKING.
+Against an async vehicle a deposit or redeem creates a query in PROCESSING, not a settled position.
+Monitor the vehicle's `Updated` events or poll `vehicle.state(query)`, and send
+`buildProcessConduitQueryCall` once it reaches UNLOCKING. Treating the deposit receipt as settlement
+reports a balance the holder does not have yet.
 
 Source: src/actions/conduit/processConduitQuery.ts
 
-### HIGH Using the removed transferMode enum instead of transferEnabled
+### HIGH Giving fee recipients and interceptions the same total
 
-Wrong:
+They look alike and validate differently. A fee recipient split must be non-empty, sorted strictly
+ascending by `target`, and total **exactly** 10000 bps, or the FeeManager reverts
+`RecipientsNotStrictlyAscending` or `InvalidBpsValue`. An interception's recipients may total **at
+most** 10000 bps, and a shortfall is legal: the remainder simply stays undistributed.
 
-```typescript
-const params = {
-  transferMode: 1,
-}
-```
+`buildSetFeeRecipientsCall` replaces the whole split, and `buildSetConduitInterceptionsCall` replaces
+the whole rule list. Neither merges with what is stored, so an empty interception array clears every
+rule.
 
-Correct:
-
-```typescript
-const params = {
-  transferEnabled: true,
-}
-```
-
-`spawnConduit` takes a `transferEnabled: boolean` — share transfers are either on or off. The old `transferMode` enum (`ACCOUNT_LIST`/`ALLOW_TRANSFER`/`BLOCK_TRANSFER`) and the `depositAsset`/`initialDepositSize` fields have been removed.
-
-Source: src/actions/conduit/types.ts
+Source: src/actions/feeManager/types.ts, src/actions/interceptions/setInterceptions.ts
 
 ### HIGH Expecting the SDK to approve
 
@@ -483,8 +473,14 @@ See also: railnet-core/SKILL.md § Common Mistakes
 
 ## References
 
+- [Module Reference](references/modules.md) — FeeManager, AccountList, OwnerRegistry, interceptions
 - [Error Reference](references/error-reference.md)
 
-See also: railnet-access-control/SKILL.md — spawning a conduit requires an EAC address, and conduit operations may fail with `MissingRole` if `VEHICLE_STEAM_DEPOSIT` or `VEHICLE_STEAM_REDEEM` is not granted.
+See also: railnet-access-control/SKILL.md — every module above is gated by an ExternalAccessControl,
+and conduit operations fail with `MissingRole` if `VEHICLE_STEAM_DEPOSIT` or `VEHICLE_STEAM_REDEEM`
+is not granted.
+
+See also: railnet-vehicle/SKILL.md — `buildSetVehicleInterceptionsCall` is the vehicle-side
+counterpart of the conduit call documented here.
 
 See also: railnet-react/SKILL.md — React hooks wrap these core actions.

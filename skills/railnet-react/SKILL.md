@@ -16,7 +16,7 @@ metadata:
   type: framework
   library: railnet-sdk
   framework: react
-  library_version: '0.3.1'
+  library_version: '0.8.0'
 requires:
   - railnet-core
 sources:
@@ -72,6 +72,8 @@ which answers reads from whatever node it picked at whatever freshness it keeps.
 | `usePredictConduitDeployment` | `{ factory, ..., querySalt, deploymentSalt, chainId?, enabled? }` | `Address` |
 | `useDepositConduitCall` | `{ conduit, token, amount, sender, salt, vehicle?, minOutput?, receiver?, chainId?, enabled? }` | `{ call, query, queryId, vehicle }` |
 | `useRedeemConduitCall` | `{ conduit, shares, sender, salt, outputAsset?, receiver?, chainId?, enabled? }` | `{ call, querySalt, outputAsset }` |
+| `useHasRole` | `{ accessControl, role, scope, account, chainId?, enabled? }` | `boolean` |
+| `useVehicleManagerLimits` | `{ vehicleManager, chainId?, enabled? }` | `VehicleManagerLimits` (minSharesForAutoFulfill, extraAssetsForWithdrawalRequests, maxTotalAssets) |
 
 ### Sending a call
 
@@ -149,6 +151,8 @@ calls, not an integration's: a UI follows a query by its id.
 | `predictConduitDeploymentQueryOptions(client, params)` | `['railnet', 'predictConduitDeployment', { chainId, ... }]` |
 | `depositConduitCallQueryOptions(client, params)` | `['railnet', 'depositConduitCall', { chainId, ... }]` |
 | `redeemConduitCallQueryOptions(client, params)` | `['railnet', 'redeemConduitCall', { chainId, ... }]` |
+| `hasRoleQueryOptions(client, { accessControl, role, scope, account })` | `['railnet', 'hasRole', { chainId, ... }]` |
+| `vehicleManagerLimitsQueryOptions(client, { vehicleManager })` | `['railnet', 'vehicleManagerLimits', { chainId, vehicleManager }]` |
 
 The `chainId` is taken from the client the options were built with, so a key cannot name a chain
 other than the one it read from. Key values are normalised for hashing: a `bigint` becomes a
@@ -164,12 +168,19 @@ queryClient.invalidateQueries({ queryKey })
 
 Use a builder when the hook is not mounted where you invalidate. They take the chain first: `conduitPositionQueryKey(chainId, parameters)`, and the
 same for `conduitInfoQueryKey`, `estimateConduitQueryKey`, `predictConduitDeploymentQueryKey`,
-`depositConduitCallQueryKey` and `redeemConduitCallQueryKey`.
+`depositConduitCallQueryKey`, `redeemConduitCallQueryKey`, `hasRoleQueryKey` and
+`vehicleManagerLimitsQueryKey`.
 
 Each family also exports its prefix — `conduitPositionQueryPrefix`, `conduitInfoQueryPrefix`,
 `estimateConduitQueryPrefix`, `predictConduitDeploymentQueryPrefix`,
-`depositConduitCallQueryPrefix`, `redeemConduitCallQueryPrefix` — to invalidate a family
-across every chain without reconstructing a key.
+`depositConduitCallQueryPrefix`, `redeemConduitCallQueryPrefix`, `hasRoleQueryPrefix` and
+`vehicleManagerLimitsQueryPrefix` — to invalidate a family across every chain without
+reconstructing a key.
+
+`attachQueryKey(result, queryKey)` is what puts `queryKey` on a hook's return value. It is exported
+for a custom hook built on `*QueryOptions` that should behave like the ones here.
+`normalizeQueryKeyParameters` and `normalizeQueryKeyValue` apply the same hashing rules, so a
+hand-built key matches what a hook produced.
 
 A missing client or account makes the options resolve to `skipToken`, so `*QueryOptions` can be
 handed to `prefetchQuery` or a route loader directly, not only to a hook behind `enabled`.
