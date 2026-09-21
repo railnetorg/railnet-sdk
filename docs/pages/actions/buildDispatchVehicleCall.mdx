@@ -5,9 +5,8 @@ description: Dispatches a deposit or redeem between a sector and a sub-vehicle.
 # buildDispatchVehicleCall
 
 Dispatches a deposit or a redeem between a [sector](/types/Sector) and a sub-vehicle, via the
-MultiVehicle's SectorAccountingEngine. Together with
-[`moveBetweenSectors`](/actions/buildMoveBetweenSectorsCall) this is what replaced the removed `rebalance()`:
-reallocating between two vehicles is a redeem dispatch followed by a deposit dispatch.
+MultiVehicle's SectorAccountingEngine. Reallocating between two vehicles is a redeem dispatch
+followed by a deposit dispatch, in [Rebalancing between vehicles](/guides/rebalancingBetweenVehicles).
 
 - Requires `MULTI_VEHICLE_DISPATCH` scoped to the SectorAccountingEngine.
 
