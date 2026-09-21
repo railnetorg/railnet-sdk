@@ -108,9 +108,8 @@ typically settles into `SECTOR_AVAILABLE` and falls back to the vehicle's own se
 - **Type:** `bigint`
 - **Default:** `0n`
 
-Slippage floor on the vehicle's output. It can only bind to a pinned amount: combining it with
-`amount: maxUint256` throws, because the sentinel resolves to the sector balance at execution time and
-would silently dilute the bound.
+Slippage floor on the vehicle's output. The builder throws on `minOutput` with `amount: maxUint256`,
+and the engine reverts that combination with `MinOutputRequiresPinnedAmount`.
 
 ### data (optional)
 
