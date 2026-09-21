@@ -4,7 +4,9 @@ description: Estimates the output of a conduit operation.
 
 # estimateConduit
 
-Estimates the output of a conduit operation given an input asset and mode.
+Estimates the output of a conduit operation given an input asset and mode. A deposit estimate is in
+conduit shares, after conduit fees. A redeem estimate is in the underlying asset. A `minOutput` floor
+takes `estimateVehicle`, in vehicle shares.
 
 ## Import
 
