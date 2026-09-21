@@ -49,9 +49,9 @@ No approval is needed: the conduit burns the caller's shares through an internal
 
 A TanStack Query result over `{ call, querySalt, outputAsset }`, with its `queryKey` attached.
 
-There is no `queryId`: the conduit assembles a redeem's query at the share ratio of the including
-block, so its id is only knowable once the transaction lands. Read it from the receipt with
-[`extractQueryIds`](/utilities/receiptHelpers), or join an indexer on `querySalt`.
+There is no `queryId` before the transaction lands. Read it from the receipt with
+[`extractQueryIds`](/utilities/receiptHelpers#extractqueryids), or join an indexer on `querySalt`.
+See [`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).
 
 ## Query options
 

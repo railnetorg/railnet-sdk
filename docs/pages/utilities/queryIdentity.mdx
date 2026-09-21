@@ -36,9 +36,8 @@ const queryId = toQueryId({ chainId: mainnet.id, vehicle, query })
 so the key an indexer holds. [`getDepositConduitCall`](/actions/getDepositConduitCall) returns it
 already computed.
 
-It is deterministic for a deposit, whose query is built off chain. A redeem's query is assembled by
-the conduit at the share ratio of the including block, so its id is only knowable once the
-transaction lands: read it back with [`extractQueryIds`](/utilities/receiptHelpers).
+A deposit's id is known before the transaction is sent. A redeem's is read from the receipt with
+[`extractQueryIds`](/utilities/receiptHelpers#extractqueryids). See [`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).
 
 ## Keep the salt
 

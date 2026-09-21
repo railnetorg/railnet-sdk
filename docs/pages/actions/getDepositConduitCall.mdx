@@ -56,9 +56,4 @@ optional: it is read from `conduit.getVehicle()` when omitted.
 `salt` stays required. It fixes the query's identity, so generating one behind your back would mean
 the id you get back is not the one a retry sends.
 
-## Why a redeem has no id
-
-A deposit's query is built off chain, so its id is a pure function of what you built. A redeem's is
-assembled by the conduit at the share ratio of the including block, so it cannot be known in
-advance — [`getRedeemConduitCall`](/actions/getRedeemConduitCall) returns the query salt instead,
-and [`extractQueryIds`](/utilities/receiptHelpers) reads the id back from the receipt.
+A redeem has no id before the transaction lands. See [`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).

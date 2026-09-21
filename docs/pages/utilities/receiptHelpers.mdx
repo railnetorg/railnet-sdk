@@ -224,10 +224,10 @@ const created = extractQueryIds(receipt, conduit)
 The queries a transaction created on a conduit, in log order, from its `QueryCreated` events. Each
 `queryId` is the key an indexer holds.
 
-A deposit's id does not need a receipt — it is known before the transaction is sent, from
+A deposit's id is known before the transaction is sent, from
 [`getDepositConduitCall`](/actions/getDepositConduitCall) or
-[`toQueryId`](/utilities/queryIdentity). A redeem's query is assembled by the conduit at the share
-ratio of the including block, so this is how to learn its id.
+[`toQueryId`](/utilities/queryIdentity#toqueryid). A redeem's id is only known from the receipt. See
+[`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).
 
 Every helper here filters logs by their emitter first: a factory's transaction carries the logs of
 everything it deployed, and several Railnet events share an argument name.
