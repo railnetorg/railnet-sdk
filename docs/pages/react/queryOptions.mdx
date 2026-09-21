@@ -6,7 +6,8 @@ description: The TanStack Query options behind every hook, for prefetching, cust
 
 Every read hook is built on a `*QueryOptions` function from `@railnetorg/railnet-sdk/react`. Spread
 it into `useQuery` for a custom `staleTime`, into `queryClient.prefetchQuery` in a route loader,
-or into `useQueries`.
+or into `useQueries`. Every hook resolves the public client for its `chainId`, and its query stays
+disabled while no client is available.
 
 | Hook | Options | Key | Prefix |
 | --- | --- | --- | --- |
