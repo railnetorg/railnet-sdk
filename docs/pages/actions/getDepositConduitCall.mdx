@@ -53,7 +53,6 @@ type GetDepositConduitCallReturnType = {
 Everything [`buildDepositConduitCall`](/actions/buildDepositConduitCall) takes, with `vehicle`
 optional: it is read from `conduit.getVehicle()` when omitted.
 
-`salt` stays required. It fixes the query's identity, so generating one behind your back would mean
-the id you get back is not the one a retry sends.
+`salt` stays required. See [The salt](/guides/depositingAndRedeeming#the-salt).
 
 A redeem has no id before the transaction lands. See [`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).

@@ -25,8 +25,5 @@ const deploymentSalt = randomSalt()
 
 A random 32-byte value.
 
-A deployment salt fixes a contract's address permanently, so log it before you send: a spawn that
-fails midway can only be retried against the same address if you still hold the salt, and
-[`buildSpawnMultiVehicleCall`](/actions/buildSpawnMultiVehicleCall) takes six at once. A query salt is never generated for
-you either: it fixes the query's identity, so generate one per operation and keep it for as long as
-the operation lasts — a retry with a fresh salt is a different query.
+A deployment salt fixes a contract's address. A spawn that fails midway is retried against the same
+address only with the same salt. A query salt lives for the whole operation. See [The salt](/guides/depositingAndRedeeming#the-salt).

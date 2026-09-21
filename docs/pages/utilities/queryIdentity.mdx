@@ -39,14 +39,4 @@ already computed.
 A deposit's id is known before the transaction is sent. A redeem's is read from the receipt with
 [`extractQueryIds`](/utilities/receiptHelpers#extractqueryids). See [`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).
 
-## Keep the salt
-
-A salt is an operation's identity, so it is a required input everywhere — no builder and no resolver
-generates one behind your back. Create it once, when the user starts the operation, and hold it
-across simulation, signature and retry:
-
-```tsx
-const [salt] = useState(() => randomSalt())
-```
-
-A retry with a fresh salt is not a retry: it is a second query.
+Keeping the salt across simulation, signature and retry is covered in [The salt](/guides/depositingAndRedeeming#the-salt).
