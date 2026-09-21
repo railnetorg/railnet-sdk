@@ -59,3 +59,14 @@ A TanStack Query result over `boolean`, with its `queryKey` attached.
 
 Compose it outside a hook with `hasRoleQueryOptions(client, parameters)`;
 `hasRoleQueryPrefix` invalidates the family across every chain.
+
+## Query options
+
+[`hasRoleQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`hasRoleQueryKey` and `hasRoleQueryPrefix` for invalidation.
+
+```ts
+import { hasRoleQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+await queryClient.prefetchQuery(hasRoleQueryOptions(client, parameters))
+```

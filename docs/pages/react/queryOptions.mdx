@@ -1,0 +1,75 @@
+---
+description: The TanStack Query options behind every hook, for prefetching, custom caching and invalidation.
+---
+
+# Query options
+
+Every read hook is built on a `*QueryOptions` function from `@railnetorg/railnet-sdk/react`. Spread
+it into `useQuery` for a custom `staleTime`, into `queryClient.prefetchQuery` in a route loader,
+or into `useQueries`.
+
+| Hook | Options | Key | Prefix |
+| --- | --- | --- | --- |
+| [`useConduitInfo`](/react/useConduitInfo) | `conduitInfoQueryOptions` | `conduitInfoQueryKey` | `conduitInfoQueryPrefix` |
+| [`useConduitPosition`](/react/useConduitPosition) | `conduitPositionQueryOptions` | `conduitPositionQueryKey` | `conduitPositionQueryPrefix` |
+| [`useDepositConduitCall`](/react/useDepositConduitCall) | `depositConduitCallQueryOptions` | `depositConduitCallQueryKey` | `depositConduitCallQueryPrefix` |
+| [`useEstimateConduit`](/react/useEstimateConduit) | `estimateConduitQueryOptions` | `estimateConduitQueryKey` | `estimateConduitQueryPrefix` |
+| [`useHasRole`](/react/useHasRole) | `hasRoleQueryOptions` | `hasRoleQueryKey` | `hasRoleQueryPrefix` |
+| [`usePredictConduitDeployment`](/react/usePredictConduitDeployment) | `predictConduitDeploymentQueryOptions` | `predictConduitDeploymentQueryKey` | `predictConduitDeploymentQueryPrefix` |
+| [`useRedeemConduitCall`](/react/useRedeemConduitCall) | `redeemConduitCallQueryOptions` | `redeemConduitCallQueryKey` | `redeemConduitCallQueryPrefix` |
+| [`useVehicleManagerLimits`](/react/useVehicleManagerLimits) | `vehicleManagerLimitsQueryOptions` | `vehicleManagerLimitsQueryKey` | `vehicleManagerLimitsQueryPrefix` |
+
+## Usage
+
+```ts
+import { useQuery } from '@tanstack/react-query'
+import { usePublicClient } from 'wagmi'
+import { conduitPositionQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+function Position() {
+  const client = usePublicClient()
+
+  const { data } = useQuery({
+    ...conduitPositionQueryOptions(client, { conduit, account }),
+    staleTime: 30_000,
+  })
+}
+```
+
+### Prefetching
+
+```ts
+import { QueryClient } from '@tanstack/react-query'
+import { createPublicClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { conduitPositionQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+const queryClient = new QueryClient()
+const client = createPublicClient({ chain: base, transport: http() })
+
+await queryClient.prefetchQuery(conduitPositionQueryOptions(client, { conduit, account }))
+```
+
+## Query keys
+
+Every key is `['railnet', '<read>', { chainId, ...parameters }]`. The chain is part of it, so two
+chains never share a cache entry. A `bigint` parameter is stored as a string.
+
+The hook returns its `queryKey`, which covers most invalidation:
+
+```ts
+const { data, queryKey } = useConduitPosition({ conduit, account })
+
+queryClient.invalidateQueries({ queryKey })
+```
+
+When the hook is not mounted where you invalidate, a mutation's `onSuccess` in another component
+or a route loader, build the key with `*QueryKey(chainId, parameters)`. `*QueryPrefix` invalidates
+the family across every chain and every parameter set.
+
+```ts
+import { conduitPositionQueryKey, conduitPositionQueryPrefix } from '@railnetorg/railnet-sdk/react'
+
+queryClient.invalidateQueries({ queryKey: conduitPositionQueryKey(base.id, { conduit, account }) })
+queryClient.invalidateQueries({ queryKey: conduitPositionQueryPrefix })
+```

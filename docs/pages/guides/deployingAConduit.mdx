@@ -1,0 +1,46 @@
+---
+description: What the ConduitFactory needs before it accepts a spawn, and what follows it.
+---
+
+# Deploying a conduit
+
+A conduit spawn is one transaction against the ConduitFactory. The factory needs four modules,
+an authorized asset and an approval before it accepts the call.
+
+## Before the spawn
+
+1. **Modules.** `feeManager`, `accountList`, `ownerRegistry` and `accessControl` must each come
+   from the factory this ConduitFactory trusts for that module. Spawn them with
+   [`buildSpawnFeeManagerCall`](/actions/buildSpawnFeeManagerCall),
+   [`buildSpawnAccountListCall`](/actions/buildSpawnAccountListCall),
+   [`buildSpawnOwnerRegistryCall`](/actions/buildSpawnOwnerRegistryCall) and
+   [`buildSpawnAccessControlCall`](/actions/buildSpawnAccessControlCall), or reuse existing ones.
+   A module from anywhere else reverts `NotDeployedByFactory`.
+2. **Role.** The caller needs `CONDUIT_SPAWN` on the factory's access control. The other
+   factories gate their spawn behind `FACTORY_SPAWN`; this one does not.
+3. **The initial deposit.** The factory pulls a seed deposit of the vehicle's asset from the
+   caller. Read the amount with [`getInitialDepositAmount`](/actions/getInitialDepositAmount),
+   approve the factory for at least that much, and hold at least that much. The amount is
+   registry state, not a parameter of the spawn.
+
+## The spawn
+
+[`buildSpawnConduitCall`](/actions/buildSpawnConduitCall) takes the modules, the vehicle, the
+ERC-20 metadata and two salts from [`randomSalt`](/utilities/randomSalt). `initialExpectedSupply`
+must be non-zero.
+
+The address is a CREATE2 over the proxy's init code, which carries every field of the call.
+[`predictConduitDeployment`](/actions/predictConduitDeployment) resolves it ahead of time from
+exactly the parameters you will send. After the transaction,
+[`extractConduitAddress`](/utilities/receiptHelpers) reads it from the receipt.
+
+## After the spawn
+
+The conduit stays disabled until the seed deposit settles. On a synchronous vehicle that happens
+inside `spawn()`. On an async vehicle, send
+[`buildFinalizeConduitDepositCall`](/actions/buildFinalizeConduitDepositCall) once the vehicle has
+settled.
+
+Transfers of conduit shares start in the state `transferEnabled` set.
+[`buildEnableConduitTransfersCall`](/actions/buildEnableConduitTransfersCall) turns them on. No
+call turns them back off.

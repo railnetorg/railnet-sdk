@@ -1,5 +1,7 @@
 import { Changelog, defineConfig, McpSource } from 'vocs/config'
 
+const actions = (names: string[]) => names.map((name) => ({ text: name, link: `/actions/${name}` }))
+
 export default defineConfig({
   title: 'Railnet SDK',
   description: 'TypeScript SDK for interacting with the Railnet protocol',
@@ -37,444 +39,227 @@ export default defineConfig({
   },
   socials: [{ icon: 'github', link: 'https://github.com/railnetorg/railnet-sdk' }],
   sidebar: [
+    { text: 'Introduction', link: '/' },
+    { text: 'Getting started', link: '/getting-started' },
     {
-      text: 'Introduction',
-      link: '/',
-    },
-    {
-      text: 'Getting Started',
-      link: '/getting-started',
-    },
-    {
-      text: 'AI Agents',
-      link: '/agents',
-    },
-    {
-      text: 'Changelog',
-      link: '/changelog',
-    },
-    {
-      text: 'Actions',
-      collapsed: false,
+      text: 'Guides',
       items: [
+        { text: 'Deploying a conduit', link: '/guides/deployingAConduit' },
+        { text: 'Deploying a multi-vehicle', link: '/guides/deployingAMultiVehicle' },
+        { text: 'Depositing and redeeming', link: '/guides/depositingAndRedeeming' },
+        { text: 'Operating a multi-vehicle', link: '/guides/operatingAMultiVehicle' },
+        { text: 'Rebalancing between vehicles', link: '/guides/rebalancingBetweenVehicles' },
+        { text: 'Managing roles', link: '/guides/managingRoles' },
+        { text: 'Handling reverts', link: '/guides/handlingReverts' },
+        { text: 'Sending from React', link: '/guides/sendingFromReact' },
+      ],
+    },
+    {
+      text: 'Reference',
+      items: [
+        { text: 'Call builders', link: '/actions/callBuilders' },
         {
-          text: 'build*Call (Call Builders)',
-          link: '/actions/callBuilders',
-        },
-        {
-          text: 'Conduit',
+          text: 'Addresses',
           items: [
-            {
-              text: 'getConduitPosition',
-              link: '/actions/getConduitPosition',
-            },
-            {
-              text: 'getConduitInfo',
-              link: '/actions/getConduitInfo',
-            },
-            {
-              text: 'buildDepositConduitCall',
-              link: '/actions/buildDepositConduitCall',
-            },
-            {
-              text: 'buildRedeemConduitCall',
-              link: '/actions/buildRedeemConduitCall',
-            },
-            {
-              text: 'getDepositConduitCall',
-              link: '/actions/getDepositConduitCall',
-            },
-            {
-              text: 'getRedeemConduitCall',
-              link: '/actions/getRedeemConduitCall',
-            },
-            {
-              text: 'buildSpawnConduitCall',
-              link: '/actions/buildSpawnConduitCall',
-            },
-            {
-              text: 'buildEnableConduitTransfersCall',
-              link: '/actions/buildEnableConduitTransfersCall',
-            },
-            {
-              text: 'estimateConduit',
-              link: '/actions/estimateConduit',
-            },
-            {
-              text: 'predictConduitDeployment',
-              link: '/actions/predictConduitDeployment',
-            },
-            {
-              text: 'buildFinalizeConduitDepositCall',
-              link: '/actions/buildFinalizeConduitDepositCall',
-            },
-            {
-              text: 'buildProcessConduitQueryCall',
-              link: '/actions/buildProcessConduitQueryCall',
-            },
-            {
-              text: 'buildForceRedeemCall',
-              link: '/actions/buildForceRedeemCall',
-            },
-            {
-              text: 'getIsTransferable',
-              link: '/actions/getIsTransferable',
-            },
-            {
-              text: 'setInterceptions',
-              link: '/actions/setInterceptions',
-            },
+            { text: 'getAddresses', link: '/contracts/getAddresses' },
+            { text: 'isSupportedChain', link: '/contracts/isSupportedChain' },
+            { text: 'Staging deployments', link: '/contracts/staging' },
           ],
         },
+        { text: 'Errors', link: '/utilities/errors' },
         {
-          text: 'MultiVehicle',
+          text: 'Access Control',
+          collapsed: true,
           items: [
             {
-              text: 'getSectorBalance',
-              link: '/actions/getSectorBalance',
+              text: 'buildGrantRoleCall',
+              link: '/actions/globalRoles#buildgrantrolecall--buildrevokerolecall',
             },
+            ...actions(['buildGrantScopedRoleCall']),
+            { text: 'buildRenounceRoleCall', link: '/actions/globalRoles#buildrenouncerolecall' },
             {
-              text: 'queryRedeemQueue',
-              link: '/actions/queryRedeemQueue',
+              text: 'buildRevokeRoleCall',
+              link: '/actions/globalRoles#buildgrantrolecall--buildrevokerolecall',
             },
-            {
-              text: 'getVehicleManagerLimits',
-              link: '/actions/getVehicleManagerLimits',
-            },
-            {
-              text: 'buildSpawnMultiVehicleCall',
-              link: '/actions/buildSpawnMultiVehicleCall',
-            },
-            {
-              text: 'buildAuthorizeVehicleCall',
-              link: '/actions/buildAuthorizeVehicleCall',
-            },
-            {
-              text: 'buildUnauthorizeVehicleCall',
-              link: '/actions/buildUnauthorizeVehicleCall',
-            },
-            {
-              text: 'buildConfigureVehicleCall',
-              link: '/actions/buildConfigureVehicleCall',
-            },
-            {
-              text: 'buildSetThresholdsCall',
-              link: '/actions/buildSetThresholdsCall',
-            },
-            {
-              text: 'buildSetMaxTotalAssetsCall',
-              link: '/actions/buildSetMaxTotalAssetsCall',
-            },
-            {
-              text: 'buildSetQueuesCall',
-              link: '/actions/buildSetQueuesCall',
-            },
-            {
-              text: 'buildMoveBetweenSectorsCall',
-              link: '/actions/buildMoveBetweenSectorsCall',
-            },
-            {
-              text: 'buildDispatchVehicleCall',
-              link: '/actions/buildDispatchVehicleCall',
-            },
-            {
-              text: 'buildProgressQueryCall',
-              link: '/actions/buildProgressQueryCall',
-            },
-          ],
-        },
-        {
-          text: 'Fee Manager',
-          items: [
-            {
-              text: 'buildSpawnFeeManagerCall',
-              link: '/actions/buildSpawnFeeManagerCall',
-            },
-            {
-              text: 'predictFeeManagerDeployment',
-              link: '/actions/predictFeeManagerDeployment',
-            },
-            {
-              text: 'buildSetFeesCall',
-              link: '/actions/buildSetFeesCall',
-            },
-            {
-              text: 'buildSetFeeRecipientsCall',
-              link: '/actions/buildSetFeeRecipientsCall',
-            },
-            {
-              text: 'buildDispatchFeesCall',
-              link: '/actions/buildDispatchFeesCall',
-            },
+            ...actions(['buildRevokeScopedRoleCall']),
+            { text: 'buildSetRolePublicCall', link: '/actions/globalRoles#buildsetrolepubliccall' },
+            ...actions([
+              'buildSetScopedRolePublicCall',
+              'buildSpawnAccessControlCall',
+              'getHasRole',
+            ]),
+            { text: 'Roles', link: '/constants/roles' },
           ],
         },
         {
           text: 'Account List',
+          collapsed: true,
           items: [
             {
-              text: 'getAccountListStatus',
-              link: '/actions/getAccountListStatus',
+              text: 'buildAddToAllowListCall',
+              link: '/actions/accountListConfiguration#the-four-list-calls',
             },
             {
-              text: 'buildSpawnAccountListCall',
-              link: '/actions/buildSpawnAccountListCall',
+              text: 'buildAddToBlockListCall',
+              link: '/actions/accountListConfiguration#the-four-list-calls',
             },
             {
-              text: 'Configuring an AccountList',
-              link: '/actions/accountListConfiguration',
+              text: 'buildRemoveFromAllowListCall',
+              link: '/actions/accountListConfiguration#the-four-list-calls',
             },
+            {
+              text: 'buildRemoveFromBlockListCall',
+              link: '/actions/accountListConfiguration#the-four-list-calls',
+            },
+            {
+              text: 'buildSetAllowlistModeCall',
+              link: '/actions/accountListConfiguration#buildsetallowlistmodecall',
+            },
+            {
+              text: 'buildSetSanctionsOracleCall',
+              link: '/actions/accountListConfiguration#sanctions-screening',
+            },
+            ...actions(['buildSpawnAccountListCall']),
+            {
+              text: 'buildToggleSanctionsCall',
+              link: '/actions/accountListConfiguration#sanctions-screening',
+            },
+            ...actions(['getAccountListStatus']),
+          ],
+        },
+        { text: 'Asset Registry', collapsed: true, items: actions(['getInitialDepositAmount']) },
+        {
+          text: 'Conduit',
+          collapsed: true,
+          items: [
+            ...actions([
+              'buildDepositConduitCall',
+              'buildEnableConduitTransfersCall',
+              'buildFinalizeConduitDepositCall',
+              'buildForceRedeemCall',
+              'buildProcessConduitQueryCall',
+              'buildRedeemConduitCall',
+            ]),
+            {
+              text: 'buildSetConduitInterceptionsCall',
+              link: '/actions/setInterceptions#the-two-calls',
+            },
+            ...actions([
+              'buildSpawnConduitCall',
+              'estimateConduit',
+              'getConduitInfo',
+              'getConduitPosition',
+              'getDepositConduitCall',
+              'getIsTransferable',
+              'getRedeemConduitCall',
+              'predictConduitDeployment',
+            ]),
+          ],
+        },
+        {
+          text: 'Fee Manager',
+          collapsed: true,
+          items: actions([
+            'buildDispatchFeesCall',
+            'buildSetFeeRecipientsCall',
+            'buildSetFeesCall',
+            'buildSpawnFeeManagerCall',
+            'predictFeeManagerDeployment',
+          ]),
+        },
+        {
+          text: 'MultiVehicle',
+          collapsed: true,
+          items: [
+            ...actions([
+              'buildAuthorizeVehicleCall',
+              'buildConfigureVehicleCall',
+              'buildDispatchVehicleCall',
+            ]),
+            {
+              text: 'buildFeedQueryRedeemQueueCall',
+              link: '/actions/queryRedeemQueue#buildfeedqueryredeemqueuecall',
+            },
+            ...actions(['buildMoveBetweenSectorsCall', 'buildProgressQueryCall']),
+            {
+              text: 'buildRetrieveQueryRedeemQueueAssetsCall',
+              link: '/actions/queryRedeemQueue#buildretrievequeryredeemqueueassetscall',
+            },
+            ...actions([
+              'buildSetMaxTotalAssetsCall',
+              'buildSetQueuesCall',
+              'buildSetThresholdsCall',
+              'buildSpawnMultiVehicleCall',
+              'buildUnauthorizeVehicleCall',
+              'getSectorBalance',
+              'getVehicleManagerLimits',
+            ]),
           ],
         },
         {
           text: 'Owner Registry',
-          items: [
-            {
-              text: 'buildWrapQueryCall',
-              link: '/actions/buildWrapQueryCall',
-            },
-            {
-              text: 'buildSpawnOwnerRegistryCall',
-              link: '/actions/buildSpawnOwnerRegistryCall',
-            },
-          ],
-        },
-        {
-          text: 'Access Control',
-          items: [
-            {
-              text: 'globalRoles',
-              link: '/actions/globalRoles',
-            },
-            {
-              text: 'getHasRole',
-              link: '/actions/getHasRole',
-            },
-            {
-              text: 'buildSpawnAccessControlCall',
-              link: '/actions/buildSpawnAccessControlCall',
-            },
-            {
-              text: 'buildGrantScopedRoleCall',
-              link: '/actions/buildGrantScopedRoleCall',
-            },
-            {
-              text: 'buildRevokeScopedRoleCall',
-              link: '/actions/buildRevokeScopedRoleCall',
-            },
-            {
-              text: 'buildSetScopedRolePublicCall',
-              link: '/actions/buildSetScopedRolePublicCall',
-            },
-          ],
+          collapsed: true,
+          items: actions(['buildSpawnOwnerRegistryCall', 'buildWrapQueryCall']),
         },
         {
           text: 'Vehicle',
+          collapsed: true,
           items: [
             {
-              text: 'buildSpawnAaveV3VehicleCall',
-              link: '/actions/buildSpawnAaveV3VehicleCall',
+              text: 'buildSetVehicleInterceptionsCall',
+              link: '/actions/setInterceptions#the-two-calls',
             },
-            {
-              text: 'buildSpawnErc4626VehicleCall',
-              link: '/actions/buildSpawnErc4626VehicleCall',
-            },
-            {
-              text: 'buildSpawnMorphoBlueVehicleCall',
-              link: '/actions/buildSpawnMorphoBlueVehicleCall',
-            },
-            {
-              text: 'buildSpawnWrapperVehicleCall',
-              link: '/actions/buildSpawnWrapperVehicleCall',
-            },
+            ...actions([
+              'buildSpawnAaveV3VehicleCall',
+              'buildSpawnErc4626VehicleCall',
+              'buildSpawnMorphoBlueVehicleCall',
+              'buildSpawnWrapperVehicleCall',
+            ]),
           ],
         },
         {
-          text: 'Asset Registry',
+          text: 'Utilities',
+          collapsed: true,
           items: [
-            {
-              text: 'getInitialDepositAmount',
-              link: '/actions/getInitialDepositAmount',
-            },
+            { text: 'randomSalt', link: '/utilities/randomSalt' },
+            { text: 'Receipt helpers', link: '/utilities/receiptHelpers' },
+            { text: 'toCall', link: '/utilities/toCall' },
+            { text: 'toQueryId', link: '/utilities/queryIdentity#toqueryid' },
+            { text: 'toQuerySalt', link: '/utilities/queryIdentity#toquerysalt' },
           ],
         },
-      ],
-    },
-    {
-      text: 'Workflows',
-      collapsed: false,
-      items: [
         {
-          text: 'Deploying a multi-vehicle',
-          link: '/workflows/deployingAMultiVehicle',
-        },
-        {
-          text: 'Rebalancing between vehicles',
-          link: '/workflows/rebalancingBetweenVehicles',
-        },
-      ],
-    },
-    {
-      text: 'Utilities',
-      collapsed: false,
-      items: [
-        { text: 'Receipt Helpers', link: '/utilities/receiptHelpers' },
-        { text: 'randomSalt', link: '/utilities/randomSalt' },
-        { text: 'Query identity', link: '/utilities/queryIdentity' },
-        { text: 'toCall', link: '/utilities/toCall' },
-        { text: 'Handling reverts', link: '/utilities/errors' },
-      ],
-    },
-    {
-      text: 'Contracts',
-      collapsed: false,
-      items: [
-        {
-          text: 'getAddresses',
-          link: '/contracts/getAddresses',
-        },
-        {
-          text: 'isSupportedChain',
-          link: '/contracts/isSupportedChain',
-        },
-        {
-          text: 'Staging deployments',
-          link: '/contracts/staging',
-        },
-      ],
-    },
-    {
-      text: 'Constants',
-      collapsed: false,
-      items: [
-        {
-          text: 'Roles',
-          link: '/constants/roles',
+          text: 'Types',
+          collapsed: true,
+          items: [
+            'Asset',
+            'ChainAddresses',
+            'ConduitInfo',
+            'ConduitPosition',
+            'Enums',
+            'Interception',
+            'Sector',
+          ].map((name) => ({ text: name, link: `/types/${name}` })),
         },
       ],
     },
     {
       text: 'React',
-      collapsed: false,
       items: [
-        {
-          text: 'Conduit',
-          items: [
-            {
-              text: 'useConduitPosition',
-              link: '/react/useConduitPosition',
-            },
-            {
-              text: 'useConduitInfo',
-              link: '/react/useConduitInfo',
-            },
-            {
-              text: 'useEstimateConduit',
-              link: '/react/useEstimateConduit',
-            },
-            {
-              text: 'usePredictConduitDeployment',
-              link: '/react/usePredictConduitDeployment',
-            },
-            {
-              text: 'useDepositConduitCall',
-              link: '/react/useDepositConduitCall',
-            },
-            {
-              text: 'useRedeemConduitCall',
-              link: '/react/useRedeemConduitCall',
-            },
-          ],
-        },
-        {
-          text: 'Protocol',
-          items: [
-            {
-              text: 'useHasRole',
-              link: '/react/useHasRole',
-            },
-            {
-              text: 'useVehicleManagerLimits',
-              link: '/react/useVehicleManagerLimits',
-            },
-          ],
-        },
-        {
-          text: 'Sending a call',
-          link: '/react/sendingCalls',
-        },
+        { text: 'Query options', link: '/react/queryOptions' },
+        ...[
+          'useConduitInfo',
+          'useConduitPosition',
+          'useDepositConduitCall',
+          'useEstimateConduit',
+          'useHasRole',
+          'usePredictConduitDeployment',
+          'useRedeemConduitCall',
+          'useVehicleManagerLimits',
+        ].map((name) => ({ text: name, link: `/react/${name}` })),
       ],
     },
-    {
-      text: 'Query Options',
-      collapsed: false,
-      items: [
-        {
-          text: 'conduitPositionQueryOptions',
-          link: '/query/conduitPositionQueryOptions',
-        },
-        {
-          text: 'conduitInfoQueryOptions',
-          link: '/query/conduitInfoQueryOptions',
-        },
-        {
-          text: 'estimateConduitQueryOptions',
-          link: '/query/estimateConduitQueryOptions',
-        },
-        {
-          text: 'predictConduitDeploymentQueryOptions',
-          link: '/query/predictConduitDeploymentQueryOptions',
-        },
-        {
-          text: 'depositConduitCallQueryOptions',
-          link: '/query/depositConduitCallQueryOptions',
-        },
-        {
-          text: 'redeemConduitCallQueryOptions',
-          link: '/query/redeemConduitCallQueryOptions',
-        },
-        {
-          text: 'hasRoleQueryOptions',
-          link: '/query/hasRoleQueryOptions',
-        },
-        {
-          text: 'vehicleManagerLimitsQueryOptions',
-          link: '/query/vehicleManagerLimitsQueryOptions',
-        },
-      ],
-    },
-    {
-      text: 'Types',
-      collapsed: false,
-      items: [
-        {
-          text: 'ChainAddresses',
-          link: '/types/ChainAddresses',
-        },
-        {
-          text: 'ConduitPosition',
-          link: '/types/ConduitPosition',
-        },
-        {
-          text: 'ConduitInfo',
-          link: '/types/ConduitInfo',
-        },
-        {
-          text: 'Asset',
-          link: '/types/Asset',
-        },
-        {
-          text: 'Interception',
-          link: '/types/Interception',
-        },
-        {
-          text: 'Sector',
-          link: '/types/Sector',
-        },
-        {
-          text: 'Enums',
-          link: '/types/Enums',
-        },
-      ],
-    },
+    { text: 'AI Agents', link: '/agents' },
+    { text: 'Changelog', link: '/changelog' },
   ],
 })

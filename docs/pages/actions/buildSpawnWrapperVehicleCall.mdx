@@ -14,12 +14,8 @@ The factory is deployed in staging only. `wrapperVehicleFactory` is optional on
 read it from [`@railnetorg/railnet-sdk/staging`](/contracts/staging).
 :::
 
-:::warning
-The factory pulls an initial deposit from the caller and **burns the shares it mints**, as an
-inflation-attack guard. Approve the factory for at least
-[`getInitialDepositAmount`](/actions/getInitialDepositAmount) of `asset` first, and hold at least
-that much — this action sends no approval of its own, and the deposit does not come back.
-:::
+- The factory pulls the initial deposit of `asset` from the caller and burns the shares it mints.
+  Approve it for at least [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first. The deposit does not come back.
 
 ## Import
 

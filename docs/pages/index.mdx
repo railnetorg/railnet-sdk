@@ -1,17 +1,19 @@
 ---
-description: TypeScript SDK for interacting with the Railnet protocol.
+description: TypeScript SDK for the Railnet protocol.
 ---
 
 import { Card, Cards } from 'vocs'
 
 # Railnet SDK
 
-TypeScript SDK for interacting with the Railnet protocol. Built on top of [viem](https://viem.sh), with first-class support for [React](https://react.dev) and [TanStack Query](https://tanstack.com/query).
+TypeScript SDK for the Railnet protocol, built on [viem](https://viem.sh). It reads the protocol's
+contracts and builds the calls that write to them. It sends nothing. Every write is a call you
+simulate and send with viem or wagmi.
 
 <Cards>
-  <Card title="Actions" description="Reads and call builders for any viem Client." to="/actions/callBuilders" />
-  <Card title="React" description="Wagmi hooks and TanStack Query options." to="/react/sendingCalls" />
-  <Card title="Workflows" description="The order to send a multi-step deployment." to="/workflows/deployingAMultiVehicle" />
+  <Card title="Getting started" description="Install the package and make a first read." to="/getting-started" />
+  <Card title="Guides" description="Deploy, deposit, operate, handle a revert." to="/guides/depositingAndRedeeming" />
+  <Card title="Reference" description="Every action, hook and type." to="/actions/callBuilders" />
   <Card title="AI Agents" description="Intent skills, llms.txt and the MCP server." to="/agents" />
 </Cards>
 
@@ -54,7 +56,10 @@ console.log(position.assets) // equivalent asset value
 
 ## Packages
 
-| Export | Description |
+| Export | Contents |
 | --- | --- |
-| `@railnetorg/railnet-sdk` | Core actions, ABIs, types and utilities |
-| `@railnetorg/railnet-sdk/react` | React hooks and TanStack Query integrations |
+| `@railnetorg/railnet-sdk` | actions, call builders, ABIs, addresses, types |
+| `@railnetorg/railnet-sdk/react` | hooks and query options, on wagmi and TanStack Query |
+| `@railnetorg/railnet-sdk/staging` | addresses of the staging deployments |
+
+The protocol itself is documented at [docs.railnet.org](https://docs.railnet.org).

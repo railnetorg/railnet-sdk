@@ -6,12 +6,9 @@ description: Deploys a new MultiVehicle ecosystem via the factory.
 
 Deploys a new MultiVehicle ecosystem via the factory contract.
 
-:::warning
-The factory pulls an initial deposit from the caller. Approve the factory for at least
-[`getInitialDepositAmount`](/actions/getInitialDepositAmount) of `asset` first, and hold at least
-that much — this action sends no approval of its own. The
-[Deploying a multi-vehicle](/workflows/deployingAMultiVehicle) guide gives the order.
-:::
+- The factory pulls the initial deposit of `asset` from the caller. Approve it for at least
+  [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first.
+- [Deploying a multi-vehicle](/guides/deployingAMultiVehicle) gives the order.
 
 ## Import
 

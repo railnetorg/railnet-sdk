@@ -8,12 +8,8 @@ Deploys a vehicle that supplies into an ERC-4626 vault.
 
 The vehicle's asset is the vault's own `asset()`, so none is passed. The caller needs `FACTORY_SPAWN` on the factory's access control.
 
-:::warning
-The factory pulls an initial deposit from the caller and **burns the shares it mints**, as an
-inflation-attack guard. Approve the factory for at least
-[`getInitialDepositAmount`](/actions/getInitialDepositAmount) of the vault's asset first, and hold
-at least that much — this action sends no approval of its own, and the deposit does not come back.
-:::
+- The factory pulls the initial deposit of the vault's asset from the caller and burns the shares
+  it mints. Approve it for at least [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first. The deposit does not come back.
 
 ## Import
 

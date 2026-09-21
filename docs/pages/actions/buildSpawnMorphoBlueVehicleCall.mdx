@@ -10,13 +10,8 @@ Morpho Blue is one immutable singleton per chain hosting every isolated market. 
 
 The caller needs `FACTORY_SPAWN` on the factory's access control.
 
-:::warning
-The factory pulls an initial deposit from the caller and **burns the shares it mints**, as an
-inflation-attack guard. Approve the factory for at least
-[`getInitialDepositAmount`](/actions/getInitialDepositAmount) of the market's loan token first, and
-hold at least that much — this action sends no approval of its own, and the deposit does not come
-back.
-:::
+- The factory pulls the initial deposit of the market's loan token from the caller and burns the
+  shares it mints. Approve it for at least [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first. The deposit does not come back.
 
 ## Import
 

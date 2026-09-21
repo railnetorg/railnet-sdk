@@ -1,0 +1,34 @@
+---
+description: Global against scoped roles, and the one mistake the contracts cannot catch.
+---
+
+# Managing roles
+
+Every gated call checks a role on an ExternalAccessControl, for a scope: the contract performing
+the call. A role is held globally, for every scope, or scoped to one contract.
+
+## Scoped first
+
+[`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall) confines a role to one contract.
+Scope it to the contract that performs the gated call: `MULTI_VEHICLE_SET_QUEUES` to the queue
+strategy engine, `CONDUIT_PROCESS` to the conduit. A grant scoped to the wrong contract succeeds,
+and the gated call reverts `MissingRole` with `[role, scope, caller]`, so the scope it checked is
+in the error.
+
+The caller of a scoped grant holds the role's admin role, `DEFAULT_ADMIN_ROLE` unless it was
+reassigned, either globally or scoped to the same scope. A scoped role that is public reverts
+`PublicRoleAuthDenied` on grant and revoke;
+[`buildSetScopedRolePublicCall`](/actions/buildSetScopedRolePublicCall) turns it off first.
+
+## Global
+
+[`buildGrantRoleCall`](/actions/globalRoles) applies to every scope. It takes a base role,
+`keccak256(name)`, the form the [role constants](/constants/roles) export. A value already encoded
+against a scope, `keccak256(role, scope)`, has the same shape. `grantRole` would store it as a
+base role, and no client-side check can tell the two apart.
+
+## Checking
+
+[`getHasRole`](/actions/getHasRole) answers the question the contract asks: may this account act
+under this role for this scope, globally or scoped. A public role reads as held by every account.
+[`useHasRole`](/react/useHasRole) is the hook.

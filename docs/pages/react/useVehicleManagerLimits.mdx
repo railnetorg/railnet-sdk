@@ -59,3 +59,14 @@ A TanStack Query result over `VehicleManagerLimits`, with its `queryKey` attache
 
 Compose it outside a hook with `vehicleManagerLimitsQueryOptions(client, parameters)`;
 `vehicleManagerLimitsQueryPrefix` invalidates the family across every chain.
+
+## Query options
+
+[`vehicleManagerLimitsQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`vehicleManagerLimitsQueryKey` and `vehicleManagerLimitsQueryPrefix` for invalidation.
+
+```ts
+import { vehicleManagerLimitsQueryOptions } from '@railnetorg/railnet-sdk/react'
+
+await queryClient.prefetchQuery(vehicleManagerLimitsQueryOptions(client, parameters))
+```
