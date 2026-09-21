@@ -71,7 +71,8 @@ Seeds for both lists. Neither may contain the zero address.
 
 - **Type:** `boolean`
 
-Requires a non-zero `oracle`, or the deployment reverts `SanctionsOracleRequired`. Screening fails closed: an oracle that reverts, has no code, or returns something malformed marks the account sanctioned, and a sanctioned account can do nothing at all.
+Requires a non-zero `oracle`, or the deployment reverts `SanctionsOracleRequired`. Screening fails
+closed. See [Sanctions screening](/actions/accountListConfiguration#sanctions-screening).
 
 ### oracle
 
