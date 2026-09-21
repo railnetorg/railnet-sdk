@@ -1,10 +1,13 @@
 ---
-description: Finalizes a conduit deposit after the initial setup.
+description: Settles a pending seed deposit and enables the conduit.
 ---
 
 # buildFinalizeConduitDepositCall
 
-Finalizes a conduit deposit after the initial setup.
+Settles the seed deposit an asynchronous vehicle left pending after `spawn()`, and enables the conduit
+once it reaches `SETTLED`.
+
+- No role gates it. Reverts `NoPendingDeposit` when the conduit has no deposit awaiting settlement.
 
 ## Import
 
