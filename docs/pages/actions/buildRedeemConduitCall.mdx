@@ -69,9 +69,8 @@ How many shares to redeem.
 
 - **Type:** `Address`
 
-The address that will send the transaction. The conduit burns its shares and derives the query salt
-from it, so through a Safe, an EIP-5792 batch or a relayer this is that contract's address — not
-the user's.
+The address that will send the transaction. The conduit derives the query salt from it. Through a
+Safe, a batch or a relayer, that is the contract's address. See [The sender](/guides/depositingAndRedeeming#the-sender).
 
 ### outputAsset
 

@@ -80,8 +80,7 @@ without knowing which address will send it. Sending it from any other account re
 A redeem goes through `createRedeemFromConduitShares()`, which takes the salt raw and derives the
 query salt from `msg.sender` itself, so there `sender` only sets the default `receiver`.
 
-It is the *sender*, not the user. Through a Safe, an EIP-5792 batch or a relayer, `msg.sender` is
-that contract — build the call for it.
+Through a Safe, an EIP-5792 batch or a relayer, `msg.sender` is that contract. See [The sender](/guides/depositingAndRedeeming#the-sender).
 
 ## Salts are required
 

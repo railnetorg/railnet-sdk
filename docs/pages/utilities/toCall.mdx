@@ -39,6 +39,5 @@ sendCalls({
 **Atomicity is not guaranteed.** Whether a batch lands as one transaction depends on the wallet —
 read its capabilities (`getCapabilities`) rather than assuming the pair cannot come apart.
 
-**Build for the effective sender.** A batch may execute from a smart account, which makes that
-account `msg.sender`. A deposit call built with the user's EOA as `sender` reverts with
-`InvalidQuerySalt` when a Safe sends it — pass the address that will actually send.
+**Build for the effective sender.** A batch may execute from a smart account, which is then
+`msg.sender`. A deposit built for the user's EOA reverts `InvalidQuerySalt`. See [The sender](/guides/depositingAndRedeeming#the-sender).

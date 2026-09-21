@@ -84,11 +84,9 @@ How much of `token` to deposit, in its own decimals.
 
 - **Type:** `Address`
 
-The address that will send the transaction. `conduit.create()` requires
-`query.salt == keccak256(abi.encode(msg.sender, salt))`, so the call cannot be encoded without it,
-and any other account sending it reverts with `InvalidQuerySalt`.
-
-Through a Safe, an EIP-5792 batch or a relayer, this is that contract's address — not the user's.
+The address that will send the transaction. `conduit.create()` binds the query salt to it, so any
+other sender reverts `InvalidQuerySalt`. Through a Safe, a batch or a relayer, that is the contract's
+address. See [The sender](/guides/depositingAndRedeeming#the-sender).
 
 ### vehicle
 
