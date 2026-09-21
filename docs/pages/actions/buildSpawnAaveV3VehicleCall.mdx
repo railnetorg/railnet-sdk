@@ -95,7 +95,6 @@ Salt for the spawn's initial query. Generate it with [`randomSalt`](/utilities/r
 
 - **Type:** `Hex`
 
-Not enough on its own to predict the address: the factory folds its `deploymentCounter` into the
-vehicle's generated name and symbol, so the same salt lands elsewhere at every spawn. Generate it
-with [`randomSalt`](/utilities/randomSalt) and read the address back from the receipt with
+Generate it with [`randomSalt`](/utilities/randomSalt). The factory folds its deployment counter in,
+so the address is only known from the receipt, through
 [`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehicleaddress).

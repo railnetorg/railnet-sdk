@@ -85,6 +85,5 @@ An `ISanctionsList` contract, or the zero address while screening stays off.
 
 - **Type:** `Hex`
 
-One ingredient of the deployed address: it is a CREATE2 over the proxy's init code, which also
-carries the access control, the mode, both lists and the oracle. Generate it with
-[`randomSalt`](/utilities/randomSalt).
+Part of the CREATE2 address, with every other field of the call. Generate it with
+[`randomSalt`](/utilities/randomSalt) and keep the value.
