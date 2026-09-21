@@ -85,8 +85,5 @@ if (isSupportedChain(chainId)) {
 
 ## Production only
 
-This entry point holds **production** deployments. Base is not here: it has no production
-deployment yet, so `getAddresses(8453)` throws rather than answering with the staging deployment
-Base runs today.
-
-Staging lives behind its own entry point — see [Staging deployments](/contracts/staging).
+This entry point holds production deployments. Base has none yet, so `getAddresses(8453)` throws
+here. See [Staging deployments](/contracts/staging).
