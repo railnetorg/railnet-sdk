@@ -1,9 +1,9 @@
 # skills/_artifacts/skill_tree.yaml
 library:
   name: 'railnet-sdk'
-  version: '0.1.0'
+  version: '0.8.0'
   repository: 'https://github.com/railnetorg/railnet-sdk'
-  description: 'TypeScript SDK for the Railnet protocol - conduits, vehicles, multi-vehicle strategies, and access control on Base. Built on viem with React/wagmi hooks.'
+  description: 'TypeScript SDK for the Railnet protocol - conduits, vehicles, multi-vehicle strategies, and access control. Built on viem with React/wagmi hooks.'
 generated_from:
   domain_map: 'skills/_artifacts/domain_map.yaml'
   skill_spec: 'skills/_artifacts/skill_spec.md'
@@ -17,7 +17,8 @@ skills:
     path: 'skills/railnet-core/SKILL.md'
     description: >
       Set up railnet-sdk with viem clients, use the railnetActions decorator,
-      understand chain support (Base 8453), contract addresses, ABIs, enums,
+      understand chain support (production: Ethereum 1; staging: 1 and 8453),
+      contract addresses, ABIs, enums,
       and types. Load when installing railnet-sdk, creating a client, or
       importing SDK utilities.
     sources:
@@ -34,14 +35,23 @@ skills:
     domain: 'conduit'
     path: 'skills/railnet-conduit/SKILL.md'
     description: >
-      Interact with Railnet Conduits - deposit assets, redeem shares, read
-      positions and info, estimate outputs, predict deployment addresses,
-      spawn conduits, process async queries, enable and finalize conduits.
-      Load when working with conduit deposits, redemptions, or position data.
+      Interact with Railnet Conduits and the modules a conduit is assembled
+      from - deposit assets, redeem shares, read positions and info, estimate
+      outputs, predict deployment addresses, spawn conduits, process async
+      queries, finalize deployment, enable share transfers, force-redeem a
+      sanctioned holder, wrap a query claim, and configure the FeeManager,
+      AccountList, OwnerRegistry and interception rules that spawnConduit
+      takes as parameters. Load when working with conduit deposits,
+      redemptions, position data, or a conduit's module configuration.
     sources:
       - 'railnetorg/railnet-sdk:src/actions/conduit/*.ts'
+      - 'railnetorg/railnet-sdk:src/actions/feeManager/*.ts'
+      - 'railnetorg/railnet-sdk:src/actions/accountList/*.ts'
+      - 'railnetorg/railnet-sdk:src/actions/ownerRegistry/*.ts'
+      - 'railnetorg/railnet-sdk:src/actions/interceptions/*.ts'
     references:
       - 'references/error-reference.md'
+      - 'references/modules.md'
 
   - name: 'Vehicle Operations'
     slug: 'railnet-vehicle'
@@ -82,8 +92,10 @@ skills:
     path: 'skills/railnet-react/SKILL.md'
     description: >
       React hooks and TanStack Query integration for railnet-sdk -
-      useConduitPosition, useDepositConduit, useDeployMultiVehicle, query
-      options pattern, building custom hooks. Requires wagmi + @tanstack/react-query.
+      useConduitPosition, useConduitInfo, useDepositConduitCall,
+      useRedeemConduitCall, useHasRole, useVehicleManagerLimits, the query
+      options pattern, and building custom hooks. Every hook is a read; a write
+      is a built call sent with wagmi. Requires wagmi + @tanstack/react-query.
       Load when building React UIs for Railnet.
     requires:
       - 'railnet-core'

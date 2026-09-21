@@ -24,15 +24,20 @@ Three API layers:
 
 ## Chain Support
 
-Base (chain ID 8453) only. All contract addresses are hardcoded for Base.
+`getAddresses` holds production deployments, which today means Ethereum (chain 1) alone. Staging
+runs on real mainnet chain ids, Ethereum and Base (8453), behind the separate
+`@railnetorg/railnet-sdk/staging` entry point. A chain id does not identify the environment; the
+import path does.
 
 ## Key Design Decisions
 
-- Write actions take a single `client: Client` (must have both read and write capabilities)
-- Write actions auto-handle ERC20 allowance checks and approvals
+- Writes are call builders returning `{ address, abi, functionName, args }`. The SDK never sends
+  them: simulate on a public client, then send the request with a wallet
+- Nothing in the SDK sends an ERC-20 approval
 - Account parameter is always explicit (never auto-injected from wallet)
 - Role constants are precomputed keccak256 hashes exported as `Hex` strings
-- Deploying a multi-vehicle is 8+ sequential transactions the caller sends
+- Deploying a multi-vehicle is 8+ sequential transactions the caller sends. There is no
+  `deployMultiVehicle` helper
 
 ## Out of Scope
 
