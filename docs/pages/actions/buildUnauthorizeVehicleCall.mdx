@@ -7,6 +7,8 @@ description: Builds the call that drops a sub-vehicle's authorization from a mul
 Builds the `vehicleManager.unauthorize()` call, dropping a sub-vehicle's authorization and its
 configuration.
 
+- Requires `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` scoped to the VehicleManager.
+
 It does **not** unwind holdings. A vehicle can be unauthorized while the multi vehicle still holds
 a position in it, which then cannot be dispatched to. Move the position out first — see
 [`buildMoveBetweenSectorsCall`](/actions/buildMoveBetweenSectorsCall) and
