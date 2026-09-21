@@ -18,10 +18,8 @@ export type GetHasRoleReturnType = boolean
 /**
  * Whether an account may act under a role, holding it either globally or scoped to `scope`.
  *
- * Mirrors what the contracts themselves check: `ExternalAccessControl.hasRoleOrScopedRole` is the
- * function behind `AccessControlLib.gatedCheckRole` / `ungatedCheckRole`, so a `true` here means the
- * corresponding gated call will not revert on the role check. A role marked public reads as held by
- * every account.
+ * A `true` means the corresponding gated call will not revert on the role check. A role marked
+ * public reads as held by every account.
  *
  * @param parameters - {@link GetHasRoleParameters}
  *

@@ -1,7 +1,6 @@
 /**
  * Query keys are hashed with `JSON.stringify`, which throws on a bigint. Casing is untouched: a
- * conduit `name` reaches `ConduitFactory._getInitCode`, so it changes the CREATE2 address a
- * prediction returns.
+ * conduit `name` is part of the CREATE2 init code, so it changes the address a prediction returns.
  */
 export function normalizeQueryKeyValue(value: unknown): unknown {
   if (typeof value === 'bigint') return value.toString()

@@ -4,7 +4,7 @@ description: Finalizes a conduit deposit after the initial setup.
 
 # buildFinalizeConduitDepositCall
 
-Finalizes a conduit deposit after the initial setup. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+Finalizes a conduit deposit after the initial setup.
 
 ## Import
 
@@ -52,8 +52,6 @@ buildFinalizeConduitDepositCall({
 ### conduit
 
 - **Type:** `Address`
-
-The address of the conduit contract.
 
 ```ts
 buildFinalizeConduitDepositCall({

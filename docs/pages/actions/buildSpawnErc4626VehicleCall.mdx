@@ -4,7 +4,7 @@ description: Deploys a vehicle wrapping any ERC-4626 vault.
 
 # buildSpawnErc4626VehicleCall
 
-Deploys a vehicle that supplies into an ERC-4626 vault. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+Deploys a vehicle that supplies into an ERC-4626 vault.
 
 The vehicle's asset is the vault's own `asset()`, so none is passed. The caller needs `FACTORY_SPAWN` on the factory's access control.
 

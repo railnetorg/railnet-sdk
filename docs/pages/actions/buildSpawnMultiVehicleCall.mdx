@@ -4,7 +4,7 @@ description: Deploys a new MultiVehicle ecosystem via the factory.
 
 # buildSpawnMultiVehicleCall
 
-Deploys a new MultiVehicle ecosystem via the factory contract. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+Deploys a new MultiVehicle ecosystem via the factory contract.
 
 :::warning
 The factory pulls an initial deposit from the caller. Approve the factory for at least
@@ -87,13 +87,9 @@ The symbol of the MultiVehicle token.
 
 - **Type:** `Address`
 
-The address of the access control contract.
-
 ### queryRegistry
 
 - **Type:** `Address`
-
-The address of the query registry contract.
 
 ### feeManager (optional)
 

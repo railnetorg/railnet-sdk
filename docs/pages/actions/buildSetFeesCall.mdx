@@ -4,7 +4,7 @@ description: Updates a fee manager's rates.
 
 # buildSetFeesCall
 
-Sets the fee rates on a fee manager. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+Sets the fee rates on a fee manager.
 
 The caller needs `FEE_MANAGER_SET_FEES`. Each rate is capped by the matching `initialMaxFees` fixed at spawn, and re-sending the current rates reverts `StateUnchanged`.
 

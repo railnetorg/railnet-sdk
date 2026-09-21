@@ -4,7 +4,7 @@ description: Processes a query on a conduit.
 
 # buildProcessConduitQueryCall
 
-Processes a query on a conduit, advancing its state. Async vehicles need it. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+Processes a query on a conduit, advancing its state. Async vehicles need it.
 
 The authorized sender is the query's `receiver`, or — once an OwnerRegistry has wrapped the claim —
 the holder of its ERC-721. Anyone else needs `CONDUIT_PROCESS` scoped to the conduit, which is what
@@ -53,8 +53,6 @@ A prepared call: `{ address, abi, functionName, args }`.
 ### conduit
 
 - **Type:** `Address`
-
-The address of the conduit contract.
 
 ```ts
 buildProcessConduitQueryCall({

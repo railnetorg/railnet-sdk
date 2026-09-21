@@ -4,7 +4,7 @@ description: Deploys an Aave V3 vehicle via factory.
 
 # buildSpawnAaveV3VehicleCall
 
-Deploys an Aave V3 vehicle via the factory contract. Returns the call to send. Hand it to viem's `simulateContract` then `writeContract`, or to wagmi's `useWriteContract`.
+Deploys an Aave V3 vehicle via the factory contract.
 
 :::warning
 The factory pulls an initial deposit from the caller. Approve the factory for at least
@@ -73,25 +73,17 @@ The address of the Aave V3 PoolAddressesProvider.
 
 - **Type:** `Address`
 
-The address of the access control contract.
-
 ### queryRegistry
 
 - **Type:** `Address`
-
-The address of the query registry contract.
 
 ### feeManager (optional)
 
 - **Type:** `Address`
 
-The address of the fee manager contract.
-
 ### modulesManager (optional)
 
 - **Type:** `Address`
-
-The address of the modules manager contract.
 
 ### forbiddenAddresses (optional)
 
@@ -102,8 +94,6 @@ Optional list of addresses forbidden from interacting with the vehicle.
 ### initialExpectedSupply
 
 - **Type:** `bigint`
-
-The initial expected supply.
 
 ### querySalt
 

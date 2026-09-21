@@ -9,9 +9,7 @@ MultiVehicle's SectorAccountingEngine. Together with
 [`moveBetweenSectors`](/actions/buildMoveBetweenSectorsCall) this is what replaced the removed `rebalance()`:
 reallocating between two vehicles is a redeem dispatch followed by a deposit dispatch.
 
-:::info
-Requires the `MULTI_VEHICLE_DISPATCH` role scoped to the SectorAccountingEngine.
-:::
+- Requires `MULTI_VEHICLE_DISPATCH` scoped to the SectorAccountingEngine.
 
 :::warning
 On a synchronous vehicle the dispatch settles in the same transaction. On an async vehicle (Ethena,
