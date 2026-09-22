@@ -4,9 +4,9 @@ description: Resolves the deposit call and the id of the query it will create.
 
 # useDepositConduitCall
 
-Resolves a deposit call and the `queryId` it will create, as a TanStack Query result. It reads the
-conduit's vehicle and sends nothing; `call` goes to wagmi's `useSimulateContract` and
-`useWriteContract`. See [Sending from React](/guides/sendingFromReact).
+Resolves a deposit call and the `queryId` it will create, as a TanStack Query result.
+
+- Reads the conduit's vehicle; sends nothing. See [Call builders](/actions/callBuilders).
 
 ## Import
 
@@ -70,6 +70,8 @@ Once sent, `deposit.queryId` is the key an indexer holds.
 ## Returns
 
 A TanStack Query result over `{ call, query, queryId, vehicle }`, with its `queryKey` attached.
+`call` goes to wagmi's `useSimulateContract` and `useWriteContract`. See
+[Sending from React](/guides/sendingFromReact).
 
 ## Parameters
 

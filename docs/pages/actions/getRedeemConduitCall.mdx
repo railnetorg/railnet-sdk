@@ -5,7 +5,9 @@ description: Resolves a redeem call from chain, with the salt its query will car
 # getRedeemConduitCall
 
 Reads the conduit's underlying asset and returns the redeem call with the salt its query will
-carry. It only reads; sending is yours.
+carry.
+
+- Sends nothing. See [Call builders](/actions/callBuilders).
 
 ## Import
 
@@ -45,8 +47,7 @@ type GetRedeemConduitCallReturnType = {
 ```
 
 `querySalt` is `keccak256(abi.encode(sender, salt))`, the value the created query carries. There is
-no `queryId` yet. The conduit assembles a redeem's query at the share ratio of the including block,
-so the id exists only once the transaction lands;
+no `queryId` yet; the conduit assembles a redeem's query at the share ratio of the including block.
 [`extractQueryIds`](/utilities/receiptHelpers#extractqueryids) reads it from the receipt.
 
 ## Parameters

@@ -69,8 +69,8 @@ import { railnetErrorHints } from '@railnetorg/railnet-sdk'
 
 railnetErrorHints.MissingRole
 // 'The caller lacks the role for that scope. Scope a grant to the contract that performs the
-//  gated call — MULTI_VEHICLE_SET_QUEUES to the queue strategy engine, not to the multi vehicle.
-//  Check with getHasRole first.'
+//  gated call. MULTI_VEHICLE_SET_QUEUES goes to the queue strategy engine, not to the multi
+//  vehicle. Check with getHasRole first.'
 ```
 
 Only the errors whose name alone leaves a caller guessing have an entry.
@@ -80,8 +80,8 @@ Only the errors whose name alone leaves a caller guessing have an entry.
 | Error | Why it fires |
 | :--- | :--- |
 | `MissingRole` | The grant was scoped to the multi vehicle instead of the engine that performs the check. |
-| `InvalidQuerySalt` | The call was built for one `sender` and sent by another — a Safe, a batch or a relayer is the sender, not the user. |
-| `InvalidOutput` | The query names an output asset the vehicle will not produce: a DEPOSIT must name the vehicle, a REDEEM its underlying asset. |
+| `InvalidQuerySalt` | The call was built for one `sender` and sent by another. A Safe, a batch or a relayer is the sender, not the user. |
+| `InvalidOutput` | The query names an output asset the vehicle will not produce. A DEPOSIT must name the vehicle, a REDEEM its underlying asset. |
 | `InvalidEstimation` | The `minOutput` floor was not met. The second argument is what the vehicle would actually produce. |
 | `InsufficientAllowance` | The factory or conduit was never approved. For a spawn the amount comes from [`getInitialDepositAmount`](/actions/getInitialDepositAmount). |
 | `AssetNotAuthorized` | The AssetRegistry has nothing registered for that asset, so no factory will spawn against it. |

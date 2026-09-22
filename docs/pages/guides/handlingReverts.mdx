@@ -31,8 +31,8 @@ try {
 }
 ```
 
-`getRailnetError` returns `null` for anything that was not a contract revert: a rejected
-signature, a transport error, a failed gas estimate.
+`getRailnetError` returns `null` for anything that was not a contract revert. A rejected
+signature, a transport error, and a failed gas estimate all land here.
 
 ## Reverts viem leaves undecoded
 
@@ -40,7 +40,7 @@ viem decodes a revert against the ABI of the call, and a contract's ABI lists on
 own code reverts with. Two kinds arrive as raw bytes. A rejection encoded from `ErrorLib` and
 reverted through assembly is on no contract's ABI at all; `InvalidOutput` and `InvalidEstimation`,
 the two most common deposit failures, are of that kind. An error thrown further down the call is
-on another contract's ABI: `AssetNotAuthorized` comes from the AssetRegistry during
+on another contract's ABI. `AssetNotAuthorized` comes from the AssetRegistry during
 `conduitFactory.spawn`, `EnforcedPause` from the beacon behind a vehicle proxy. `getRailnetError`
 falls back to `protocolErrorsAbi`, which lists every error the protocol declares, so both decode.
 

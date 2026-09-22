@@ -51,7 +51,7 @@ export const railnetErrorHints: Readonly<Partial<Record<ProtocolErrorName, strin
   InvalidEstimation:
     'The output floor on the query was not met: the second argument is what the vehicle would actually produce. Re-read the estimate and lower minOutput, or widen the slippage.',
   InvalidOutput:
-    'The query names an output asset the vehicle will not produce. A DEPOSIT must name the vehicle itself and a REDEEM its underlying asset — buildDepositConduitQuery and getRedeemConduitCall do this for you.',
+    'The query names an output asset the vehicle will not produce. A DEPOSIT must name the vehicle itself and a REDEEM its underlying asset. buildDepositConduitQuery and getRedeemConduitCall do this for you.',
   InvalidBpsValue:
     'A basis-point value is out of range, or a fee recipient split does not total exactly 10000.',
   InvalidCaller:
@@ -71,7 +71,7 @@ export const railnetErrorHints: Readonly<Partial<Record<ProtocolErrorName, strin
   InvalidStaticSector:
     'A static sector was expected. Use SECTOR_AVAILABLE, SECTOR_ALLOCATION, SECTOR_RESERVED, SECTOR_ENTRY or SECTOR_EXIT.',
   InvalidState:
-    'The query is not in the STEAM state this call needs. Compare against QueryState — an async vehicle leaves it PROCESSING until it settles.',
+    'The query is not in the STEAM state this call needs. Compare against QueryState. An async vehicle leaves it PROCESSING until it settles.',
   InvalidTarget: 'A queue entry has a threshold above its value.',
   InvalidVehicle: 'The address is not a vehicle the protocol recognises.',
   InvalidVehicleSector: 'A vehicle sector was expected. Build one with vehicleSector(vehicle).',
@@ -84,7 +84,7 @@ export const railnetErrorHints: Readonly<Partial<Record<ProtocolErrorName, strin
   MissingAccessControl:
     'The contract was spawned without an access control and cannot gate this call.',
   MissingRole:
-    'The caller lacks the role for that scope. Scope a grant to the contract that performs the gated call — MULTI_VEHICLE_SET_QUEUES to the queue strategy engine, not to the multi vehicle. Check with getHasRole first.',
+    'The caller lacks the role for that scope. Scope a grant to the contract that performs the gated call. MULTI_VEHICLE_SET_QUEUES goes to the queue strategy engine, not to the multi vehicle. Check with getHasRole first.',
   ModeUnchanged: 'The allow-list mode already holds that value.',
   NoPendingDeposit: 'The conduit has no async initial deposit waiting to be finalized.',
   NotAllowed:
@@ -108,7 +108,7 @@ export const railnetErrorHints: Readonly<Partial<Record<ProtocolErrorName, strin
   UnauthorizedVehicle: 'The vehicle is not authorized on this multi vehicle.',
   UninitializedFeeManager: 'The FeeManager has no recipients configured yet.',
   UnknownQuery:
-    'No query is stored under that id. The id of a redeem is only knowable once created — read it back with extractQueryIds.',
+    'No query is stored under that id. The id of a redeem is only knowable once created. Read it back with extractQueryIds.',
   VehicleAlreadyAuthorized: 'The vehicle is already authorized on this multi vehicle.',
   VehicleNotAuthorized:
     'Authorize the vehicle on the VehicleManager first, with buildAuthorizeVehicleCall.',
@@ -133,7 +133,7 @@ export type RailnetError = {
  * Reads a Railnet revert out of anything viem threw. It walks the error chain for the
  * `ContractFunctionRevertedError` and returns the decoded name, its arguments, and what to do.
  *
- * @returns The revert, or `null` if the failure was not a contract revert — a rejected signature,
+ * @returns The revert, or `null` if the failure was not a contract revert. A rejected signature,
  * a transport error and a gas estimation failure all land here as `null`.
  *
  * @example

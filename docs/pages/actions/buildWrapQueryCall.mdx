@@ -4,7 +4,7 @@ description: Mints an ERC-721 over a live conduit query so the claim becomes tra
 
 # buildWrapQueryCall
 
-Mints an ERC-721 over a live query, so the claim on its proceeds becomes transferable. Returns the `tokenId`.
+Mints an ERC-721 over a live query, making the claim on its proceeds transferable.
 
 - The caller must be the query's registered owner. `QueryNotRegistered`, `UnauthorizedWrap`.
 - The query must not be wrapped already. `QueryAlreadyWrapped`.

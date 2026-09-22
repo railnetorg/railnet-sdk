@@ -4,9 +4,9 @@ description: Resolves the redeem call and the salt its query will carry.
 
 # useRedeemConduitCall
 
-Resolves a redeem call and the salt its query will carry, as a TanStack Query result. It reads the
-conduit's underlying asset and sends nothing; `call` goes to wagmi's `useSimulateContract` and
-`useWriteContract`. See [Sending from React](/guides/sendingFromReact).
+Resolves a redeem call and the salt its query will carry, as a TanStack Query result.
+
+- Reads the conduit's underlying asset; sends nothing. See [Call builders](/actions/callBuilders).
 
 ## Import
 
@@ -51,6 +51,8 @@ No approval is needed; the conduit burns the caller's shares.
 ## Returns
 
 A TanStack Query result over `{ call, querySalt, outputAsset }`, with its `queryKey` attached.
+`call` goes to wagmi's `useSimulateContract` and `useWriteContract`. See
+[Sending from React](/guides/sendingFromReact).
 
 There is no `queryId` before the transaction lands. Read it from the receipt with
 [`extractQueryIds`](/utilities/receiptHelpers#extractqueryids), or join an indexer on `querySalt`.

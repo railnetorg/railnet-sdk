@@ -51,7 +51,6 @@ no shares.
 
 - **Type:** `bigint`
 
-The block both reads were served at. `convert` takes the balance `balanceOf` returned, so the two
-cannot be batched into one multicall; pinned to one block, a deposit landing between them cannot
-report shares at one rate and assets at another. [`getConduitPosition`](/actions/getConduitPosition)
-takes a `blockNumber` parameter to read a past position; this field echoes the block that was used.
+The block both reads were served at, pinned so a deposit landing between them cannot skew the
+ratio. [`getConduitPosition`](/actions/getConduitPosition) takes a `blockNumber` parameter to read
+a past position; this field echoes the block that was used.

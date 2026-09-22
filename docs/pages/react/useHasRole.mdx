@@ -4,8 +4,7 @@ description: Reads whether an account may act under a role, globally or scoped t
 
 # useHasRole
 
-Reads whether an account may act under a role, as a TanStack Query result. A `false` means the
-gated write will revert on its role check. See [`getHasRole`](/actions/getHasRole).
+Reads whether an account may act under a role, as a TanStack Query result.
 
 ## Import
 
@@ -41,6 +40,11 @@ export function DepositGate({
 }
 ```
 
+## Returns
+
+A TanStack Query result over `boolean`, with its `queryKey` attached. `false` means the gated
+write will revert on its role check. See [`getHasRole`](/actions/getHasRole).
+
 ## Parameters
 
 Everything [`getHasRole`](/actions/getHasRole) takes, plus:
@@ -54,10 +58,6 @@ Everything [`getHasRole`](/actions/getHasRole) takes, plus:
 
 - **Type:** `boolean`
 - **Default:** `true`
-
-## Returns
-
-A TanStack Query result over `boolean`, with its `queryKey` attached.
 
 ## Query options
 

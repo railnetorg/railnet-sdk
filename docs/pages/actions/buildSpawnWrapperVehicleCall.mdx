@@ -4,9 +4,9 @@ description: Deploys a wrapper vehicle, which holds a token rather than supplyin
 
 # buildSpawnWrapperVehicleCall
 
-Deploys a wrapper vehicle, which holds its asset and earns nothing; it gives a plain token the
-STEAM interface a conduit or a multi-vehicle expects.
+Deploys a wrapper vehicle, which holds its asset and earns nothing.
 
+- Gives a plain token the STEAM interface a conduit or a multi-vehicle expects.
 - Requires `FACTORY_SPAWN` on the factory's access control.
 - The factory is deployed in staging only; `wrapperVehicleFactory` comes from
   [`@railnetorg/railnet-sdk/staging`](/contracts/staging).
@@ -98,8 +98,6 @@ in the AssetRegistry, or the spawn reverts `AssetNotAuthorized`.
 
 - **Type:** `Address[]`
 - **Default:** `[]`
-
-Addresses barred from interacting with the vehicle.
 
 ### querySalt
 

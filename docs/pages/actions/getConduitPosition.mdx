@@ -73,5 +73,5 @@ const position = await getConduitPosition(client, {
 - **Type:** `bigint`
 - **Default:** the current block
 
-Both reads are pinned to this block. `convert` takes the share balance, so the two cannot be
-batched; unpinned, a deposit landing between them reports shares at one rate and assets at another.
+Both reads are pinned to this block, so a deposit landing between them cannot skew the ratio. See
+[`ConduitPosition`](/types/ConduitPosition#blocknumber).

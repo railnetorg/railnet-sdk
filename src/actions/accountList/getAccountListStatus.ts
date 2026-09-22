@@ -6,7 +6,7 @@ import type { AllowlistMode } from './types.js'
 export type AccountListStatus = {
   /** Not blocked, not sanctioned, and allow-listed under `REGULAR` or `STRICT`. */
   canDeposit: boolean
-  /** Sanctions alone gate a redeem, so a blocked holder still passes this. */
+  /** Sanctions alone gate a redeem. */
   canRedeem: boolean
   canReceive: boolean
   isAllowListed: boolean

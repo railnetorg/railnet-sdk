@@ -1,5 +1,5 @@
 ---
-description: Helpers to extract deployed contract addresses from transaction receipts.
+description: Extracts deployed addresses and created query ids from a transaction receipt.
 ---
 
 # Receipt helpers
@@ -56,8 +56,6 @@ const conduitAddress = extractConduitAddress(receipt, factoryAddress)
 
 `Address | null`
 
-The deployed conduit address, or `null` if not found.
-
 ## extractAccessControlAddress
 
 Extracts the deployed access control address from a `buildSpawnAccessControlCall` transaction receipt.
@@ -78,8 +76,6 @@ const accessControlAddress = extractAccessControlAddress(receipt, factoryAddress
 
 `Address | null`
 
-The deployed access control address, or `null` if not found.
-
 ## extractMultiVehicleContracts
 
 Extracts the deployed MultiVehicle contract addresses from a `buildSpawnMultiVehicleCall` transaction receipt.
@@ -99,8 +95,6 @@ const contracts = extractMultiVehicleContracts(receipt, factoryAddress)
 ### Returns
 
 `MultiVehicleContracts | null`
-
-The deployed MultiVehicle contract addresses, or `null` if not found.
 
 #### MultiVehicleContracts
 
@@ -134,8 +128,6 @@ const vehicleAddress = extractAaveV3VehicleAddress(receipt, factoryAddress)
 ### Returns
 
 `Address | null`
-
-The deployed Aave V3 vehicle address, or `null` if not found.
 
 ## extractErc4626VehicleAddress
 
@@ -188,5 +180,5 @@ A deposit's id is known before the transaction is sent, from
 [`toQueryId`](/utilities/queryIdentity#toqueryid). A redeem's id is only known from the receipt. See
 [`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).
 
-Every helper here filters logs by their emitter first: a factory's transaction carries the logs of
+Every helper here filters logs by their emitter first. A factory's transaction carries the logs of
 everything it deployed, and several Railnet events share an argument name.

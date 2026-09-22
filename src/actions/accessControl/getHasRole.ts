@@ -5,10 +5,7 @@ import { externalAccessControlAbi } from '../../abi/externalAccessControl.js'
 export type GetHasRoleParameters = {
   accessControl: Address
   role: Hex
-  /**
-   * Contract the role is scoped to, the one that performs the gated call; a scoped grant counts
-   * for its own scope only.
-   */
+  /** Contract the role is scoped to, the one that performs the gated call. */
   scope: Address
   account: Address
 }
@@ -17,9 +14,6 @@ export type GetHasRoleReturnType = boolean
 
 /**
  * Whether an account may act under a role, holding it either globally or scoped to `scope`.
- *
- * A `true` means the corresponding gated call will not revert on the role check. A role marked
- * public reads as held by every account.
  *
  * @param parameters - {@link GetHasRoleParameters}
  *

@@ -12,7 +12,7 @@ export const SECTOR_EXIT: Sector =
   '0x00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 
 /**
- * Builds the sector holding a vehicle's position: `0x01`, eleven zero bytes, then the vehicle address.
+ * Builds the sector holding a vehicle's position.
  *
  * @example
  * import { vehicleSector } from '@railnetorg/railnet-sdk'
@@ -32,8 +32,7 @@ export function isVehicleSector(sector: Sector): boolean {
 }
 
 /**
- * @returns The vehicle address, or `undefined` for a static or query sector, which doubles as a
- * decoder when reading sectors back from events
+ * @returns The vehicle address, or `undefined` for a static or query sector.
  */
 export function sectorToVehicle(sector: Sector): Address | undefined {
   if (!isVehicleSector(sector)) return undefined

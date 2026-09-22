@@ -7,8 +7,8 @@ description: Deploys a new MultiVehicle ecosystem via the factory.
 Deploys a multi-vehicle and its engines via `multiVehicleFactory.spawn()`.
 
 - The caller needs `FACTORY_SPAWN` on the factory's access control.
-- The factory pulls the initial deposit of `asset` from the caller. Approve it for at least
-  [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first.
+- The factory pulls the initial deposit of `asset` from the caller. Requires an approval of at
+  least [`getInitialDepositAmount`](/actions/getInitialDepositAmount).
 - [Deploying a multi-vehicle](/guides/deployingAMultiVehicle) gives the order.
 
 ## Import
@@ -32,13 +32,13 @@ const { request } = await simulateContract(client, {
     accessControl: '0x...',
     queryRegistry: '0x...',
     salts: {
-    multiVehicle: randomSalt(),
-    queryRedeemQueue: randomSalt(),
-    queueStrategyEngine: randomSalt(),
-    sectorAccountingEngine: randomSalt(),
-    subQueryEngine: randomSalt(),
-    vehicleManager: randomSalt(),
-    initialDepositQuery: randomSalt(),
+      multiVehicle: randomSalt(),
+      queryRedeemQueue: randomSalt(),
+      queueStrategyEngine: randomSalt(),
+      sectorAccountingEngine: randomSalt(),
+      subQueryEngine: randomSalt(),
+      vehicleManager: randomSalt(),
+      initialDepositQuery: randomSalt(),
     },
   }),
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -99,8 +99,8 @@ six deployed addresses from the receipt.
 - **Type:** `MultiVehicleSalts`
 
 Six deployment salts, one per contract, plus `initialDepositQuery` for the seed deposit. Each proxy
-is deployed before it is initialized, so its salt alone fixes its address. Generate each with
-[`randomSalt`](/utilities/randomSalt) and keep them.
+is deployed before it is initialized; its salt alone fixes its address. See
+[`randomSalt`](/utilities/randomSalt).
 
 ```ts
 type MultiVehicleSalts = {
