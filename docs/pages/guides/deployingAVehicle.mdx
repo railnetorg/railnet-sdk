@@ -1,0 +1,49 @@
+---
+description: What every vehicle factory needs before it accepts a spawn, and how to read what it deployed.
+---
+
+# Deploying a vehicle
+
+A vehicle spawn is one transaction against a vehicle factory. The Aave V3, ERC-4626, Morpho Blue
+and wrapper factories all take the same modules, salts and initial deposit; only the asset the
+vehicle wraps differs between them. See
+[`buildSpawnAaveV3VehicleCall`](/actions/buildSpawnAaveV3VehicleCall),
+[`buildSpawnErc4626VehicleCall`](/actions/buildSpawnErc4626VehicleCall),
+[`buildSpawnMorphoBlueVehicleCall`](/actions/buildSpawnMorphoBlueVehicleCall) and
+[`buildSpawnWrapperVehicleCall`](/actions/buildSpawnWrapperVehicleCall) for what is specific to
+each.
+
+## Before the spawn
+
+1. **Modules.**
+   - `accessControl`: the ExternalAccessControl that gates the vehicle. It must come from the
+     access control factory this one trusts, or the call reverts `NotDeployedByFactory`.
+   - `queryRegistry`: the registry the vehicle records its queries in. Must be a contract
+     (`InvalidQueryRegistry`).
+   - `feeManager` (optional): must come from the trusted FeeManager factory when set. The zero
+     address skips the check and leaves the vehicle without one.
+   - `modulesManager` (optional): same rule as `feeManager`, against the trusted ModulesManager
+     factory.
+2. **Role.** The caller needs `FACTORY_SPAWN` on the factory's access control.
+3. **The initial deposit.** The factory pulls a seed deposit of the vehicle's asset from the
+   caller and burns the shares it mints; the deposit does not come back. Read the amount with
+   [`getInitialDepositAmount`](/actions/getInitialDepositAmount) and approve the factory for at
+   least that much.
+
+## The spawn
+
+Every vehicle spawn takes two salts from [`randomSalt`](/utilities/randomSalt): `querySalt` for
+the seed deposit query, and `deploymentSalt` for the vehicle itself. Generate `deploymentSalt` and
+keep the value. The factory folds its own deployment counter into the address, so unlike a
+conduit's, a vehicle's address cannot be predicted ahead of the call. You only get it back from
+the receipt.
+
+## After the spawn
+
+Each factory has its own receipt helper:
+[`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehicleaddress),
+[`extractErc4626VehicleAddress`](/utilities/receiptHelpers#extracterc4626vehicleaddress),
+[`extractMorphoBlueVehicleAddress`](/utilities/receiptHelpers#extractmorphobluevehicleaddress) and
+[`extractWrapperVehicleAddress`](/utilities/receiptHelpers#extractwrappervehicleaddress). Each
+takes the transaction receipt and the factory address, and returns the deployed vehicle address, or
+`null` if the spawn is not in it.

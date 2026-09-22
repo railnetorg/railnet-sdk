@@ -4,11 +4,10 @@ description: Deploys an Aave V3 vehicle via factory.
 
 # buildSpawnAaveV3VehicleCall
 
-Deploys an Aave V3 vehicle via the factory contract.
+Deploys an Aave V3 vehicle via `aaveV3VehicleFactory.spawn()`.
 
-- The caller needs `FACTORY_SPAWN` on the factory's access control.
-- The factory pulls the initial deposit of `asset` from the caller. Approve it for at least
-  [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first.
+- Requires `FACTORY_SPAWN` on the factory's access control.
+- [Deploying a vehicle](/guides/deployingAVehicle) gives the order.
 
 ## Import
 
@@ -63,29 +62,19 @@ A prepared call: `{ address, abi, functionName, args }`.
 
 - **Type:** `Address`
 
-The ExternalAccessControl that gates the vehicle. It must have been spawned by the access control
-factory this one trusts, or the call reverts `NotDeployedByFactory`.
-
 ### queryRegistry
 
 - **Type:** `Address`
-
-The query registry the vehicle records its queries in. Must be a contract (`InvalidQueryRegistry`).
 
 ### feeManager (optional)
 
 - **Type:** `Address`
 - **Default:** `zeroAddress`
 
-Must have been spawned by the trusted FeeManager factory when set. The zero address skips the check
-and leaves the vehicle without one.
-
 ### modulesManager (optional)
 
 - **Type:** `Address`
 - **Default:** `zeroAddress`
-
-Same rule as `feeManager`, against the trusted ModulesManager factory.
 
 ### forbiddenAddresses (optional)
 
@@ -102,12 +91,6 @@ Floor on the shares the seed deposit must mint; zero reverts `InvalidInitialExpe
 
 - **Type:** `Hex`
 
-Salt for the spawn's initial query. Generate it with [`randomSalt`](/utilities/randomSalt).
-
 ### deploymentSalt
 
 - **Type:** `Hex`
-
-Generate it with [`randomSalt`](/utilities/randomSalt). The factory folds its deployment counter in,
-so the address is only known from the receipt, through
-[`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehicleaddress).

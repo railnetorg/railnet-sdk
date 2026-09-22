@@ -45,6 +45,7 @@ export default defineConfig({
       text: 'Guides',
       items: [
         { text: 'Deploying a conduit', link: '/guides/deployingAConduit' },
+        { text: 'Deploying a vehicle', link: '/guides/deployingAVehicle' },
         { text: 'Deploying a multi-vehicle', link: '/guides/deployingAMultiVehicle' },
         { text: 'Depositing and redeeming', link: '/guides/depositingAndRedeeming' },
         { text: 'Operating a multi-vehicle', link: '/guides/operatingAMultiVehicle' },
