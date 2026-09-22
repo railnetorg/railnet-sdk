@@ -4,12 +4,9 @@ description: Reads a multi vehicle's operational limits in one multicall.
 
 # getVehicleManagerLimits
 
-Reads a multi vehicle's operational limits — the auto-fulfill threshold, the withdrawal buffer and
-the deposit cap — in a single multicall.
-
-Worth reading before writing: `setThresholds` and `setMaxTotalAssets` each replace their value
-outright, with no partial update. A caller that does not start from the current state silently
-resets whatever it did not set.
+Reads a multi vehicle's auto-fulfill threshold, withdrawal buffer and deposit cap in one multicall.
+[`buildSetThresholdsCall`](/actions/buildSetThresholdsCall) replaces both thresholds at once, so a
+write starts from these values.
 
 ## Import
 
@@ -48,8 +45,8 @@ Unredeemable shares needed to trigger auto-fulfill on deposits, in **vehicle sha
 
 ### extraAssetsForWithdrawalRequests
 
-Buffer added on top of a requested redeem, in the multi vehicle's **asset** units — not shares.
-Capped on write at `type(uint128).max`.
+Buffer added on top of a requested redeem, in the multi vehicle's asset units. Capped on write at
+`type(uint128).max`.
 
 ### maxTotalAssets
 

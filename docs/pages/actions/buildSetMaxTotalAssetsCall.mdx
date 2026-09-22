@@ -4,11 +4,10 @@ description: Builds the call that caps a multi vehicle's total assets.
 
 # buildSetMaxTotalAssetsCall
 
-Builds the `vehicleManager.setMaxTotalAssets()` call — the hard cap on `totalAssets()`, enforced at
-deposit time.
+Builds the `vehicleManager.setMaxTotalAssets()` call, the cap on `totalAssets()` enforced at deposit
+time.
 
-It shares a role with [`buildSetThresholdsCall`](/actions/buildSetThresholdsCall): the caller needs
-`MULTI_VEHICLE_SET_THRESHOLDS` scoped to the VehicleManager, not to the multi vehicle.
+- Requires `MULTI_VEHICLE_SET_THRESHOLDS` scoped to the VehicleManager, not to the multi vehicle.
 
 ## Import
 
@@ -30,7 +29,7 @@ const call = buildSetMaxTotalAssetsCall({
 
 ## Returns
 
-A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actions/callBuilders).
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 
@@ -43,9 +42,6 @@ A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actio
 - **Type:** `bigint`
 
 In asset units. `2n ** 256n - 1n` means uncapped. Operator-driven flows that grow `totalAssets()`
-without minting shares are exempt from the cap, so it bounds deposits rather than the vehicle's
-size.
-
-Read the current value with
-[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) before lowering it: a cap below the
-current `totalAssets()` stops deposits without unwinding anything.
+without minting shares are exempt; the cap bounds deposits. A cap below the current `totalAssets()`
+stops deposits and unwinds nothing. [`getVehicleManagerLimits`](/actions/getVehicleManagerLimits)
+reads the current value.

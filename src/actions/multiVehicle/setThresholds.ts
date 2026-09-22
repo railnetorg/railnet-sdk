@@ -9,8 +9,8 @@ export type VehicleThresholds = {
    */
   minSharesForAutoFulfill: bigint
   /**
-   * Buffer added on top of a requested redeem, in the multi vehicle's ASSET units — not shares.
-   * Rejected above `type(uint128).max`.
+   * Buffer added on top of a requested redeem, in the multi vehicle's asset units. Rejected above
+   * `type(uint128).max`.
    */
   extraAssetsForWithdrawalRequests: bigint
 }
@@ -21,10 +21,8 @@ export type SetThresholdsParameters = {
 }
 
 /**
- * Sets a multi vehicle's operational thresholds.
- *
- * Replaces both values together: there is no partial update, so passing 0 for a field left untouched
- * silently enables auto-fulfill rather than leaving it alone.
+ * Sets a multi vehicle's operational thresholds. Replaces both values together; there is no
+ * partial update, and a field passed as 0 enables auto-fulfill on every request.
  *
  * @param parameters - {@link SetThresholdsParameters}
  */
