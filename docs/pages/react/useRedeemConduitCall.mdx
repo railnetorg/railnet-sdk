@@ -4,12 +4,15 @@ description: Resolves the redeem call and the salt its query will carry.
 
 # useRedeemConduitCall
 
-Resolves a redeem call: reads the conduit's underlying asset through `usePublicClient`, builds the
-call, and returns it with the salt the created query will carry. A read hook — it returns a
-TanStack Query result, and sends nothing.
+Resolves a redeem call and the salt its query will carry, as a TanStack Query result. It reads the
+conduit's underlying asset and sends nothing; `call` goes to wagmi's `useSimulateContract` and
+`useWriteContract`. See [Sending from React](/guides/sendingFromReact).
 
-Hand `call` to wagmi's `useSimulateContract` and `useWriteContract`; see
-[Sending from React](/guides/sendingFromReact).
+## Import
+
+```ts
+import { useRedeemConduitCall } from '@railnetorg/railnet-sdk/react'
+```
 
 ## Usage
 
@@ -43,7 +46,7 @@ export function RedeemAllButton({ conduit }: { conduit: Address }) {
 }
 ```
 
-No approval is needed: the conduit burns the caller's shares through an internal transfer.
+No approval is needed; the conduit burns the caller's shares.
 
 ## Returns
 
@@ -52,6 +55,21 @@ A TanStack Query result over `{ call, querySalt, outputAsset }`, with its `query
 There is no `queryId` before the transaction lands. Read it from the receipt with
 [`extractQueryIds`](/utilities/receiptHelpers#extractqueryids), or join an indexer on `querySalt`.
 See [`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).
+
+## Parameters
+
+Everything [`getRedeemConduitCall`](/actions/getRedeemConduitCall) takes, with `sender` allowed to
+be `undefined` (the query is skipped until a wallet is connected), plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
 
 ## Query options
 
