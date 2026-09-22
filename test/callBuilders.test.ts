@@ -22,6 +22,7 @@ import {
   buildDepositConduitCall,
   buildDispatchFeesCall,
   buildDispatchVehicleCall,
+  buildEnableConduitTransfersCall,
   buildFeedQueryRedeemQueueCall,
   buildForceRedeemCall,
   buildGrantRoleCall,
@@ -621,5 +622,15 @@ test('buildRenounceScopedRoleCall passes the holder, where revoking passes the t
     abi: externalAccessControlAbi,
     functionName: 'renounceScopedRole',
     args: [role, VEHICLE, holder],
+  })
+})
+
+test('buildEnableConduitTransfersCall builds enableTransfers, not enable', () => {
+  const conduit = '0x2Ec94b8979868bF5586f8550733092a77Cd77C9E' as const
+
+  expect(buildEnableConduitTransfersCall({ conduit })).toMatchObject({
+    address: conduit,
+    functionName: 'enableTransfers',
+    args: [],
   })
 })
