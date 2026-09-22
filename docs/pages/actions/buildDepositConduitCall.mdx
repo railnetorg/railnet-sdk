@@ -111,7 +111,8 @@ Who receives the conduit shares.
 - **Optional.** No floor when omitted.
 
 A floor on the deposit's output, in vehicle shares, checked at create time against the vehicle's
-own estimate. Derive it from `estimateVehicle` and `applySlippage`. A floor taken from
+own estimate. Derive it from [`estimateVehicle`](/actions/estimateVehicle) and
+[`applySlippage`](/actions/estimateVehicle#applyslippage). A floor taken from
 [`estimateConduit`](/actions/estimateConduit) is in conduit shares and bounds a different quantity;
 the revert is `InvalidEstimation`. See [Slippage](/guides/depositingAndRedeeming#slippage).
 

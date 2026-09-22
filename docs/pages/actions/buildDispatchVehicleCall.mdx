@@ -59,10 +59,6 @@ if (state !== QueryState.SETTLED && state !== QueryState.REJECTED) {
 
 A prepared call: `{ address, abi, functionName, args }`.
 
-`{ query: Query; state: QueryState }` for `simulateDispatchVehicle`, which sends nothing. `state` is
-any member of `QueryState`. `SETTLED` and `REJECTED` are terminal; on any other state keep `query`,
-[`buildProgressQueryCall`](/actions/buildProgressQueryCall) takes the exact struct.
-
 ## Parameters
 
 ### sectorAccountingEngine
@@ -118,3 +114,16 @@ Vehicle-specific payload forwarded to the STEAM call.
 - **Type:** `Hex`
 
 A caller-supplied identifier echoed in the `Dispatched`, `DispatchSkipped` and `Limited*` events.
+
+## simulateDispatchVehicle
+
+```ts
+const { query, state } = await simulateDispatchVehicle(client, {
+  /* same parameters */
+})
+```
+
+Takes the builder's parameters, sends nothing, and returns the [`Query`](/types/Query) the
+dispatch would create with the [`QueryState`](/types/Enums#querystate) it would reach. `SETTLED`
+and `REJECTED` are terminal. On any other state keep `query`,
+[`buildProgressQueryCall`](/actions/buildProgressQueryCall) takes the exact struct.

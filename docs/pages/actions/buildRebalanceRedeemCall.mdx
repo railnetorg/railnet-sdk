@@ -1,0 +1,88 @@
+---
+description: Redeems a position out of one sub-vehicle and stages the proceeds in another's sector.
+---
+
+# buildRebalanceRedeemCall
+
+Builds the `sectorAccountingEngine.multicall()` that redeems a position out of one sub-vehicle and
+stages the proceeds in another's sector.
+
+- Requires `MULTI_VEHICLE_MOVE` and `MULTI_VEHICLE_DISPATCH`, both scoped to the
+  SectorAccountingEngine.
+- The proceeds settle into `to`'s sector, out of the queue strategy engine's reach. The deposit
+  into `to` is a second transaction. See [Rebalancing between vehicles](/guides/rebalancingBetweenVehicles).
+- On an async source the proceeds land only once the query progresses.
+  [`buildProgressQueryCall`](/actions/buildProgressQueryCall) drives that.
+- Reverts `DispatchRedeemAmountTooHigh` when `shares` exceeds what the source sector holds, and
+  `InvalidVehicleSector` when `to` is not authorized.
+
+## Import
+
+```ts twoslash
+import { buildRebalanceRedeemCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildRebalanceRedeemCall, randomSalt } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...buildRebalanceRedeemCall({
+    sectorAccountingEngine,
+    from: vehicleA,
+    to: vehicleB,
+    shares: 500n * 10n ** 18n,
+    operationId: randomSalt(),
+  }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### sectorAccountingEngine
+
+- **Type:** `Address`
+
+The SectorAccountingEngine of the MultiVehicle.
+
+### from
+
+- **Type:** `Address`
+
+The sub-vehicle the position leaves.
+
+### to
+
+- **Type:** `Address`
+
+The sub-vehicle whose sector receives the proceeds. Nothing is deposited into it yet.
+
+### shares
+
+- **Type:** `bigint`
+
+Shares of `from` to move, in that vehicle's share units.
+
+### minOutput
+
+- **Type:** `bigint`
+- **Optional.** No floor when omitted.
+
+A floor on the assets the redeem must produce. The redeem is pinned to exactly `shares`, which is
+what lets the floor bind.
+
+### operationId
+
+- **Type:** `Hex`
+
+Echoed in the `Moved` and `Dispatched` events, so an indexer can stitch both halves together.
+Reuse it on the deposit leg.

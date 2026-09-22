@@ -1,0 +1,69 @@
+---
+description: Estimates a vehicle's own output.
+---
+
+# estimateVehicle
+
+Estimates a vehicle's own output, the quantity a deposit's `minOutput` floor is measured against.
+The vehicle checks `query.output.value` against this estimate, not against
+[`estimateConduit`](/actions/estimateConduit)'s.
+
+## Import
+
+```ts twoslash
+import { estimateVehicle } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { base } from 'viem/chains'
+import { estimateVehicle, QueryMode, EstimationType } from '@railnetorg/railnet-sdk'
+
+const client = createPublicClient({
+  chain: base,
+  transport: http(),
+})
+
+const estimation = await estimateVehicle(client, {
+  vehicle: '0x2Ec94b8979868bF5586f8550733092a77Cd77C9E',
+  asset: { asset: '0x6B175474E89094C44Da98b954EedeAC495271d0F', value: 1000000000000000000n },
+  mode: QueryMode.DEPOSIT,
+  estimationType: EstimationType.OUTPUT,
+})
+```
+
+## Returns
+
+[`Asset`](/types/Asset). A deposit's `OUTPUT` estimate is denominated in the vehicle's shares.
+
+## Parameters
+
+### vehicle
+
+- **Type:** `Address`
+
+### asset
+
+- **Type:** [`Asset`](/types/Asset)
+
+### mode
+
+- **Type:** [`QueryMode`](/types/Enums#querymode)
+
+### estimationType
+
+- **Type:** [`EstimationType`](/types/Enums#estimationtype)
+
+## applySlippage
+
+Lowers an estimate by `bps` basis points. Throws unless `bps` is an integer between 0 and 10000.
+
+```ts
+import { applySlippage } from '@railnetorg/railnet-sdk'
+
+const minOutput = applySlippage(estimation.value, 50)
+```
+
+Use it to derive a `minOutput` from an estimate. See [Slippage](/guides/depositingAndRedeeming#slippage).

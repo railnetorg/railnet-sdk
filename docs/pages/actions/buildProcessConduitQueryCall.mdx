@@ -62,10 +62,11 @@ buildProcessConduitQueryCall({
 
 ### query
 
-- **Type:** `Query`
+- **Type:** [`Query`](/types/Query)
 
-The exact `Query` struct the conduit created. For an async deposit, `buildDepositConduitQuery`
-rebuilds it from the original parameters. A redeem's query cannot be rebuilt off chain; its input
+The exact `Query` struct the conduit created. For an async deposit,
+[`buildDepositConduitQuery`](/actions/buildDepositConduitQuery) rebuilds it from the original
+parameters. A redeem's query cannot be rebuilt off chain; its input
 depends on `totalSupply` and `holdings` at execution time.
 
 #### query.owner

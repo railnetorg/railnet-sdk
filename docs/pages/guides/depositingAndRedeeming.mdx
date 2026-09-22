@@ -40,8 +40,9 @@ built query into the id an indexer holds.
 
 ## Slippage
 
-`minOutput` is a floor on the vehicle's output, in vehicle shares. Derive it from `estimateVehicle`
-and `applySlippage`. [`estimateConduit`](/actions/estimateConduit) prices the same deposit in
+`minOutput` is a floor on the vehicle's output, in vehicle shares. Derive it from
+[`estimateVehicle`](/actions/estimateVehicle) and
+[`applySlippage`](/actions/estimateVehicle#applyslippage). [`estimateConduit`](/actions/estimateConduit) prices the same deposit in
 conduit shares, a different denomination; a floor taken from it is wrong in one direction or the
 other. Fees and the share rate sit between the vehicle's output and the conduit shares the user
 receives, so the floor is not a minimum received.
