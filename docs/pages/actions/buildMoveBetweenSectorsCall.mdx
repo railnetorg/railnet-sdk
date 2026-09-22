@@ -4,9 +4,8 @@ description: Moves assets or shares between the accounting sectors of a MultiVeh
 
 # buildMoveBetweenSectorsCall
 
-Moves assets or shares between two [sectors](/types/Sector) of a MultiVehicle, via its
-SectorAccountingEngine. This is the asset manager's primitive for parking liquidity aside, releasing
-it again, or repositioning balances without touching a sub-vehicle.
+Builds the `sectorAccountingEngine.move()` call, which moves assets or shares between two
+[sectors](/types/Sector) of a MultiVehicle.
 
 - Requires `MULTI_VEHICLE_MOVE` scoped to the SectorAccountingEngine.
 
@@ -37,8 +36,6 @@ const { request } = await simulateContract(client, {
 const hash = await writeContract(client, request)
 ```
 
-Pass `maxUint256` as `amount` to move the entire balance of the source sector.
-
 ## Returns
 
 A prepared call: `{ address, abi, functionName, args }`.
@@ -62,7 +59,7 @@ for a sub-vehicle's own sector.
 
 - **Type:** `Address`
 
-The asset being moved — the base asset for asset sectors, the vehicle share token for share sectors.
+The base asset for an asset sector, the vehicle share token for a share sector.
 
 ### amount
 
@@ -74,5 +71,4 @@ The amount to move, or `maxUint256` for the whole source sector balance.
 
 - **Type:** `Hex`
 
-A caller-supplied identifier echoed in the `Moved` event, for correlating a transaction with your own
-records or with the indexer.
+A caller-supplied identifier echoed in the `Moved` event, for an indexer to join on.
