@@ -14,8 +14,11 @@ import {
   AllowlistMode,
   accountListAbi,
   accountListFactoryAbi,
+  buildAcceptDefaultAdminTransferCall,
   buildAddToAllowListCall,
   buildAddToBlockListCall,
+  buildBeginDefaultAdminTransferCall,
+  buildCancelDefaultAdminTransferCall,
   buildDepositConduitCall,
   buildDispatchFeesCall,
   buildDispatchVehicleCall,
@@ -578,5 +581,26 @@ describe('randomSalt', () => {
     expect(prepared.args).toEqual([
       { symbol: 'RQC', name: 'Railnet Query Claims', deploymentSalt: zeroHash },
     ])
+  })
+})
+
+describe('the default admin handover builders', () => {
+  const accessControl = '0x3333333333333333333333333333333333333333' as const
+  const newAdmin = '0x4444444444444444444444444444444444444444' as const
+
+  test('begin names the incoming admin, accept and cancel take no argument', () => {
+    expect(buildBeginDefaultAdminTransferCall({ accessControl, newAdmin })).toMatchObject({
+      address: accessControl,
+      functionName: 'beginDefaultAdminTransfer',
+      args: [newAdmin],
+    })
+    expect(buildAcceptDefaultAdminTransferCall({ accessControl })).toMatchObject({
+      functionName: 'acceptDefaultAdminTransfer',
+      args: [],
+    })
+    expect(buildCancelDefaultAdminTransferCall({ accessControl })).toMatchObject({
+      functionName: 'cancelDefaultAdminTransfer',
+      args: [],
+    })
   })
 })

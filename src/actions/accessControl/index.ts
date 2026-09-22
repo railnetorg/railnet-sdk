@@ -1,3 +1,4 @@
+export * from './defaultAdminTransfer.js'
 export * from './getHasRole.js'
 export * from './globalRoles.js'
 export * from './grantScopedRole.js'
