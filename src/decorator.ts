@@ -23,6 +23,7 @@ import { getQueryClaim } from './actions/ownerRegistry/wrapQuery.js'
 import { estimateVehicle } from './actions/vehicle/estimateVehicle.js'
 import { getMorphoBlueSingleton } from './actions/vehicle/getMorphoBlueSingleton.js'
 import { getMorphoMarketAsset } from './actions/vehicle/getMorphoMarketAsset.js'
+import { getVehicleConversion } from './actions/vehicle/getVehicleConversion.js'
 
 /**
  * Viem client decorator adding every Railnet read action, for `client.extend(railnetActions)`.
@@ -51,6 +52,7 @@ export function railnetActions(client: Client) {
     getRedeemConduitCall: bind(getRedeemConduitCall),
     getSectorBalance: bind(getSectorBalance),
     getIsTransferable: bind(getIsTransferable),
+    getVehicleConversion: bind(getVehicleConversion),
     getVehicleInterceptions: bind(getVehicleInterceptions),
     getVehicleManagerLimits: bind(getVehicleManagerLimits),
     predictAccountListDeployment: bind(predictAccountListDeployment),
