@@ -9,7 +9,8 @@ description: >
   plus the FeeManager, AccountList, OwnerRegistry and interception modules that
   spawnConduit takes as parameters (buildSpawnFeeManagerCall, buildSetFeesCall,
   buildSpawnAccountListCall, getAccountListStatus, buildSpawnOwnerRegistryCall,
-  buildWrapQueryCall, buildSetConduitInterceptionsCall). Covers deposits,
+  buildWrapQueryCall, buildSetConduitInterceptionsCall,
+  getConduitInterceptions). Covers deposits,
   redemptions, position reads, estimates, the async query lifecycle, compliance
   screening, fee configuration, share transfers and conduit deployment. Load
   when working with conduit operations or configuring a conduit's modules.
