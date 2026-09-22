@@ -4,10 +4,11 @@ description: Rewriting how intercepted rewards are routed, on a conduit or a veh
 
 # Setting interceptions
 
-Interceptions are how a reward that lands on a conduit or a vehicle gets routed. They are settable at spawn through `initialInterceptions`, and afterwards only through these calls.
+Sets how a reward that lands on a conduit or a vehicle is routed. `initialInterceptions` sets it at
+spawn; these calls replace it afterwards.
 
-The rules are read by off-chain distribution rather than moving funds on chain, so a wrong list
-misroutes a reward without reverting anything.
+Off-chain distribution reads the rules and nothing moves on chain, so a wrong list misroutes a
+reward without a revert.
 
 ## Import
 
@@ -32,7 +33,9 @@ contract being written.
 
 Both replace the stored list **wholesale**. An empty array clears every rule.
 
-## interceptions
+## Parameters
+
+### interceptions
 
 - **Type:** [`Interception[]`](/types/Interception)
 
@@ -48,17 +51,12 @@ const interceptions = [
 ]
 ```
 
-Two sentinels worth knowing: `asset: zeroAddress` matches **every** asset, and a recipient's
-`chainId: 0n` matches **every** network.
+`asset: zeroAddress` matches every asset, and a recipient's `chainId: 0n` matches every network.
 
-:::warning
-Each entry's shares may sum to **at most** 10000 bps. It is a ceiling, not an exact total as a
-[fee split](/actions/buildSetFeeRecipientsCall) requires. A shortfall is legal and leaves the
-remainder undistributed. Going over reverts `InterceptionSharesTooHigh`.
-:::
-
-The ceiling is per entry, not across assets: two interceptions on two different assets may each
-allocate 10000.
+Each entry's shares may sum to at most 10000 bps. A shortfall leaves the remainder undistributed;
+more reverts `InterceptionSharesTooHigh`. A [fee split](/actions/buildSetFeeRecipientsCall) requires
+an exact total; this is a ceiling, per entry. Two interceptions on two assets may each allocate
+10000.
 
 ## assertInterceptions
 
@@ -66,5 +64,5 @@ allocate 10000.
 assertInterceptions(interceptions)
 ```
 
-What both builders call, exported so a form can check a draft before a call is assembled. Throws on
-an entry whose shares exceed 10000 bps.
+The check both builders run, exported for a form to run on a draft. Throws on an entry whose shares
+exceed 10000 bps.

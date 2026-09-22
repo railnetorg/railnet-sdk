@@ -21,9 +21,9 @@ export type GetConduitPositionParameters = {
 export type GetConduitPositionReturnType = ConduitPosition
 
 /**
- * Reads an account's position in a conduit: share balance and the equivalent asset value.
- * `convert` takes the balance, so the two reads cannot be batched — they are pinned to one block
- * instead, or a deposit landing between them reports shares at one rate and assets at another.
+ * Reads an account's share balance in a conduit and the equivalent asset value. `convert` takes
+ * the balance, so the two reads cannot be batched; they are pinned to one block instead, or a
+ * deposit landing between them reports shares at one rate and assets at another.
  *
  * @param parameters - {@link GetConduitPositionParameters}
  *
@@ -31,8 +31,8 @@ export type GetConduitPositionReturnType = ConduitPosition
  * import { getConduitPosition } from '@railnetorg/railnet-sdk'
  *
  * const position = await getConduitPosition(publicClient, {
- *   conduit: conduitAddress,
- *   account: account.address,
+ * conduit: conduitAddress,
+ * account: account.address,
  * })
  */
 export async function getConduitPosition(

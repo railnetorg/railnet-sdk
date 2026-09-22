@@ -4,19 +4,13 @@ description: Turns on conduit share transfers, a one-way latch.
 
 # buildEnableConduitTransfersCall
 
-Turns on transfers of a conduit's shares. A one-way latch: there is no call that turns them back
-off, so an ERC-20 integration built on the shares cannot be bricked. Reverts `StateUnchanged` when
-they are already on.
+Turns on transfers of a conduit's shares. No call turns them back off.
 
-The caller needs `CONDUIT_SET_TRANSFER_ENABLED`, scoped to the conduit.
+- Requires `CONDUIT_SET_TRANSFER_ENABLED` scoped to the conduit.
+- Reverts `StateUnchanged` when transfers are already on.
 
-:::info
-This does not enable the conduit itself. `conduit.enable()` accepts only the ConduitFactory, which
-calls it once the seed deposit settles and `initialExpectedSupply` is reached — inline in `spawn()`
-for a synchronous vehicle, or from
-[`buildFinalizeConduitDepositCall`](/actions/buildFinalizeConduitDepositCall) for an async one.
-There is no builder for it because no integration can send it.
-:::
+`conduit.enable()` is a different call. The ConduitFactory alone sends it, once the seed deposit
+settles. See [Deploying a conduit](/guides/deployingAConduit#after-the-spawn).
 
 ## Import
 
@@ -40,7 +34,7 @@ const hash = await writeContract(client, request)
 
 ## Returns
 
-A built call: `{ address, abi, functionName, args }`.
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 

@@ -4,17 +4,15 @@ description: Ejects a blocked or sanctioned holder from a conduit without their 
 
 # buildForceRedeemCall
 
-Burns a holder's conduit shares and opens a redeem query paid to them, without their signature. This is how a blocked or sanctioned account is off-boarded.
+Burns a holder's conduit shares and opens a redeem query paid to them, without their signature.
 
-It does not complete the exit. Against an async vehicle the query is still `PROCESSING` when the
-transaction lands: the shares are burned, the payout has not happened. Settle it with
-[`buildProcessConduitQueryCall`](/actions/buildProcessConduitQueryCall).
-
-The account list gates both sides. `user` must be sanctioned or block-listed, and the caller needs
-`CONDUIT_FORCE_REDEEM`. Check with [`getAccountListStatus`](/actions/getAccountListStatus) first.
-Reverts `ForceRedeemNotAllowed` when either side fails, `ForceRedeemUnavailable` on a conduit with
-no account list, `DisabledConduit` before the conduit is enabled, and `NothingToRedeem` on a zero
-`amount`.
+- Requires `CONDUIT_FORCE_REDEEM`, and `user` must be sanctioned or block-listed.
+  [`getAccountListStatus`](/actions/getAccountListStatus) reads both.
+- Reverts `ForceRedeemNotAllowed` when either fails, `ForceRedeemUnavailable` on a conduit with no
+  account list, `DisabledConduit` before the conduit is enabled, and `NothingToRedeem` on a zero
+  `amount`.
+- Against an async vehicle the query is still `PROCESSING` when the transaction lands.
+  [`buildProcessConduitQueryCall`](/actions/buildProcessConduitQueryCall) settles it.
 
 ## Import
 
@@ -47,7 +45,7 @@ await writeContract(client, request)
 ## Returns
 
 A prepared call: `{ address, abi, functionName, args }`. On chain it returns `(queryId, state)`;
-read the id off the receipt with [`extractQueryIds`](/utilities/receiptHelpers).
+[`extractQueryIds`](/utilities/receiptHelpers#extractqueryids) reads the id off the receipt.
 
 ## Parameters
 

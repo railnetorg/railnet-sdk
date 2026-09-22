@@ -7,8 +7,8 @@ export type EnableConduitParameters = {
 }
 
 /**
- * Builds `conduit.enable()`, which only the ConduitFactory may call: it runs once the seed deposit
- * settles, so any other sender reverts `InvalidCaller`.
+ * Builds `conduit.enable()`. The ConduitFactory alone may send it, once the seed deposit settles;
+ * any other sender reverts `InvalidCaller`.
  *
  * @deprecated Unusable outside the factory, and removed in 0.9.0. To let holders transfer their
  * shares — what this was reached for — use {@link buildEnableConduitTransfersCall}, which builds

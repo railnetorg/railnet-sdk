@@ -4,7 +4,8 @@ description: Predicts the address of a conduit before deployment.
 
 # predictConduitDeployment
 
-Predicts the address of a conduit before deployment using the factory's deterministic deployment.
+Reads the address [`buildSpawnConduitCall`](/actions/buildSpawnConduitCall) will deploy to for the
+same parameters.
 
 ## Import
 
@@ -43,8 +44,6 @@ const predictedAddress = await predictConduitDeployment(client, {
 ## Returns
 
 `Address`
-
-The predicted address of the conduit.
 
 ## Parameters
 

@@ -4,13 +4,10 @@ description: Builds the call that redeems conduit shares back into the underlyin
 
 # buildRedeemConduitCall
 
-Builds the `conduit.createRedeemFromConduitShares()` call. Synchronous, takes no client, sends
-nothing: spread it into viem's `simulateContract`, wagmi's `useSimulateContract`, or
-[`toCall`](/utilities/toCall) for a batch.
+Builds the `conduit.createRedeemFromConduitShares()` call.
 
-No approval is needed: the conduit burns shares it already holds for the account.
-
-Use [`getRedeemConduitCall`](/actions/getRedeemConduitCall) to have the output asset read for you.
+- No approval. The conduit burns shares it already holds for `sender`.
+- [`getRedeemConduitCall`](/actions/getRedeemConduitCall) reads the output asset for you.
 
 ## Import
 
@@ -49,7 +46,7 @@ const hash = await writeContract(client, request)
 
 ## Returns
 
-A built call: `{ address, abi, functionName, args }`.
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 
@@ -74,10 +71,10 @@ Safe, a batch or a relayer, that is the contract's address. See [The sender](/gu
 
 ### outputAsset
 
-- **Type:** `Asset`
+- **Type:** [`Asset`](/types/Asset)
 
-The asset to receive, and a floor on its amount. `value: 0n` sets no floor. The asset is
-`conduit.asset()` unless you are redeeming into something else.
+The asset to receive and a floor on its amount; `value: 0n` sets no floor. `conduit.asset()` is the
+usual value.
 
 ### salt
 

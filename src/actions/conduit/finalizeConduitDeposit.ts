@@ -7,7 +7,9 @@ export type FinalizeConduitDepositParameters = {
 }
 
 /**
- * Finalizes the initial deposit on a conduit with an async vehicle (e.g. Ethena, Syrup). Called via the ConduitFactory after the vehicle's async query resolves.
+ * Settles the seed deposit an asynchronous vehicle left pending after `spawn()`, and enables the
+ * conduit once it reaches SETTLED. No role gates it; reverts `NoPendingDeposit` when nothing is
+ * pending.
  *
  * @param parameters - {@link FinalizeConduitDepositParameters}
  */

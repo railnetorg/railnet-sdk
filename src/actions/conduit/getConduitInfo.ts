@@ -21,8 +21,8 @@ export type GetConduitInfoParameters = {
 export type GetConduitInfoReturnType = ConduitInfo
 
 /**
- * Reads on-chain metadata for a conduit via a single multicall: name, symbol, decimals, asset, totalSupply, totalAssets, holdings, and whether the conduit is enabled.
- * `isEnabled` reflects `conduit.ready()`, the gate that decides whether deposits and redeems are possible at all.
+ * Reads a conduit's name, symbol, decimals, asset, totalSupply, totalAssets, holdings and
+ * `ready()` state in one multicall. `isEnabled` is `ready()`, the gate on deposits and redeems.
  *
  * @param parameters - {@link GetConduitInfoParameters}
  *

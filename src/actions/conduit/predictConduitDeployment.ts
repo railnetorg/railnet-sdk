@@ -9,7 +9,8 @@ export type PredictConduitDeploymentParameters = SpawnConduitParameters
 export type PredictConduitDeploymentReturnType = Address
 
 /**
- * Predicts the address a conduit will be deployed to, given the spawn parameters. Uses CREATE2 deterministic deployment.
+ * Reads the address `buildSpawnConduitCall` will deploy to for the same parameters, a CREATE2 over
+ * the proxy's init code.
  *
  * @param parameters - {@link PredictConduitDeploymentParameters}
  *
@@ -20,18 +21,18 @@ export type PredictConduitDeploymentReturnType = Address
  * const { conduitFactory } = getAddresses(mainnet.id)
  *
  * const predicted = await predictConduitDeployment(publicClient, {
- *   factory: conduitFactory,
- *   name: 'My Conduit',
- *   symbol: 'MYC',
- *   vehicle: vehicleAddress,
- *   initialExpectedSupply: 10n ** 18n,
- *   transferEnabled: true,
- *   accessControl: eacAddress,
- *   feeManager: feeManagerAddress,
- *   accountList: accountListAddress,
- *   ownerRegistry: ownerRegistryAddress,
- *   querySalt,
- *   deploymentSalt,
+ * factory: conduitFactory,
+ * name: 'My Conduit',
+ * symbol: 'MYC',
+ * vehicle: vehicleAddress,
+ * initialExpectedSupply: 10n ** 18n,
+ * transferEnabled: true,
+ * accessControl: eacAddress,
+ * feeManager: feeManagerAddress,
+ * accountList: accountListAddress,
+ * ownerRegistry: ownerRegistryAddress,
+ * querySalt,
+ * deploymentSalt,
  * })
  */
 export async function predictConduitDeployment(

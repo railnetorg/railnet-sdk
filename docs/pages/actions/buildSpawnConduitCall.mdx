@@ -4,17 +4,16 @@ description: Deploys a new conduit via the factory.
 
 # buildSpawnConduitCall
 
-Deploys a new conduit via the factory contract.
+Deploys a conduit via `conduitFactory.spawn()`.
 
-The caller needs `CONDUIT_SPAWN` on the factory's access control, scoped to the factory. It is the
-one factory that does not gate on `FACTORY_SPAWN`.
-
-- The factory pulls the initial deposit of the vehicle's asset from the caller. Approve it for
-  at least [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first.
-
-`feeManager`, `accountList`, `ownerRegistry` and `accessControl` must each have been spawned by
-the factory this one trusts for that module, or the call reverts `NotDeployedByFactory`.
-`initialExpectedSupply` must be non-zero.
+- Requires `CONDUIT_SPAWN` scoped to the factory. The other factories gate on `FACTORY_SPAWN`; this
+  one does not.
+- The factory pulls the initial deposit of the vehicle's asset from the caller. Approve it for at
+  least [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first.
+- `feeManager`, `accountList`, `ownerRegistry` and `accessControl` must each come from the factory
+  this one trusts for that module, or the call reverts `NotDeployedByFactory`.
+- `initialExpectedSupply` must be non-zero.
+- [Deploying a conduit](/guides/deployingAConduit) gives the order.
 
 ## Import
 
@@ -52,10 +51,8 @@ const hash = await writeContract(client, request)
 ## Returns
 
 A prepared call: `{ address, abi, functionName, args }`.
-
-:::info
-Use [`extractConduitAddress`](/utilities/receiptHelpers#extractconduitaddress) to extract the deployed conduit address from the transaction receipt.
-:::
+[`extractConduitAddress`](/utilities/receiptHelpers#extractconduitaddress) reads the deployed
+address from the receipt.
 
 ## Parameters
 
@@ -102,8 +99,9 @@ Use [`extractConduitAddress`](/utilities/receiptHelpers#extractconduitaddress) t
 ### initialInterceptions (optional)
 
 - **Type:** [`Interception[]`](/types/Interception)
+- **Default:** `[]`
 
-Optional initial reward interception routes for the conduit. Defaults to `[]`.
+See [Setting interceptions](/actions/setInterceptions).
 
 ### querySalt
 
@@ -115,8 +113,7 @@ Salt for the spawn's initial query. Generate it with [`randomSalt`](/utilities/r
 
 - **Type:** `Hex`
 
-One ingredient of the deployed address: it is a CREATE2 over the proxy's init code, which carries
-every module and metadata field above. Generate the salt with
-[`randomSalt`](/utilities/randomSalt), keep the value, and resolve the address with
-[`predictConduitDeployment`](/actions/predictConduitDeployment) using exactly the parameters you
-will send.
+Part of the CREATE2 address, with every module and metadata field above. Generate it with
+[`randomSalt`](/utilities/randomSalt) and keep the value.
+[`predictConduitDeployment`](/actions/predictConduitDeployment) resolves the address from the same
+parameters.

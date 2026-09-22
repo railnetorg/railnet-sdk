@@ -23,8 +23,8 @@ export type GetDepositConduitCallReturnType = {
 }
 
 /**
- * Resolves what a deposit needs from chain — the conduit's vehicle — and returns the call along
- * with the identity of the query it will create. Reads only; sending the call is yours.
+ * Resolves the conduit's vehicle from chain and returns the deposit call with the identity of the
+ * query it will create. Reads only; sending the call is yours.
  *
  * @param parameters - {@link GetDepositConduitCallParameters}
  *
@@ -32,11 +32,11 @@ export type GetDepositConduitCallReturnType = {
  * import { getDepositConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
  *
  * const { call, queryId } = await getDepositConduitCall(publicClient, {
- *   conduit,
- *   token: usdc,
- *   amount: 1_000_000n,
- *   sender: account.address,
- *   salt: randomSalt(),
+ * conduit,
+ * token: usdc,
+ * amount: 1_000_000n,
+ * sender: account.address,
+ * salt: randomSalt(),
  * })
  */
 export async function getDepositConduitCall(
