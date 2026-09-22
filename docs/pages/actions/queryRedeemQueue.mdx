@@ -24,12 +24,11 @@ buildFeedQueryRedeemQueueCall({ vehicleManager })
 Fulfills pending redeem requests out of what the multi vehicle can currently withdraw. Needs
 `MULTI_VEHICLE_FEED_QUERY_REDEEM_QUEUE`.
 
-It skips the `minSharesForAutoFulfill` threshold auto-fulfillment has to cross, which is how a
-queue below that floor gets served.
+It serves the queue below the `minSharesForAutoFulfill` threshold that auto-fulfillment requires;
+[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) reads the threshold.
 
-Reverts `NothingToFulfill` when no request is redeemable against the current withdrawable balance.
-Stage liquidity into `SECTOR_AVAILABLE` first. Read the threshold with
-[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits).
+Reverts `NothingToFulfill` when no request is redeemable against the withdrawable balance, which
+`SECTOR_AVAILABLE` supplies.
 
 ## buildRetrieveQueryRedeemQueueAssetsCall
 
@@ -40,10 +39,8 @@ buildRetrieveQueryRedeemQueueAssetsCall({ vehicleManager, amount: 1_000_000n })
 Pulls assets back out of the queue and deposits them into `SECTOR_AVAILABLE`. Needs
 `MULTI_VEHICLE_RETRIEVE_QUERY_REDEEM_QUEUE_ASSETS`.
 
-:::warning
-**No shares are minted against the deposit**, so the amount raises the per-share rate for every
-holder. The surplus is treated as yield, and the performance fee is charged on it.
-:::
+No shares are minted against the deposit, so the amount raises the per-share rate for every holder.
+The surplus counts as yield, and the performance fee applies to it.
 
 ## Parameters
 

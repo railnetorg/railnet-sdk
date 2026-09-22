@@ -9,8 +9,8 @@ export type RebalanceRedeemParameters = {
   from: Address
   /**
    * Sub-vehicle the proceeds are staged for. Its sector receives them; nothing is deposited yet.
-   * It must be authorized: a redeem's settled destination goes through the engine's asset-sector
-   * check, which rejects an unauthorized vehicle sector with `InvalidVehicleSector`.
+   * It must be authorized, since a redeem's settled destination goes through the engine's
+   * asset-sector check, which rejects an unauthorized vehicle sector with `InvalidVehicleSector`.
    */
   to: Address
   /** Shares of `from` to move, in that vehicle's share units (18 decimals). */
@@ -22,19 +22,11 @@ export type RebalanceRedeemParameters = {
 }
 
 /**
- * Redeems a position out of one sub-vehicle and stages the proceeds in another's sector, as a
- * single `multicall` of a move and a dispatch. Needs MULTI_VEHICLE_MOVE and
- * MULTI_VEHICLE_DISPATCH.
- *
- * Batched because the two steps are not independent: sent separately and abandoned in between, the
- * shares sit in the source's staging sector, out of ALLOCATION and earning nothing.
- *
- * The proceeds settle into `to`'s sector rather than AVAILABLE, where the queue strategy engine
- * could re-allocate them before the rebalance finishes. Depositing them into `to` is a second
- * transaction, because an async source only settles once its query progresses: dispatch a DEPOSIT
- * of `maxUint256` from that sector, settling into ALLOCATION.
- *
- * Redeems exactly `shares`, so a request above what the sector holds reverts
+ * Redeems a position out of one sub-vehicle and stages the proceeds in another's sector, as one
+ * `multicall` of a move and a dispatch. Needs MULTI_VEHICLE_MOVE and MULTI_VEHICLE_DISPATCH. The
+ * proceeds settle into `to`'s sector, out of the queue strategy engine's reach, and an async
+ * source settles only once its query progresses; the deposit into `to` is a second transaction.
+ * Redeems exactly `shares`; a request above what the sector holds reverts
  * `DispatchRedeemAmountTooHigh`.
  *
  * @param parameters - {@link RebalanceRedeemParameters}
