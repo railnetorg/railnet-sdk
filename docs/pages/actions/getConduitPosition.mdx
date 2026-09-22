@@ -4,7 +4,7 @@ description: Retrieves the position (shares and equivalent assets) of an account
 
 # getConduitPosition
 
-Retrieves the position of an account in a conduit. Returns the number of shares held and their equivalent value in the underlying asset.
+Reads an account's share balance in a conduit and its value in the underlying asset, at one block.
 
 ## Import
 
@@ -33,8 +33,6 @@ const position = await getConduitPosition(client, {
 ## Returns
 
 [`ConduitPosition`](/types/ConduitPosition)
-
-The position of the account in the conduit.
 
 ```ts
 type ConduitPosition = {
@@ -76,5 +74,4 @@ const position = await getConduitPosition(client, {
 - **Default:** the current block
 
 Both reads are pinned to this block. `convert` takes the share balance, so the two cannot be
-batched — without a pin, a deposit landing between them reports shares at one rate and assets at
-another.
+batched; unpinned, a deposit landing between them reports shares at one rate and assets at another.

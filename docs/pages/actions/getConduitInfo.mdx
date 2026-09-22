@@ -1,10 +1,10 @@
 ---
-description: Retrieves general information about a conduit.
+description: Reads a conduit's metadata, supply and ready state in one multicall.
 ---
 
 # getConduitInfo
 
-Retrieves general information about a conduit, including its asset, supply metrics, and configuration.
+Reads a conduit's metadata, supply and `ready()` state in one multicall.
 
 ## Import
 
@@ -32,8 +32,6 @@ const info = await getConduitInfo(client, {
 ## Returns
 
 [`ConduitInfo`](/types/ConduitInfo)
-
-General information about the conduit.
 
 ```ts
 type ConduitInfo = {

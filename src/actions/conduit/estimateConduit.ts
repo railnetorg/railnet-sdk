@@ -13,7 +13,8 @@ export type EstimateConduitParameters = {
 export type EstimateConduitReturnType = Asset
 
 /**
- * Estimates the output asset for a deposit or redeem operation on a conduit. Includes conduit fees.
+ * Estimates the output asset for a deposit or redeem on a conduit. A deposit estimate is in
+ * conduit shares after conduit fees; a redeem estimate is in the underlying asset.
  *
  * @param parameters - {@link EstimateConduitParameters}
  *
@@ -21,10 +22,10 @@ export type EstimateConduitReturnType = Asset
  * import { estimateConduit, EstimationType, QueryMode } from '@railnetorg/railnet-sdk'
  *
  * const estimation = await estimateConduit(publicClient, {
- *   conduit: conduitAddress,
- *   asset: { asset: usdc, value: 1_000_000n },
- *   mode: QueryMode.DEPOSIT,
- *   estimationType: EstimationType.OUTPUT,
+ * conduit: conduitAddress,
+ * asset: { asset: usdc, value: 1_000_000n },
+ * mode: QueryMode.DEPOSIT,
+ * estimationType: EstimationType.OUTPUT,
  * })
  */
 export async function estimateConduit(
