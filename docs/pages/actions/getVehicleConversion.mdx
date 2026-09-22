@@ -1,0 +1,55 @@
+---
+description: Prices a vehicle's shares against its assets at the current rate.
+---
+
+# getVehicleConversion
+
+Reads `vehicle.convert()`, the share rate with no transactional fee applied.
+
+- Ongoing fee dilution is included. The deposit or redeem fee is not, so a holding reads gross of
+  what exiting it would cost.
+- Only `asset.value` is converted.
+- A `minOutput` floor is derived from [`estimateVehicle`](/actions/estimateVehicle), which nets the
+  transactional fee. Unlike this read, it reverts `InvalidInput` on an asset the vehicle does not
+  hold and `ZeroInputValue` on a zero amount.
+
+## Import
+
+```ts twoslash
+import { getVehicleConversion } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { getVehicleConversion } from '@railnetorg/railnet-sdk'
+
+const held = await getVehicleConversion(publicClient, {
+  vehicle,
+  asset: { asset: vehicle, value: shares },
+  sharesToAssets: true,
+})
+```
+
+## Returns
+
+[`Asset`](/types/Asset)
+
+The base asset with `sharesToAssets: true`, the vehicle's shares with `false`.
+
+## Parameters
+
+### vehicle
+
+- **Type:** `Address`
+
+### asset
+
+- **Type:** [`Asset`](/types/Asset)
+
+The vehicle's own address with a share amount when converting shares to assets, its base asset
+otherwise.
+
+### sharesToAssets
+
+- **Type:** `boolean`

@@ -1,0 +1,45 @@
+---
+description: Reads the interception rules a vehicle currently stores.
+---
+
+# useVehicleInterceptions
+
+Reads the interception rules a vehicle currently stores, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useVehicleInterceptions } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useVehicleInterceptions } from '@railnetorg/railnet-sdk/react'
+
+const { data: interceptions = [] } = useVehicleInterceptions({ vehicle })
+```
+
+## Returns
+
+A TanStack Query result over [`Interception[]`](/types/Interception), with its `queryKey` attached. See
+[`getVehicleInterceptions`](/actions/getInterceptions#getvehicleinterceptions).
+
+## Parameters
+
+Everything [`getVehicleInterceptions`](/actions/getInterceptions#getvehicleinterceptions) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`vehicleInterceptionsQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`vehicleInterceptionsQueryKey` and `vehicleInterceptionsQueryPrefix` for invalidation.

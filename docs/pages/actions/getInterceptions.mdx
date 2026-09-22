@@ -1,0 +1,58 @@
+---
+description: Reads the interception rules a conduit or a vehicle currently stores.
+---
+
+# Reading interceptions
+
+Reads the rules [`setInterceptions`](/actions/setInterceptions) stores, in the order the contract
+holds them.
+
+## Import
+
+```ts twoslash
+import { getConduitInterceptions, getVehicleInterceptions } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import {
+  buildSetVehicleInterceptionsCall,
+  getVehicleInterceptions,
+} from '@railnetorg/railnet-sdk'
+
+const current = await getVehicleInterceptions(publicClient, { vehicle })
+
+const call = buildSetVehicleInterceptionsCall({
+  vehicle,
+  interceptions: [...current, { asset: rewardToken, recipients: [{ target, shareBps: 1000n, chainId: 0n }] }],
+})
+```
+
+## getConduitInterceptions
+
+```ts
+const interceptions = await getConduitInterceptions(publicClient, { conduit: '0x1234...' })
+```
+
+## getVehicleInterceptions
+
+```ts
+const interceptions = await getVehicleInterceptions(publicClient, { vehicle: '0x5678...' })
+```
+
+## Returns
+
+[`Interception[]`](/types/Interception)
+
+An empty array means no flow is routed away.
+
+## Parameters
+
+### conduit
+
+- **Type:** `Address`
+
+### vehicle
+
+- **Type:** `Address`

@@ -1,0 +1,47 @@
+---
+description: Reads the Morpho Blue singleton a MorphoBlueVehicleFactory accepts.
+---
+
+# useMorphoBlueSingleton
+
+Reads the Morpho Blue singleton a MorphoBlueVehicleFactory accepts, as a TanStack Query result.
+
+`spawn` reverts `InvalidMorpho` unless its `morpho` argument matches this.
+
+## Import
+
+```ts
+import { useMorphoBlueSingleton } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useMorphoBlueSingleton } from '@railnetorg/railnet-sdk/react'
+
+const { data: morpho } = useMorphoBlueSingleton({ factory: morphoBlueVehicleFactory })
+```
+
+## Returns
+
+A TanStack Query result over `Address`, with its `queryKey` attached. See
+[`getMorphoBlueSingleton`](/actions/buildSpawnMorphoBlueVehicleCall#getmorphobluesingleton).
+
+## Parameters
+
+Everything [`getMorphoBlueSingleton`](/actions/buildSpawnMorphoBlueVehicleCall#getmorphobluesingleton) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`morphoBlueSingletonQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`morphoBlueSingletonQueryKey` and `morphoBlueSingletonQueryPrefix` for invalidation.

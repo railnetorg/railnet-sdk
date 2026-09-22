@@ -1,0 +1,52 @@
+---
+description: Resolves the address a fee manager spawn will deploy to.
+---
+
+# usePredictFeeManagerDeployment
+
+Resolves the address a fee manager spawn will deploy to, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePredictFeeManagerDeployment } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictFeeManagerDeployment } from '@railnetorg/railnet-sdk/react'
+
+const { data: feeManager } = usePredictFeeManagerDeployment({
+  factory: feeManagerFactory,
+  accessControl,
+  initialFees,
+  initialMaxFees,
+  initialRecipients,
+  deploymentSalt,
+})
+```
+
+## Returns
+
+A TanStack Query result over `Address`, with its `queryKey` attached. See
+[`predictFeeManagerDeployment`](/actions/predictFeeManagerDeployment).
+
+## Parameters
+
+Everything [`predictFeeManagerDeployment`](/actions/predictFeeManagerDeployment) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`predictFeeManagerDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictFeeManagerDeploymentQueryKey` and `predictFeeManagerDeploymentQueryPrefix` for invalidation.

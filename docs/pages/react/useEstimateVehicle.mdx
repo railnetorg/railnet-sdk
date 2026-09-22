@@ -1,0 +1,52 @@
+---
+description: Estimates a vehicle's own output, the quantity a minOutput floor is measured against.
+---
+
+# useEstimateVehicle
+
+Estimates a vehicle's own output, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useEstimateVehicle } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useEstimateVehicle } from '@railnetorg/railnet-sdk/react'
+
+const { data: estimation } = useEstimateVehicle({
+  vehicle,
+  asset: { asset: baseAsset, value: amount },
+  mode: QueryMode.DEPOSIT,
+  estimationType: EstimationType.OUTPUT,
+})
+
+const minOutput = estimation ? applySlippage(estimation.value, 50) : undefined
+```
+
+## Returns
+
+A TanStack Query result over [`Asset`](/types/Asset), with its `queryKey` attached. See
+[`estimateVehicle`](/actions/estimateVehicle).
+
+## Parameters
+
+Everything [`estimateVehicle`](/actions/estimateVehicle) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`estimateVehicleQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`estimateVehicleQueryKey` and `estimateVehicleQueryPrefix` for invalidation.

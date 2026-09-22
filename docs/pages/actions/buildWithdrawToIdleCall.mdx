@@ -1,0 +1,73 @@
+---
+description: Redeems a sub-vehicle position back into a MultiVehicle's idle liquidity.
+---
+
+# buildWithdrawToIdleCall
+
+Builds the `sectorAccountingEngine.multicall()` that redeems a position out of a sub-vehicle and
+settles the proceeds into `AVAILABLE`.
+
+- Requires `MULTI_VEHICLE_MOVE` and `MULTI_VEHICLE_DISPATCH`, both scoped to the
+  SectorAccountingEngine.
+- `from` needs no authorization.
+- The proceeds settle into `AVAILABLE`. On an async source, see
+  [Operating a multi-vehicle](/guides/operatingAMultiVehicle).
+- Reverts `DispatchRedeemAmountTooHigh` when `shares` exceeds what the source sector holds.
+
+## Import
+
+```ts twoslash
+import { buildWithdrawToIdleCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildWithdrawToIdleCall, randomSalt } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...buildWithdrawToIdleCall({
+    sectorAccountingEngine,
+    from: vehicle,
+    shares: 500n * 10n ** 18n,
+    operationId: randomSalt(),
+  }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### sectorAccountingEngine
+
+- **Type:** `Address`
+
+### from
+
+- **Type:** `Address`
+
+### shares
+
+- **Type:** `bigint`
+
+Shares of `from` to redeem, in that vehicle's share units.
+
+### minOutput (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+A floor on the assets the redeem must produce. The redeem is pinned to exactly `shares`.
+
+### operationId
+
+- **Type:** `Hex`
+
+See [`buildRebalanceRedeemCall`](/actions/buildRebalanceRedeemCall#operationid).

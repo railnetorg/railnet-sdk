@@ -1,0 +1,54 @@
+---
+description: Resolves the address an account list spawn will deploy to.
+---
+
+# usePredictAccountListDeployment
+
+Resolves the address an account list spawn will deploy to, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePredictAccountListDeployment } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictAccountListDeployment } from '@railnetorg/railnet-sdk/react'
+
+const { data: accountList } = usePredictAccountListDeployment({
+  factory: accountListFactory,
+  accessControl,
+  mode: AllowlistMode.OPEN,
+  initialAllowList: [],
+  initialBlockList: [],
+  sanctionsEnabled: false,
+  oracle: zeroAddress,
+  deploymentSalt,
+})
+```
+
+## Returns
+
+A TanStack Query result over `Address`, with its `queryKey` attached. See
+[`predictAccountListDeployment`](/actions/predictAccountListDeployment).
+
+## Parameters
+
+Everything [`predictAccountListDeployment`](/actions/predictAccountListDeployment) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`predictAccountListDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictAccountListDeploymentQueryKey` and `predictAccountListDeploymentQueryPrefix` for invalidation.

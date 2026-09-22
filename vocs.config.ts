@@ -73,11 +73,24 @@ export default defineConfig({
           collapsed: true,
           items: [
             {
+              text: 'buildAcceptDefaultAdminTransferCall',
+              link: '/actions/defaultAdminTransfer#buildacceptdefaultadmintransfercall',
+            },
+            {
+              text: 'buildBeginDefaultAdminTransferCall',
+              link: '/actions/defaultAdminTransfer#buildbegindefaultadmintransfercall',
+            },
+            {
+              text: 'buildCancelDefaultAdminTransferCall',
+              link: '/actions/defaultAdminTransfer#buildcanceldefaultadmintransfercall',
+            },
+            {
               text: 'buildGrantRoleCall',
               link: '/actions/globalRoles#buildgrantrolecall--buildrevokerolecall',
             },
             ...actions(['buildGrantScopedRoleCall']),
             { text: 'buildRenounceRoleCall', link: '/actions/globalRoles#buildrenouncerolecall' },
+            ...actions(['buildRenounceScopedRoleCall']),
             {
               text: 'buildRevokeRoleCall',
               link: '/actions/globalRoles#buildgrantrolecall--buildrevokerolecall',
@@ -89,6 +102,11 @@ export default defineConfig({
               'buildSpawnAccessControlCall',
               'getHasRole',
             ]),
+            {
+              text: 'getPendingDefaultAdmin',
+              link: '/actions/defaultAdminTransfer#getpendingdefaultadmin',
+            },
+            { text: 'Default admin transfer', link: '/actions/defaultAdminTransfer' },
             { text: 'Roles', link: '/constants/roles' },
           ],
         },
@@ -125,7 +143,7 @@ export default defineConfig({
               text: 'buildToggleSanctionsCall',
               link: '/actions/accountListConfiguration#sanctions-screening',
             },
-            ...actions(['getAccountListStatus']),
+            ...actions(['getAccountListStatus', 'predictAccountListDeployment']),
           ],
         },
         { text: 'Asset Registry', collapsed: true, items: actions(['getInitialDepositAmount']) },
@@ -146,10 +164,12 @@ export default defineConfig({
               text: 'buildSetConduitInterceptionsCall',
               link: '/actions/setInterceptions#the-two-calls',
             },
+            ...actions(['buildSpawnConduitCall', 'estimateConduit', 'getConduitInfo']),
+            {
+              text: 'getConduitInterceptions',
+              link: '/actions/getInterceptions#getconduitinterceptions',
+            },
             ...actions([
-              'buildSpawnConduitCall',
-              'estimateConduit',
-              'getConduitInfo',
               'getConduitPosition',
               'getDepositConduitCall',
               'getIsTransferable',
@@ -174,6 +194,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             ...actions([
+              'buildAllocateIdleCall',
               'buildAuthorizeVehicleCall',
               'buildConfigureVehicleCall',
               'buildDispatchVehicleCall',
@@ -197,6 +218,7 @@ export default defineConfig({
               'buildSetThresholdsCall',
               'buildSpawnMultiVehicleCall',
               'buildUnauthorizeVehicleCall',
+              'buildWithdrawToIdleCall',
               'getSectorBalance',
               'getVehicleManagerLimits',
             ]),
@@ -213,6 +235,7 @@ export default defineConfig({
           items: [
             ...actions(['buildSpawnOwnerRegistryCall', 'buildWrapQueryCall']),
             { text: 'getQueryClaim', link: '/actions/buildWrapQueryCall#getqueryclaim' },
+            ...actions(['predictOwnerRegistryDeployment']),
           ],
         },
         {
@@ -231,6 +254,19 @@ export default defineConfig({
               'buildSpawnWrapperVehicleCall',
               'estimateVehicle',
             ]),
+            {
+              text: 'getMorphoBlueSingleton',
+              link: '/actions/buildSpawnMorphoBlueVehicleCall#getmorphobluesingleton',
+            },
+            {
+              text: 'getMorphoMarketAsset',
+              link: '/actions/buildSpawnMorphoBlueVehicleCall#getmorphomarketasset',
+            },
+            ...actions(['getVehicleConversion']),
+            {
+              text: 'getVehicleInterceptions',
+              link: '/actions/getInterceptions#getvehicleinterceptions',
+            },
           ],
         },
         {
@@ -268,13 +304,28 @@ export default defineConfig({
       items: [
         { text: 'Query options', link: '/react/queryOptions' },
         ...[
+          'useAccountListStatus',
           'useConduitInfo',
+          'useConduitInterceptions',
           'useConduitPosition',
           'useDepositConduitCall',
           'useEstimateConduit',
+          'useEstimateVehicle',
           'useHasRole',
+          'useInitialDepositAmount',
+          'useIsTransferable',
+          'useMorphoBlueSingleton',
+          'useMorphoMarketAsset',
+          'usePendingDefaultAdmin',
+          'usePredictAccountListDeployment',
           'usePredictConduitDeployment',
+          'usePredictFeeManagerDeployment',
+          'usePredictOwnerRegistryDeployment',
+          'useQueryClaim',
           'useRedeemConduitCall',
+          'useSectorBalance',
+          'useVehicleConversion',
+          'useVehicleInterceptions',
           'useVehicleManagerLimits',
         ].map((name) => ({ text: name, link: `/react/${name}` })),
       ],

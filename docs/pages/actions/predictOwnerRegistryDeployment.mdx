@@ -1,0 +1,39 @@
+---
+description: Resolves the address an owner registry spawn will deploy to.
+---
+
+# predictOwnerRegistryDeployment
+
+Reads the address [`buildSpawnOwnerRegistryCall`](/actions/buildSpawnOwnerRegistryCall) will deploy
+to for the same parameters, a CREATE2 over every field of the call.
+
+## Import
+
+```ts twoslash
+import { predictOwnerRegistryDeployment } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { getAddresses, predictOwnerRegistryDeployment, randomSalt } from '@railnetorg/railnet-sdk'
+import { mainnet } from 'viem/chains'
+
+const { ownerRegistryFactory } = getAddresses(mainnet.id)
+
+const ownerRegistry = await predictOwnerRegistryDeployment(publicClient, {
+  factory: ownerRegistryFactory,
+  name: 'Railnet USDC Claims',
+  symbol: 'rnUSDC-C',
+  deploymentSalt: randomSalt(),
+})
+```
+
+## Returns
+
+`Address`
+
+## Parameters
+
+Same as [`buildSpawnOwnerRegistryCall`](/actions/buildSpawnOwnerRegistryCall). `name` and `symbol`
+reach the CREATE2 init code, so their casing changes the address.

@@ -1,0 +1,79 @@
+---
+description: Handing DEFAULT_ADMIN_ROLE to another address, in two steps and on a delay.
+---
+
+# Default admin transfer
+
+The two-step handover of `DEFAULT_ADMIN_ROLE`.
+
+- `grantRole` and `revokeRole` revert `AccessControlEnforcedDefaultAdminRules` on
+  `DEFAULT_ADMIN_ROLE`. `renounceRole` reverts `DefaultAdminCannotBeRenounced`.
+
+## Import
+
+```ts twoslash
+import {
+  buildAcceptDefaultAdminTransferCall,
+  buildBeginDefaultAdminTransferCall,
+  buildCancelDefaultAdminTransferCall,
+  getPendingDefaultAdmin,
+} from '@railnetorg/railnet-sdk'
+```
+
+| Call | Sender must be | Refuses |
+| :--- | :--- | :--- |
+| `buildBeginDefaultAdminTransferCall` | the current admin | `AccessControlUnauthorizedAccount` from anyone else, `DefaultAdminCannotBeRenounced` on the zero address |
+| `buildAcceptDefaultAdminTransferCall` | the pending admin | `AccessControlInvalidDefaultAdmin` from anyone else, `AccessControlEnforcedDefaultAdminDelay` until the schedule has passed |
+| `buildCancelDefaultAdminTransferCall` | the current admin | `AccessControlUnauthorizedAccount` from anyone else. A no-op with none pending. |
+
+## buildBeginDefaultAdminTransferCall
+
+```ts
+buildBeginDefaultAdminTransferCall({ accessControl: '0x1234...', newAdmin: '0x5678...' })
+```
+
+Schedules the handover `defaultAdminDelay` seconds out. Sending it again overwrites the pending
+transfer rather than queueing a second one.
+
+## buildAcceptDefaultAdminTransferCall
+
+```ts
+buildAcceptDefaultAdminTransferCall({ accessControl: '0x1234...' })
+```
+
+The old admin loses the role in the same transaction.
+
+## buildCancelDefaultAdminTransferCall
+
+```ts
+buildCancelDefaultAdminTransferCall({ accessControl: '0x1234...' })
+```
+
+Works after the schedule has passed, up until the pending admin accepts.
+
+## getPendingDefaultAdmin
+
+```ts
+const { newAdmin, schedule } = await getPendingDefaultAdmin(publicClient, { accessControl })
+
+const acceptable = schedule !== 0 && schedule < Math.floor(Date.now() / 1000)
+```
+
+Returns `{ newAdmin: Address; schedule: number }`, `schedule` in unix seconds and `0` with nothing
+pending. Accepting is possible once `schedule` is strictly before the block timestamp.
+
+## Returns
+
+The three builders return a prepared call, `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### accessControl
+
+- **Type:** `Address`
+
+### newAdmin
+
+- **Type:** `Address`
+
+Takes the role once it accepts.
