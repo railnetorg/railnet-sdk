@@ -4,7 +4,8 @@ description: Resolves the address a fee manager spawn will deploy to.
 
 # predictFeeManagerDeployment
 
-Reads the address [`buildSpawnFeeManagerCall`](/actions/buildSpawnFeeManagerCall) will deploy to for the same parameters. It is a CREATE2 over the proxy's init code, which carries the access control and every fee field — predict with exactly the parameters you will send.
+Reads the address [`buildSpawnFeeManagerCall`](/actions/buildSpawnFeeManagerCall) will deploy to for
+the same parameters, a CREATE2 over every field of the call.
 
 ## Import
 
@@ -32,7 +33,7 @@ const address = await predictFeeManagerDeployment(publicClient, {
 
 ## Returns
 
-`Address` — where the fee manager will land.
+`Address`
 
 ## Parameters
 

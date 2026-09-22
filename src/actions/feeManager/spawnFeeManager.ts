@@ -30,8 +30,8 @@ function toSpawnParams(parameters: SpawnFeeManagerParameters) {
 }
 
 /**
- * Spawns a FeeManager via `feeManagerFactory.spawn(SpawnParams)`. The caller needs FACTORY_SPAWN on
- * the factory's access control. Unlike a conduit, nothing is pulled from the caller.
+ * Spawns a FeeManager via `feeManagerFactory.spawn(SpawnParams)`. The caller needs FACTORY_SPAWN
+ * on the factory's access control. The factory pulls no deposit.
  *
  * @param parameters - {@link SpawnFeeManagerParameters}
  * @throws Error if a rate is out of range or above its `initialMaxFees` ceiling, or the recipient
@@ -44,12 +44,12 @@ function toSpawnParams(parameters: SpawnFeeManagerParameters) {
  * const { feeManagerFactory } = getAddresses(mainnet.id)
  *
  * const call = buildSpawnFeeManagerCall({
- *   factory: feeManagerFactory,
- *   accessControl,
- *   initialFees: { performanceFeeBps: 1000, managementFeeBps: 50, depositFeeBps: 0, redeemFeeBps: 0 },
- *   initialMaxFees: { performanceFeeBps: 2000, managementFeeBps: 200, depositFeeBps: 100, redeemFeeBps: 100 },
- *   initialRecipients: [{ target: treasury, shareBps: 10000 }],
- *   deploymentSalt: randomSalt(),
+ * factory: feeManagerFactory,
+ * accessControl,
+ * initialFees: { performanceFeeBps: 1000, managementFeeBps: 50, depositFeeBps: 0, redeemFeeBps: 0 },
+ * initialMaxFees: { performanceFeeBps: 2000, managementFeeBps: 200, depositFeeBps: 100, redeemFeeBps: 100 },
+ * initialRecipients: [{ target: treasury, shareBps: 10000 }],
+ * deploymentSalt: randomSalt(),
  * })
  */
 export function buildSpawnFeeManagerCall(parameters: SpawnFeeManagerParameters) {
@@ -62,9 +62,8 @@ export function buildSpawnFeeManagerCall(parameters: SpawnFeeManagerParameters) 
 }
 
 /**
- * The address {@link buildSpawnFeeManagerCall} will deploy to for these parameters. A CREATE2 over
- * the proxy's init code, which carries the access control and every fee field — predict with
- * exactly the parameters you will send.
+ * The address {@link buildSpawnFeeManagerCall} will deploy to for these parameters, a CREATE2 over
+ * every field of the call.
  *
  * @param parameters - {@link SpawnFeeManagerParameters}
  */
