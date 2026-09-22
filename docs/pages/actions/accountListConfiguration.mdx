@@ -55,6 +55,34 @@ buildToggleSanctionsCall({ accountList: '0x1234...', enabled: true })
 ```
 
 `toggleSanctions(true)` reverts `SanctionsOracleRequired` without an oracle, and the oracle returns
-to the zero address only while screening is off.
+to the zero address only while screening is off. Re-sending the current enabled state reverts
+`SanctionsUnchanged`; setting the oracle to its current value reverts `OracleUnchanged`.
 
-Screening fails closed. An oracle that reverts, holds no code, or returns something malformed marks the account sanctioned, and a sanctioned account cannot deposit, transfer or redeem.
+Screening fails closed. An oracle that reverts, or returns anything other than 32 bytes, marks the
+account sanctioned, and a sanctioned account cannot deposit, transfer or redeem.
+
+## Parameters
+
+### accountList
+
+- **Type:** `Address`
+
+### mode
+
+- **Type:** [`AllowlistMode`](/types/Enums#allowlistmode)
+
+### accounts
+
+- **Type:** `readonly Address[]`
+
+The batch for the four list calls.
+
+### oracle
+
+- **Type:** `Address`
+
+An `ISanctionsList` contract, or the zero address while screening stays off.
+
+### enabled
+
+- **Type:** `boolean`

@@ -49,4 +49,5 @@ A prepared call: `{ address, abi, functionName, args }`.
 
 `minSharesForAutoFulfill` is in **vehicle shares** (18 decimals); `2n ** 256n - 1n` disables
 auto-fulfill and is where a fresh deployment starts. `extraAssetsForWithdrawalRequests` is in the
-multi vehicle's **asset** units, capped on write at `type(uint128).max`.
+multi vehicle's **asset** units, capped on write at `type(uint128).max`; above it reverts
+`ExtraAssetsForWithdrawalRequestsTooHigh`.

@@ -43,5 +43,6 @@ A prepared call: `{ address, abi, functionName, args }`.
 - **Type:** `readonly FeeRecipient[]`
 
 Must be non-empty, sorted strictly ascending by `target`, with no zero `target` or `shareBps`, and
-sum to 10000; the builder checks all of it before assembling the call. The list replaces the
-previous one wholesale.
+sum to 10000, or the builder throws before any call is sent, matching the contract's own
+`RecipientsNotStrictlyAscending` and `InvalidBpsValue` reverts. The list replaces the previous one
+wholesale.

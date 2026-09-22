@@ -63,19 +63,29 @@ A prepared call: `{ address, abi, functionName, args }`.
 
 - **Type:** `Address`
 
+The ExternalAccessControl that gates the vehicle. It must have been spawned by the access control
+factory this one trusts, or the call reverts `NotDeployedByFactory`.
+
 ### queryRegistry
 
 - **Type:** `Address`
+
+The query registry the vehicle records its queries in. Must be a contract (`InvalidQueryRegistry`).
 
 ### feeManager (optional)
 
 - **Type:** `Address`
 - **Default:** `zeroAddress`
 
+Must have been spawned by the trusted FeeManager factory when set. The zero address skips the check
+and leaves the vehicle without one.
+
 ### modulesManager (optional)
 
 - **Type:** `Address`
 - **Default:** `zeroAddress`
+
+Same rule as `feeManager`, against the trusted ModulesManager factory.
 
 ### forbiddenAddresses (optional)
 

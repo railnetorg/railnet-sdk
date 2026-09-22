@@ -16,8 +16,8 @@ progress, retry one step, and see which one failed.
 ::::steps
 ##### Read the initial deposit amount
 
-The factory rejects a spawn whose asset has none registered. See
-[`getInitialDepositAmount`](/actions/getInitialDepositAmount).
+The read itself reverts `AssetNotAuthorized` when the registry has none registered for the asset.
+See [`getInitialDepositAmount`](/actions/getInitialDepositAmount).
 
 ##### Approve the multi-vehicle factory for that amount
 
