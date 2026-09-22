@@ -9,10 +9,9 @@ export type SetScopedRolePublicParameters = {
 }
 
 /**
- * Sets whether a scoped role is public (callable by any address) or restricted. The caller must hold the role's admin role — `DEFAULT_ADMIN_ROLE` unless it was
- * reassigned — either globally or scoped to the same `scope`.
- * `DEFAULT_ADMIN_ROLE` cannot be made public (`DefaultAdminCannotBePublic`), and re-sending the
- * current status reverts `RolePublicStatusUnchanged`.
+ * Sets whether a scoped role is callable by any address. The caller holds the role's admin role,
+ * globally or scoped to the same `scope`. Reverts `DefaultAdminCannotBePublic` on
+ * `DEFAULT_ADMIN_ROLE` and `RolePublicStatusUnchanged` when the status already holds.
  *
  * @param parameters - {@link SetScopedRolePublicParameters}
  */

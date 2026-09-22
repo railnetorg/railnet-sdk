@@ -43,9 +43,7 @@ const hash = await writeContract(client, request)
 
 A prepared call: `{ address, abi, functionName, args }`.
 
-:::info
-Use [`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehicleaddress) to extract the deployed Aave V3 vehicle address from the transaction receipt.
-:::
+[`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehicleaddress) reads the deployed address from the receipt.
 
 ## Parameters
 
@@ -72,18 +70,23 @@ Use [`extractAaveV3VehicleAddress`](/utilities/receiptHelpers#extractaavev3vehic
 ### feeManager (optional)
 
 - **Type:** `Address`
+- **Default:** `zeroAddress`
 
 ### modulesManager (optional)
 
 - **Type:** `Address`
+- **Default:** `zeroAddress`
 
 ### forbiddenAddresses (optional)
 
 - **Type:** `Address[]`
+- **Default:** `[]`
 
 ### initialExpectedSupply
 
 - **Type:** `bigint`
+
+Floor on the shares the seed deposit must mint; zero reverts `InvalidInitialExpectedSupply`.
 
 ### querySalt
 

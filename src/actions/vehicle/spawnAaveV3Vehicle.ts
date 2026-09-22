@@ -16,7 +16,8 @@ export type SpawnAaveV3VehicleParameters = {
 }
 
 /**
- * Spawns a new Aave V3 Vehicle via the AaveV3VehicleFactory.
+ * Spawns an Aave V3 vehicle via `aaveV3VehicleFactory.spawn()`. Needs FACTORY_SPAWN; the factory
+ * pulls the asset's initial deposit from the caller.
  *
  * @param parameters - {@link SpawnAaveV3VehicleParameters}
  */

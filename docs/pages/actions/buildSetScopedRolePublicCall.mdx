@@ -4,7 +4,7 @@ description: Sets whether a scoped role is callable by any address.
 
 # buildSetScopedRolePublicCall
 
-Makes a scoped role public (callable by any address) or restricts it back to specific grantees, on the ExternalAccessControl contract.
+Sets whether a scoped role on the ExternalAccessControl is callable by any address.
 
 - Requires the role's admin role, held globally or scoped to `scope`. See [Managing roles](/guides/managingRoles#scoped-first).
 - Reverts `DefaultAdminCannotBePublic` on `DEFAULT_ADMIN_ROLE`, and `RolePublicStatusUnchanged` when
@@ -44,8 +44,6 @@ A prepared call: `{ address, abi, functionName, args }`.
 ### accessControl
 
 - **Type:** `Address`
-
-The address of the ExternalAccessControl contract.
 
 ### role
 

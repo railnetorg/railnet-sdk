@@ -6,9 +6,10 @@ description: Updates a fee manager's rates.
 
 Sets the fee rates on a fee manager.
 
-The caller needs `FEE_MANAGER_SET_FEES`. Each rate is capped by the matching `initialMaxFees` fixed at spawn, and re-sending the current rates reverts `StateUnchanged`.
-
-The builder rejects a rate outside its own ceiling before the call is assembled: 10000 bps for the ongoing fees, 9999 for the transactional ones, which stay reversible.
+- Requires `FEE_MANAGER_SET_FEES`.
+- The builder rejects a rate above its ceiling, 10000 bps for the ongoing fees and 9999 for the
+  transactional ones. On chain each rate is capped by the `initialMaxFees` fixed at spawn
+  (`FeeTooHigh`), and re-sending the current rates reverts `StateUnchanged`.
 
 ## Import
 

@@ -6,7 +6,7 @@ description: Replaces a fee manager's recipient split.
 
 Replaces the whole recipient split on a fee manager.
 
-The caller needs `FEE_MANAGER_SET_FEE_RECIPIENTS`.
+- Requires `FEE_MANAGER_SET_FEE_RECIPIENTS`.
 
 ## Import
 
@@ -42,4 +42,6 @@ A prepared call: `{ address, abi, functionName, args }`.
 
 - **Type:** `readonly FeeRecipient[]`
 
-The new split. Must be non-empty, sorted **strictly ascending by `target`**, carry no zero `target` and no zero `shareBps`, and sum to exactly 10000. The builder checks all of it before assembling the call. The list replaces the previous one wholesale.
+Must be non-empty, sorted strictly ascending by `target`, with no zero `target` or `shareBps`, and
+sum to 10000; the builder checks all of it before assembling the call. The list replaces the
+previous one wholesale.

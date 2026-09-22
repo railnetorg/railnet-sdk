@@ -4,9 +4,10 @@ description: Deploys a vehicle wrapping any ERC-4626 vault.
 
 # buildSpawnErc4626VehicleCall
 
-Deploys a vehicle that supplies into an ERC-4626 vault.
+Deploys a vehicle that supplies into an ERC-4626 vault. The vehicle's asset is the vault's own
+`asset()`.
 
-The vehicle's asset is the vault's own `asset()`, so none is passed. The caller needs `FACTORY_SPAWN` on the factory's access control.
+- Requires `FACTORY_SPAWN` on the factory's access control.
 
 - The factory pulls the initial deposit of the vault's asset from the caller and burns the shares
   it mints. Approve it for at least [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first. The deposit does not come back.
@@ -64,9 +65,7 @@ const hash = await writeContract(client, request)
 
 A prepared call: `{ address, abi, functionName, args }`.
 
-:::info
-Use [`extractErc4626VehicleAddress`](/utilities/receiptHelpers#extracterc4626vehicleaddress) to read the deployed address out of the transaction receipt.
-:::
+[`extractErc4626VehicleAddress`](/utilities/receiptHelpers#extracterc4626vehicleaddress) reads the deployed address from the receipt.
 
 ## Parameters
 
@@ -81,7 +80,7 @@ The ERC-4626 vehicle factory. Available as `erc4626VehicleFactory` from [`getAdd
 - **Type:** `Address`
 
 The ERC-4626 vault to wrap. It must be a contract (`InvalidVault`) whose `asset()` is one too
-(`InvalidAsset`), and that asset must be authorized in the AssetRegistry — the spawn reads its
+(`InvalidAsset`), and that asset must be authorized in the AssetRegistry; the spawn reads its
 initial deposit amount and reverts `AssetNotAuthorized` when there is none.
 
 ### accessControl

@@ -10,11 +10,9 @@ export type GetMorphoBlueSingletonParameters = {
 export type GetMorphoBlueSingletonReturnType = Address
 
 /**
- * The Morpho Blue singleton a MorphoBlueVehicleFactory will accept.
- *
- * `spawn` reverts unless its `morpho` argument matches the factory implementation's own immutable
- * `MORPHO`, so this is the only value that works — resolving it in two reads (factory's
- * `IMPLEMENTATION`, then that clone's `MORPHO`) spares a caller from hardcoding a protocol address.
+ * The Morpho Blue singleton a MorphoBlueVehicleFactory accepts. `spawn` reverts unless its
+ * `morpho` argument matches the factory implementation's own immutable `MORPHO`; this reads the
+ * factory's `IMPLEMENTATION`, then that clone's `MORPHO`.
  *
  * @param parameters - {@link GetMorphoBlueSingletonParameters}
  */

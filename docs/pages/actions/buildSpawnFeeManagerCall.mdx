@@ -6,7 +6,8 @@ description: Deploys a FeeManager contract via factory.
 
 Deploys a FeeManager via the factory.
 
-The caller needs `FACTORY_SPAWN` on the factory's access control. Nothing is pulled from the caller, unlike a conduit spawn.
+- Requires `FACTORY_SPAWN` on the factory's access control.
+- The factory pulls no deposit.
 
 ## Import
 
@@ -64,13 +65,16 @@ The starting rates, in basis points: `{ performanceFeeBps, managementFeeBps, dep
 
 - **Type:** `Fees`
 
-Ceilings for each rate, fixed for the life of the contract. [`buildSetFeesCall`](/actions/buildSetFeesCall) reverts for any rate above its own max, so leave headroom.
+Ceilings for each rate, fixed for the life of the contract. [`buildSetFeesCall`](/actions/buildSetFeesCall)
+reverts `FeeTooHigh` above them.
 
 ### initialRecipients
 
 - **Type:** `readonly FeeRecipient[]`
 
-The split, as `{ target, shareBps }`. Must be non-empty, sorted **strictly ascending by `target`**, carry no zero `shareBps`, and sum to exactly 10000 — the contract reverts `RecipientsNotStrictlyAscending` and `InvalidBpsValue` otherwise.
+The split, as `{ target, shareBps }`. Must be non-empty, sorted strictly ascending by `target`, with
+no zero `shareBps`, and sum to 10000; the contract reverts `RecipientsNotStrictlyAscending` or
+`InvalidBpsValue` otherwise.
 
 ### deploymentSalt
 

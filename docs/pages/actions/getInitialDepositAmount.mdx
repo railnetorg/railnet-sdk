@@ -6,14 +6,10 @@ description: Reads the initial deposit amount the factories pull when spawning a
 
 Reads the initial deposit amount registered for an asset in the AssetRegistry.
 
-Every conduit and vehicle spawn pulls this amount from the caller — `buildSpawnConduitCall`,
-`buildSpawnMultiVehicleCall`, `buildSpawnAaveV3VehicleCall`, `buildSpawnErc4626VehicleCall`,
-`buildSpawnMorphoBlueVehicleCall` and `buildSpawnWrapperVehicleCall`. The
-amount is not a parameter of the spawn, it comes from the registry. Approve the factory for at
-least this much, and hold at least this much, or the spawn reverts with `InsufficientAllowance` /
-`InsufficientAssetBalance`.
-
-The module factories — access control, account list, owner registry, fee manager — pull nothing.
+- Every conduit and vehicle spawn pulls this amount from the caller. The module factories, access
+  control, account list, owner registry and fee manager, pull nothing.
+- The amount is registry state, not a spawn parameter. A spawn without the approval reverts
+  `InsufficientAllowance`, without the balance `InsufficientAssetBalance`.
 
 ## Import
 
@@ -72,9 +68,9 @@ See [Deploying a multi-vehicle](/guides/deployingAMultiVehicle) for where this s
 
 `bigint`
 
-The initial deposit amount, in the asset's own decimals, and always non-zero: the registry refuses
-to authorize an asset without one. An asset it does not authorize reverts the read itself with
-`AssetNotAuthorized`.
+The initial deposit amount, in the asset's own decimals, and always non-zero, since the registry
+refuses to authorize an asset without one. An asset it does not authorize reverts the read itself
+with `AssetNotAuthorized`.
 
 ## Parameters
 
@@ -95,7 +91,7 @@ const amount = await getInitialDepositAmount(publicClient, {
 
 - **Type:** `Address`
 
-The asset to look up — the underlying asset of the conduit or vehicle you are about to spawn.
+The underlying asset of the conduit or vehicle to spawn.
 
 ```ts
 const amount = await getInitialDepositAmount(publicClient, {

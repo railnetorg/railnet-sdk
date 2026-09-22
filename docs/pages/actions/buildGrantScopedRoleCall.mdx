@@ -35,7 +35,8 @@ const { request } = await simulateContract(client, {
 const hash = await writeContract(client, request)
 ```
 
-Role constants are available for import:
+Role constants are exported:
+
 ```ts twoslash
 import { VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/railnet-sdk'
 ```
@@ -49,8 +50,6 @@ A prepared call: `{ address, abi, functionName, args }`.
 ### accessControl
 
 - **Type:** `Address`
-
-The address of the ExternalAccessControl contract.
 
 ### role
 

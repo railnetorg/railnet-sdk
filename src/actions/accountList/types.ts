@@ -1,9 +1,9 @@
 /**
- * How the allow-list is consulted. Precedence across every predicate is sanctions, then block-list,
- * then this — and redeem is gated by sanctions alone, so a blocked holder can always exit.
+ * How the allow-list is consulted. Precedence across every predicate is sanctions, then
+ * block-list, then this. Redeem is gated by sanctions alone, so a blocked holder can always exit.
  */
 export enum AllowlistMode {
-  /** Allow-list ignored: anyone not blocked or sanctioned may deposit and transfer. */
+  /** Allow-list ignored; anyone not blocked or sanctioned may deposit and transfer. */
   OPEN = 0,
   /** Allow-list gates deposits only. Transfers stay open to non-blocked parties. */
   REGULAR = 1,

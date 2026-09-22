@@ -9,9 +9,9 @@ export type GrantScopedRoleParameters = {
 }
 
 /**
- * Grants a role to an address, scoped to a specific contract. The caller must hold the role's admin role — `DEFAULT_ADMIN_ROLE` unless it was
- * reassigned — either globally or scoped to the same `scope`.
- * Reverts `PublicRoleAuthDenied` when that scoped role is already public.
+ * Grants a role to an address, scoped to one contract. The caller holds the role's admin role,
+ * globally or scoped to the same `scope`. Reverts `PublicRoleAuthDenied` while that scoped role is
+ * public.
  *
  * @param parameters - {@link GrantScopedRoleParameters}
  */
