@@ -8,8 +8,8 @@ Bringing up a multi-vehicle is several transactions against several factories, a
 an address the previous one returned. The SDK gives you the builders, the log parsers and the read
 you need for the initial deposit; the order is here.
 
-There is no `deployMultiVehicle` function: the sequence is yours to send, so you can report
-progress, retry a single step, and see which one failed.
+There is no `deployMultiVehicle` function. The sequence is yours to send, so you can report
+progress, retry one step, and see which one failed.
 
 ## The order
 
@@ -71,5 +71,4 @@ const contracts = extractMultiVehicleContracts(receipt, multiVehicleFactory)
 if (!contracts) throw new Error('no multi-vehicle in the logs')
 ```
 
-Keep every hash. A step that lands and a step that follows are not the same thing, and a partial
-deployment is resumable only if you know where it stopped.
+Keep every hash. A partial deployment is resumable only from the step that last landed.
