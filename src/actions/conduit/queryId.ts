@@ -30,15 +30,15 @@ export const queryAbiParameter = {
 } as const
 
 export type ToQuerySaltParameters = {
-  /** The address that will send the transaction — `msg.sender`, not necessarily the user. */
+  /** The address that will send the transaction, `msg.sender`. */
   sender: Address
   /** The caller-chosen entropy handed to `conduit.create()` as `sourceSalt`. */
   salt: Hex
 }
 
 /**
- * Derives the `query.salt` the conduit requires: `keccak256(abi.encode(sender, salt))`. A call
- * built for one sender reverts with `InvalidQuerySalt` when another one sends it.
+ * Derives the `query.salt` the conduit requires, `keccak256(abi.encode(sender, salt))`. A call
+ * built for one sender reverts `InvalidQuerySalt` when another sends it.
  *
  * @param parameters - {@link ToQuerySaltParameters}
  */
@@ -58,13 +58,10 @@ export type ToQueryIdParameters = {
 }
 
 /**
- * Computes the id a query will be created under: `keccak256(abi.encode(chainId, vehicle, query))`.
- * It is the value `QueryCreated` carries, so it is the key to join a transaction to an indexed
- * query — and it is known before the transaction is sent.
- *
- * Deterministic for a deposit, whose query is built off chain. A redeem's query is assembled by
- * the conduit at the share ratio of the including block, so its id is not knowable in advance:
- * read it back with {@link extractQueryIds}, or join on the query salt.
+ * Computes the id a query is created under, `keccak256(abi.encode(chainId, vehicle, query))`. It
+ * is the value `QueryCreated` carries, known before a deposit is sent. A redeem's query is
+ * assembled at the share ratio of the including block, so {@link extractQueryIds} reads its id
+ * from the receipt.
  *
  * @param parameters - {@link ToQueryIdParameters}
  */

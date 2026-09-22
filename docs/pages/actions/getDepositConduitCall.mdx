@@ -4,12 +4,11 @@ description: Resolves a deposit call from chain, with the id of the query it wil
 
 # getDepositConduitCall
 
-Reads what a deposit needs — the conduit's vehicle — and returns the call along with the identity of
-the query it will create. It only reads: sending the call is yours.
+Reads the conduit's vehicle and returns the deposit call with the id of the query it will create.
+It only reads; sending is yours.
 
-The `queryId` it returns is the value the conduit's `QueryCreated` event carries, so it is the key
-that joins a transaction to an indexed query. It is known **before** the transaction is sent, so a
-UI can show a pending query the moment the wallet confirms.
+The `queryId` is the value `QueryCreated` carries, the key that joins a transaction to an indexed
+query, and it is known before the transaction is sent.
 
 ## Import
 
@@ -51,7 +50,7 @@ type GetDepositConduitCallReturnType = {
 ## Parameters
 
 Everything [`buildDepositConduitCall`](/actions/buildDepositConduitCall) takes, with `vehicle`
-optional: it is read from `conduit.getVehicle()` when omitted.
+optional. It is read from `conduit.getVehicle()` when omitted.
 
 `salt` stays required. See [The salt](/guides/depositingAndRedeeming#the-salt).
 
