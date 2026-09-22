@@ -62,13 +62,14 @@ export function DepositButton({
 }
 ```
 
-Once the transaction is sent, `deposit.queryId` is the key to follow it — the value the conduit
-emits in `QueryCreated`, and the row an indexer holds.
+Once sent, `deposit.queryId` is the key an indexer holds.
 
 ## Parameters
 
 Everything [`getDepositConduitCall`](/actions/getDepositConduitCall) takes, with `sender` allowed to
 be `undefined` (the query is skipped until a wallet is connected), plus:
+
+`sender` is the account that sends the transaction, a Safe or a batch included. See [The sender](/guides/depositingAndRedeeming#the-sender).
 
 ### chainId
 
@@ -83,11 +84,6 @@ be `undefined` (the query is skipped until a wallet is connected), plus:
 ## Returns
 
 A TanStack Query result over `{ call, query, queryId, vehicle }`, with its `queryKey` attached.
-
-## The sender is the sender
-
-`sender` is whoever will send the transaction, not whoever owns the position. Through a Safe or a
-batch that is the smart account: a call built with the user's EOA reverts with `InvalidQuerySalt`.
 
 ## Query options
 

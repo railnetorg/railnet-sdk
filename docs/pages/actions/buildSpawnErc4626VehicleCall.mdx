@@ -137,7 +137,6 @@ Salt for the spawn's seed deposit query. Generate it with [`randomSalt`](/utilit
 
 - **Type:** `Hex`
 
-One ingredient of the deployed address, and not enough to predict it: the factory folds its own
-`deploymentCounter` into the vehicle's generated name and symbol, so the same salt lands on a
-different address at every spawn. Generate it with [`randomSalt`](/utilities/randomSalt) and read
-the address back from the receipt.
+Generate it with [`randomSalt`](/utilities/randomSalt). The factory folds its deployment counter in,
+so the address is only known from the receipt, through
+[`extractErc4626VehicleAddress`](/utilities/receiptHelpers#extracterc4626vehicleaddress).

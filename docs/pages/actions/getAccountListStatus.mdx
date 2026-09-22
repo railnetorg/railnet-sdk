@@ -52,8 +52,7 @@ Not blocked, not sanctioned, and allow-listed under `REGULAR` or `STRICT`.
 
 ### canRedeem
 
-Sanctions alone gate a redeem, so a **blocked holder still passes this**. Only a sanctions hit stops
-someone taking their own money out.
+Sanctions alone gate a redeem, so a blocked holder passes. See [`AllowlistMode`](/types/Enums#allowlistmode).
 
 ### canReceive
 
@@ -61,8 +60,7 @@ Whether the account may be the receiver of a transfer or a third-party query.
 
 ### isSanctioned
 
-Screening fails closed: an oracle that reverts, holds no code, or returns something malformed marks
-the account sanctioned.
+Set by the oracle, or when the oracle fails to answer. See [Sanctions screening](/actions/accountListConfiguration#sanctions-screening).
 
 ### mode
 

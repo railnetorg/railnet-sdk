@@ -64,6 +64,5 @@ Initial roles to grant. Defaults to `[]`.
 
 - **Type:** `Hex`
 
-One ingredient of the deployed address: it is a CREATE2 over the proxy's init code, which also
-carries `initialDefaultAdmin`, `initialDelay` and `initialRoles`. Generate it with
+Part of the CREATE2 address, with every other field of the call. Generate it with
 [`randomSalt`](/utilities/randomSalt) and keep the value.

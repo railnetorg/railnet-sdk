@@ -80,15 +80,12 @@ without knowing which address will send it. Sending it from any other account re
 A redeem goes through `createRedeemFromConduitShares()`, which takes the salt raw and derives the
 query salt from `msg.sender` itself, so there `sender` only sets the default `receiver`.
 
-It is the *sender*, not the user. Through a Safe, an EIP-5792 batch or a relayer, `msg.sender` is
-that contract — build the call for it.
+Through a Safe, an EIP-5792 batch or a relayer, `msg.sender` is that contract. See [The sender](/guides/depositingAndRedeeming#the-sender).
 
-## Salts are required, never generated
+## Salts are required
 
-Every builder that takes a salt requires it, so a `build*Call` is a pure function of its inputs: the
-same parameters always encode the same calldata, and the same query identity. Generate them with
-[`randomSalt`](/utilities/randomSalt) and keep them — a deployment salt fixes the deployed address,
-and a query salt is how you find the query again. See
+Every builder that takes a salt requires it, so a `build*Call` is a pure function of its inputs.
+Generate them with [`randomSalt`](/utilities/randomSalt) and keep them. See [The salt](/guides/depositingAndRedeeming#the-salt) and
 [Query identity](/utilities/queryIdentity).
 
 ```ts

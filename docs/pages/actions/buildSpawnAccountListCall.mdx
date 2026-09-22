@@ -61,8 +61,6 @@ Gates every later change to the list. Fixed at initialization.
 
 - **Type:** [`AllowlistMode`](/types/Enums#allowlistmode)
 
-Precedence across every check is sanctions, then the block-list, then this. Redeem consults sanctions alone: a blocked holder can always exit.
-
 ### initialAllowList / initialBlockList
 
 - **Type:** `readonly Address[]`
@@ -73,7 +71,8 @@ Seeds for both lists. Neither may contain the zero address.
 
 - **Type:** `boolean`
 
-Requires a non-zero `oracle`, or the deployment reverts `SanctionsOracleRequired`. Screening fails closed: an oracle that reverts, has no code, or returns something malformed marks the account sanctioned, and a sanctioned account can do nothing at all.
+Requires a non-zero `oracle`, or the deployment reverts `SanctionsOracleRequired`. Screening fails
+closed. See [Sanctions screening](/actions/accountListConfiguration#sanctions-screening).
 
 ### oracle
 
@@ -85,6 +84,5 @@ An `ISanctionsList` contract, or the zero address while screening stays off.
 
 - **Type:** `Hex`
 
-One ingredient of the deployed address: it is a CREATE2 over the proxy's init code, which also
-carries the access control, the mode, both lists and the oracle. Generate it with
-[`randomSalt`](/utilities/randomSalt).
+Part of the CREATE2 address, with every other field of the call. Generate it with
+[`randomSalt`](/utilities/randomSalt) and keep the value.

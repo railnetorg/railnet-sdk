@@ -66,8 +66,7 @@ yourself — with `useWriteContract` and `erc20Abi` — or batch the pair with
 
 ## What the SDK still does for you
 
-The call builders keep the protocol's rules: the salt derivation, the rule that a deposit's output
-asset must name the vehicle, the encoding.
 [`useDepositConduitCall`](/react/useDepositConduitCall) and
-[`useRedeemConduitCall`](/react/useRedeemConduitCall) also resolve the addresses a call needs from
-chain, and hand back the identity of the query it will create.
+[`useRedeemConduitCall`](/react/useRedeemConduitCall) resolve the addresses a call needs from chain,
+and hand back the identity of the query it will create. The builders' own rules are on
+[Call builders](/actions/callBuilders).
