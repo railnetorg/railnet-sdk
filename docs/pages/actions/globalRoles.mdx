@@ -6,9 +6,8 @@ description: Granting, revoking and publishing a role across every scope.
 
 The unscoped half of the ExternalAccessControl surface. Each returns a prepared call: `{ address, abi, functionName, args }`.
 
-A global grant applies to every scope. Prefer
-[`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall), which confines the role to the one
-contract that performs the gated call.
+A global grant applies to every scope. [`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall)
+confines a role to one contract.
 
 ## Import
 
@@ -28,8 +27,8 @@ import {
 | `buildRenounceRoleCall` | the role itself | `DefaultAdminCannotBeRenounced` |
 | `buildSetRolePublicCall` | `DEFAULT_ADMIN_ROLE` | `DefaultAdminCannotBePublic`, `RolePublicStatusUnchanged` |
 
-The role's admin is `DEFAULT_ADMIN_ROLE` unless it was reassigned. `buildSetRolePublicCall` is the
-asymmetry to watch: its scoped variant takes the role's own admin, this one does not.
+The role's admin is `DEFAULT_ADMIN_ROLE` unless it was reassigned. `buildSetRolePublicCall` takes
+`DEFAULT_ADMIN_ROLE` itself, where its scoped variant takes the role's admin.
 
 ## buildGrantRoleCall / buildRevokeRoleCall
 
@@ -38,8 +37,8 @@ buildGrantRoleCall({ accessControl: '0x1234...', role: FACTORY_SPAWN, account: '
 buildRevokeRoleCall({ accessControl: '0x1234...', role: FACTORY_SPAWN, account: '0x5678...' })
 ```
 
-Revoking a global role does **not** touch a scoped grant of the same role. Use
-[`buildRevokeScopedRoleCall`](/actions/buildRevokeScopedRoleCall) for that.
+A scoped grant of the same role survives a global revoke;
+[`buildRevokeScopedRoleCall`](/actions/buildRevokeScopedRoleCall) removes it.
 
 ## buildRenounceRoleCall
 
@@ -69,14 +68,10 @@ The ExternalAccessControl contract.
 
 - **Type:** `Hex`
 
-A **base** role, as `keccak256(name)`. This is the form the [role constants](/constants/roles) take.
-
-:::danger
-Never a role already encoded against a scope. `grantRole` cannot tell the two apart and would grant
-the encoded value as a base role under the global admin, skipping every scoped-role semantic. A
-scoped role is `keccak256(role, scope)`, indistinguishable in shape, so no client-side check can
-catch it.
-:::
+A base role, `keccak256(name)`, the form the [role constants](/constants/roles) take. A value already
+encoded against a scope, `keccak256(role, scope)`, has the same shape; `grantRole` stores it as a
+base role, and no client-side check tells the two apart. See
+[Managing roles](/guides/managingRoles#global).
 
 ### account
 

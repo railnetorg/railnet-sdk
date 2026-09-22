@@ -4,10 +4,9 @@ import { externalAccessControlAbi } from '../../abi/externalAccessControl.js'
 export type GlobalRoleParameters = {
   accessControl: Address
   /**
-   * A base role, as `keccak256(name)`, the form the `constants/roles` exports take. Never a role
-   * already encoded against a scope: `grantRole` cannot tell the two apart and would grant the
-   * encoded value as a base role under the global admin, skipping every scoped-role semantic.
-   * Use {@link buildGrantScopedRoleCall} for a role that applies to one contract.
+   * A base role, `keccak256(name)`, the form the `constants/roles` exports take. A value already
+   * encoded against a scope has the same shape and is stored as a base role; {@link
+   * buildGrantScopedRoleCall} confines a role to one contract.
    */
   role: Hex
   account: Address

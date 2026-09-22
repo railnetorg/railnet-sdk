@@ -4,12 +4,10 @@ description: Reads whether an account may act under a role, globally or scoped t
 
 # getHasRole
 
-Reads whether an account may act under a role — holding it globally, or scoped to one contract.
+Reads whether an account may act under a role, held globally or scoped to one contract.
 
-This mirrors what the contracts check themselves: `ExternalAccessControl.hasRoleOrScopedRole` is the
-function behind `AccessControlLib.gatedCheckRole` and `ungatedCheckRole`. A `true` here means the
-corresponding gated call will not revert on its role check. A role marked public reads as held by
-every account.
+A `true` means the corresponding gated call will not revert on its role check. A public role reads
+as held by every account.
 
 ## Import
 
@@ -50,15 +48,14 @@ The ExternalAccessControl the role lives on.
 
 - **Type:** `Hex`
 
-The role hash. The protocol's roles are exported as constants — see [Roles](/constants/roles).
+The role hash; the protocol's roles are exported as constants, see [Roles](/constants/roles).
 
 ### scope
 
 - **Type:** `Address`
 
-The contract the role is scoped to. Pass the contract that performs the gated call: a scoped grant
-only counts for its own scope, so checking against the wrong one reports `false` on a grant that
-does exist.
+The contract that performs the gated call. A scoped grant counts for its own scope only, so the
+wrong scope reports `false` on a grant that exists.
 
 ### account
 

@@ -10,7 +10,7 @@ export type SpawnAccessControlParameters = {
 }
 
 /**
- * Spawns a new ExternalAccessControl via the AccessControlFactory.
+ * Spawns an ExternalAccessControl via `accessControlFactory.spawn()`. No role gates it.
  *
  * @param parameters - {@link SpawnAccessControlParameters}
  */

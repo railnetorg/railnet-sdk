@@ -6,8 +6,8 @@ export type GetHasRoleParameters = {
   accessControl: Address
   role: Hex
   /**
-   * Contract the role is scoped to. Pass the contract that performs the gated call — a scoped grant
-   * only counts for its own scope.
+   * Contract the role is scoped to, the one that performs the gated call; a scoped grant counts
+   * for its own scope only.
    */
   scope: Address
   account: Address
