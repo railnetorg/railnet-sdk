@@ -4,7 +4,7 @@ description: Role constants for access control.
 
 # Roles
 
-Role constants used for access control across the Railnet protocol. These are precomputed `keccak256` hashes that match the roles defined in the Solidity `Roles.sol` contract.
+The protocol's roles, as the `keccak256` hashes `Roles.sol` declares.
 
 ## Import
 
@@ -103,8 +103,8 @@ import { VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/rai
 
 ## The registry
 
-Use the individual constants when you know the role you want, and `ROLES` / `roleName` when you need
-the whole set — labelling a hash read from chain, or building a role picker.
+`ROLES` and `roleName` cover the whole set, for labelling a hash read from chain or building a role
+picker.
 
 ```ts twoslash
 import { ROLES, roleName, VEHICLE_STEAM_DEPOSIT } from '@railnetorg/railnet-sdk'
