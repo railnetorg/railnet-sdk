@@ -40,7 +40,7 @@ const hash = await writeContract(walletClient, request)
 
 ```ts
 type GetDepositConduitCallReturnType = {
-  call: { address: Address; abi: Abi; functionName: string; args: readonly unknown[] }
+  call: ReturnType<typeof buildDepositConduitCall>
   query: Query
   queryId: Hex
   vehicle: Address

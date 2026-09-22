@@ -7,7 +7,7 @@ description: Builds the call that sets a sub-vehicle's allocation mode and cap.
 Builds the `vehicleManager.configure()` call, setting a sub-vehicle's allocation mode and its cap.
 
 - Requires `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` scoped to the VehicleManager.
-- Replaces the whole configuration; a field left out is reset.
+- Replaces the whole configuration. `mode` and `cap` are both required; there is no partial update.
 - Reverts `VehicleNotAuthorized` on a vehicle never authorized, `InvalidTarget` when a finite cap
   carries `threshold > value`, and `StateUnchanged` when mode and cap already hold.
 

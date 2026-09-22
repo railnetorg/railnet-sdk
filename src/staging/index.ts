@@ -3,7 +3,7 @@ import type { ChainAddresses } from '../contracts/addresses.js'
 export type { ChainAddresses }
 
 /**
- * Staging deployments, which run on real mainnet chain ids rather than on a testnet — chain 8453
+ * Staging deployments, which run on real mainnet chain ids rather than on a testnet. Chain 8453
  * here is Base mainnet. They are a separate entry point so that importing the package cannot reach
  * them by accident: a partner integrating against the root never sees these.
  */
