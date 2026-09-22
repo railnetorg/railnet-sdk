@@ -11,7 +11,7 @@ export type AccountListStatus = {
   canReceive: boolean
   isAllowListed: boolean
   isBlocked: boolean
-  /** Screening fails closed: an oracle that reverts or returns nothing marks the account sanctioned. */
+  /** Set when the oracle flags the account or fails to answer. */
   isSanctioned: boolean
   mode: AllowlistMode
 }
