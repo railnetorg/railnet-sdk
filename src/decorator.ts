@@ -21,12 +21,9 @@ import { getMorphoBlueSingleton } from './actions/vehicle/getMorphoBlueSingleton
 import { getMorphoMarketAsset } from './actions/vehicle/getMorphoMarketAsset.js'
 
 /**
- * Viem client decorator adding every Railnet action that only reads. Use with
- * `client.extend(railnetActions)`.
- *
- * Writes are absent by design: the SDK builds calls and the caller sends them, so there is nothing
- * to hang off a client. Reach for the `build*Call` builders and viem's `simulateContract` /
- * `writeContract`.
+ * Viem client decorator adding every Railnet read action, for `client.extend(railnetActions)`.
+ * Writes are calls the `build*Call` builders return and the caller sends with viem's
+ * `simulateContract` and `writeContract`.
  */
 export function railnetActions(client: Client) {
   const bind =

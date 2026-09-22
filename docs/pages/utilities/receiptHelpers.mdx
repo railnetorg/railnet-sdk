@@ -2,10 +2,10 @@
 description: Helpers to extract deployed contract addresses from transaction receipts.
 ---
 
-# Receipt Helpers
+# Receipt helpers
 
-Utility functions to read back what a transaction produced: the addresses a spawn deployed, and the
-queries a conduit created.
+Reads back what a transaction produced, the addresses a spawn deployed and the queries a conduit
+created.
 
 ## Import
 
@@ -19,59 +19,21 @@ import {
   extractMultiVehicleContracts,
   extractQueryIds,
   extractWrapperVehicleAddress,
-  randomSalt,
 } from '@railnetorg/railnet-sdk'
 ```
 
 ## Usage
 
-The typical flow involves spawning a contract, waiting for the transaction receipt, and then using a helper to extract the deployed address(es).
+After a spawn, read the address out of the receipt:
 
 ```ts
-import { createPublicClient, createWalletClient, http } from 'viem'
-import { base } from 'viem/chains'
-import { 
-  buildSpawnConduitCall,
-  extractConduitAddress,
-} from '@railnetorg/railnet-sdk'
+import { waitForTransactionReceipt, writeContract } from 'viem/actions'
+import { extractConduitAddress } from '@railnetorg/railnet-sdk'
 
-const publicClient = createPublicClient({
-  chain: base,
-  transport: http(),
-})
+const hash = await writeContract(client, request)
+const receipt = await waitForTransactionReceipt(client, { hash })
 
-const walletClient = createWalletClient({
-  chain: base,
-  transport: http(),
-})
-
-const factoryAddress = '0x1234...'
-
-// 1. Spawn the contract
-const { request } = await publicClient.simulateContract({
-  ...buildSpawnConduitCall({
-    factory: factoryAddress,
-    name: 'My Conduit',
-    symbol: 'COND',
-    vehicle: '0x5678...',
-    initialExpectedSupply: 1000000000000000000n,
-    transferEnabled: true,
-    accessControl: '0x...',
-    feeManager: '0x...',
-    accountList: '0x...',
-    ownerRegistry: '0x...',
-    querySalt: randomSalt(),
-    deploymentSalt: randomSalt(),
-  }),
-  account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
-})
-const hash = await walletClient.writeContract(request)
-
-// 2. Wait for the receipt
-const receipt = await publicClient.waitForTransactionReceipt({ hash })
-
-// 3. Extract the deployed address
-const conduitAddress = extractConduitAddress(receipt, factoryAddress)
+const conduit = extractConduitAddress(receipt, conduitFactory)
 ```
 
 ## extractConduitAddress
@@ -206,11 +168,8 @@ const vehicleAddress = extractWrapperVehicleAddress(receipt, wrapperVehicleFacto
 
 Returns `Address | null`.
 
-:::info
-These are the only way to learn a vehicle's address. Every vehicle factory folds its own deployment
-counter into the salt or the init code, so the address cannot be derived from the spawn parameters
-before the transaction lands.
-:::
+Every vehicle factory folds its deployment counter into the address, so a vehicle's address is only
+known from the receipt.
 
 ## extractQueryIds
 

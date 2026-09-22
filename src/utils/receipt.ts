@@ -168,8 +168,9 @@ export type CreatedQuery = {
 
 /**
  * Extracts the queries a transaction created on a conduit, in log order, from its `QueryCreated`
- * events. A deposit's id is known before it is sent — see {@link toQueryId} — but a redeem's query
- * is assembled on chain, so this is how to learn its id.
+ * events. A deposit's id is known before it is sent, see {@link toQueryId}; a redeem's query is
+ * assembled on chain, so this is how to learn its id.
+ *
  * @returns One entry per created query, empty when the transaction created none
  */
 export function extractQueryIds(

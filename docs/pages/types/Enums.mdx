@@ -4,8 +4,8 @@ description: Enum definitions for the Railnet SDK.
 
 # Enums
 
-The protocol-wide enums, shipped from the package root. They are not conduit-specific: vehicles,
-the sector accounting engine and the estimators read the same values.
+The protocol-wide enums, shipped from the package root. Vehicles, the sector accounting engine and
+the estimators read the same values.
 
 ## Import
 
@@ -34,7 +34,7 @@ enum QueryMode {
 
 ## QueryState
 
-Represents the state of a query within the STEAM state machine.
+The state of a query in the STEAM state machine.
 
 ```ts
 enum QueryState {
@@ -84,7 +84,7 @@ The query is ready to be settled.
 
 ## EstimationType
 
-Represents the type of estimation to perform.
+The direction of an estimate.
 
 ```ts
 enum EstimationType {

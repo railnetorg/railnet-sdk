@@ -10,9 +10,9 @@ This site also serves [`/llms.txt`](https://sdk.railnet.org/llms.txt), [`/llms-f
 Markdown at the same path with a `.md` suffix. An MCP server at `/api/mcp` searches these docs and
 the source on GitHub.
 
-The package ships five [TanStack Intent](https://github.com/TanStack/intent) skills —
-`railnet-core`, `railnet-conduit`, `railnet-vehicle`, `railnet-access-control`, `railnet-react` — so
-your agent reads the SDK from `node_modules` instead of guessing at it.
+The package ships five [TanStack Intent](https://github.com/TanStack/intent) skills, `railnet-core`,
+`railnet-conduit`, `railnet-vehicle`, `railnet-access-control` and `railnet-react`, so an agent reads
+the SDK from `node_modules`.
 
 Once per project:
 
@@ -21,7 +21,7 @@ bunx @tanstack/intent@latest install
 ```
 
 That writes loading guidance into `AGENTS.md`. If your agent reads `CLAUDE.md` instead, move the
-generated `<!-- intent-skills -->` block there — later runs follow it. Swap `bunx` for `pnpm dlx` or
+generated `<!-- intent-skills -->` block there; later runs follow it. Swap `bunx` for `pnpm dlx` or
 `npx`.
 
 The agent takes it from there:

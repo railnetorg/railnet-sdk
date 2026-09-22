@@ -34,10 +34,10 @@ sendCalls({
 })
 ```
 
-## Two things to check first
+## Before batching
 
-**Atomicity is not guaranteed.** Whether a batch lands as one transaction depends on the wallet —
-read its capabilities (`getCapabilities`) rather than assuming the pair cannot come apart.
+**Atomicity is not guaranteed.** Whether a batch lands as one transaction depends on the wallet;
+`getCapabilities` says. The pair can come apart.
 
 **Build for the effective sender.** A batch may execute from a smart account, which is then
 `msg.sender`. A deposit built for the user's EOA reverts `InvalidQuerySalt`. See [The sender](/guides/depositingAndRedeeming#the-sender).

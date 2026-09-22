@@ -1,7 +1,7 @@
 import type { Address } from 'viem'
 
 export type ChainAddresses = {
-  /** Block the deployment started at — where an indexer or a log scan should begin. */
+  /** Block the deployment started at, where an indexer or a log scan begins. */
   startedAtBlock: bigint
   conduitFactory: Address
   coreFactory: Address
@@ -24,9 +24,8 @@ export type ChainAddresses = {
 }
 
 /**
- * Production deployments. Base is not here yet: its production deployment has not shipped, and the
- * staging one it runs today is behind `@railnetorg/railnet-sdk/staging` rather than passed off as
- * production under chain 8453.
+ * Production deployments. Base has none yet; its staging deployment is behind
+ * `@railnetorg/railnet-sdk/staging`.
  */
 export const addresses = {
   1: {

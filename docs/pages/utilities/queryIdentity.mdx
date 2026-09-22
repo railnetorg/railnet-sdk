@@ -5,8 +5,7 @@ description: Derive the salt a conduit query is bound to, and the id it will be 
 # Query identity
 
 Every conduit operation creates a query, and the protocol gives it two identifiers. Both are
-derivable off chain, which is what lets a UI or an indexer follow an operation from the moment it is
-built.
+derivable off chain, so a UI or an indexer can follow an operation from the moment it is built.
 
 ## toQuerySalt
 
@@ -16,12 +15,10 @@ import { toQuerySalt } from '@railnetorg/railnet-sdk'
 const querySalt = toQuerySalt({ sender: account.address, salt: randomSalt() })
 ```
 
-`keccak256(abi.encode(sender, salt))` — the value `conduit.create()` requires in `query.salt`, and
-the one `createRedeemFromConduitShares()` derives itself. Binding the salt to `msg.sender` is what
-stops another account from occupying a query id, and it is why a call built for one sender reverts
-with `InvalidQuerySalt` when another sends it.
-
-The builders call it for you; you need it directly only to recognise a query you did not build.
+`keccak256(abi.encode(sender, salt))`, the value `conduit.create()` requires in `query.salt` and the
+one `createRedeemFromConduitShares()` derives itself. A call built for one sender reverts
+`InvalidQuerySalt` when another sends it. The builders call it; it is needed directly only to
+recognise a query built elsewhere.
 
 ## toQueryId
 
@@ -32,9 +29,8 @@ import { mainnet } from 'viem/chains'
 const queryId = toQueryId({ chainId: mainnet.id, vehicle, query })
 ```
 
-`keccak256(abi.encode(chainId, vehicle, query))` — the id the conduit emits in `QueryCreated`, and
-so the key an indexer holds. [`getDepositConduitCall`](/actions/getDepositConduitCall) returns it
-already computed.
+`keccak256(abi.encode(chainId, vehicle, query))`, the id the conduit emits in `QueryCreated` and the
+key an indexer holds. [`getDepositConduitCall`](/actions/getDepositConduitCall) returns it computed.
 
 A deposit's id is known before the transaction is sent. A redeem's is read from the receipt with
 [`extractQueryIds`](/utilities/receiptHelpers#extractqueryids). See [`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).

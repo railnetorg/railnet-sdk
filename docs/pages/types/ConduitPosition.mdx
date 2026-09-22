@@ -4,7 +4,7 @@ description: Type definition for a conduit position.
 
 # ConduitPosition
 
-Represents the position of an account in a conduit - the number of shares held and their equivalent value in the underlying asset.
+An account's position in a conduit, the shares held and their value in the underlying asset.
 
 ## Import
 
@@ -30,13 +30,14 @@ type ConduitPosition = {
 
 - **Type:** `bigint`
 
-The number of conduit shares held by the account. Corresponds to the ERC-20 `balanceOf` the conduit token.
+The conduit shares held, `balanceOf` on the conduit token.
 
 ### assets
 
 - **Type:** `bigint`
 
-The equivalent value of the shares in the conduit's underlying asset. Computed on-chain via the conduit's `convert` function. Returns `0n` if the account holds no shares.
+The shares' value in the underlying asset, from the conduit's `convert`. `0n` when the account holds
+no shares.
 
 ### conduit
 
@@ -46,13 +47,10 @@ The equivalent value of the shares in the conduit's underlying asset. Computed o
 
 - **Type:** `Address`
 
-The address of the account that holds the position.
-
 ### blockNumber
 
 - **Type:** `bigint`
 
 The block both reads were served at. `convert` takes the balance `balanceOf` returned, so the two
-cannot be batched into one multicall; pinning them to one block is what stops a deposit landing
-between them from reporting shares at one rate and assets at another. Pass it in to read a past
-position.
+cannot be batched into one multicall; pinned to one block, a deposit landing between them cannot
+report shares at one rate and assets at another. Pass it to read a past position.
