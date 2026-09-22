@@ -4,9 +4,15 @@ description: Sets deposit and redeem queues on the QueueStrategyEngine.
 
 # buildSetQueuesCall
 
-Sets deposit and redeem queues on the QueueStrategyEngine.
+Builds the `queueStrategyEngine.setQueues()` call, the deposit and redeem allocation queues of a
+multi-vehicle.
 
-The caller needs `MULTI_VEHICLE_SET_QUEUES` scoped to the engine. Entries are validated on chain and rejected with `InvalidQueueEntry(index, vehicle, reason)`. Both queues need a ready vehicle whose asset matches the engine's, in a mode other than `Manual`; a deposit entry also needs it authorized with a non-zero `value`, a redeem entry a single-asset vehicle and a finite target. `threshold > value` on a finite target reverts `InvalidTarget`.
+- Requires `MULTI_VEHICLE_SET_QUEUES` scoped to the engine.
+- Entries are validated on chain and rejected with `InvalidQueueEntry(index, vehicle, reason)`.
+  Both queues need a ready vehicle whose asset matches the engine's, in a mode other than `Manual`;
+  a deposit entry also needs it authorized with a non-zero `value`, a redeem entry a single-asset
+  vehicle and a finite target.
+- `threshold > value` on a finite target reverts `InvalidTarget`.
 
 ## Import
 
@@ -24,10 +30,10 @@ const { request } = await simulateContract(client, {
   ...buildSetQueuesCall({
     queueStrategyEngine: '0x1234...',
     depositQueue: [
-    {
-    vehicle: '0x5678...',
-    target: { value: 1000000n, threshold: 100n }
-    }
+      {
+        vehicle: '0x5678...',
+        target: { value: 1000000n, threshold: 100n },
+      },
     ],
     redeemQueue: [],
   }),
@@ -51,7 +57,7 @@ A prepared call: `{ address, abi, functionName, args }`.
 
 - **Type:** `QueueEntry[]`
 
-The new queue configuration: one `{ vehicle, target }` per sub-vehicle, in allocation order.
+One `{ vehicle, target }` per sub-vehicle, in allocation order.
 
 ```ts
 type QueueTarget = { value: bigint; threshold: bigint }
@@ -59,5 +65,4 @@ type QueueTarget = { value: bigint; threshold: bigint }
 
 `value` is an allocation target in the sub-vehicle's share units, `threshold` a tolerance margin in
 the same units that must not exceed `value` on a finite target. `2n ** 256n - 1n` (unlimited) is
-accepted on the deposit queue only — an unlimited `value + threshold` on a redeem entry is
-rejected.
+accepted on the deposit queue only; a redeem entry needs a finite `value + threshold`.
