@@ -134,6 +134,7 @@ export default defineConfig({
           items: [
             ...actions([
               'buildDepositConduitCall',
+              'buildDepositConduitQuery',
               'buildEnableConduitTransfersCall',
               'buildFinalizeConduitDepositCall',
               'buildForceRedeemCall',
@@ -180,7 +181,11 @@ export default defineConfig({
               text: 'buildFeedQueryRedeemQueueCall',
               link: '/actions/queryRedeemQueue#buildfeedqueryredeemqueuecall',
             },
-            ...actions(['buildMoveBetweenSectorsCall', 'buildProgressQueryCall']),
+            ...actions([
+              'buildMoveBetweenSectorsCall',
+              'buildProgressQueryCall',
+              'buildRebalanceRedeemCall',
+            ]),
             {
               text: 'buildRetrieveQueryRedeemQueueAssetsCall',
               link: '/actions/queryRedeemQueue#buildretrievequeryredeemqueueassetscall',
@@ -194,17 +199,26 @@ export default defineConfig({
               'getSectorBalance',
               'getVehicleManagerLimits',
             ]),
+            {
+              text: 'simulateDispatchVehicle',
+              link: '/actions/buildDispatchVehicleCall#simulatedispatchvehicle',
+            },
+            { text: 'toSubQuery', link: '/actions/buildProgressQueryCall#tosubquery' },
           ],
         },
         {
           text: 'Owner Registry',
           collapsed: true,
-          items: actions(['buildSpawnOwnerRegistryCall', 'buildWrapQueryCall']),
+          items: [
+            ...actions(['buildSpawnOwnerRegistryCall', 'buildWrapQueryCall']),
+            { text: 'getQueryClaim', link: '/actions/buildWrapQueryCall#getqueryclaim' },
+          ],
         },
         {
           text: 'Vehicle',
           collapsed: true,
           items: [
+            { text: 'applySlippage', link: '/actions/estimateVehicle#applyslippage' },
             {
               text: 'buildSetVehicleInterceptionsCall',
               link: '/actions/setInterceptions#the-two-calls',
@@ -214,6 +228,7 @@ export default defineConfig({
               'buildSpawnErc4626VehicleCall',
               'buildSpawnMorphoBlueVehicleCall',
               'buildSpawnWrapperVehicleCall',
+              'estimateVehicle',
             ]),
           ],
         },
@@ -232,14 +247,18 @@ export default defineConfig({
           text: 'Types',
           collapsed: true,
           items: [
-            'Asset',
-            'ChainAddresses',
-            'ConduitInfo',
-            'ConduitPosition',
-            'Enums',
-            'Interception',
-            'Sector',
-          ].map((name) => ({ text: name, link: `/types/${name}` })),
+            ...[
+              'Asset',
+              'ChainAddresses',
+              'ConduitInfo',
+              'ConduitPosition',
+              'Enums',
+              'Interception',
+              'Query',
+              'Sector',
+            ].map((name) => ({ text: name, link: `/types/${name}` })),
+            { text: 'vehicleSector', link: '/types/Sector#vehicle-sectors' },
+          ],
         },
       ],
     },

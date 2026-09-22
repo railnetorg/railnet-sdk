@@ -1,0 +1,46 @@
+---
+description: Builds the DEPOSIT query struct a conduit is called with.
+---
+
+# buildDepositConduitQuery
+
+Builds the DEPOSIT [`Query`](/types/Query) struct that `conduit.create()` is called with. Its id,
+the row an indexer holds, is [`toQueryId`](/utilities/queryIdentity#toqueryid) of the returned
+struct.
+
+- [`buildDepositConduitCall`](/actions/buildDepositConduitCall) builds the same struct and sends
+  it. Build it directly to hold the exact struct an async deposit needs when
+  [`buildProcessConduitQueryCall`](/actions/buildProcessConduitQueryCall) advances it later.
+- The struct's `salt` is [`toQuerySalt`](/utilities/queryIdentity#toquerysalt) of `sender` and
+  `salt`, not the raw salt.
+- Its `output` names the vehicle, with `minOutput` as the value. The deposit path accepts no other
+  output asset, it reverts `InvalidOutput`.
+
+## Import
+
+```ts twoslash
+import { buildDepositConduitQuery } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { buildDepositConduitQuery, randomSalt } from '@railnetorg/railnet-sdk'
+
+const query = buildDepositConduitQuery({
+  conduit,
+  token: usdc,
+  amount: 1000000n,
+  sender: account,
+  vehicle,
+  salt: randomSalt(),
+})
+```
+
+## Returns
+
+[`Query`](/types/Query).
+
+## Parameters
+
+Same parameters as [`buildDepositConduitCall`](/actions/buildDepositConduitCall).
