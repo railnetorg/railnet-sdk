@@ -6,10 +6,9 @@ export type EnableConduitTransfersParameters = {
 }
 
 /**
- * A one-way latch: no call turns transfers back off. Reverts `StateUnchanged` when they are
- * already on, and needs CONDUIT_SET_TRANSFER_ENABLED.
- *
- * Not `conduit.enable()`, which takes the ConduitFactory alone and runs once the seed deposit
+ * Turns on transfers of a conduit's shares; no call turns them back off. Needs
+ * CONDUIT_SET_TRANSFER_ENABLED and reverts `StateUnchanged` when they are already on.
+ * `conduit.enable()` is a different call, sent by the ConduitFactory alone once the seed deposit
  * settles.
  *
  * @param parameters - {@link EnableConduitTransfersParameters}
