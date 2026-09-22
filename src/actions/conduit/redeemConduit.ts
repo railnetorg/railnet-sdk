@@ -6,22 +6,24 @@ export type BuildRedeemConduitCallParameters = {
   conduit: Address
   shares: bigint
   /**
-   * The address that will send the transaction. The conduit burns its shares and derives the query
-   * salt from it, so through a Safe, a batch or a relayer this is that contract, not the user.
+   * The address that will send the transaction. The conduit derives the query salt from
+   * `msg.sender`; through a Safe, a batch or a relayer that is the contract.
    */
   sender: Address
   /** The asset to redeem into, from `conduit.asset()`. A zero `value` disables the amount floor. */
   outputAsset: Asset
-  /** Caller-chosen entropy. It fixes the query's identity, so it is never generated for you. */
+  /**
+   * Caller-chosen entropy that fixes the query's identity. Use {@link randomSalt} and keep it for
+   * the whole operation.
+   */
   salt: Hex
   /** Who receives the output asset. Defaults to `sender`. */
   receiver?: Address
 }
 
 /**
- * Builds the `conduit.createRedeemFromConduitShares()` call. Needs no approval: the conduit burns
- * the caller's shares through an internal transfer. This entrypoint takes the salt raw and derives
- * the query salt from `(msg.sender, salt)` itself, unlike `conduit.create()`.
+ * Builds the `conduit.createRedeemFromConduitShares()` call. It needs no approval; the conduit
+ * burns the caller's shares. The conduit derives the query salt from `(msg.sender, salt)` itself.
  *
  * @param parameters - {@link BuildRedeemConduitCallParameters}
  */
