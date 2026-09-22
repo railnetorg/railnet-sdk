@@ -9,12 +9,9 @@ export type ProtocolErrorName = ContractErrorName<
 >
 
 /**
- * What to do about a revert, for the errors a caller can act on. Keyed by the custom error's name,
- * which viem decodes from the ABIs this package ships.
- *
- * Deliberately not exhaustive: the protocol declares 167 errors, and the OpenZeppelin, ERC-20 and
- * proxy ones say what they mean already. Only the entries where the name alone leaves a caller
- * guessing are here.
+ * What to do about a revert, for the errors a caller can act on, keyed by the custom error's name
+ * viem decodes from the ABIs this package ships. Only the errors whose name alone leaves a caller
+ * guessing have an entry.
  */
 export const railnetErrorHints: Readonly<Partial<Record<ProtocolErrorName, string>>> = {
   AddressAlreadyListed:
@@ -133,8 +130,8 @@ export type RailnetError = {
 }
 
 /**
- * Reads a Railnet revert out of anything viem threw: it walks the error chain for the
- * `ContractFunctionRevertedError`, and returns the decoded name, its arguments, and what to do.
+ * Reads a Railnet revert out of anything viem threw. It walks the error chain for the
+ * `ContractFunctionRevertedError` and returns the decoded name, its arguments, and what to do.
  *
  * @returns The revert, or `null` if the failure was not a contract revert — a rejected signature,
  * a transport error and a gas estimation failure all land here as `null`.
@@ -143,11 +140,11 @@ export type RailnetError = {
  * import { getRailnetError } from '@railnetorg/railnet-sdk'
  *
  * try {
- *   await simulateContract(client, { ...buildDepositConduitCall(parameters), account })
+ * await simulateContract(client, { ...buildDepositConduitCall(parameters), account })
  * } catch (error) {
- *   const reverted = getRailnetError(error)
- *   if (reverted?.name === 'InsufficientAllowance') return approveFirst()
- *   throw error
+ * const reverted = getRailnetError(error)
+ * if (reverted?.name === 'InsufficientAllowance') return approveFirst()
+ * throw error
  * }
  */
 export function getRailnetError(error: unknown): RailnetError | null {

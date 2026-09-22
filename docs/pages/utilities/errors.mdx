@@ -20,19 +20,18 @@ import { getRailnetError } from '@railnetorg/railnet-sdk'
 const reverted = getRailnetError(error)
 ```
 
-## Return Type
+## Returns
 
 `RailnetError | null`
 
-`null` for a failure that was not a contract revert: a rejected signature, a transport error and a
-gas estimation failure all land there.
+`null` for a failure that was not a contract revert, such as a rejected signature, a transport
+error or a gas estimation failure.
 
 ### name
 
 - **Type:** `string`
 
-The custom error's name as the contract declares it — `MissingRole`, `InvalidQuerySalt`,
-`QueryAlreadyExists`.
+The custom error's name as the contract declares it, such as `MissingRole` or `InvalidQuerySalt`.
 
 ### args
 
@@ -46,8 +45,7 @@ that takes none.
 
 - **Type:** `string | undefined`
 
-What to do about it, when this package knows. `undefined` is not a failure — it means the name
-already says what happened.
+What to do about it, when this package knows. `undefined` means the name already says what happened.
 
 ### cause
 
