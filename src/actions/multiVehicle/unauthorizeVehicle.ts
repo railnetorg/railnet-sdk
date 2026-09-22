@@ -7,10 +7,8 @@ export type UnauthorizeVehicleParameters = {
 }
 
 /**
- * Drops a sub-vehicle's authorization and its configuration.
- *
- * Does not unwind holdings: a vehicle can be unauthorized while the multi vehicle still holds a
- * position in it, which then stays put until an operator moves it.
+ * Drops a sub-vehicle's authorization and its configuration. Holdings stay where they are until an
+ * operator moves them.
  *
  * @param parameters - {@link UnauthorizeVehicleParameters}
  */
