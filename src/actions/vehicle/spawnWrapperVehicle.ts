@@ -15,11 +15,9 @@ export type SpawnWrapperVehicleParameters = {
 }
 
 /**
- * Spawns a wrapper vehicle: it holds the asset itself rather than supplying it anywhere, so it
- * earns nothing and exists to give a plain token a STEAM interface.
- *
- * Unlike the other vehicle factories this one takes no `initialExpectedSupply` — it still pulls a
- * seed deposit from the AssetRegistry, but enforces no floor on the shares minted.
+ * Spawns a wrapper vehicle, which holds its asset and earns nothing; it gives a plain token a
+ * STEAM interface. It takes no `initialExpectedSupply`, pulls the seed deposit, and enforces no
+ * floor on the shares minted.
  *
  * @param parameters - {@link SpawnWrapperVehicleParameters}
  */

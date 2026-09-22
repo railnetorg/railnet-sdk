@@ -4,8 +4,8 @@ import { erc4626VehicleFactoryAbi } from '../../abi/erc4626VehicleFactory.js'
 export type SpawnErc4626VehicleParameters = {
   factory: Address
   /**
-   * The ERC-4626 vault to wrap. The vehicle's asset is the vault's own asset, so none is passed —
-   * and the AssetRegistry has to carry an initial deposit amount for that asset.
+   * The ERC-4626 vault to wrap. The vehicle's asset is the vault's own asset, so none is passed,
+   * and the AssetRegistry has to carry an initial deposit amount for it.
    */
   vault: Address
   accessControl: Address

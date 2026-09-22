@@ -4,8 +4,8 @@ import { morphoBlueVehicleFactoryAbi } from '../../abi/morphoBlueVehicleFactory.
 export type SpawnMorphoBlueVehicleParameters = {
   factory: Address
   /**
-   * The Morpho Blue singleton. It must equal the factory implementation's own `MORPHO` — read it
-   * with {@link getMorphoBlueSingleton} rather than supplying it by hand.
+   * The Morpho Blue singleton. It must equal the factory implementation's own `MORPHO`; {@link
+   * getMorphoBlueSingleton} reads it.
    */
   morpho: Address
   /** Morpho Blue market id (`Id`, a bytes32). Decides the asset, so none is passed. */

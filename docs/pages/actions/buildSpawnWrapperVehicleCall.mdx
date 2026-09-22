@@ -4,16 +4,13 @@ description: Deploys a wrapper vehicle, which holds a token rather than supplyin
 
 # buildSpawnWrapperVehicleCall
 
-Deploys a wrapper vehicle: it holds the asset itself rather than supplying it anywhere, so it earns nothing. It exists to give a plain token a STEAM interface, which is what lets a conduit or a multi-vehicle treat it like any other vehicle. Returns the call to send.
+Deploys a wrapper vehicle, which holds its asset and earns nothing; it gives a plain token the
+STEAM interface a conduit or a multi-vehicle expects.
 
-The caller needs `FACTORY_SPAWN` on the factory's access control.
-
-:::warning
-The factory is deployed in staging only. `wrapperVehicleFactory` is optional on
-[`ChainAddresses`](/types/ChainAddresses) and carries no value under the production entry point —
-read it from [`@railnetorg/railnet-sdk/staging`](/contracts/staging).
-:::
-
+- Requires `FACTORY_SPAWN` on the factory's access control.
+- The factory is deployed in staging only; `wrapperVehicleFactory` comes from
+  [`@railnetorg/railnet-sdk/staging`](/contracts/staging).
+- It takes no `initialExpectedSupply`; the seed deposit has no floor on the shares minted.
 - The factory pulls the initial deposit of `asset` from the caller and burns the shares it mints.
   Approve it for at least [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first. The deposit does not come back.
 
@@ -63,9 +60,7 @@ const hash = await writeContract(client, request)
 
 A prepared call: `{ address, abi, functionName, args }`.
 
-:::info
-Use [`extractWrapperVehicleAddress`](/utilities/receiptHelpers#extractwrappervehicleaddress) to read the deployed address out of the transaction receipt.
-:::
+[`extractWrapperVehicleAddress`](/utilities/receiptHelpers#extractwrappervehicleaddress) reads the deployed address from the receipt.
 
 ## Parameters
 
@@ -130,8 +125,3 @@ Salt for the spawn's seed deposit query. Generate it with [`randomSalt`](/utilit
 Generate it with [`randomSalt`](/utilities/randomSalt). The factory folds its deployment counter in,
 so the address is only known from the receipt, through
 [`extractWrapperVehicleAddress`](/utilities/receiptHelpers#extractwrappervehicleaddress).
-
-:::info
-Unlike the other vehicle factories this one takes no `initialExpectedSupply`. It still pulls the
-seed deposit, but enforces no floor on the shares minted.
-:::

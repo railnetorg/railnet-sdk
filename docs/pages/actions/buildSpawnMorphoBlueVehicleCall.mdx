@@ -4,11 +4,10 @@ description: Deploys a vehicle supplying into one Morpho Blue market.
 
 # buildSpawnMorphoBlueVehicleCall
 
-Deploys a vehicle that supplies into a single Morpho Blue market.
+Deploys a vehicle that supplies into a single Morpho Blue market. The vehicle supplies the market's
+loan token, so the market id decides the asset.
 
-Morpho Blue is one immutable singleton per chain hosting every isolated market. A market is `{ loanToken, collateralToken, oracle, irm, lltv }`, and its `Id` is the hash of that struct. The vehicle supplies the market's **loan token**, so the market id decides the asset and none is passed.
-
-The caller needs `FACTORY_SPAWN` on the factory's access control.
+- Requires `FACTORY_SPAWN` on the factory's access control.
 
 - The factory pulls the initial deposit of the market's loan token from the caller and burns the
   shares it mints. Approve it for at least [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first. The deposit does not come back.
@@ -25,7 +24,7 @@ import {
 
 ## Usage
 
-Neither address is meant to be hardcoded — resolve both, then approve and spawn:
+Resolve both addresses, approve, then spawn:
 
 ```ts
 import { erc20Abi } from 'viem'
@@ -76,9 +75,7 @@ const hash = await writeContract(client, request)
 
 A prepared call: `{ address, abi, functionName, args }`.
 
-:::info
-Use [`extractMorphoBlueVehicleAddress`](/utilities/receiptHelpers#extractmorphobluevehicleaddress) to read the deployed address out of the transaction receipt.
-:::
+[`extractMorphoBlueVehicleAddress`](/utilities/receiptHelpers#extractmorphobluevehicleaddress) reads the deployed address from the receipt.
 
 ## Parameters
 
@@ -93,8 +90,8 @@ The Morpho Blue vehicle factory. Available as `morphoBlueVehicleFactory` from [`
 - **Type:** `Address`
 
 The Morpho Blue singleton. The spawn reverts `InvalidMorpho` unless it equals the factory
-implementation's own immutable `MORPHO`, so there is exactly one value that works — read it with
-`getMorphoBlueSingleton` rather than supplying it by hand.
+implementation's own immutable `MORPHO`, so exactly one value works;
+[`getMorphoBlueSingleton`](#getmorphobluesingleton) reads it.
 
 ### marketId
 
@@ -167,8 +164,8 @@ so the address is only known from the receipt, through
 const morpho = await getMorphoBlueSingleton(client, { factory: morphoBlueVehicleFactory })
 ```
 
-Two reads — the factory's `IMPLEMENTATION`, then that clone's `MORPHO` — returning the only
-singleton address this factory accepts.
+Reads the factory's `IMPLEMENTATION`, then that clone's `MORPHO`, the only singleton address this
+factory accepts.
 
 ## getMorphoMarketAsset
 
@@ -176,5 +173,4 @@ singleton address this factory accepts.
 const asset = await getMorphoMarketAsset(client, { morpho, marketId })
 ```
 
-The market's loan token, which is what a supplier deposits and therefore the vehicle's asset. Use
-it to know which token to approve, without stating the asset twice.
+The market's loan token, the asset a supplier deposits and the token to approve.
