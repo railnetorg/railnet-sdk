@@ -4,8 +4,14 @@ description: Reads a multi vehicle's operational limits.
 
 # useVehicleManagerLimits
 
-Reads a multi vehicle's auto-fulfill threshold, withdrawal buffer and deposit cap in one multicall.
-Returns a standard TanStack Query result with its `queryKey` attached.
+Reads a multi vehicle's auto-fulfill threshold, withdrawal buffer and deposit cap in one multicall, as
+a TanStack Query result.
+
+## Import
+
+```ts
+import { useVehicleManagerLimits } from '@railnetorg/railnet-sdk/react'
+```
 
 ## Usage
 
@@ -31,9 +37,8 @@ export function LimitsPanel({ vehicleManager }: { vehicleManager: Address }) {
 }
 ```
 
-Both `maxTotalAssets` and `minSharesForAutoFulfill` use `2n ** 256n - 1n` as their "no limit"
-value, so compare against it rather than rendering the raw number — see
-[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) for the units of each field.
+`maxTotalAssets` and `minSharesForAutoFulfill` use `2n ** 256n - 1n` as their no-limit value.
+[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) gives the units of each field.
 
 ## Parameters
 
@@ -43,15 +48,15 @@ value, so compare against it rather than rendering the raw number — see
 
 The multi vehicle's VehicleManager.
 
-### chainId
+### chainId (optional)
 
 - **Type:** `number`
-- **Optional.** Defaults to the connected chain.
+- **Default:** the connected chain
 
-### enabled
+### enabled (optional)
 
 - **Type:** `boolean`
-- **Optional.** Defaults to `true`.
+- **Default:** `true`
 
 ## Returns
 
