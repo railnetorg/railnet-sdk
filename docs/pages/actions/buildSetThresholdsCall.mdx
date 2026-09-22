@@ -4,12 +4,11 @@ description: Builds the call that sets a multi vehicle's auto-fulfill threshold 
 
 # buildSetThresholdsCall
 
-Builds the `vehicleManager.setThresholds()` call. The caller needs `MULTI_VEHICLE_SET_THRESHOLDS`
-scoped to the VehicleManager, not to the multi vehicle.
+Builds the `vehicleManager.setThresholds()` call.
 
-It replaces **both** values outright — there is no partial update. Read
-[`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) first and pass the current value for
-whichever field you are not changing, or you silently reset it.
+- Requires `MULTI_VEHICLE_SET_THRESHOLDS` scoped to the VehicleManager, not to the multi vehicle.
+- Replaces both values at once. [`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) reads
+  the current pair; a field passed as 0 enables auto-fulfill on every request.
 
 ## Import
 
@@ -36,7 +35,7 @@ const call = buildSetThresholdsCall({
 
 ## Returns
 
-A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actions/callBuilders).
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 

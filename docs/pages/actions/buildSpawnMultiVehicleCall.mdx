@@ -4,7 +4,7 @@ description: Deploys a new MultiVehicle ecosystem via the factory.
 
 # buildSpawnMultiVehicleCall
 
-Deploys a new MultiVehicle ecosystem via the factory contract.
+Deploys a multi-vehicle and its engines via `multiVehicleFactory.spawn()`.
 
 - The caller needs `FACTORY_SPAWN` on the factory's access control.
 - The factory pulls the initial deposit of `asset` from the caller. Approve it for at least
@@ -50,10 +50,8 @@ const hash = await writeContract(client, request)
 ## Returns
 
 A prepared call: `{ address, abi, functionName, args }`.
-
-:::info
-Use [`extractMultiVehicleContracts`](/utilities/receiptHelpers#extractmultivehiclecontracts) to extract the deployed MultiVehicle contract addresses from the transaction receipt.
-:::
+[`extractMultiVehicleContracts`](/utilities/receiptHelpers#extractmultivehiclecontracts) reads the
+six deployed addresses from the receipt.
 
 ## Parameters
 
@@ -94,13 +92,14 @@ Use [`extractMultiVehicleContracts`](/utilities/receiptHelpers#extractmultivehic
 ### forbiddenAddresses (optional)
 
 - **Type:** `Address[]`
+- **Default:** `[]`
 
 ### salts
 
 - **Type:** `MultiVehicleSalts`
 
 Six deployment salts, one per contract, plus `initialDepositQuery` for the seed deposit. Each proxy
-is deployed before it is initialized, so its salt alone fixes its address — generate each with
+is deployed before it is initialized, so its salt alone fixes its address. Generate each with
 [`randomSalt`](/utilities/randomSalt) and keep them.
 
 ```ts
@@ -117,6 +116,7 @@ type MultiVehicleSalts = {
 
 ### initialInterceptions (optional)
 
-- **Type:** [`Interception[]`](/types/Interception) (same shape, declared inline on this action)
+- **Type:** [`Interception[]`](/types/Interception)
+- **Default:** `[]`
 
-Optional initial interception rules for reward distribution. Defaults to `[]`.
+See [Setting interceptions](/actions/setInterceptions).

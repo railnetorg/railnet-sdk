@@ -8,11 +8,9 @@ Builds the `vehicleManager.unauthorize()` call, dropping a sub-vehicle's authori
 configuration.
 
 - Requires `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` scoped to the VehicleManager.
-
-It does **not** unwind holdings. A vehicle can be unauthorized while the multi vehicle still holds
-a position in it, which then cannot be dispatched to. Move the position out first — see
-[`buildMoveBetweenSectorsCall`](/actions/buildMoveBetweenSectorsCall) and
-[`buildDispatchVehicleCall`](/actions/buildDispatchVehicleCall) — unless stranding it is the intent.
+- Holdings stay where they are. A position left in the vehicle can no longer be dispatched to;
+  [`buildMoveBetweenSectorsCall`](/actions/buildMoveBetweenSectorsCall) and
+  [`buildDispatchVehicleCall`](/actions/buildDispatchVehicleCall) move it out first.
 
 ## Import
 
@@ -30,7 +28,7 @@ const call = buildUnauthorizeVehicleCall({ vehicleManager, vehicle })
 
 ## Returns
 
-A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actions/callBuilders).
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 
@@ -44,4 +42,4 @@ A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actio
 
 The sub-vehicle to unauthorize. Re-authorizing it later needs
 [`buildAuthorizeVehicleCall`](/actions/buildAuthorizeVehicleCall) and a fresh
-[`buildConfigureVehicleCall`](/actions/buildConfigureVehicleCall): the configuration went with it.
+[`buildConfigureVehicleCall`](/actions/buildConfigureVehicleCall); the configuration went with it.

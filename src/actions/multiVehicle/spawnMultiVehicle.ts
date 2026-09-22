@@ -27,7 +27,8 @@ export type SpawnMultiVehicleParameters = {
 }
 
 /**
- * Spawns a new MultiVehicle ecosystem via the MultiVehicleFactory.
+ * Spawns a multi-vehicle and its engines via `multiVehicleFactory.spawn()`. Needs FACTORY_SPAWN;
+ * the factory pulls the asset's initial deposit from the caller.
  *
  * @param parameters - {@link SpawnMultiVehicleParameters}
  */

@@ -6,6 +6,11 @@ description: Builds the call that sets a sub-vehicle's allocation mode and cap.
 
 Builds the `vehicleManager.configure()` call, setting a sub-vehicle's allocation mode and its cap.
 
+- Requires `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` scoped to the VehicleManager.
+- Replaces the whole configuration; a field left out is reset.
+- Reverts `VehicleNotAuthorized` on a vehicle never authorized, `InvalidTarget` when a finite cap
+  carries `threshold > value`, and `StateUnchanged` when mode and cap already hold.
+
 ## Import
 
 ```ts twoslash
@@ -29,7 +34,7 @@ const call = buildConfigureVehicleCall({
 
 ## Returns
 
-A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actions/callBuilders).
+A prepared call: `{ address, abi, functionName, args }`.
 
 ## Parameters
 
@@ -41,7 +46,7 @@ A built call: `{ address, abi, functionName, args }`. See [Call Builders](/actio
 
 - **Type:** `Address`
 
-The sub-vehicle to configure. It must already be authorized — see
+The sub-vehicle to configure. It must already be authorized; see
 [`buildAuthorizeVehicleCall`](/actions/buildAuthorizeVehicleCall).
 
 ### config
@@ -56,12 +61,10 @@ type VehicleConfig = {
 ```
 
 `VehicleMode` is `Automatic` (0) or `Manual` (1); the declaration order is the on-chain encoding.
+`Manual` keeps the queue strategy from allocating into the vehicle; only an operator dispatch moves
+it.
 
-`cap.value` is in the **sub-vehicle's** share units (18 decimals), not the multi vehicle's asset:
-the SectorAccountingEngine compares it against that vehicle's share holdings. `2n ** 256n - 1n`
-means unlimited; `threshold` is then ignored but stored as passed, so send 0. `cap.threshold` is a
-tolerance margin in the same units, and must not exceed `value` on a finite cap.
-
-The caller needs `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION`. Reverts `VehicleNotAuthorized` on a
-vehicle that was never authorized, `InvalidTarget` when a finite cap carries `threshold > value`,
-and `StateUnchanged` when the mode and cap already hold.
+`cap.value` is in the sub-vehicle's share units (18 decimals), the units the SectorAccountingEngine
+holds it in. `2n ** 256n - 1n` means unlimited; `threshold` is then ignored but stored as passed, so
+send 0. `cap.threshold` is a tolerance margin in the same units and must not exceed `value` on a
+finite cap.

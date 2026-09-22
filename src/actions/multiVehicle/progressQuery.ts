@@ -11,7 +11,9 @@ export type ProgressQueryParameters = {
   vehicle: Address
   /** The query the dispatch created, as `simulateDispatchVehicle` returned it. */
   query: Query
-  /** Both destinations exactly as the dispatch carried them: they are part of the sub-query's id. */
+  /**
+   * Both destinations exactly as the dispatch carried them; they are part of the sub-query's id.
+   */
   settledDestination: Sector
   rejectedDestination: Sector
 }

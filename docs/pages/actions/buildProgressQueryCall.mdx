@@ -42,8 +42,7 @@ const { request } = await simulateContract(client, {
 await writeContract(client, request)
 ```
 
-One call can chain several transitions, so the state it reaches is not necessarily the next one.
-Repeat until it is terminal.
+One call can chain several transitions. Repeat it until the state is terminal.
 
 ## Returns
 

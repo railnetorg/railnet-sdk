@@ -9,8 +9,8 @@ export type VehicleManagerLimits = {
    */
   minSharesForAutoFulfill: bigint
   /**
-   * Buffer added on top of a requested redeem, in the multi vehicle's ASSET units — not shares.
-   * Capped on write at `type(uint128).max`.
+   * Buffer added on top of a requested redeem, in the multi vehicle's asset units. Capped on write
+   * at `type(uint128).max`.
    */
   extraAssetsForWithdrawalRequests: bigint
   /**

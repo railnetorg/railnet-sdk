@@ -25,16 +25,14 @@ type Sector = Hex
 | `SECTOR_ENTRY` | Virtual source for assets entering the system | Not tracked |
 | `SECTOR_EXIT` | Virtual destination for assets leaving the system | Not tracked |
 
-`SECTOR_RESERVED` is the one with teeth: assets moved there stay in `totalAssets()` but drop out of
-`withdrawable()`, so neither auto-fulfillment nor the queue strategy engine can spend them. It is
-asset-only — moving shares into it is rejected — and only an explicit move back to
-`SECTOR_AVAILABLE` makes the liquidity spendable again.
+Assets moved to `SECTOR_RESERVED` stay in `totalAssets()` and leave `withdrawable()`, so neither
+auto-fulfillment nor the queue strategy engine can spend them. It holds assets only; a move of
+shares into it is rejected. A move back to `SECTOR_AVAILABLE` makes the liquidity spendable again.
 
 ## Vehicle sectors
 
-Each sub-vehicle has its own sector, holding that vehicle's staged shares. The identifier is not the
-address padded to 32 bytes: it is `0x01`, then eleven zero bytes, then the twenty address bytes.
-Build it with `vehicleSector`, never by hand.
+Each sub-vehicle has its own sector, holding that vehicle's staged shares. The identifier is `0x01`,
+eleven zero bytes, then the twenty address bytes. `vehicleSector` builds it.
 
 ```ts twoslash
 import { vehicleSector, sectorToVehicle, isVehicleSector } from '@railnetorg/railnet-sdk'
@@ -51,5 +49,5 @@ reading sectors back from events.
 
 ## Query sectors
 
-Queries in flight get their own temporary sectors, prefixed `0x02`. The SDK does not build these —
-they are created and consumed by the protocol as a query progresses.
+Queries in flight get their own temporary sectors, prefixed `0x02`. The protocol creates and
+consumes them as a query progresses; the SDK does not build them.

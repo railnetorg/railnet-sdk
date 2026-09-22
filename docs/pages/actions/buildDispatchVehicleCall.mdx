@@ -4,18 +4,14 @@ description: Dispatches a deposit or redeem between a sector and a sub-vehicle.
 
 # buildDispatchVehicleCall
 
-Dispatches a deposit or a redeem between a [sector](/types/Sector) and a sub-vehicle, via the
-MultiVehicle's SectorAccountingEngine. Reallocating between two vehicles is a redeem dispatch
-followed by a deposit dispatch, in [Rebalancing between vehicles](/guides/rebalancingBetweenVehicles).
+Builds the `sectorAccountingEngine.dispatch()` call, a deposit or a redeem between a
+[sector](/types/Sector) and a sub-vehicle.
 
 - Requires `MULTI_VEHICLE_DISPATCH` scoped to the SectorAccountingEngine.
-
-:::warning
-On a synchronous vehicle the dispatch settles in the same transaction. On an async vehicle (Ethena,
-Syrup) it leaves the query short of settlement, and the funds are not where you want them until the
-query is progressed. Call `simulateDispatchVehicle` first if the difference matters — which it does
-whenever a second leg depends on the first.
-:::
+- On an async vehicle the query stays short of settlement after the transaction, and the funds
+  with it. `simulateDispatchVehicle` tells which case applies before a second leg depends on it.
+- Reallocating between two vehicles is a redeem dispatch followed by a deposit dispatch. See
+  [Rebalancing between vehicles](/guides/rebalancingBetweenVehicles).
 
 ## Import
 
@@ -63,10 +59,9 @@ if (state !== QueryState.SETTLED && state !== QueryState.REJECTED) {
 
 A prepared call: `{ address, abi, functionName, args }`.
 
-`{ query: Query; state: QueryState }` for `simulateDispatchVehicle`, which sends nothing. The engine
-bubbles the vehicle's state up unchanged, so it is any member of `QueryState`. `SETTLED` and
-`REJECTED` are terminal and a rejected query can never be progressed; on any other state, keep the
-`query` — progressing an in-flight one later requires the exact struct.
+`{ query: Query; state: QueryState }` for `simulateDispatchVehicle`, which sends nothing. `state` is
+any member of `QueryState`. `SETTLED` and `REJECTED` are terminal; on any other state keep `query`,
+[`buildProgressQueryCall`](/actions/buildProgressQueryCall) takes the exact struct.
 
 ## Parameters
 
@@ -80,8 +75,8 @@ The SectorAccountingEngine of the MultiVehicle.
 
 - **Type:** `Address`
 
-The sub-vehicle to deposit into or redeem from. Deposits require the vehicle to be authorized; redeems
-do not, so an unauthorized-but-funded vehicle can always be unwound.
+The sub-vehicle to deposit into or redeem from. A deposit requires an authorized vehicle. A redeem
+does not, so a funded vehicle can be unwound after `unauthorize`.
 
 ### mode
 
@@ -93,8 +88,8 @@ do not, so an unauthorized-but-funded vehicle can always be unwound.
 
 - **Type:** `bigint`
 
-The amount to dispatch, or `maxUint256` for the entire sector balance. With `maxUint256`, a binding cap
-or vehicle limit reduces the amount instead of reverting; with an explicit amount it reverts.
+The amount to dispatch, or `maxUint256` for the entire sector balance. With `maxUint256`, a binding
+cap or vehicle limit reduces the amount. With an explicit amount it reverts.
 
 ### settledDestination / rejectedDestination
 
