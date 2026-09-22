@@ -26,7 +26,7 @@ npm install @railnetorg/railnet-sdk viem
 
 ### React (optional)
 
-If you want to use the React hooks, you'll also need `wagmi`, `@tanstack/react-query`, and `react`:
+The React hooks need `wagmi`, `@tanstack/react-query` and `react`:
 
 :::code-group
 
@@ -74,9 +74,8 @@ const position = await getConduitPosition(client, {
 
 ### Client Decorator
 
-You can also extend a viem client with every Railnet read action using the `railnetActions`
-decorator. Writes are absent by design — the SDK builds calls and you send them, so there is
-nothing to hang off a client. See [Sending from React](/guides/sendingFromReact).
+`railnetActions` extends a viem client with every Railnet read action. Writes are calls you build
+and send; see [Call builders](/actions/callBuilders).
 
 ```ts twoslash
 import { createPublicClient, http } from 'viem'
@@ -96,7 +95,8 @@ const position = await client.getConduitPosition({
 
 ### React Hooks
 
-Hooks are built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query). They handle caching, re-fetching, and loading states automatically.
+Hooks are built on [wagmi](https://wagmi.sh) and [TanStack Query](https://tanstack.com/query), which
+handle caching and refetching.
 
 ```tsx
 import { useConduitPosition } from '@railnetorg/railnet-sdk/react'
