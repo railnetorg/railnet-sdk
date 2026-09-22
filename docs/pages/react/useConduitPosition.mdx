@@ -4,7 +4,7 @@ description: React hook to fetch the position of an account in a conduit.
 
 # useConduitPosition
 
-React hook that returns the position (shares and equivalent assets) of an account in a conduit.
+Reads an account's share balance in a conduit and its value in the underlying asset.
 
 ## Import
 
@@ -69,8 +69,6 @@ UseQueryResult<ConduitPosition, ReadContractErrorType>
 
 Returns a [`ConduitPosition`](/types/ConduitPosition) object.
 
-The query is disabled while `account` is `undefined`.
-
 ## Parameters
 
 ### conduit
@@ -88,7 +86,7 @@ const result = useConduitPosition({
 
 - **Type:** `Address | undefined`
 
-The address of the account to query the position for. When `undefined`, the query is disabled.
+The account to read. The query is disabled while `undefined`.
 
 ```tsx
 const result = useConduitPosition({

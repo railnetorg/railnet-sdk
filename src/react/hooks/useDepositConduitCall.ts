@@ -16,8 +16,8 @@ export type UseDepositConduitCallParameters = DepositConduitCallParameters & {
 
 /**
  * Resolves the deposit call and the id of the query it will create. Hand `call` to wagmi's
- * `useSimulateContract` and `useWriteContract` to send it. Keep `salt` stable for the length of the
- * operation — a new one is a different query, and so a different `queryId`.
+ * `useSimulateContract` and `useWriteContract` to send it. Keep `salt` stable for the length of
+ * the operation; a new one is a different query and a different `queryId`.
  */
 export function useDepositConduitCall(parameters: UseDepositConduitCallParameters) {
   const { enabled = true, chainId, ...queryParameters } = parameters
