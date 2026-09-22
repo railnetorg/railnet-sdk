@@ -29,6 +29,7 @@ import {
   buildMoveBetweenSectorsCall,
   buildRedeemConduitCall,
   buildRenounceRoleCall,
+  buildRenounceScopedRoleCall,
   buildRetrieveQueryRedeemQueueAssetsCall,
   buildRevokeRoleCall,
   buildSetFeeRecipientsCall,
@@ -602,5 +603,23 @@ describe('the default admin handover builders', () => {
       functionName: 'cancelDefaultAdminTransfer',
       args: [],
     })
+  })
+})
+
+test('buildRenounceScopedRoleCall passes the holder, where revoking passes the target', () => {
+  const role = keccak256(toHex('MULTI_VEHICLE_MOVE'))
+  const holder = '0x5555555555555555555555555555555555555555' as const
+
+  expect(
+    buildRenounceScopedRoleCall({
+      accessControl: zeroAddress,
+      role,
+      scope: VEHICLE,
+      account: holder,
+    }),
+  ).toMatchObject({
+    abi: externalAccessControlAbi,
+    functionName: 'renounceScopedRole',
+    args: [role, VEHICLE, holder],
   })
 })
