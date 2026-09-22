@@ -4,14 +4,13 @@ description: Processes a query on a conduit.
 
 # buildProcessConduitQueryCall
 
-Processes a query on a conduit, advancing its state. Async vehicles need it.
+Builds the `conduit.process()` call, which advances a query's state.
 
-The authorized sender is the query's `receiver`, or — once an OwnerRegistry has wrapped the claim —
-the holder of its ERC-721. Anyone else needs `CONDUIT_PROCESS` scoped to the conduit, which is what
-a keeper driving settlement holds.
-
-A query already `SETTLED` or `REJECTED` returns that state without advancing and without any
-authorization check. One this conduit never created reverts `UnknownQuery`.
+- Async vehicles need it. A synchronous one settles the query in the creating transaction.
+- Sent by the query's `receiver`, or by the holder of its ERC-721 once an OwnerRegistry has wrapped
+  the claim. Anyone else needs `CONDUIT_PROCESS` scoped to the conduit.
+- A query already `SETTLED` or `REJECTED` returns that state without advancing. One this conduit
+  never created reverts `UnknownQuery`.
 
 ## Import
 
@@ -29,13 +28,13 @@ const { request } = await simulateContract(client, {
   ...buildProcessConduitQueryCall({
     conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
     query: {
-    owner: '0x...',
-    receiver: '0x...',
-    input: { asset: '0x...', value: 100n },
-    output: { asset: '0x...', value: 100n },
-    mode: QueryMode.DEPOSIT,
-    salt: '0x...',
-    data: '0x',
+      owner: '0x...',
+      receiver: '0x...',
+      input: { asset: '0x...', value: 100n },
+      output: { asset: '0x...', value: 100n },
+      mode: QueryMode.DEPOSIT,
+      salt: '0x...',
+      data: '0x',
     },
   }),
   account: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -65,10 +64,9 @@ buildProcessConduitQueryCall({
 
 - **Type:** `Query`
 
-The query to process — the exact `Query` struct the conduit created. For async deposits, rebuild
-it from the original call's parameters with `buildDepositConduitQuery`. Redeems cannot be
-rebuilt off-chain: the input is the vehicle-share conversion of the conduit shares, which depends
-on `totalSupply`/`holdings` at execution time.
+The exact `Query` struct the conduit created. For an async deposit, `buildDepositConduitQuery`
+rebuilds it from the original parameters. A redeem's query cannot be rebuilt off chain; its input
+depends on `totalSupply` and `holdings` at execution time.
 
 #### query.owner
 
