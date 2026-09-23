@@ -19,9 +19,9 @@ import { buildSpawnOwnerRegistryCall } from '@railnetorg/railnet-sdk'
 
 ```ts twoslash
 import { buildSpawnOwnerRegistryCall, getAddresses, randomSalt } from '@railnetorg/railnet-sdk'
-import { base } from 'viem/chains'
+import { mainnet } from 'viem/chains'
 
-const { ownerRegistryFactory } = getAddresses(base.id)
+const { ownerRegistryFactory } = getAddresses(mainnet.id)
 
 const call = buildSpawnOwnerRegistryCall({
   factory: ownerRegistryFactory,

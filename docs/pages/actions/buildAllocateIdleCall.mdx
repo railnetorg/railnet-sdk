@@ -1,0 +1,82 @@
+---
+description: Deposits a MultiVehicle's idle liquidity into one chosen sub-vehicle.
+---
+
+# buildAllocateIdleCall
+
+Builds the `sectorAccountingEngine.multicall()` that moves base asset out of `AVAILABLE` and
+deposits it into one sub-vehicle.
+
+- Requires `MULTI_VEHICLE_MOVE` and `MULTI_VEHICLE_DISPATCH`, both scoped to the
+  SectorAccountingEngine.
+- `to` must be authorized. An unauthorized sub-vehicle reverts `InvalidVehicleSector`.
+- The deposit is pinned to `amount`. A cap on `to` reverts `DepositLimitedByCap`. The sector
+  balance or the vehicle's own `maxDeposit` reverts `DispatchDepositAmountTooHigh`.
+- See [Operating a multi-vehicle](/guides/operatingAMultiVehicle).
+
+## Import
+
+```ts twoslash
+import { buildAllocateIdleCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildAllocateIdleCall, randomSalt } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...buildAllocateIdleCall({
+    sectorAccountingEngine,
+    to: vehicle,
+    asset: baseAsset,
+    amount: 100_000_000n,
+    operationId: randomSalt(),
+  }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### sectorAccountingEngine
+
+- **Type:** `Address`
+
+### to
+
+- **Type:** `Address`
+
+Must be authorized.
+
+### asset
+
+- **Type:** `Address`
+
+The MultiVehicle's base asset, the denomination `AVAILABLE` holds.
+
+### amount
+
+- **Type:** `bigint`
+
+In the base asset's own units.
+
+### minOutput (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+A floor on the sub-vehicle shares the deposit must produce.
+
+### operationId
+
+- **Type:** `Hex`
+
+See [`buildRebalanceRedeemCall`](/actions/buildRebalanceRedeemCall#operationid).

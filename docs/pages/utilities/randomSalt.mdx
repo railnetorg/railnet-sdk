@@ -23,4 +23,6 @@ const deploymentSalt = randomSalt()
 `Hex`
 
 A deployment salt fixes a contract's address. A spawn that fails midway is retried against the same
-address only with the same salt. A query salt lives for the whole operation. See [The salt](/guides/depositingAndRedeeming#the-salt).
+address only with the same salt. A query salt lives for the whole operation. A fresh salt each
+render is a new query key and a new predicted address. See
+[The salt](/guides/depositingAndRedeeming#the-salt).

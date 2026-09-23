@@ -1,0 +1,45 @@
+---
+description: Reads who holds the claim on a query and whether it has been wrapped.
+---
+
+# useQueryClaim
+
+Reads who holds the claim on a query, and whether it has been wrapped into a token, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useQueryClaim } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useQueryClaim } from '@railnetorg/railnet-sdk/react'
+
+const { data: claim } = useQueryClaim({ ownerRegistry, conduit, queryId })
+```
+
+## Returns
+
+A TanStack Query result over `{ owner: Address; isWrapped: boolean; tokenId: bigint }`, with its `queryKey` attached. See
+[`getQueryClaim`](/actions/buildWrapQueryCall#getqueryclaim).
+
+## Parameters
+
+Everything [`getQueryClaim`](/actions/buildWrapQueryCall#getqueryclaim) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`queryClaimQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`queryClaimQueryKey` and `queryClaimQueryPrefix` for invalidation.

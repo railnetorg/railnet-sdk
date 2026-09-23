@@ -1,0 +1,50 @@
+---
+description: Resolves the address an owner registry spawn will deploy to.
+---
+
+# usePredictOwnerRegistryDeployment
+
+Resolves the address an owner registry spawn will deploy to, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePredictOwnerRegistryDeployment } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictOwnerRegistryDeployment } from '@railnetorg/railnet-sdk/react'
+
+const { data: ownerRegistry } = usePredictOwnerRegistryDeployment({
+  factory: ownerRegistryFactory,
+  name,
+  symbol,
+  deploymentSalt,
+})
+```
+
+## Returns
+
+A TanStack Query result over `Address`, with its `queryKey` attached. See
+[`predictOwnerRegistryDeployment`](/actions/predictOwnerRegistryDeployment).
+
+## Parameters
+
+Everything [`predictOwnerRegistryDeployment`](/actions/predictOwnerRegistryDeployment) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`predictOwnerRegistryDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictOwnerRegistryDeploymentQueryKey` and `predictOwnerRegistryDeploymentQueryPrefix` for invalidation.

@@ -1,0 +1,49 @@
+---
+description: Prices a vehicle's shares against its assets at the current rate.
+---
+
+# useVehicleConversion
+
+Prices a vehicle's shares against its assets at the current rate, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useVehicleConversion } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useVehicleConversion } from '@railnetorg/railnet-sdk/react'
+
+const { data: held } = useVehicleConversion({
+  vehicle,
+  asset: { asset: vehicle, value: shares },
+  sharesToAssets: true,
+})
+```
+
+## Returns
+
+A TanStack Query result over [`Asset`](/types/Asset), with its `queryKey` attached. See
+[`getVehicleConversion`](/actions/getVehicleConversion).
+
+## Parameters
+
+Everything [`getVehicleConversion`](/actions/getVehicleConversion) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`vehicleConversionQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`vehicleConversionQueryKey` and `vehicleConversionQueryPrefix` for invalidation.

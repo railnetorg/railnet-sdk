@@ -1,0 +1,45 @@
+---
+description: Reads the interception rules a conduit currently stores.
+---
+
+# useConduitInterceptions
+
+Reads the interception rules a conduit currently stores, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useConduitInterceptions } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useConduitInterceptions } from '@railnetorg/railnet-sdk/react'
+
+const { data: interceptions = [] } = useConduitInterceptions({ conduit })
+```
+
+## Returns
+
+A TanStack Query result over [`Interception[]`](/types/Interception), with its `queryKey` attached. See
+[`getConduitInterceptions`](/actions/getInterceptions#getconduitinterceptions).
+
+## Parameters
+
+Everything [`getConduitInterceptions`](/actions/getInterceptions#getconduitinterceptions) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`conduitInterceptionsQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`conduitInterceptionsQueryKey` and `conduitInterceptionsQueryPrefix` for invalidation.

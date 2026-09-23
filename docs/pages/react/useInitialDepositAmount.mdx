@@ -1,0 +1,47 @@
+---
+description: Reads the seed deposit the factories pull when spawning for an asset.
+---
+
+# useInitialDepositAmount
+
+Reads the seed deposit the factories pull from the caller when spawning for an asset, as a TanStack Query result.
+
+The amount to approve before a spawn. See [Deploying a conduit](/guides/deployingAConduit).
+
+## Import
+
+```ts
+import { useInitialDepositAmount } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useInitialDepositAmount } from '@railnetorg/railnet-sdk/react'
+
+const { data: seed } = useInitialDepositAmount({ assetRegistry, asset })
+```
+
+## Returns
+
+A TanStack Query result over `bigint`, with its `queryKey` attached. See
+[`getInitialDepositAmount`](/actions/getInitialDepositAmount).
+
+## Parameters
+
+Everything [`getInitialDepositAmount`](/actions/getInitialDepositAmount) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`initialDepositAmountQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`initialDepositAmountQueryKey` and `initialDepositAmountQueryPrefix` for invalidation.

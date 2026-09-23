@@ -1,0 +1,50 @@
+---
+description: Reads whether a conduit would let one holder send shares to another.
+---
+
+# useIsTransferable
+
+Reads whether a conduit would let `from` send shares to `to`, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useIsTransferable } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useIsTransferable } from '@railnetorg/railnet-sdk/react'
+
+const { data: allowed } = useIsTransferable({
+  conduit,
+  from: address as Address,
+  to: recipient,
+  enabled: Boolean(address) && Boolean(recipient),
+})
+```
+
+## Returns
+
+A TanStack Query result over `boolean`, with its `queryKey` attached. See
+[`getIsTransferable`](/actions/getIsTransferable).
+
+## Parameters
+
+Everything [`getIsTransferable`](/actions/getIsTransferable) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`isTransferableQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`isTransferableQueryKey` and `isTransferableQueryPrefix` for invalidation.

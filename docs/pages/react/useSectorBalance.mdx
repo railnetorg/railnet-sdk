@@ -1,0 +1,51 @@
+---
+description: Reads what one accounting sector of a MultiVehicle holds of one asset.
+---
+
+# useSectorBalance
+
+Reads what one [sector](/types/Sector) holds of one asset, as a TanStack Query result.
+
+A vehicle sector holding shares is read with that vehicle as `asset`.
+
+## Import
+
+```ts
+import { useSectorBalance } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useSectorBalance } from '@railnetorg/railnet-sdk/react'
+
+const { data: staged } = useSectorBalance({
+  sectorAccountingEngine,
+  sector: vehicleSector(destinationVehicle),
+  asset: baseAsset,
+})
+```
+
+## Returns
+
+A TanStack Query result over `bigint`, with its `queryKey` attached. See
+[`getSectorBalance`](/actions/getSectorBalance).
+
+## Parameters
+
+Everything [`getSectorBalance`](/actions/getSectorBalance) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`sectorBalanceQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`sectorBalanceQueryKey` and `sectorBalanceQueryPrefix` for invalidation.

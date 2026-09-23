@@ -1,0 +1,62 @@
+---
+description: Gives up a scoped role held by the caller.
+---
+
+# buildRenounceScopedRoleCall
+
+Gives up a scoped role on the ExternalAccessControl contract.
+
+- Needs no admin role, where
+  [`buildRevokeScopedRoleCall`](/actions/buildRevokeScopedRoleCall) needs the role's.
+- `account` must be the sender. The contract reverts `OnlyOwnerCanRenounce` otherwise.
+- Reverts `PublicRoleAuthDenied` while the scoped role is public.
+  [`buildSetScopedRolePublicCall`](/actions/buildSetScopedRolePublicCall) turns it off.
+
+## Import
+
+```ts twoslash
+import { buildRenounceScopedRoleCall } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { simulateContract, writeContract } from 'viem/actions'
+import { buildRenounceScopedRoleCall, MULTI_VEHICLE_MOVE } from '@railnetorg/railnet-sdk'
+
+const { request } = await simulateContract(client, {
+  ...buildRenounceScopedRoleCall({
+    accessControl: '0x1234...',
+    role: MULTI_VEHICLE_MOVE,
+    scope: sectorAccountingEngine,
+    account,
+  }),
+  account,
+})
+
+await writeContract(client, request)
+```
+
+## Returns
+
+A prepared call: `{ address, abi, functionName, args }`.
+
+## Parameters
+
+### accessControl
+
+- **Type:** `Address`
+
+### role
+
+- **Type:** `Hex`
+
+### scope
+
+- **Type:** `Address`
+
+### account
+
+- **Type:** `Address`
+
+Compared against `msg.sender`. A global grant of the same role survives.

@@ -1,0 +1,52 @@
+---
+description: Reads every verdict an AccountList holds on one account.
+---
+
+# useAccountListStatus
+
+Reads every verdict an AccountList holds on one account, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useAccountListStatus } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useAccountListStatus } from '@railnetorg/railnet-sdk/react'
+
+const { data: status } = useAccountListStatus({
+  accountList,
+  account: address as Address,
+  enabled: Boolean(address),
+})
+
+if (status?.isSanctioned) return <SanctionsNotice />
+if (!status?.canDeposit) return <AllowListRequest />
+```
+
+## Returns
+
+A TanStack Query result over [`AccountListStatus`](/actions/getAccountListStatus#returns), with its `queryKey` attached. See
+[`getAccountListStatus`](/actions/getAccountListStatus).
+
+## Parameters
+
+Everything [`getAccountListStatus`](/actions/getAccountListStatus) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`accountListStatusQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`accountListStatusQueryKey` and `accountListStatusQueryPrefix` for invalidation.

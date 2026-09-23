@@ -1,0 +1,45 @@
+---
+description: Reads the loan token of a Morpho Blue market.
+---
+
+# useMorphoMarketAsset
+
+Reads the loan token of a Morpho Blue market, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useMorphoMarketAsset } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useMorphoMarketAsset } from '@railnetorg/railnet-sdk/react'
+
+const { data: asset } = useMorphoMarketAsset({ morpho, marketId })
+```
+
+## Returns
+
+A TanStack Query result over `Address`, with its `queryKey` attached. See
+[`getMorphoMarketAsset`](/actions/buildSpawnMorphoBlueVehicleCall#getmorphomarketasset).
+
+## Parameters
+
+Everything [`getMorphoMarketAsset`](/actions/buildSpawnMorphoBlueVehicleCall#getmorphomarketasset) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`morphoMarketAssetQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`morphoMarketAssetQueryKey` and `morphoMarketAssetQueryPrefix` for invalidation.

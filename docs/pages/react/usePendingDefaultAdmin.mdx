@@ -1,0 +1,48 @@
+---
+description: Reads the address a DEFAULT_ADMIN_ROLE handover is waiting on.
+---
+
+# usePendingDefaultAdmin
+
+Reads the address a `DEFAULT_ADMIN_ROLE` handover is waiting on and when it may accept, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePendingDefaultAdmin } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePendingDefaultAdmin } from '@railnetorg/railnet-sdk/react'
+
+const { data } = usePendingDefaultAdmin({ accessControl })
+
+const acceptable =
+  data !== undefined && data.schedule !== 0 && data.schedule < Math.floor(Date.now() / 1000)
+```
+
+## Returns
+
+A TanStack Query result over `{ newAdmin: Address; schedule: number }`, `schedule` in unix seconds and `0` with nothing pending, with its `queryKey` attached. See
+[`getPendingDefaultAdmin`](/actions/defaultAdminTransfer#getpendingdefaultadmin).
+
+## Parameters
+
+Everything [`getPendingDefaultAdmin`](/actions/defaultAdminTransfer#getpendingdefaultadmin) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`pendingDefaultAdminQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`pendingDefaultAdminQueryKey` and `pendingDefaultAdminQueryPrefix` for invalidation.
