@@ -8,14 +8,15 @@ description: >
   buildUnauthorizeVehicleCall, buildConfigureVehicleCall, buildSetQueuesCall,
   buildSetThresholdsCall, buildSetMaxTotalAssetsCall,
   buildMoveBetweenSectorsCall, buildDispatchVehicleCall,
-  simulateDispatchVehicle, buildRebalanceRedeemCall, buildProgressQueryCall,
+  simulateDispatchVehicle, buildRebalanceRedeemCall, buildWithdrawToIdleCall,
+  buildAllocateIdleCall, getVehicleConversion, getVehicleInterceptions,
+  buildProgressQueryCall,
   buildFeedQueryRedeemQueueCall, getSectorBalance, getVehicleManagerLimits,
   estimateVehicle, applySlippage, extractMultiVehicleContracts, sectors and
-  VehicleMode. Covers the STEAM vehicle lifecycle (sync vs async), the four
-  vehicle factories, multi-vehicle orchestration, allocation queues, sector
-  accounting and rebalancing. Load when deploying yield strategies, spawning
-  vehicles, authorizing sub-vehicles, configuring queues, or moving positions
-  between vehicles.
+  VehicleMode. Covers the STEAM vehicle lifecycle (sync vs async),
+  multi-vehicle orchestration, allocation queues, sector accounting and
+  rebalancing. Load when deploying yield strategies, authorizing sub-vehicles,
+  configuring queues, or moving positions between vehicles.
 metadata:
   type: core
   library: railnet-sdk
@@ -268,6 +269,12 @@ ALLOCATION and earning nothing. The proceeds settle into the destination's secto
 AVAILABLE, where the queue strategy could re-allocate them mid-rebalance. Depositing them into the
 destination is a second transaction, because an async source only settles once its query progresses.
 
+`buildWithdrawToIdleCall` and `buildAllocateIdleCall` are the same move-plus-dispatch shape aimed
+at AVAILABLE. Withdrawing settles a redeem into AVAILABLE rather than staging it for a second
+vehicle, and needs no authorization on the source. Allocating deposits from AVAILABLE into one
+chosen sub-vehicle, pinned to the amount: a cap on it reverts `DepositLimitedByCap`, and its own
+`maxDeposit` reverts `DispatchDepositAmountTooHigh`, rather than depositing less.
+
 Source: src/actions/multiVehicle/rebalance.ts, docs/pages/workflows/rebalancingBetweenVehicles.mdx
 
 ### Progressing an async dispatch
@@ -404,3 +411,6 @@ role-to-scope mapping.
 
 See also: railnet-conduit/SKILL.md — a conduit fronts a vehicle, and
 `buildSetVehicleInterceptionsCall` is the vehicle-side counterpart of the conduit interception call.
+
+`getVehicleInterceptions` reads the stored list. `buildSetVehicleInterceptionsCall` replaces it
+wholesale, so an edit starts from that read.

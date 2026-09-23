@@ -8,10 +8,16 @@ description: >
   conduitInfoQueryOptions, estimateConduitQueryOptions,
   predictConduitDeploymentQueryOptions,
   depositConduitCallQueryOptions, redeemConduitCallQueryOptions,
-  query key pattern, and sending a built call with wagmi's own
-  useSimulateContract / useWriteContract. The SDK ships no write
-  hooks. Requires wagmi + @tanstack/react-query. Load when
-  building React UIs for Railnet.
+  and a hook plus query options for every other read the package
+  ships (useSectorBalance, useEstimateVehicle, useVehicleConversion,
+  useHasRole, useAccountListStatus, usePendingDefaultAdmin,
+  useIsTransferable, useQueryClaim, useInitialDepositAmount,
+  useVehicleInterceptions, useConduitInterceptions,
+  useMorphoBlueSingleton, useMorphoMarketAsset and the deployment
+  predictions). Covers the query key pattern and sending a built
+  call with wagmi's own useSimulateContract / useWriteContract. The
+  SDK ships no write hooks. Requires wagmi + @tanstack/react-query.
+  Load when building React UIs for Railnet.
 metadata:
   type: framework
   library: railnet-sdk

@@ -4,7 +4,9 @@ description: >
   Manage Railnet role-based access control — buildSpawnAccessControlCall,
   buildGrantScopedRoleCall, buildRevokeScopedRoleCall,
   buildSetScopedRolePublicCall, buildGrantRoleCall, buildRevokeRoleCall,
-  buildRenounceRoleCall, buildSetRolePublicCall, getHasRole,
+  buildRenounceRoleCall, buildRenounceScopedRoleCall, buildSetRolePublicCall,
+  getHasRole, getPendingDefaultAdmin, buildBeginDefaultAdminTransferCall,
+  buildAcceptDefaultAdminTransferCall, buildCancelDefaultAdminTransferCall,
   extractAccessControlAddress, role constants (VEHICLE_STEAM_DEPOSIT,
   MULTI_VEHICLE_DISPATCH, MULTI_VEHICLE_MOVE, MULTI_VEHICLE_SET_QUEUES,
   FEE_MANAGER_SET_FEES, ACCOUNT_LIST_MANAGER, DEFAULT_ADMIN_ROLE) and the
@@ -93,6 +95,11 @@ The caller must hold the role's admin role, which is `DEFAULT_ADMIN_ROLE` unless
 either globally or scoped to the same `scope`. Both revert `PublicRoleAuthDenied` when that scoped
 role is already public, because a public role has nobody to grant it to.
 
+`buildRenounceScopedRoleCall` gives up a scoped role. It needs no admin role, and `account` must be
+the sender or the contract reverts `OnlyOwnerCanRenounce`.
+
+Source: src/actions/accessControl/grantScopedRole.ts, src/actions/accessControl/revokeScopedRole.ts, src/actions/accessControl/renounceScopedRole.ts
+
 ### Global roles
 
 A global grant applies across every scope at once. Use it for an operator that must act on contracts
@@ -117,6 +124,14 @@ renounce must be the sender, because the contract compares it against `msg.sende
 Both grant and revoke revert `PublicRoleAuthDenied` on an already public role, and
 `AccessControlEnforcedDefaultAdminRules` for `DEFAULT_ADMIN_ROLE`. A renounce of
 `DEFAULT_ADMIN_ROLE` reverts `DefaultAdminCannotBeRenounced`.
+
+`DEFAULT_ADMIN_ROLE` moves only through the two-step handover: the current admin sends
+`buildBeginDefaultAdminTransferCall`, which schedules it `defaultAdminDelay` seconds out, then the
+incoming admin sends `buildAcceptDefaultAdminTransferCall`. Accepting before the schedule reverts
+`AccessControlEnforcedDefaultAdminDelay`, and `getPendingDefaultAdmin` reads that schedule.
+`buildCancelDefaultAdminTransferCall` drops a pending handover.
+
+Source: src/actions/accessControl/globalRoles.ts, src/actions/accessControl/defaultAdminTransfer.ts
 
 ### Public roles
 
