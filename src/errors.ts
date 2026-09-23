@@ -1,5 +1,5 @@
-import type { ContractErrorName, Hex } from 'viem'
-import { BaseError, ContractFunctionRevertedError, decodeErrorResult } from 'viem'
+import type { ContractErrorName, ContractFunctionRevertedError, Hex } from 'viem'
+import { decodeErrorResult } from 'viem'
 import type * as abis from './abi/index.js'
 import { protocolErrorsAbi } from './abi/protocolErrors.js'
 
@@ -148,12 +148,8 @@ export type RailnetError = {
  * }
  */
 export function getRailnetError(error: unknown): RailnetError | null {
-  if (!(error instanceof BaseError)) {
-    return null
-  }
-
-  const reverted = error.walk((cause) => cause instanceof ContractFunctionRevertedError)
-  if (!(reverted instanceof ContractFunctionRevertedError)) {
+  const reverted = findRevert(error)
+  if (!reverted) {
     return null
   }
 
@@ -168,6 +164,20 @@ export function getRailnetError(error: unknown): RailnetError | null {
     hint: isHintedError(decoded.errorName) ? railnetErrorHints[decoded.errorName] : undefined,
     cause: reverted,
   }
+}
+
+/**
+ * Matches on `name` so an error thrown by another copy of viem, as in a monorepo, is still found.
+ */
+function findRevert(error: unknown): ContractFunctionRevertedError | undefined {
+  let current = error
+  while (typeof current === 'object' && current !== null) {
+    if ((current as Error).name === 'ContractFunctionRevertedError') {
+      return current as ContractFunctionRevertedError
+    }
+    current = (current as Error).cause
+  }
+  return undefined
 }
 
 /**
