@@ -4,7 +4,7 @@ description: Check if a chain ID is supported by the SDK.
 
 # isSupportedChain
 
-Type guard that checks whether a chain ID is supported. Narrows the type to `SupportedChainId` when used in a conditional.
+Type guard that checks whether a chain ID is supported.
 
 ## Import
 
@@ -26,7 +26,7 @@ if (isSupportedChain(chainId)) {
 
 ## Returns
 
-`chainId is SupportedChainId`
+`chainId is SupportedChainId`. Narrows the type in a conditional.
 
 Returns `true` if the chain ID has protocol addresses configured, `false` otherwise. This checks
 production deployments only; a chain with a [staging](/contracts/staging) deployment but no

@@ -21,9 +21,8 @@ export type GetConduitPositionParameters = {
 export type GetConduitPositionReturnType = ConduitPosition
 
 /**
- * Reads an account's share balance in a conduit and the equivalent asset value. `convert` takes
- * the balance, so the two reads cannot be batched; they are pinned to one block instead, or a
- * deposit landing between them reports shares at one rate and assets at another.
+ * Reads an account's share balance in a conduit and its value in the underlying asset, both
+ * pinned to the same block.
  *
  * @param parameters - {@link GetConduitPositionParameters}
  *

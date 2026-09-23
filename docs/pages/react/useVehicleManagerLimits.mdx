@@ -40,13 +40,15 @@ export function LimitsPanel({ vehicleManager }: { vehicleManager: Address }) {
 `maxTotalAssets` and `minSharesForAutoFulfill` use `2n ** 256n - 1n` as their no-limit value.
 [`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) gives the units of each field.
 
+## Returns
+
+A TanStack Query result over `VehicleManagerLimits`, with its `queryKey` attached.
+
 ## Parameters
 
 ### vehicleManager
 
 - **Type:** `Address`
-
-The multi vehicle's VehicleManager.
 
 ### chainId (optional)
 
@@ -57,10 +59,6 @@ The multi vehicle's VehicleManager.
 
 - **Type:** `boolean`
 - **Default:** `true`
-
-## Returns
-
-A TanStack Query result over `VehicleManagerLimits`, with its `queryKey` attached.
 
 ## Query options
 

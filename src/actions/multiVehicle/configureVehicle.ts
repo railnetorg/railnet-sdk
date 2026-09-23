@@ -32,8 +32,7 @@ export type ConfigureVehicleParameters = {
 }
 
 /**
- * Sets an authorized sub-vehicle's allocation mode and cap, replacing the whole configuration.
- * `Manual` keeps the queue strategy from allocating into it. Needs
+ * Sets an authorized sub-vehicle's allocation mode and cap. Needs
  * MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION; reverts `VehicleNotAuthorized`, `InvalidTarget` on
  * `threshold > value`, and `StateUnchanged` when nothing changes.
  *

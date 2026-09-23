@@ -4,9 +4,9 @@ description: Deploys a vehicle wrapping any ERC-4626 vault.
 
 # buildSpawnErc4626VehicleCall
 
-Deploys a vehicle that supplies into an ERC-4626 vault. The vehicle's asset is the vault's own
-`asset()`.
+Deploys a vehicle that supplies into an ERC-4626 vault.
 
+- The vehicle's asset is the vault's own `asset()`.
 - Requires `FACTORY_SPAWN` on the factory's access control.
 - [Deploying a vehicle](/guides/deployingAVehicle) gives the order.
 
@@ -103,8 +103,6 @@ initial deposit amount and reverts `AssetNotAuthorized` when there is none.
 
 - **Type:** `Address[]`
 - **Default:** `[]`
-
-Addresses barred from interacting with the vehicle.
 
 ### initialExpectedSupply
 

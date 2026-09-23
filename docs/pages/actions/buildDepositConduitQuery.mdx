@@ -4,9 +4,7 @@ description: Builds the DEPOSIT query struct a conduit is called with.
 
 # buildDepositConduitQuery
 
-Builds the DEPOSIT [`Query`](/types/Query) struct that `conduit.create()` is called with. Its id,
-the row an indexer holds, is [`toQueryId`](/utilities/queryIdentity#toqueryid) of the returned
-struct.
+Builds the DEPOSIT [`Query`](/types/Query) struct that `conduit.create()` is called with.
 
 - [`buildDepositConduitCall`](/actions/buildDepositConduitCall) wraps this same struct into the
   `conduit.create()` call. Build it directly to hold the exact struct an async deposit needs when
@@ -39,7 +37,8 @@ const query = buildDepositConduitQuery({
 
 ## Returns
 
-[`Query`](/types/Query).
+[`Query`](/types/Query). Its id, the row an indexer holds, is
+[`toQueryId`](/utilities/queryIdentity#toqueryid) of the returned struct.
 
 ## Parameters
 

@@ -4,8 +4,8 @@ description: Global against scoped roles, and the one mistake the contracts cann
 
 # Managing roles
 
-Every gated call checks a role on an ExternalAccessControl, for a scope: the contract performing
-the call. A role is held globally, for every scope, or scoped to one contract.
+Every gated call checks a role on an ExternalAccessControl, scoped to the contract performing the
+call. A role is held globally, for every scope, or scoped to one contract.
 
 ## Scoped first
 
@@ -29,6 +29,7 @@ base role, and no client-side check can tell the two apart.
 
 ## Checking
 
-[`getHasRole`](/actions/getHasRole) answers the question the contract asks: may this account act
-under this role for this scope, globally or scoped. A public role reads as held by every account.
+[`getHasRole`](/actions/getHasRole) checks whether an account may act under a role for a scope,
+globally or scoped, the same question the contract asks itself. A public role reads as held by
+every account.
 [`useHasRole`](/react/useHasRole) is the hook.

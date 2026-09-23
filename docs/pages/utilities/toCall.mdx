@@ -4,9 +4,7 @@ description: Rewrites a built call for sendCalls (EIP-5792).
 
 # toCall
 
-A built call names its target `address`, which is what viem's `simulateContract` and
-`writeContract` expect. EIP-5792's `sendCalls` names it `to`. `toCall` rewrites the one into the
-other.
+`toCall` rewrites a built call's `address` field to `to`, the name EIP-5792's `sendCalls` expects.
 
 ## Import
 
@@ -37,7 +35,7 @@ sendCalls({
 ## Before batching
 
 **Atomicity is not guaranteed.** Whether a batch lands as one transaction depends on the wallet;
-`getCapabilities` says. The pair can come apart.
+`getCapabilities` says.
 
-**Build for the effective sender.** A batch may execute from a smart account, which is then
+**The effective sender.** A batch may execute from a smart account, which is then
 `msg.sender`. A deposit built for the user's EOA reverts `InvalidQuerySalt`. See [The sender](/guides/depositingAndRedeeming#the-sender).

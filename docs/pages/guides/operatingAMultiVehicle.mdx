@@ -15,8 +15,8 @@ to that one.
 | dispatch | SectorAccountingEngine | `MULTI_VEHICLE_DISPATCH` |
 | move | SectorAccountingEngine | `MULTI_VEHICLE_MOVE` |
 
-A role granted to the multi-vehicle itself is invisible to the engine that checks it. The grant
-succeeds and every later call reverts `MissingRole`.
+A role granted to the multi-vehicle itself is invisible to the engine that checks it. See
+[Managing roles](/guides/managingRoles).
 
 ## Allocation
 
@@ -41,4 +41,4 @@ first when a second leg depends on the first, and keep the returned `query` to p
 [`buildSetThresholdsCall`](/actions/buildSetThresholdsCall) replaces both thresholds at once. Read
 [`getVehicleManagerLimits`](/actions/getVehicleManagerLimits) first and pass back the one you are
 not changing. [`buildSetMaxTotalAssetsCall`](/actions/buildSetMaxTotalAssetsCall) caps
-`totalAssets()` at deposit time; operator flows that grow it without minting shares are exempt.
+`totalAssets()` at deposit time.

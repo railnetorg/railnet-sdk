@@ -5,8 +5,8 @@ description: The order to deploy an access control, a multi-vehicle and its queu
 # Deploying a multi-vehicle
 
 Bringing up a multi-vehicle is several transactions against several factories, and each step needs
-an address the previous one returned. The SDK gives you the builders, the log parsers and the read
-you need for the initial deposit; the order is here.
+an address the previous one returned. The SDK gives you the builders and the log parsers; the
+order is here.
 
 There is no `deployMultiVehicle` function. The sequence is yours to send, so you can report
 progress, retry one step, and see which one failed.
@@ -36,10 +36,9 @@ engine, its sub query engine and its query redeem queue.
 
 ##### Grant the admin roles
 
-[`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall). Scope each role to the engine that
-checks it, not to the multi-vehicle: `MULTI_VEHICLE_SET_QUEUES` goes to the queue strategy engine,
-`MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` to the vehicle manager. The wrong scope succeeds silently
-and every later call reverts with `MissingRole`.
+[`buildGrantScopedRoleCall`](/actions/buildGrantScopedRoleCall). `MULTI_VEHICLE_SET_QUEUES` goes to
+the queue strategy engine, `MULTI_VEHICLE_SET_VEHICLE_AUTHORIZATION` to the vehicle manager, not to
+the multi-vehicle. See [Managing roles](/guides/managingRoles) for what a wrong scope does.
 
 ##### Authorize each vehicle
 

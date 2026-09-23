@@ -4,11 +4,11 @@ description: Whether a conduit would let one address send shares to another.
 
 # getIsTransferable
 
-Asks `conduit.isTransferable()` whether `from` may send shares to `to`. Transfers must be enabled
-on the conduit, and its account list must clear both parties; under `STRICT` both must be
-allow-listed.
+Asks `conduit.isTransferable()` whether `from` may send shares to `to`.
 
-The OwnerRegistry consults the same predicate before it moves a wrapped query.
+- Transfers must be enabled on the conduit, and its account list must clear both parties; under
+  `STRICT` both must be allow-listed.
+- The OwnerRegistry consults the same predicate before it moves a wrapped query.
 
 ## Import
 
@@ -45,5 +45,3 @@ const canWrap = await getIsTransferable(publicClient, { conduit, from: owner, to
 ### from / to
 
 - **Type:** `Address`
-
-Sender and receiver.

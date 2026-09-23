@@ -65,8 +65,6 @@ A prepared call: `{ address, abi, functionName, args }`.
 
 - **Type:** `Address`
 
-The SectorAccountingEngine of the MultiVehicle.
-
 ### vehicle
 
 - **Type:** `Address`
@@ -124,8 +122,7 @@ const { query, state } = await simulateDispatchVehicle(client, {
 })
 ```
 
-Takes the builder's parameters and an `account`, sends nothing, and returns the
-[`Query`](/types/Query) the dispatch would create with the
-[`QueryState`](/types/Enums#querystate) it would reach. `SETTLED`
-and `REJECTED` are terminal. On any other state keep `query`,
-[`buildProgressQueryCall`](/actions/buildProgressQueryCall) takes the exact struct.
+Simulates the dispatch for `account` and returns the [`Query`](/types/Query) it would create with
+the [`QueryState`](/types/Enums#querystate) it would reach. `SETTLED`
+and `REJECTED` are terminal. On any other state,
+[`buildProgressQueryCall`](/actions/buildProgressQueryCall) takes the same `query` struct forward.

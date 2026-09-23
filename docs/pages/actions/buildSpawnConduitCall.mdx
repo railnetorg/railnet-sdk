@@ -9,8 +9,8 @@ Deploys a conduit via `conduitFactory.spawn()`.
 - Requires `CONDUIT_SPAWN` scoped to the factory. The other factories gate on `FACTORY_SPAWN`; this
   one does not.
 - The factory pulls the initial deposit of the vehicle's asset from the caller. The asset must be
-  authorized in the AssetRegistry (`AssetNotAuthorized`). Approve it for at least
-  [`getInitialDepositAmount`](/actions/getInitialDepositAmount) first, or the call reverts
+  authorized in the AssetRegistry (`AssetNotAuthorized`). Requires an approval of at least
+  [`getInitialDepositAmount`](/actions/getInitialDepositAmount), or the call reverts
   `InsufficientAllowance`.
 - `feeManager`, `accountList`, `ownerRegistry` and `accessControl` must each come from the factory
   this one trusts for that module, or the call reverts `NotDeployedByFactory`.
@@ -109,13 +109,13 @@ See [Setting interceptions](/actions/setInterceptions).
 
 - **Type:** `Hex`
 
-Salt for the spawn's initial query. Generate it with [`randomSalt`](/utilities/randomSalt).
+Salt for the spawn's initial query. See [`randomSalt`](/utilities/randomSalt).
 
 ### deploymentSalt
 
 - **Type:** `Hex`
 
-Part of the CREATE2 address, with every module and metadata field above. Generate it with
-[`randomSalt`](/utilities/randomSalt) and keep the value.
+Part of the CREATE2 address, with every module and metadata field above. See
+[`randomSalt`](/utilities/randomSalt).
 [`predictConduitDeployment`](/actions/predictConduitDeployment) resolves the address from the same
 parameters.

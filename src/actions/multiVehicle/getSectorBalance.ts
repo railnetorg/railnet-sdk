@@ -6,18 +6,14 @@ import type { Sector } from '../../constants/sectors.js'
 export type GetSectorBalanceParameters = {
   sectorAccountingEngine: Address
   sector: Sector
-  /**
-   * The base asset for an asset sector, the sub-vehicle's own address for a share sector. The
-   * engine indexes a balance by both, so a vehicle sector holding shares is read with the vehicle
-   * as `asset`.
-   */
+  /** The base asset for an asset sector, or the sub-vehicle's own address for a share sector. */
   asset: Address
 }
 
 export type GetSectorBalanceReturnType = bigint
 
 /**
- * Reads what one accounting sector holds of one asset, in that asset's own units.
+ * Reads a MultiVehicle sector's balance of one asset.
  *
  * @param parameters - {@link GetSectorBalanceParameters}
  *

@@ -4,14 +4,20 @@ description: Accounting sectors in a MultiVehicle, and how their identifiers are
 
 # Sector
 
-A `Sector` is a `bytes32` identifier for one bucket of a MultiVehicle's accounting: idle liquidity,
-shares held in a sub-vehicle, assets parked aside, and so on. Every
+A `Sector` is a `bytes32` identifier for one bucket of a MultiVehicle's accounting, such as idle
+liquidity, shares in a sub-vehicle, or assets parked aside. Every
 [`moveBetweenSectors`](/actions/buildMoveBetweenSectorsCall) and [`dispatchVehicle`](/actions/buildDispatchVehicleCall)
 call names the sectors it reads from and writes to.
 
-```ts
-import type { Sector } from '@railnetorg/railnet-sdk'
+## Import
 
+```ts twoslash
+import type { Sector } from '@railnetorg/railnet-sdk'
+```
+
+## Definition
+
+```ts
 type Sector = Hex
 ```
 

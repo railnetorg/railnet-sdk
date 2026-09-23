@@ -4,8 +4,7 @@ description: Generates a cryptographically random 32-byte salt.
 
 # randomSalt
 
-Returns a random `bytes32`, drawn from `crypto.getRandomValues`. Every salt the SDK takes is a
-required parameter; this produces one.
+Returns a random `bytes32`, drawn from `crypto.getRandomValues`.
 
 ## Import
 
@@ -22,8 +21,6 @@ const deploymentSalt = randomSalt()
 ## Returns
 
 `Hex`
-
-A random 32-byte value.
 
 A deployment salt fixes a contract's address. A spawn that fails midway is retried against the same
 address only with the same salt. A query salt lives for the whole operation. See [The salt](/guides/depositingAndRedeeming#the-salt).

@@ -26,7 +26,7 @@ output asset for you.
 
 ## The sender
 
-`conduit.create()` binds the query salt to `msg.sender`: `query.salt` must equal
+`conduit.create()` binds the query salt to `msg.sender`, requiring `query.salt` to equal
 `keccak256(abi.encode(msg.sender, salt))`. The call is encoded for one sender and reverts
 `InvalidQuerySalt` from any other. Through a Safe, an EIP-5792 batch or a relayer, `msg.sender`
 is that contract. Build the call for it and set `receiver` to the user.

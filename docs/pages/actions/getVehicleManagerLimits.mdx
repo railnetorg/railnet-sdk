@@ -5,8 +5,8 @@ description: Reads a multi vehicle's operational limits in one multicall.
 # getVehicleManagerLimits
 
 Reads a multi vehicle's auto-fulfill threshold, withdrawal buffer and deposit cap in one multicall.
-[`buildSetThresholdsCall`](/actions/buildSetThresholdsCall) replaces both thresholds at once, so a
-write starts from these values.
+
+- [`buildSetThresholdsCall`](/actions/buildSetThresholdsCall) replaces both thresholds at once.
 
 ## Import
 
@@ -51,7 +51,8 @@ Buffer added on top of a requested redeem, in the multi vehicle's asset units. C
 ### maxTotalAssets
 
 Hard cap on `totalAssets()`, enforced at deposit time, in asset units. `2n ** 256n - 1n` means
-uncapped. Operator-driven flows that grow `totalAssets()` without minting are exempt.
+uncapped. See [`buildSetMaxTotalAssetsCall`](/actions/buildSetMaxTotalAssetsCall) for what counts
+against it.
 
 ## Parameters
 
