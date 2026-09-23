@@ -1,4 +1,5 @@
 import type { Client } from 'viem'
+import { getPendingDefaultAdmin } from './actions/accessControl/defaultAdminTransfer.js'
 import { getHasRole } from './actions/accessControl/getHasRole.js'
 import { getAccountListStatus } from './actions/accountList/getAccountListStatus.js'
 import { predictAccountListDeployment } from './actions/accountList/spawnAccountList.js'
@@ -48,6 +49,7 @@ export function railnetActions(client: Client) {
     getInitialDepositAmount: bind(getInitialDepositAmount),
     getMorphoBlueSingleton: bind(getMorphoBlueSingleton),
     getMorphoMarketAsset: bind(getMorphoMarketAsset),
+    getPendingDefaultAdmin: bind(getPendingDefaultAdmin),
     getQueryClaim: bind(getQueryClaim),
     getRedeemConduitCall: bind(getRedeemConduitCall),
     getSectorBalance: bind(getSectorBalance),
