@@ -34,7 +34,8 @@ enum QueryMode {
 
 ## QueryState
 
-The state of a query in the STEAM state machine.
+The state of a query in the STEAM state machine. `SETTLED` and `REJECTED` are terminal; a query in
+either never transitions again.
 
 ```ts
 enum QueryState {

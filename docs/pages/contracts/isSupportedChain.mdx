@@ -28,7 +28,9 @@ if (isSupportedChain(chainId)) {
 
 `chainId is SupportedChainId`
 
-Returns `true` if the chain ID has protocol addresses configured, `false` otherwise.
+Returns `true` if the chain ID has protocol addresses configured, `false` otherwise. This checks
+production deployments only; a chain with a [staging](/contracts/staging) deployment but no
+production one, such as Base (`8453`), returns `false` here.
 
 ## Parameters
 

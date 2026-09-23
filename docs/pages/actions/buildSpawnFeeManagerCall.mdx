@@ -60,6 +60,7 @@ The access control that gates the fee manager's own roles.
 - **Type:** `Fees`
 
 The starting rates, in basis points: `{ performanceFeeBps, managementFeeBps, depositFeeBps, redeemFeeBps }`. 10000 bps = 100%.
+The builder throws on a rate above its `initialMaxFees` ceiling.
 
 ### initialMaxFees
 
@@ -73,8 +74,8 @@ reverts `FeeTooHigh` above them.
 - **Type:** `readonly FeeRecipient[]`
 
 The split, as `{ target, shareBps }`. Must be non-empty, sorted strictly ascending by `target`, with
-no zero `shareBps`, and sum to 10000; the contract reverts `RecipientsNotStrictlyAscending` or
-`InvalidBpsValue` otherwise.
+no zero `shareBps`, and sum to 10000. The builder throws on a list the contract would revert with
+`RecipientsNotStrictlyAscending` or `InvalidBpsValue`.
 
 ### deploymentSalt
 

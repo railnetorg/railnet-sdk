@@ -85,7 +85,8 @@ does not, so a funded vehicle can be unwound after `unauthorize`.
 - **Type:** `bigint`
 
 The amount to dispatch, or `maxUint256` for the entire sector balance. With `maxUint256`, a binding
-cap or vehicle limit reduces the amount. With an explicit amount it reverts.
+cap or vehicle limit reduces the amount. With an explicit amount it reverts
+`DispatchDepositAmountTooHigh` on a deposit, `DispatchRedeemAmountTooHigh` on a redeem.
 
 ### settledDestination / rejectedDestination
 
