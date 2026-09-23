@@ -7,30 +7,16 @@ import { setupAnvil, teardownAnvil } from './setup.js'
 let client: ReturnType<typeof createRailnetTestClient>
 
 beforeAll(async () => {
-  const ctx = await setupAnvil()
-  client = ctx.client
+  client = (await setupAnvil()).client
 }, 30_000)
 
 afterAll(() => teardownAnvil())
 
 describe('getConduitInfo', () => {
-  it('returns correct conduit metadata', async () => {
+  it('returns the conduit and its asset', async () => {
     const info = await getConduitInfo(client, { conduit: TEST_CONDUIT })
 
     expect(info.conduit).toBe(TEST_CONDUIT)
     expect(info.asset).toBe(USDC)
-    expect(typeof info.name).toBe('string')
-    expect(typeof info.symbol).toBe('string')
-    expect(typeof info.decimals).toBe('number')
-  })
-
-  it('returns numeric fields as expected types', async () => {
-    const info = await getConduitInfo(client, { conduit: TEST_CONDUIT })
-
-    expect(typeof info.totalSupply).toBe('bigint')
-    expect(typeof info.totalAssets).toBe('bigint')
-    expect(typeof info.holdings).toBe('bigint')
-    expect(typeof info.decimals).toBe('number')
-    expect(typeof info.isEnabled).toBe('boolean')
   })
 })

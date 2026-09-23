@@ -11,8 +11,7 @@ import { setupAnvil, teardownAnvil } from './setup.js'
 let client: ReturnType<typeof createRailnetTestClient>
 
 beforeAll(async () => {
-  const ctx = await setupAnvil()
-  client = ctx.client
+  client = (await setupAnvil()).client
   await client.setAutomine(true)
 }, 30_000)
 

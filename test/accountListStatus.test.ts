@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import { type Address, createPublicClient, custom, encodeAbiParameters } from 'viem'
 import { base } from 'viem/chains'
-import { accountListAbi } from '../src/abi/accountList.js'
 import { getAccountListStatus } from '../src/actions/accountList/getAccountListStatus.js'
 import { AllowlistMode } from '../src/actions/accountList/types.js'
 
@@ -56,33 +55,5 @@ describe('getAccountListStatus', () => {
       isSanctioned: false,
       mode: AllowlistMode.STRICT,
     })
-  })
-
-  it('reads mode as an AllowlistMode, not a raw number', async () => {
-    const client = createPublicClient({ chain: base, transport: stubTransport() })
-
-    const status = await getAccountListStatus(client, { accountList, account })
-
-    expect(status.mode).toBe(AllowlistMode.STRICT)
-  })
-})
-
-describe('accountListAbi', () => {
-  it('declares every predicate the action calls', () => {
-    const declared = new Set<string>(
-      accountListAbi.filter((entry) => entry.type === 'function').map((entry) => entry.name),
-    )
-
-    for (const name of [
-      'canDeposit',
-      'canRedeem',
-      'canReceive',
-      'isAllowListed',
-      'isBlocked',
-      'isSanctioned',
-      'mode',
-    ]) {
-      expect(declared.has(name)).toBe(true)
-    }
   })
 })

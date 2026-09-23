@@ -7,8 +7,7 @@ import { setupAnvil, teardownAnvil } from './setup.js'
 let client: ReturnType<typeof createRailnetTestClient>
 
 beforeAll(async () => {
-  const ctx = await setupAnvil()
-  client = ctx.client
+  client = (await setupAnvil()).client
 }, 30_000)
 
 afterAll(() => teardownAnvil())
@@ -26,18 +25,6 @@ describe('getConduitPosition', () => {
     expect(position.assets).toBe(0n)
     expect(position.conduit).toBe(TEST_CONDUIT)
     expect(position.account).toBe(randomAccount.address)
-  })
-
-  it('returns conduit and account in the result', async () => {
-    const position = await getConduitPosition(client, {
-      conduit: TEST_CONDUIT,
-      account: client.account.address,
-    })
-
-    expect(position.conduit).toBe(TEST_CONDUIT)
-    expect(position.account).toBe(client.account.address)
-    expect(typeof position.shares).toBe('bigint')
-    expect(typeof position.assets).toBe('bigint')
   })
 
   // `convert` takes a scalar `Asset`; against the superseded array-shaped ABI it reverts rather

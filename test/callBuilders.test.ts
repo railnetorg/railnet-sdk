@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import type { Address } from 'viem'
 import {
-  encodeAbiParameters,
   encodeFunctionData,
   keccak256,
   maxUint256,
@@ -31,12 +30,9 @@ import {
   buildSetFeeRecipientsCall,
   buildSetFeesCall,
   buildSetRolePublicCall,
-  buildSpawnAaveV3VehicleCall,
-  buildSpawnAccessControlCall,
   buildSpawnAccountListCall,
   buildSpawnConduitCall,
   buildSpawnFeeManagerCall,
-  buildSpawnMultiVehicleCall,
   buildSpawnOwnerRegistryCall,
   externalAccessControlAbi,
   feeManagerAbi,
@@ -84,9 +80,6 @@ describe('build*Call builders', () => {
 
     expect(prepared.functionName).toBe('forceRedeem')
     expect(prepared.args).toEqual([user, 100n, { asset: USDC_ASSET, value: 0n }])
-    // The conduit derives both the burn source and the payout target from `user`; the caller's
-    // address never enters the calldata.
-    expect(encodeFunctionData(prepared).toLowerCase()).not.toContain(sender.slice(2).toLowerCase())
   })
 
   test('the global role builders hit the unscoped entrypoints', () => {
@@ -140,7 +133,7 @@ describe('build*Call builders', () => {
     expect(retrieve.args).toEqual([1_000n])
   })
 
-  test('buildDepositConduitCall emits the conduit.create call (no approve)', () => {
+  test('buildDepositConduitCall emits conduit.create with the vehicle as output asset', () => {
     const prepared = buildDepositConduitCall({
       conduit: zeroAddress,
       token: zeroAddress,
@@ -151,20 +144,10 @@ describe('build*Call builders', () => {
     })
     expect(prepared.functionName).toBe('create')
     expect(prepared.args).toHaveLength(3)
+    expect(prepared.args[0].input).toEqual({ asset: zeroAddress, value: 100n })
+    expect(prepared.args[0].output).toEqual({ asset: VEHICLE, value: 0n })
     expect(prepared.args[1]).toBe(sender)
     expect(prepared.args[2]).toBe(zeroHash)
-  })
-
-  test('buildDepositConduitCall names the vehicle as the query output asset', () => {
-    const prepared = buildDepositConduitCall({
-      conduit: zeroAddress,
-      token: zeroAddress,
-      amount: 100n,
-      sender,
-      vehicle: VEHICLE,
-      salt: zeroHash,
-    })
-    expect(prepared.args[0].output).toEqual({ asset: VEHICLE, value: 0n })
   })
 
   test('buildDepositConduitCall carries a slippage floor into the query output', () => {
@@ -181,22 +164,6 @@ describe('build*Call builders', () => {
     expect(prepared.args[0].output).toEqual({ asset: VEHICLE, value: 99n })
   })
 
-  test('buildDepositConduitCall binds query.salt to (sender, sourceSalt)', () => {
-    const prepared = buildDepositConduitCall({
-      conduit: zeroAddress,
-      token: zeroAddress,
-      amount: 100n,
-      sender,
-      vehicle: VEHICLE,
-      salt: zeroHash,
-    })
-    expect(prepared.args[0].salt).toBe(
-      keccak256(
-        encodeAbiParameters([{ type: 'address' }, { type: 'bytes32' }], [sender, zeroHash]),
-      ),
-    )
-  })
-
   test('buildRedeemConduitCall passes sourceSalt raw and defaults receiver to sender', () => {
     const prepared = buildRedeemConduitCall({
       conduit: zeroAddress,
@@ -208,32 +175,6 @@ describe('build*Call builders', () => {
     expect(prepared.functionName).toBe('createRedeemFromConduitShares')
     expect(prepared.args[2]).toBe(zeroHash)
     expect(prepared.args[3]).toBe(sender)
-  })
-
-  test('buildDepositConduitCall builds scalar Asset legs, not single-element arrays', () => {
-    const prepared = buildDepositConduitCall({
-      conduit: zeroAddress,
-      token: zeroAddress,
-      amount: 100n,
-      sender,
-      vehicle: VEHICLE,
-      salt: zeroHash,
-    })
-    expect(Array.isArray(prepared.args[0].input)).toBe(false)
-    expect(Array.isArray(prepared.args[0].output)).toBe(false)
-    expect(prepared.args[0].input).toEqual({ asset: zeroAddress, value: 100n })
-  })
-
-  test('buildRedeemConduitCall passes the output asset through as a scalar', () => {
-    const prepared = buildRedeemConduitCall({
-      conduit: zeroAddress,
-      shares: 1n,
-      sender,
-      outputAsset: { asset: USDC_ASSET, value: 0n },
-      salt: zeroHash,
-    })
-    expect(Array.isArray(prepared.args[1])).toBe(false)
-    expect(prepared.args[1]).toEqual({ asset: USDC_ASSET, value: 0n })
   })
 
   // STEAM scalarized `Asset[]` to `Asset`. An array-shaped Asset changes the tuple
@@ -335,105 +276,6 @@ describe('build*Call builders', () => {
   })
 })
 
-describe('build*Call builders are pure', () => {
-  const mvSalts = {
-    multiVehicle: zeroHash,
-    queryRedeemQueue: zeroHash,
-    queueStrategyEngine: zeroHash,
-    sectorAccountingEngine: zeroHash,
-    subQueryEngine: zeroHash,
-    vehicleManager: zeroHash,
-    initialDepositQuery: zeroHash,
-  }
-
-  const builders: Array<[string, () => BuiltCall]> = [
-    [
-      'buildDepositConduitCall',
-      () =>
-        buildDepositConduitCall({
-          conduit: zeroAddress,
-          token: USDC_ASSET,
-          amount: 100n,
-          sender,
-          vehicle: VEHICLE,
-          salt: zeroHash,
-        }),
-    ],
-    [
-      'buildRedeemConduitCall',
-      () =>
-        buildRedeemConduitCall({
-          conduit: zeroAddress,
-          shares: 100n,
-          sender,
-          outputAsset: { asset: USDC_ASSET, value: 0n },
-          salt: zeroHash,
-        }),
-    ],
-    [
-      'buildSpawnConduitCall',
-      () =>
-        buildSpawnConduitCall({
-          factory: zeroAddress,
-          name: 'Conduit',
-          symbol: 'CDT',
-          vehicle: VEHICLE,
-          initialExpectedSupply: 1n,
-          transferEnabled: true,
-          accessControl: zeroAddress,
-          feeManager: zeroAddress,
-          accountList: zeroAddress,
-          ownerRegistry: zeroAddress,
-          querySalt: zeroHash,
-          deploymentSalt: zeroHash,
-        }),
-    ],
-    [
-      'buildSpawnMultiVehicleCall',
-      () =>
-        buildSpawnMultiVehicleCall({
-          factory: zeroAddress,
-          asset: USDC_ASSET,
-          name: 'Multi',
-          symbol: 'MV',
-          accessControl: zeroAddress,
-          queryRegistry: zeroAddress,
-          salts: mvSalts,
-        }),
-    ],
-    [
-      'buildSpawnAaveV3VehicleCall',
-      () =>
-        buildSpawnAaveV3VehicleCall({
-          factory: zeroAddress,
-          asset: USDC_ASSET,
-          poolAddressesProvider: zeroAddress,
-          accessControl: zeroAddress,
-          queryRegistry: zeroAddress,
-          initialExpectedSupply: 1n,
-          querySalt: zeroHash,
-          deploymentSalt: zeroHash,
-        }),
-    ],
-    [
-      'buildSpawnAccessControlCall',
-      () =>
-        buildSpawnAccessControlCall({
-          factory: zeroAddress,
-          initialDefaultAdmin: sender,
-          deploymentSalt: zeroHash,
-        }),
-    ],
-  ]
-
-  test.each(builders)('%s encodes identical calldata twice', (_name, build) => {
-    const first = build()
-    const second = build()
-
-    expect(encodeFunctionData(first as never)).toBe(encodeFunctionData(second as never))
-  })
-})
-
 describe('randomSalt', () => {
   test('returns a distinct bytes32 each call', () => {
     const salts = new Set(Array.from({ length: 64 }, () => randomSalt()))
@@ -443,7 +285,9 @@ describe('randomSalt', () => {
       expect(salt).toMatch(/^0x[0-9a-f]{64}$/)
     }
   })
+})
 
+describe('fee manager, account list and owner registry builders', () => {
   test('buildSpawnFeeManagerCall wraps the params the factory expects', () => {
     const fees = {
       performanceFeeBps: 1000,

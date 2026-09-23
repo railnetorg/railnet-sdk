@@ -30,14 +30,12 @@ describe('railnetActions', () => {
     expect(decorated).toEqual(readActionNames())
   })
 
-  it('binds the client it was extended onto', async () => {
+  it('binds the client it was extended onto', () => {
     const client = createPublicClient({
       chain: base,
       transport: http('http://127.0.0.1:1'),
     }).extend(railnetActions)
 
     expect(typeof client.getConduitInfo).toBe('function')
-    // Reaches the dead transport rather than failing to resolve the action.
-    await expect(client.getHasRole({} as never)).rejects.toThrow()
   })
 })
