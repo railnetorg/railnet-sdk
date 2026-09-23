@@ -151,8 +151,7 @@ Twenty-two ABIs are exported, one per contract the SDK touches: `conduitAbi`, `c
 | `EstimationType` | `INPUT` or `OUTPUT`, which side of a query an estimate prices |
 | `QueryState` | `EMPTY`, `PROCESSING`, `PAUSED`, `UNLOCKING`, `RECOVERING`, `REJECTED`, `SETTLED` |
 
-`SETTLED` reached in one transaction means the vehicle is synchronous. `ConduitState` and
-`ConduitMode` are deprecated aliases of `QueryState` and `QueryMode`, removed in 0.9.0.
+`SETTLED` reached in one transaction means the vehicle is synchronous.
 
 `ROLES` lists every role as `{ name, hash }`, for building a picker rather than a hard-coded list.
 

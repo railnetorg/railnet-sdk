@@ -118,9 +118,8 @@ synchronous vehicle that happens inline in `spawn()`. On an async one the factor
 deposit and emits `PendingConduitDeposit`; send `buildFinalizeConduitDepositCall` once the vehicle's
 query settles, and the same path enables the conduit.
 
-`buildEnableConduitCall` is deprecated and removed in 0.9.0: it builds `conduit.enable()`, which
-reverts `InvalidCaller` for anyone but the factory. To let holders move their shares, the call is
-`buildEnableConduitTransfersCall`.
+To let holders move their shares, the call is `buildEnableConduitTransfersCall`, a one-way latch
+separate from `conduit.enable()`.
 
 ```typescript
 import {
