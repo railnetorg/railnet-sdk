@@ -80,6 +80,21 @@ describe('getRailnetError', () => {
     expect(railnetError?.hint).toBeUndefined()
   })
 
+  it('finds a revert thrown by another copy of viem', () => {
+    const data = encodeErrorResult({ abi: conduitAbi, errorName: 'DisabledConduit', args: [] })
+    const foreignRevert = Object.assign(new Error('reverted'), {
+      name: 'ContractFunctionRevertedError',
+      data: undefined,
+      raw: data,
+    })
+    const thrown = Object.assign(new Error('simulation failed'), {
+      name: 'ContractFunctionExecutionError',
+      cause: foreignRevert,
+    })
+
+    expect(getRailnetError(thrown)?.name).toBe('DisabledConduit')
+  })
+
   it('returns null for a failure that is not a contract revert', () => {
     expect(getRailnetError(new Error('user rejected the request'))).toBeNull()
     expect(getRailnetError(new BaseError('http request failed'))).toBeNull()
