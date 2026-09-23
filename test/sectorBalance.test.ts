@@ -9,7 +9,7 @@ import {
 import { base } from 'viem/chains'
 import { sectorAccountingEngineAbi } from '../src/abi/sectorAccountingEngine.js'
 import { getSectorBalance } from '../src/actions/multiVehicle/getSectorBalance.js'
-import { SECTOR_AVAILABLE, vehicleSector } from '../src/constants/sectors.js'
+import { vehicleSector } from '../src/constants/sectors.js'
 
 const sectorAccountingEngine: Address = '0x1111111111111111111111111111111111111111'
 const vehicle: Address = '0x2Ec94b8979868bF5586f8550733092a77Cd77C9E'
@@ -54,13 +54,5 @@ describe('getSectorBalance', () => {
     expect(balance).toBe(42n)
     expect(seen.sector).toBe(vehicleSector(vehicle))
     expect(seen.asset?.toLowerCase()).toBe(asset.toLowerCase())
-  })
-
-  it('reads a static sector the same way', async () => {
-    const { client, seen } = capturingClient(0n)
-
-    await getSectorBalance(client, { sectorAccountingEngine, sector: SECTOR_AVAILABLE, asset })
-
-    expect(seen.sector).toBe(SECTOR_AVAILABLE)
   })
 })

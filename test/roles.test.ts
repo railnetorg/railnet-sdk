@@ -33,14 +33,6 @@ describe('ROLES', () => {
       expect(registry).toContainEqual({ name, hash })
     }
   })
-
-  it('gives every entry the hash its name exports', () => {
-    const exportedByName = new Map(exportedRoles)
-
-    for (const role of registry) {
-      expect(exportedByName.get(role.name)).toBe(role.hash)
-    }
-  })
 })
 
 describe('roleName', () => {

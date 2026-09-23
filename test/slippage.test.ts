@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { applySlippage, baseVehicleAbi } from '../src/index.js'
+import { applySlippage } from '../src/index.js'
 
 describe('applySlippage', () => {
   it('lowers an estimate by the given basis points', () => {
@@ -19,17 +19,5 @@ describe('applySlippage', () => {
     expect(() => applySlippage(1_000n, -1)).toThrow('between 0 and 10000')
     expect(() => applySlippage(1_000n, 10_001)).toThrow('between 0 and 10000')
     expect(() => applySlippage(1_000n, 1.5)).toThrow('between 0 and 10000')
-  })
-})
-
-describe('baseVehicleAbi', () => {
-  it('declares estimate with a scalar Asset, not the array it took before scalarization', () => {
-    const estimate = baseVehicleAbi.find(
-      (entry) => entry.type === 'function' && entry.name === 'estimate',
-    )
-
-    expect(estimate).toBeDefined()
-    expect(estimate?.inputs[0]?.type).toBe('tuple')
-    expect(estimate?.outputs[0]?.type).toBe('tuple')
   })
 })

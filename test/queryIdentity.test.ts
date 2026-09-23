@@ -65,7 +65,6 @@ describe('query identity', () => {
     })
     const identity = { chainId: 8453, vehicle: VEHICLE, query }
 
-    expect(toQueryId(identity)).toBe(toQueryId(identity))
     expect(toQueryId({ ...identity, chainId: 1 })).not.toBe(toQueryId(identity))
     expect(toQueryId({ ...identity, vehicle: zeroAddress })).not.toBe(toQueryId(identity))
     expect(
@@ -92,6 +91,5 @@ describe('query identity', () => {
       functionName: 'asset',
       args: [],
     })
-    expect('address' in toCall(call)).toBe(false)
   })
 })

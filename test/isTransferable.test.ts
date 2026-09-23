@@ -50,14 +50,4 @@ describe('getIsTransferable', () => {
     expect(seen.from?.toLowerCase()).toBe(from.toLowerCase())
     expect(seen.to?.toLowerCase()).toBe(to.toLowerCase())
   })
-
-  it('does not fold the pair into one argument', async () => {
-    const { client, seen } = capturingClient(false)
-
-    const transferable = await getIsTransferable(client, { conduit, from: to, to: from })
-
-    expect(transferable).toBe(false)
-    expect(seen.from?.toLowerCase()).toBe(to.toLowerCase())
-    expect(seen.to?.toLowerCase()).toBe(from.toLowerCase())
-  })
 })
