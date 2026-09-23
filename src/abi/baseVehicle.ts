@@ -193,6 +193,16 @@ export const baseVehicleAbi = [
   },
   {
     type: 'function',
+    name: 'executeModule',
+    inputs: [
+      { name: 'module', type: 'address', internalType: 'address' },
+      { name: 'data', type: 'bytes', internalType: 'bytes' },
+    ],
+    outputs: [],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
     name: 'feeManager',
     inputs: [],
     outputs: [{ name: '', type: 'address', internalType: 'contract FeeManager' }],
@@ -238,6 +248,32 @@ export const baseVehicleAbi = [
   },
   {
     type: 'function',
+    name: 'interceptions',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple[]',
+        internalType: 'struct Interceptor.Interception[]',
+        components: [
+          { name: 'asset', type: 'address', internalType: 'address' },
+          {
+            name: 'recipients',
+            type: 'tuple[]',
+            internalType: 'struct Interceptor.Recipient[]',
+            components: [
+              { name: 'target', type: 'address', internalType: 'address' },
+              { name: 'shareBps', type: 'uint256', internalType: 'uint256' },
+              { name: 'chainId', type: 'uint256', internalType: 'uint256' },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'maxDeposit',
     inputs: [{ name: 'account', type: 'address', internalType: 'address' }],
     outputs: [
@@ -276,6 +312,13 @@ export const baseVehicleAbi = [
     inputs: [],
     outputs: [{ name: '', type: 'address', internalType: 'contract ModulesManager' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'multicall',
+    inputs: [{ name: 'data', type: 'bytes[]', internalType: 'bytes[]' }],
+    outputs: [{ name: 'results', type: 'bytes[]', internalType: 'bytes[]' }],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',

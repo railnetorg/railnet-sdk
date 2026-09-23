@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'bun:test'
-import { type Address, zeroAddress } from 'viem'
+import {
+  type Address,
+  decodeFunctionResult,
+  encodeFunctionData,
+  encodeFunctionResult,
+  toFunctionSelector,
+  zeroAddress,
+} from 'viem'
 import {
   assertInterceptions,
   baseVehicleAbi,
@@ -73,5 +80,33 @@ describe('interception builders', () => {
     expect(() =>
       buildSetConduitInterceptionsCall({ conduit, interceptions: perAsset }),
     ).not.toThrow()
+  })
+})
+
+/**
+ * `interceptions()` was on the conduit ABI but not the vehicle's, which left the setter with no
+ * way to read the list it replaces.
+ */
+describe('the interceptions getter', () => {
+  const selector = toFunctionSelector('interceptions()')
+
+  it('is on both the conduit and the vehicle ABI, under one selector', () => {
+    expect(encodeFunctionData({ abi: conduitAbi, functionName: 'interceptions' })).toBe(selector)
+    expect(encodeFunctionData({ abi: baseVehicleAbi, functionName: 'interceptions' })).toBe(
+      selector,
+    )
+  })
+
+  it('decodes to the same shape the setter takes', () => {
+    const stored = split(6_000n, 4_000n)
+    const encoded = encodeFunctionResult({
+      abi: baseVehicleAbi,
+      functionName: 'interceptions',
+      result: stored,
+    })
+
+    expect(
+      decodeFunctionResult({ abi: baseVehicleAbi, functionName: 'interceptions', data: encoded }),
+    ).toEqual(stored)
   })
 })
