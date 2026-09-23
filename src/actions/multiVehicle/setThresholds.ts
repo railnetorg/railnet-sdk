@@ -22,7 +22,7 @@ export type SetThresholdsParameters = {
 
 /**
  * Sets a multi vehicle's operational thresholds. Replaces both values together; there is no
- * partial update, and a field passed as 0 enables auto-fulfill on every request.
+ * partial update, and `minSharesForAutoFulfill` passed as 0 enables auto-fulfill on every request.
  *
  * @param parameters - {@link SetThresholdsParameters}
  */

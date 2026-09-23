@@ -47,7 +47,7 @@ Checking whether it will settle in one transaction:
 import { QueryState, simulateDispatchVehicle } from '@railnetorg/railnet-sdk'
 
 const { query, state } = await simulateDispatchVehicle(walletClient, {
-  /* same parameters */
+  /* same parameters, plus account */
 })
 
 if (state !== QueryState.SETTLED && state !== QueryState.REJECTED) {
@@ -119,11 +119,12 @@ A caller-supplied identifier echoed in the `Dispatched`, `DispatchSkipped` and `
 
 ```ts
 const { query, state } = await simulateDispatchVehicle(client, {
-  /* same parameters */
+  /* same parameters, plus account */
 })
 ```
 
-Takes the builder's parameters, sends nothing, and returns the [`Query`](/types/Query) the
-dispatch would create with the [`QueryState`](/types/Enums#querystate) it would reach. `SETTLED`
+Takes the builder's parameters and an `account`, sends nothing, and returns the
+[`Query`](/types/Query) the dispatch would create with the
+[`QueryState`](/types/Enums#querystate) it would reach. `SETTLED`
 and `REJECTED` are terminal. On any other state keep `query`,
 [`buildProgressQueryCall`](/actions/buildProgressQueryCall) takes the exact struct.

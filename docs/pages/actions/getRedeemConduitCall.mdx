@@ -38,7 +38,7 @@ const [created] = extractQueryIds(receipt, conduit)
 
 ```ts
 type GetRedeemConduitCallReturnType = {
-  call: { address: Address; abi: Abi; functionName: string; args: readonly unknown[] }
+  call: ReturnType<typeof buildRedeemConduitCall>
   querySalt: Hex
   outputAsset: Asset
 }
