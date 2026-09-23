@@ -11,6 +11,10 @@ import { getIsTransferable } from './actions/conduit/getIsTransferable.js'
 import { getRedeemConduitCall } from './actions/conduit/getRedeemConduitCall.js'
 import { predictConduitDeployment } from './actions/conduit/predictConduitDeployment.js'
 import { predictFeeManagerDeployment } from './actions/feeManager/spawnFeeManager.js'
+import {
+  getConduitInterceptions,
+  getVehicleInterceptions,
+} from './actions/interceptions/getInterceptions.js'
 import { simulateDispatchVehicle } from './actions/multiVehicle/dispatchVehicle.js'
 import { getSectorBalance } from './actions/multiVehicle/getSectorBalance.js'
 import { getVehicleManagerLimits } from './actions/multiVehicle/getVehicleManagerLimits.js'
@@ -36,6 +40,7 @@ export function railnetActions(client: Client) {
     getAccountListStatus: bind(getAccountListStatus),
     estimateVehicle: bind(estimateVehicle),
     getConduitInfo: bind(getConduitInfo),
+    getConduitInterceptions: bind(getConduitInterceptions),
     getConduitPosition: bind(getConduitPosition),
     getDepositConduitCall: bind(getDepositConduitCall),
     getHasRole: bind(getHasRole),
@@ -46,6 +51,7 @@ export function railnetActions(client: Client) {
     getRedeemConduitCall: bind(getRedeemConduitCall),
     getSectorBalance: bind(getSectorBalance),
     getIsTransferable: bind(getIsTransferable),
+    getVehicleInterceptions: bind(getVehicleInterceptions),
     getVehicleManagerLimits: bind(getVehicleManagerLimits),
     predictAccountListDeployment: bind(predictAccountListDeployment),
     predictConduitDeployment: bind(predictConduitDeployment),

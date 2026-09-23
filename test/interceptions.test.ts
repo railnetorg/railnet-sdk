@@ -1,18 +1,23 @@
 import { describe, expect, it } from 'bun:test'
 import {
   type Address,
+  createPublicClient,
+  custom,
   decodeFunctionResult,
   encodeFunctionData,
   encodeFunctionResult,
   toFunctionSelector,
   zeroAddress,
 } from 'viem'
+import { base } from 'viem/chains'
 import {
   assertInterceptions,
   baseVehicleAbi,
   buildSetConduitInterceptionsCall,
   buildSetVehicleInterceptionsCall,
   conduitAbi,
+  getConduitInterceptions,
+  getVehicleInterceptions,
 } from '../src/index.js'
 
 const conduit: Address = '0x1111111111111111111111111111111111111111'
@@ -83,10 +88,6 @@ describe('interception builders', () => {
   })
 })
 
-/**
- * `interceptions()` was on the conduit ABI but not the vehicle's, which left the setter with no
- * way to read the list it replaces.
- */
 describe('the interceptions getter', () => {
   const selector = toFunctionSelector('interceptions()')
 
@@ -108,5 +109,36 @@ describe('the interceptions getter', () => {
     expect(
       decodeFunctionResult({ abi: baseVehicleAbi, functionName: 'interceptions', data: encoded }),
     ).toEqual(stored)
+  })
+})
+
+function storedClient(abi: typeof conduitAbi | typeof baseVehicleAbi) {
+  const called: string[] = []
+  const client = createPublicClient({
+    chain: base,
+    transport: custom({
+      request: async ({ method, params }) => {
+        if (method !== 'eth_call') throw new Error(`unexpected ${method}`)
+        called.push((params as [{ to: string }])[0].to)
+        return encodeFunctionResult({ abi, functionName: 'interceptions', result: split(6_000n) })
+      },
+    }),
+  })
+  return { client, called }
+}
+
+describe('interception reads', () => {
+  it('reads the conduit list', async () => {
+    const { client, called } = storedClient(conduitAbi)
+
+    expect(await getConduitInterceptions(client, { conduit })).toEqual(split(6_000n))
+    expect(called).toEqual([conduit.toLowerCase()])
+  })
+
+  it('reads the vehicle list', async () => {
+    const { client, called } = storedClient(baseVehicleAbi)
+
+    expect(await getVehicleInterceptions(client, { vehicle })).toEqual(split(6_000n))
+    expect(called).toEqual([vehicle.toLowerCase()])
   })
 })
