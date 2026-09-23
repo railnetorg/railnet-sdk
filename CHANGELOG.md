@@ -1,5 +1,95 @@
 # @railnetorg/railnet-sdk
 
+## 0.9.0
+
+### Minor Changes
+
+- 1932522: Added `interceptions`, `executeModule` and `multicall` to `baseVehicleAbi`. All three are on the
+  deployed BaseVehicle and were absent from the export, so encoding a call to any of them against a
+  vehicle threw `AbiFunctionNotFoundError` ([#82](https://github.com/railnetorg/railnet-sdk/pull/82)).
+  - Verified byte-identical against `hangar/out/BaseVehicle.sol/BaseVehicle.json` at `1.0.0-27-gf617e5e2`.
+  - `conduitAbi` already carried `interceptions`; only the vehicle side was short.
+
+- e9f4e12: Added the `DEFAULT_ADMIN_ROLE` handover builders and `getPendingDefaultAdmin`
+  ([#85](https://github.com/railnetorg/railnet-sdk/pull/85)).
+  - Builders: `buildBeginDefaultAdminTransferCall`, `buildAcceptDefaultAdminTransferCall`,
+    `buildCancelDefaultAdminTransferCall`.
+  - The handover is two-step and delayed. Begin schedules it `defaultAdminDelay` seconds out, and
+    only the pending admin may accept, once `getPendingDefaultAdmin` reports a schedule in the past.
+  - Accepting early reverts `AccessControlEnforcedDefaultAdminDelay`. Begin overwrites a pending
+    transfer rather than queueing a second one.
+  - `getPendingDefaultAdmin` is on `railnetActions`.
+
+- db2aacb: Added `buildWithdrawToIdleCall` and `buildAllocateIdleCall`, which move a multi-vehicle position
+  between a sub-vehicle and AVAILABLE as one `multicall` of a move and a dispatch
+  ([#87](https://github.com/railnetorg/railnet-sdk/pull/87)).
+  - `buildRebalanceRedeemCall` settles into the destination vehicle's own sector; withdrawing to idle
+    settles into AVAILABLE instead, where the queue strategy engine can reach the proceeds again.
+  - Both pin the amount rather than sweeping with the `maxUint256` sentinel. A limit reverts
+    `DispatchRedeemAmountTooHigh` or `DispatchDepositAmountTooHigh` instead of moving less.
+  - A cap on the allocation target reverts `DepositLimitedByCap`.
+  - Both take an optional `minOutput`.
+  - Needs MULTI_VEHICLE_MOVE and MULTI_VEHICLE_DISPATCH.
+
+- 6583d9e: Added `getConduitInterceptions` and `getVehicleInterceptions`, which read the interception rules
+  currently stored ([#83](https://github.com/railnetorg/railnet-sdk/pull/83)).
+  - `buildSetConduitInterceptionsCall` and `buildSetVehicleInterceptionsCall` replace the list
+    wholesale, so an edit of one rule starts from this read.
+  - Both on `railnetActions`.
+
+- 71b7d82: Added query options, a key, a prefix and a hook to **/react** for the fifteen read actions that
+  had none, listed in [Query options](https://sdk.railnet.org/react/queryOptions)
+  ([#88](https://github.com/railnetorg/railnet-sdk/pull/88)).
+  - Access control: `usePendingDefaultAdmin`.
+  - Conduit: `useIsTransferable`, `useAccountListStatus`, `useQueryClaim`, `useInitialDepositAmount`,
+    `useConduitInterceptions`.
+  - Vehicle: `useEstimateVehicle`, `useVehicleConversion`, `useVehicleInterceptions`,
+    `useMorphoBlueSingleton`, `useMorphoMarketAsset`.
+  - MultiVehicle: `useSectorBalance`.
+  - Deployment predictions: `usePredictAccountListDeployment`, `usePredictFeeManagerDeployment`,
+    `usePredictOwnerRegistryDeployment`.
+
+- 5160f63: **Breaking:** Removed `ConduitMode` and `ConduitState`, deprecated in 0.8.0
+  ([#89](https://github.com/railnetorg/railnet-sdk/pull/89)).
+
+  ```diff
+  - import { ConduitMode, ConduitState } from '@railnetorg/railnet-sdk'
+  + import { QueryMode, QueryState } from '@railnetorg/railnet-sdk'
+  ```
+
+  - Members and values unchanged.
+
+- 5160f63: **Breaking:** Removed `buildEnableConduitCall` and `EnableConduitParameters`, deprecated in 0.8.0.
+  It built `conduit.enable()`, which reverts `InvalidCaller` for every sender but the
+  ConduitFactory ([#89](https://github.com/railnetorg/railnet-sdk/pull/89)).
+
+  ```diff
+  - const call = buildEnableConduitCall({ conduit })
+  + const call = buildEnableConduitTransfersCall({ conduit })
+  ```
+
+  - Take that migration only if `InvalidCaller` is what you were getting. The two are different
+    selectors, and `enableTransfers()` is a one-way latch on holder transfers.
+  - Enabling a conduit stays the factory's job, reached through
+    [`buildFinalizeConduitDepositCall`](https://sdk.railnet.org/actions/buildFinalizeConduitDepositCall)
+    once the seed deposit settles.
+
+- 6af8d33: Added `buildRenounceScopedRoleCall`, the scoped counterpart of `buildRenounceRoleCall` ([#86](https://github.com/railnetorg/railnet-sdk/pull/86)).
+  - `account` must be the sender; the contract reverts `OnlyOwnerCanRenounce` otherwise.
+  - Needs no admin role, unlike `buildRevokeScopedRoleCall`.
+
+- f56b1bc: Added `getVehicleConversion`, which prices a vehicle's shares against its assets at the current
+  rate through `convert` ([#84](https://github.com/railnetorg/railnet-sdk/pull/84)).
+  - It applies ongoing fee dilution and ignores transactional fees, so the value is gross of the
+    deposit or redeem fee a settled query would pay.
+  - Does not revert `InvalidInput` or `ZeroInputValue`, unlike `estimateVehicle`.
+  - On `railnetActions`.
+
+### Patch Changes
+
+- b73fb26: Fixed `getRailnetError` returning `null` when the error came from another copy of viem. It matched
+  with `instanceof` against the SDK's own viem classes, and now matches the error's `name`.
+
 ## 0.8.0
 
 ### Minor Changes
