@@ -40,12 +40,36 @@ built query into the id an indexer holds.
 
 ## Slippage
 
-`minOutput` is a floor on the vehicle's output, in vehicle shares. Derive it from
+On a deposit, `minOutput` is a floor on the vehicle's output, in vehicle shares. Derive it from
 [`estimateVehicle`](/actions/estimateVehicle) and
 [`applySlippage`](/actions/estimateVehicle#applyslippage). [`estimateConduit`](/actions/estimateConduit) prices the same deposit in
 conduit shares, a different denomination; a floor taken from it is wrong in one direction or the
 other. Fees and the share rate sit between the vehicle's output and the conduit shares the user
 receives, so the floor is not a minimum received.
+
+On a redeem, `outputAsset.value` is a floor on the vehicle's asset output, before the conduit's
+fees. Derive it from [`estimateConduit`](/actions/estimateConduit) in `QueryMode.REDEEM`, which is
+net of those fees.
+
+```ts
+const estimate = await estimateConduit(client, {
+  conduit,
+  asset: { asset: conduit, value: shares },
+  mode: QueryMode.REDEEM,
+  estimationType: EstimationType.OUTPUT,
+})
+
+const call = buildRedeemConduitCall({
+  conduit,
+  shares,
+  sender,
+  outputAsset: { asset: estimate.asset, value: applySlippage(estimate.value, 50) },
+  salt,
+})
+```
+
+The floor is checked at creation only. A redeem that queues settles later at the fulfillment rate,
+which can fall below it.
 
 ## After the transaction
 
