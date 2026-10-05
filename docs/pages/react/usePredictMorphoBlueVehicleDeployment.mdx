@@ -1,0 +1,45 @@
+---
+description: Resolves the address a Morpho Blue vehicle spawn will deploy to.
+---
+
+# usePredictMorphoBlueVehicleDeployment
+
+Resolves the address a Morpho Blue vehicle spawn will deploy to, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePredictMorphoBlueVehicleDeployment } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictMorphoBlueVehicleDeployment } from '@railnetorg/railnet-sdk/react'
+
+const { data } = usePredictMorphoBlueVehicleDeployment(parameters)
+```
+
+## Returns
+
+A TanStack Query result, with its `queryKey` attached. See
+[`predictMorphoBlueVehicleDeployment`](/actions/buildSpawnMorphoBlueVehicleCall#predictmorphobluevehicledeployment).
+
+## Parameters
+
+Everything [`buildSpawnMorphoBlueVehicleCall`](/actions/buildSpawnMorphoBlueVehicleCall) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`predictMorphoBlueVehicleDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictMorphoBlueVehicleDeploymentQueryKey` and `predictMorphoBlueVehicleDeploymentQueryPrefix` for invalidation.

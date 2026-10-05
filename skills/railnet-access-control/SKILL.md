@@ -216,6 +216,8 @@ is off by a character. The constants are precomputed and exported; import them.
 `buildSpawnAccessControlCall` yields a transaction hash. `extractAccessControlAddress(receipt, factory)`
 returns the address, or `null` when the event is absent. Every later grant and every
 `spawnConduit` needs it.
+`predictAccessControlDeployment(client, parameters)` returns the same address before the spawn,
+for a batch that grants on it in the same transaction set.
 
 ### HIGH Assuming a deployment sequence grants every role
 

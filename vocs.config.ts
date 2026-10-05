@@ -106,6 +106,10 @@ export default defineConfig({
               text: 'getPendingDefaultAdmin',
               link: '/actions/defaultAdminTransfer#getpendingdefaultadmin',
             },
+            {
+              text: 'predictAccessControlDeployment',
+              link: '/actions/buildSpawnAccessControlCall#predictaccesscontroldeployment',
+            },
             { text: 'Default admin transfer', link: '/actions/defaultAdminTransfer' },
             { text: 'Roles', link: '/constants/roles' },
           ],
@@ -223,6 +227,10 @@ export default defineConfig({
               'getVehicleManagerLimits',
             ]),
             {
+              text: 'predictMultiVehicleDeployment',
+              link: '/actions/buildSpawnMultiVehicleCall#predictmultivehicledeployment',
+            },
+            {
               text: 'simulateDispatchVehicle',
               link: '/actions/buildDispatchVehicleCall#simulatedispatchvehicle',
             },
@@ -266,6 +274,22 @@ export default defineConfig({
             {
               text: 'getVehicleInterceptions',
               link: '/actions/getInterceptions#getvehicleinterceptions',
+            },
+            {
+              text: 'predictAaveV3VehicleDeployment',
+              link: '/actions/buildSpawnAaveV3VehicleCall#predictaavev3vehicledeployment',
+            },
+            {
+              text: 'predictErc4626VehicleDeployment',
+              link: '/actions/buildSpawnErc4626VehicleCall#predicterc4626vehicledeployment',
+            },
+            {
+              text: 'predictMorphoBlueVehicleDeployment',
+              link: '/actions/buildSpawnMorphoBlueVehicleCall#predictmorphobluevehicledeployment',
+            },
+            {
+              text: 'predictWrapperVehicleDeployment',
+              link: '/actions/buildSpawnWrapperVehicleCall#predictwrappervehicledeployment',
             },
           ],
         },
@@ -317,10 +341,16 @@ export default defineConfig({
           'useMorphoBlueSingleton',
           'useMorphoMarketAsset',
           'usePendingDefaultAdmin',
+          'usePredictAaveV3VehicleDeployment',
+          'usePredictAccessControlDeployment',
           'usePredictAccountListDeployment',
           'usePredictConduitDeployment',
+          'usePredictErc4626VehicleDeployment',
           'usePredictFeeManagerDeployment',
+          'usePredictMorphoBlueVehicleDeployment',
+          'usePredictMultiVehicleDeployment',
           'usePredictOwnerRegistryDeployment',
+          'usePredictWrapperVehicleDeployment',
           'useQueryClaim',
           'useRedeemConduitCall',
           'useSectorBalance',

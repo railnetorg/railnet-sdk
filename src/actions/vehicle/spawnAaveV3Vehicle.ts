@@ -1,4 +1,5 @@
-import { type Address, type Hex, zeroAddress } from 'viem'
+import { type Address, type Client, type Hex, zeroAddress } from 'viem'
+import { readContract } from 'viem/actions'
 import { aaveV3VehicleFactoryAbi } from '../../abi/aaveV3VehicleFactory.js'
 
 export type SpawnAaveV3VehicleParameters = {
@@ -41,4 +42,20 @@ export function buildSpawnAaveV3VehicleCall(parameters: SpawnAaveV3VehicleParame
       },
     ],
   } as const
+}
+
+/**
+ * The address {@link buildSpawnAaveV3VehicleCall} will deploy to for these parameters.
+ * The factory names the vehicle after its deployment counter, so the address holds only until the
+ * next spawn on the same factory: read it again right before sending, since calls batched after a
+ * stale prediction target an address with no code.
+ *
+ * @param parameters - {@link SpawnAaveV3VehicleParameters}
+ */
+export async function predictAaveV3VehicleDeployment(
+  client: Client,
+  parameters: SpawnAaveV3VehicleParameters,
+): Promise<Address> {
+  const { address, abi, args } = buildSpawnAaveV3VehicleCall(parameters)
+  return readContract(client, { address, abi, functionName: 'getDeploymentAddress', args })
 }

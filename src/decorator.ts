@@ -1,6 +1,7 @@
 import type { Client } from 'viem'
 import { getPendingDefaultAdmin } from './actions/accessControl/defaultAdminTransfer.js'
 import { getHasRole } from './actions/accessControl/getHasRole.js'
+import { predictAccessControlDeployment } from './actions/accessControl/spawnAccessControl.js'
 import { getAccountListStatus } from './actions/accountList/getAccountListStatus.js'
 import { predictAccountListDeployment } from './actions/accountList/spawnAccountList.js'
 import { getInitialDepositAmount } from './actions/assetRegistry/getInitialDepositAmount.js'
@@ -19,12 +20,17 @@ import {
 import { simulateDispatchVehicle } from './actions/multiVehicle/dispatchVehicle.js'
 import { getSectorBalance } from './actions/multiVehicle/getSectorBalance.js'
 import { getVehicleManagerLimits } from './actions/multiVehicle/getVehicleManagerLimits.js'
+import { predictMultiVehicleDeployment } from './actions/multiVehicle/spawnMultiVehicle.js'
 import { predictOwnerRegistryDeployment } from './actions/ownerRegistry/spawnOwnerRegistry.js'
 import { getQueryClaim } from './actions/ownerRegistry/wrapQuery.js'
 import { estimateVehicle } from './actions/vehicle/estimateVehicle.js'
 import { getMorphoBlueSingleton } from './actions/vehicle/getMorphoBlueSingleton.js'
 import { getMorphoMarketAsset } from './actions/vehicle/getMorphoMarketAsset.js'
 import { getVehicleConversion } from './actions/vehicle/getVehicleConversion.js'
+import { predictAaveV3VehicleDeployment } from './actions/vehicle/spawnAaveV3Vehicle.js'
+import { predictErc4626VehicleDeployment } from './actions/vehicle/spawnErc4626Vehicle.js'
+import { predictMorphoBlueVehicleDeployment } from './actions/vehicle/spawnMorphoBlueVehicle.js'
+import { predictWrapperVehicleDeployment } from './actions/vehicle/spawnWrapperVehicle.js'
 
 /**
  * Viem client decorator adding every Railnet read action, for `client.extend(railnetActions)`.
@@ -57,10 +63,16 @@ export function railnetActions(client: Client) {
     getVehicleConversion: bind(getVehicleConversion),
     getVehicleInterceptions: bind(getVehicleInterceptions),
     getVehicleManagerLimits: bind(getVehicleManagerLimits),
+    predictAaveV3VehicleDeployment: bind(predictAaveV3VehicleDeployment),
+    predictAccessControlDeployment: bind(predictAccessControlDeployment),
     predictAccountListDeployment: bind(predictAccountListDeployment),
     predictConduitDeployment: bind(predictConduitDeployment),
+    predictErc4626VehicleDeployment: bind(predictErc4626VehicleDeployment),
     predictFeeManagerDeployment: bind(predictFeeManagerDeployment),
+    predictMorphoBlueVehicleDeployment: bind(predictMorphoBlueVehicleDeployment),
+    predictMultiVehicleDeployment: bind(predictMultiVehicleDeployment),
     predictOwnerRegistryDeployment: bind(predictOwnerRegistryDeployment),
+    predictWrapperVehicleDeployment: bind(predictWrapperVehicleDeployment),
     simulateDispatchVehicle: bind(simulateDispatchVehicle),
   }
 }

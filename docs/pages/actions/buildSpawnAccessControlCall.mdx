@@ -66,3 +66,12 @@ Delay, in seconds, on admin role changes.
 
 Part of the CREATE2 address, with every other field of the call. See
 [`randomSalt`](/utilities/randomSalt).
+
+## predictAccessControlDeployment
+
+```ts
+const address = await predictAccessControlDeployment(publicClient, parameters)
+```
+
+Reads the address `buildSpawnAccessControlCall` will deploy to for the same parameters, a CREATE2 the
+factory computes. Lets a batch reference the contract before it exists. Returns `Address`.

@@ -1,4 +1,5 @@
-import { type Address, type Hex, zeroAddress } from 'viem'
+import { type Address, type Client, type Hex, zeroAddress } from 'viem'
+import { readContract } from 'viem/actions'
 import { wrapperVehicleFactoryAbi } from '../../abi/wrapperVehicleFactory.js'
 
 export type SpawnWrapperVehicleParameters = {
@@ -39,4 +40,20 @@ export function buildSpawnWrapperVehicleCall(parameters: SpawnWrapperVehiclePara
       },
     ],
   } as const
+}
+
+/**
+ * The address {@link buildSpawnWrapperVehicleCall} will deploy to for these parameters.
+ * The factory names the vehicle after its deployment counter, so the address holds only until the
+ * next spawn on the same factory: read it again right before sending, since calls batched after a
+ * stale prediction target an address with no code.
+ *
+ * @param parameters - {@link SpawnWrapperVehicleParameters}
+ */
+export async function predictWrapperVehicleDeployment(
+  client: Client,
+  parameters: SpawnWrapperVehicleParameters,
+): Promise<Address> {
+  const { address, abi, args } = buildSpawnWrapperVehicleCall(parameters)
+  return readContract(client, { address, abi, functionName: 'getDeploymentAddress', args })
 }

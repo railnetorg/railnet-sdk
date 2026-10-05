@@ -1,0 +1,45 @@
+---
+description: Resolves the address a multi-vehicle spawn will deploy to.
+---
+
+# usePredictMultiVehicleDeployment
+
+Resolves the address a multi-vehicle spawn will deploy to, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePredictMultiVehicleDeployment } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictMultiVehicleDeployment } from '@railnetorg/railnet-sdk/react'
+
+const { data } = usePredictMultiVehicleDeployment(parameters)
+```
+
+## Returns
+
+A TanStack Query result, with its `queryKey` attached. See
+[`predictMultiVehicleDeployment`](/actions/buildSpawnMultiVehicleCall#predictmultivehicledeployment).
+
+## Parameters
+
+Everything [`buildSpawnMultiVehicleCall`](/actions/buildSpawnMultiVehicleCall) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`predictMultiVehicleDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictMultiVehicleDeploymentQueryKey` and `predictMultiVehicleDeploymentQueryPrefix` for invalidation.

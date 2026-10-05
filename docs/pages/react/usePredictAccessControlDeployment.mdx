@@ -1,0 +1,45 @@
+---
+description: Resolves the address an access control spawn will deploy to.
+---
+
+# usePredictAccessControlDeployment
+
+Resolves the address an access control spawn will deploy to, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePredictAccessControlDeployment } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictAccessControlDeployment } from '@railnetorg/railnet-sdk/react'
+
+const { data } = usePredictAccessControlDeployment(parameters)
+```
+
+## Returns
+
+A TanStack Query result, with its `queryKey` attached. See
+[`predictAccessControlDeployment`](/actions/buildSpawnAccessControlCall#predictaccesscontroldeployment).
+
+## Parameters
+
+Everything [`buildSpawnAccessControlCall`](/actions/buildSpawnAccessControlCall) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`predictAccessControlDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictAccessControlDeploymentQueryKey` and `predictAccessControlDeploymentQueryPrefix` for invalidation.

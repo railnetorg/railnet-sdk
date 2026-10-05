@@ -120,3 +120,12 @@ type MultiVehicleSalts = {
 - **Default:** `[]`
 
 See [Setting interceptions](/actions/setInterceptions).
+
+## predictMultiVehicleDeployment
+
+```ts
+const address = await predictMultiVehicleDeployment(publicClient, parameters)
+```
+
+Reads the address `buildSpawnMultiVehicleCall` will deploy to for the same parameters, a CREATE2 the
+factory computes. Lets a batch reference the contract before it exists. Returns the six contract addresses: the multi-vehicle and its five engines.

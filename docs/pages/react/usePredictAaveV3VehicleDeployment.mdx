@@ -1,0 +1,45 @@
+---
+description: Resolves the address an Aave V3 vehicle spawn will deploy to.
+---
+
+# usePredictAaveV3VehicleDeployment
+
+Resolves the address an Aave V3 vehicle spawn will deploy to, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePredictAaveV3VehicleDeployment } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictAaveV3VehicleDeployment } from '@railnetorg/railnet-sdk/react'
+
+const { data } = usePredictAaveV3VehicleDeployment(parameters)
+```
+
+## Returns
+
+A TanStack Query result, with its `queryKey` attached. See
+[`predictAaveV3VehicleDeployment`](/actions/buildSpawnAaveV3VehicleCall#predictaavev3vehicledeployment).
+
+## Parameters
+
+Everything [`buildSpawnAaveV3VehicleCall`](/actions/buildSpawnAaveV3VehicleCall) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`predictAaveV3VehicleDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictAaveV3VehicleDeploymentQueryKey` and `predictAaveV3VehicleDeploymentQueryPrefix` for invalidation.
