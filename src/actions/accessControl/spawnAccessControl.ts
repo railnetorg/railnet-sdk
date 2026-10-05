@@ -1,4 +1,5 @@
-import type { Address, Hex } from 'viem'
+import type { Address, Client, Hex } from 'viem'
+import { readContract } from 'viem/actions'
 import { accessControlFactoryAbi } from '../../abi/accessControlFactory.js'
 
 export type SpawnAccessControlParameters = {
@@ -31,4 +32,18 @@ export function buildSpawnAccessControlCall(parameters: SpawnAccessControlParame
       },
     ],
   } as const
+}
+
+/**
+ * The address {@link buildSpawnAccessControlCall} will deploy to for these parameters, a CREATE2 over
+ * every field of the call.
+ *
+ * @param parameters - {@link SpawnAccessControlParameters}
+ */
+export async function predictAccessControlDeployment(
+  client: Client,
+  parameters: SpawnAccessControlParameters,
+): Promise<Address> {
+  const { address, abi, args } = buildSpawnAccessControlCall(parameters)
+  return readContract(client, { address, abi, functionName: 'getDeploymentAddress', args })
 }

@@ -400,6 +400,11 @@ Every spawn returns only a `Hash`. Use `extractMultiVehicleContracts`, the per-v
 `extractAccessControlAddress` on the receipt. Each returns `null` when the event is absent, so a
 deployment script that skips the check carries `null` into the next step.
 
+To reference a contract before its spawn lands (a batch, a multisig proposal), read
+`predictMultiVehicleDeployment`, `predictAccessControlDeployment` or the per-vehicle
+`predict…VehicleDeployment` instead. A vehicle prediction holds only until the next spawn on the same
+factory: its init code carries the factory's deployment counter.
+
 Source: src/utils/receipt.ts
 
 ## References

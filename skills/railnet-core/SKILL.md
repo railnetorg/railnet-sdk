@@ -58,8 +58,9 @@ The decorator exposes every read action the package ships: `estimateConduit`, `e
 `getConduitInfo`, `getConduitPosition`, `getDepositConduitCall`, `getHasRole`,
 `getInitialDepositAmount`, `getMorphoBlueSingleton`, `getMorphoMarketAsset`,
 `getRedeemConduitCall`, `getVehicleManagerLimits`, `getAccountListStatus`, `getIsTransferable`,
-`getQueryClaim`, `getSectorBalance`, `predictAccountListDeployment`, `predictConduitDeployment`,
-`predictFeeManagerDeployment`, `predictOwnerRegistryDeployment` and `simulateDispatchVehicle`. Writes are call builders, not actions: the SDK builds them and never
+`getQueryClaim`, `getSectorBalance`, a `predict…Deployment` per factory (access control, account
+list, conduit, fee manager, owner registry, multi-vehicle and the four vehicles) and
+`simulateDispatchVehicle`. Writes are call builders, not actions: the SDK builds them and never
 sends them — see railnet-conduit and railnet-vehicle skills.
 
 ### Handling reverts

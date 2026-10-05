@@ -106,3 +106,16 @@ in the AssetRegistry, or the spawn reverts `AssetNotAuthorized`.
 ### deploymentSalt
 
 - **Type:** `Hex`
+
+## predictWrapperVehicleDeployment
+
+```ts
+const address = await predictWrapperVehicleDeployment(publicClient, parameters)
+```
+
+Reads the address `buildSpawnWrapperVehicleCall` will deploy to for the same parameters, a CREATE2 the
+factory computes. Lets a batch reference the contract before it exists. Returns `Address`.
+
+The factory names the vehicle after its deployment counter, so the address holds only until the
+next spawn on the same factory. Read it again right before sending: calls batched after a stale
+prediction target an address with no code.

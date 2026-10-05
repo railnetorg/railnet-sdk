@@ -1,0 +1,45 @@
+---
+description: Resolves the address a wrapper vehicle spawn will deploy to.
+---
+
+# usePredictWrapperVehicleDeployment
+
+Resolves the address a wrapper vehicle spawn will deploy to, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePredictWrapperVehicleDeployment } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictWrapperVehicleDeployment } from '@railnetorg/railnet-sdk/react'
+
+const { data } = usePredictWrapperVehicleDeployment(parameters)
+```
+
+## Returns
+
+A TanStack Query result, with its `queryKey` attached. See
+[`predictWrapperVehicleDeployment`](/actions/buildSpawnWrapperVehicleCall#predictwrappervehicledeployment).
+
+## Parameters
+
+Everything [`buildSpawnWrapperVehicleCall`](/actions/buildSpawnWrapperVehicleCall) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`predictWrapperVehicleDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictWrapperVehicleDeploymentQueryKey` and `predictWrapperVehicleDeploymentQueryPrefix` for invalidation.

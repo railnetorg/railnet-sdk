@@ -1,0 +1,45 @@
+---
+description: Resolves the address an ERC-4626 vehicle spawn will deploy to.
+---
+
+# usePredictErc4626VehicleDeployment
+
+Resolves the address an ERC-4626 vehicle spawn will deploy to, as a TanStack Query result.
+
+## Import
+
+```ts
+import { usePredictErc4626VehicleDeployment } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { usePredictErc4626VehicleDeployment } from '@railnetorg/railnet-sdk/react'
+
+const { data } = usePredictErc4626VehicleDeployment(parameters)
+```
+
+## Returns
+
+A TanStack Query result, with its `queryKey` attached. See
+[`predictErc4626VehicleDeployment`](/actions/buildSpawnErc4626VehicleCall#predicterc4626vehicledeployment).
+
+## Parameters
+
+Everything [`buildSpawnErc4626VehicleCall`](/actions/buildSpawnErc4626VehicleCall) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`predictErc4626VehicleDeploymentQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`predictErc4626VehicleDeploymentQueryKey` and `predictErc4626VehicleDeploymentQueryPrefix` for invalidation.

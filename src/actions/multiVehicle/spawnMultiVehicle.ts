@@ -1,4 +1,5 @@
-import { type Address, type Hex, zeroAddress } from 'viem'
+import { type Address, type Client, type Hex, zeroAddress } from 'viem'
+import { readContract } from 'viem/actions'
 import { multiVehicleFactoryAbi } from '../../abi/multiVehicleFactory.js'
 import type { Interception } from '../../types.js'
 
@@ -52,4 +53,18 @@ export function buildSpawnMultiVehicleCall(parameters: SpawnMultiVehicleParamete
       },
     ],
   } as const
+}
+
+/**
+ * The address {@link buildSpawnMultiVehicleCall} will deploy to for these parameters: the
+ * multi-vehicle and its five engines, CREATE2s over their salts.
+ *
+ * @param parameters - {@link SpawnMultiVehicleParameters}
+ */
+export async function predictMultiVehicleDeployment(
+  client: Client,
+  parameters: SpawnMultiVehicleParameters,
+) {
+  const { address, abi, args } = buildSpawnMultiVehicleCall(parameters)
+  return readContract(client, { address, abi, functionName: 'getDeploymentAddresses', args })
 }
