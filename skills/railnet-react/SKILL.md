@@ -22,7 +22,7 @@ metadata:
   type: framework
   library: railnet-sdk
   framework: react
-  library_version: '0.8.0'
+  library_version: '0.10.0'
 requires:
   - railnet-core
 sources:
