@@ -20,7 +20,7 @@ description: >
 metadata:
   type: core
   library: railnet-sdk
-  library_version: '0.8.0'
+  library_version: '0.10.0'
 sources:
   - 'railnetorg/railnet-sdk:src/actions/vehicle/*.ts'
   - 'railnetorg/railnet-sdk:src/actions/multiVehicle/*.ts'
