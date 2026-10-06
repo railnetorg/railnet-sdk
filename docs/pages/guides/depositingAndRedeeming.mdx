@@ -76,4 +76,16 @@ which can fall below it.
 On a synchronous vehicle the query settles in the same transaction. On an async vehicle it stays
 short of settlement until [`buildProcessConduitQueryCall`](/actions/buildProcessConduitQueryCall)
 advances it, sent by the query's receiver or by a holder of `CONDUIT_PROCESS`.
-[`extractQueryIds`](/utilities/receiptHelpers) reads the query ids out of the receipt.
+
+[`extractQueries`](/utilities/receiptHelpers#extractqueries) reads each query's struct and vehicle
+out of the receipt. A redeem's struct is not known before the transaction, and both
+[`getQueryState`](/actions/getQueryState) and `buildProcessConduitQueryCall` take it, so store it.
+
+```ts
+const [{ query, vehicle }] = extractQueries(receipt, conduit, chainId)
+
+const state = await getQueryState(publicClient, { vehicle, query })
+if (state === QueryState.PAUSED || state === QueryState.UNLOCKING) {
+  const call = buildProcessConduitQueryCall({ conduit, query })
+}
+```
