@@ -84,8 +84,12 @@ out of the receipt. A redeem's struct is not known before the transaction, and b
 ```ts
 const [{ query, vehicle }] = extractQueries(receipt, conduit, chainId)
 
+const processable = [QueryState.PAUSED, QueryState.UNLOCKING, QueryState.RECOVERING]
+
 const state = await getQueryState(publicClient, { vehicle, query })
-if (state === QueryState.PAUSED || state === QueryState.UNLOCKING) {
+if (processable.includes(state)) {
   const call = buildProcessConduitQueryCall({ conduit, query })
 }
 ```
+
+`PROCESSING` waits on the vehicle's protocol. Read the state again later.
