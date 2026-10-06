@@ -20,22 +20,6 @@ import { useQueryState } from '@railnetorg/railnet-sdk/react'
 const { data: state } = useQueryState({ vehicle, query })
 ```
 
-To poll until the query settles, spread the query options into `useQuery`:
-
-```tsx
-import { QueryState } from '@railnetorg/railnet-sdk'
-import { queryStateQueryOptions } from '@railnetorg/railnet-sdk/react'
-import { useQuery } from '@tanstack/react-query'
-
-const { data: state } = useQuery({
-  ...queryStateQueryOptions(publicClient, { vehicle, query }),
-  refetchInterval: (result) =>
-    result.state.data === QueryState.SETTLED || result.state.data === QueryState.REJECTED
-      ? false
-      : 15_000,
-})
-```
-
 ## Returns
 
 A TanStack Query result over `QueryState`, with its `queryKey` attached. See
