@@ -270,7 +270,7 @@ export default defineConfig({
               text: 'getMorphoMarketAsset',
               link: '/actions/buildSpawnMorphoBlueVehicleCall#getmorphomarketasset',
             },
-            ...actions(['getVehicleConversion']),
+            ...actions(['getQueryState', 'getVehicleConversion']),
             {
               text: 'getVehicleInterceptions',
               link: '/actions/getInterceptions#getvehicleinterceptions',
@@ -352,6 +352,7 @@ export default defineConfig({
           'usePredictOwnerRegistryDeployment',
           'usePredictWrapperVehicleDeployment',
           'useQueryClaim',
+          'useQueryState',
           'useRedeemConduitCall',
           'useSectorBalance',
           'useVehicleConversion',

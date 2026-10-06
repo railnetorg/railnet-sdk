@@ -1,0 +1,45 @@
+---
+description: Reads where a query stands in its lifecycle.
+---
+
+# useQueryState
+
+Reads where a query stands in its lifecycle, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useQueryState } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useQueryState } from '@railnetorg/railnet-sdk/react'
+
+const { data: state } = useQueryState({ vehicle, query })
+```
+
+## Returns
+
+A TanStack Query result over `QueryState`, with its `queryKey` attached. See
+[`getQueryState`](/actions/getQueryState).
+
+## Parameters
+
+Everything [`getQueryState`](/actions/getQueryState) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+## Query options
+
+[`queryStateQueryOptions`](/react/queryOptions) is this read as TanStack Query options, with
+`queryStateQueryKey` and `queryStateQueryPrefix` for invalidation.

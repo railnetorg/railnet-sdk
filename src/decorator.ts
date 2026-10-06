@@ -26,6 +26,7 @@ import { getQueryClaim } from './actions/ownerRegistry/wrapQuery.js'
 import { estimateVehicle } from './actions/vehicle/estimateVehicle.js'
 import { getMorphoBlueSingleton } from './actions/vehicle/getMorphoBlueSingleton.js'
 import { getMorphoMarketAsset } from './actions/vehicle/getMorphoMarketAsset.js'
+import { getQueryState } from './actions/vehicle/getQueryState.js'
 import { getVehicleConversion } from './actions/vehicle/getVehicleConversion.js'
 import { predictAaveV3VehicleDeployment } from './actions/vehicle/spawnAaveV3Vehicle.js'
 import { predictErc4626VehicleDeployment } from './actions/vehicle/spawnErc4626Vehicle.js'
@@ -57,6 +58,7 @@ export function railnetActions(client: Client) {
     getMorphoMarketAsset: bind(getMorphoMarketAsset),
     getPendingDefaultAdmin: bind(getPendingDefaultAdmin),
     getQueryClaim: bind(getQueryClaim),
+    getQueryState: bind(getQueryState),
     getRedeemConduitCall: bind(getRedeemConduitCall),
     getSectorBalance: bind(getSectorBalance),
     getIsTransferable: bind(getIsTransferable),
