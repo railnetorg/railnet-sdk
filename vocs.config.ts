@@ -2,6 +2,20 @@ import { Changelog, defineConfig, McpSource } from 'vocs/config'
 
 const actions = (names: string[]) => names.map((name) => ({ text: name, link: `/actions/${name}` }))
 
+type HastNode = { properties?: { href?: unknown }; children?: HastNode[] }
+
+// viem's JSDoc links are relative to viem.sh; twoslash hovers carry them onto this site.
+function rehypeViemLinks() {
+  const visit = (node: HastNode) => {
+    const properties = node.properties
+    if (typeof properties?.href === 'string' && properties.href.startsWith('/docs/')) {
+      properties.href = `https://viem.sh${properties.href}`
+    }
+    node.children?.forEach(visit)
+  }
+  return visit
+}
+
 export default defineConfig({
   title: 'Railnet SDK',
   description: 'TypeScript SDK for interacting with the Railnet protocol',
@@ -10,8 +24,7 @@ export default defineConfig({
   renderStrategy: 'partial-static',
   baseUrl: 'https://sdk.railnet.org',
   sitemap: false,
-  // viem's JSDoc links to /docs/actions/public/introduction; twoslash hovers surface it as a dead link.
-  checkDeadlinks: 'warn',
+  markdown: { rehypePlugins: [rehypeViemLinks] },
   twoslash: {
     // 4 is ts.JsxEmit.ReactJSX; importing typescript here would bundle it into the client config.
     twoslashOptions: { compilerOptions: { jsx: 4 } },
