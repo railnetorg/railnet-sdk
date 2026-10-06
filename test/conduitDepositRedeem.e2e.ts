@@ -85,9 +85,11 @@ describe('conduit deposit and redeem', () => {
 
     const redeemed = extractQueries(redeemReceipt, TEST_CONDUIT, BASE_CHAIN_ID)
     expect(redeemed).toHaveLength(1)
-    expect(redeemed[0]?.query.mode).toBe(QueryMode.REDEEM)
-    expect(redeemed[0]?.query.input.asset).toBe(deposit.vehicle)
-    expect(redeemed[0]?.vehicle).toBe(deposit.vehicle)
+    const [created] = redeemed
+    if (!created) throw new Error('the redeem created no query')
+    expect(created.query.mode).toBe(QueryMode.REDEEM)
+    expect(created.query.input.asset).toBe(deposit.vehicle)
+    expect(created.vehicle).toBe(deposit.vehicle)
 
     const after = await getConduitPosition(client, {
       conduit: TEST_CONDUIT,
