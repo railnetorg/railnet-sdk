@@ -29,7 +29,9 @@ const state = await getQueryState(publicClient, { vehicle, query })
 
 `QueryState`
 
-`PAUSED` and `UNLOCKING` wait on [`buildProcessConduitQueryCall`](/actions/buildProcessConduitQueryCall). `SETTLED` and `REJECTED` are terminal.
+- `PROCESSING` waits on the vehicle.
+- `PAUSED`, `UNLOCKING` and `RECOVERING` wait on [`buildProcessConduitQueryCall`](/actions/buildProcessConduitQueryCall).
+- `SETTLED` and `REJECTED` are terminal.
 
 ## Parameters
 

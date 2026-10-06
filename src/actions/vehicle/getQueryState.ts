@@ -11,8 +11,8 @@ export type GetQueryStateParameters = {
 export type GetQueryStateReturnType = QueryState
 
 /**
- * Reads `vehicle.state()`, where a query stands in its lifecycle. `EMPTY` for a query the vehicle
- * never created. For a redeem, {@link extractQueries} returns both parameters.
+ * Reads `vehicle.state(query)`, where a query stands in its lifecycle. `EMPTY` for a query the
+ * vehicle never created. For a redeem, {@link extractQueries} returns both parameters.
  *
  * @param parameters - {@link GetQueryStateParameters}
  */
