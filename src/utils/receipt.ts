@@ -7,7 +7,10 @@ import { conduitFactoryAbi } from '../abi/conduitFactory.js'
 import { erc4626VehicleFactoryAbi } from '../abi/erc4626VehicleFactory.js'
 import { morphoBlueVehicleFactoryAbi } from '../abi/morphoBlueVehicleFactory.js'
 import { multiVehicleFactoryAbi } from '../abi/multiVehicleFactory.js'
+import { queryRegistryAbi } from '../abi/queryRegistry.js'
 import { wrapperVehicleFactoryAbi } from '../abi/wrapperVehicleFactory.js'
+import { toQueryId } from '../actions/conduit/queryId.js'
+import type { Query } from '../types.js'
 
 /**
  * Decodes the events one contract emitted in a receipt. Filtering by emitter matters: a factory's
@@ -181,4 +184,38 @@ export function extractQueryIds(
     queryId: event.args.queryId,
     receiver: event.args.receiver,
   }))
+}
+
+export type CreatedQueryWithStruct = CreatedQuery & {
+  query: Query
+  vehicle: Address
+}
+
+/**
+ * {@link extractQueryIds}, with each query's vehicle and `Query` struct from the QueryRegistry's
+ * `Created` event. A struct is kept when {@link toQueryId} of it equals the conduit's id.
+ *
+ * @throws When a created query has no matching `Created` event in the receipt
+ */
+export function extractQueries(
+  receipt: TransactionReceipt,
+  conduit: Address,
+  chainId: number,
+): Array<CreatedQueryWithStruct> {
+  const registered = new Map(
+    parseEventLogs({ abi: queryRegistryAbi, eventName: 'Created', logs: receipt.logs }).map(
+      (event) => [
+        toQueryId({ chainId, vehicle: event.args.vehicle, query: event.args.query }),
+        { query: event.args.query, vehicle: event.args.vehicle },
+      ],
+    ),
+  )
+
+  return extractQueryIds(receipt, conduit).map((created) => {
+    const registration = registered.get(created.queryId)
+    if (!registration) {
+      throw new Error(`query ${created.queryId} has no matching Created event on chain ${chainId}`)
+    }
+    return { ...created, ...registration }
+  })
 }

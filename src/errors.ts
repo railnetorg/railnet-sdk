@@ -108,7 +108,7 @@ export const railnetErrorHints: Readonly<Partial<Record<ProtocolErrorName, strin
   UnauthorizedVehicle: 'The vehicle is not authorized on this multi vehicle.',
   UninitializedFeeManager: 'The FeeManager has no recipients configured yet.',
   UnknownQuery:
-    'No query is stored under that id. The id of a redeem is only knowable once created. Read it back with extractQueryIds.',
+    'No query is stored under that id. The id of a redeem is only knowable once created. Read it back with extractQueries.',
   VehicleAlreadyAuthorized: 'The vehicle is already authorized on this multi vehicle.',
   VehicleNotAuthorized:
     'Authorize the vehicle on the VehicleManager first, with buildAuthorizeVehicleCall.',
