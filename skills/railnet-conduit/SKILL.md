@@ -5,7 +5,8 @@ description: >
   depositConduit, redeemConduit, getConduitPosition, getConduitInfo,
   estimateConduit, predictConduitDeployment, buildSpawnConduitCall,
   buildFinalizeConduitDepositCall, buildProcessConduitQueryCall,
-  buildForceRedeemCall, getIsTransferable, buildEnableConduitTransfersCall,
+  extractQueries, getQueryState, buildForceRedeemCall, getIsTransferable,
+  buildEnableConduitTransfersCall,
   plus the FeeManager, AccountList, OwnerRegistry and interception modules that
   spawnConduit takes as parameters (buildSpawnFeeManagerCall, buildSetFeesCall,
   buildSpawnAccountListCall, getAccountListStatus, buildSpawnOwnerRegistryCall,
@@ -316,7 +317,18 @@ await writeContract(
 ```
 
 A redeem's query has no off-chain equivalent: the conduit assembles it at the share ratio of the
-including block. Recover it from the receipt with `extractQueryIds`, or join on `querySalt`.
+including block. `extractQueries(receipt, conduit, chainId)` returns each created query's struct and
+vehicle, the input of `buildProcessConduitQueryCall` and `getQueryState`.
+
+```typescript
+import { extractQueries, getQueryState } from '@railnetorg/railnet-sdk'
+
+const [{ query, vehicle }] = extractQueries(receipt, conduitAddress, chainId)
+const state = await getQueryState(publicClient, { vehicle, query })
+```
+
+`process` advances `PAUSED`, `UNLOCKING` and `RECOVERING`. `PROCESSING` waits on the vehicle, so
+read the state again later instead of sending a process call.
 
 Source: src/actions/conduit/processConduitQuery.ts, src/actions/conduit/queryId.ts
 

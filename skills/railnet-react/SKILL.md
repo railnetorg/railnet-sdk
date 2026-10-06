@@ -11,7 +11,7 @@ description: >
   and a hook plus query options for every other read the package
   ships (useSectorBalance, useEstimateVehicle, useVehicleConversion,
   useHasRole, useAccountListStatus, usePendingDefaultAdmin,
-  useIsTransferable, useQueryClaim, useInitialDepositAmount,
+  useIsTransferable, useQueryClaim, useQueryState, useInitialDepositAmount,
   useVehicleInterceptions, useConduitInterceptions,
   useMorphoBlueSingleton, useMorphoMarketAsset and the deployment
   predictions). Covers the query key pattern and sending a built
@@ -122,7 +122,7 @@ const [salt] = useState(() => randomSalt())
 value the conduit emits in `QueryCreated`. It is known before the transaction is sent, so it is the
 key to join the transaction to an indexed query. A redeem's query is assembled on chain at the
 share ratio of the including block, so `useRedeemConduitCall` returns `querySalt` instead; read the
-id back from the receipt with `extractQueryIds`.
+query back from the receipt with `extractQueries`, then follow it with `useQueryState`.
 
 ### Deposits: approve first
 
