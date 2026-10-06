@@ -1,0 +1,48 @@
+---
+description: Reads where a query stands in its lifecycle.
+---
+
+# getQueryState
+
+Reads `vehicle.state(query)`.
+
+- The read takes the full `Query` struct. For a redeem, [`extractQueries`](/utilities/receiptHelpers#extractqueries) returns it with the vehicle.
+- A query the vehicle never created reads `EMPTY`.
+
+## Import
+
+```ts twoslash
+import { getQueryState } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { extractQueries, getQueryState } from '@railnetorg/railnet-sdk'
+
+const [{ query, vehicle }] = extractQueries(receipt, conduit, chainId)
+
+const state = await getQueryState(publicClient, { vehicle, query })
+```
+
+## Returns
+
+`QueryState`
+
+`PAUSED` and `UNLOCKING` wait on [`buildProcessConduitQueryCall`](/actions/buildProcessConduitQueryCall). `SETTLED` and `REJECTED` are terminal.
+
+## Parameters
+
+### vehicle
+
+- **Type:** `Address`
+
+The conduit's vehicle. For a MultiVehicle, the MultiVehicle itself.
+
+### query
+
+- **Type:** `Query`
+
+## React
+
+[`useQueryState`](/react/useQueryState)
