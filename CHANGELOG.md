@@ -1,5 +1,15 @@
 # @railnetorg/railnet-sdk
 
+## 0.11.0
+
+### Minor Changes
+
+- a259da4: Added `extractQueries`, which returns each query a transaction created on a conduit with its vehicle and `Query` struct, the input `buildProcessConduitQueryCall` takes.
+- a259da4: Added `queryRegistryAbi`, the QueryRegistry's full ABI.
+- 4507c22: Added `getQueryState`, which reads `vehicle.state(query)` for the `vehicle` and `query` that `extractQueries` returns.
+  - **/react:** `useQueryState` and `queryStateQueryOptions`.
+  - On `railnetActions`.
+
 ## 0.10.0
 
 ### Minor Changes
