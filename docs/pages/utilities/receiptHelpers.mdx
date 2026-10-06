@@ -17,6 +17,7 @@ import {
   extractErc4626VehicleAddress,
   extractMorphoBlueVehicleAddress,
   extractMultiVehicleContracts,
+  extractQueries,
   extractQueryIds,
   extractWrapperVehicleAddress,
 } from '@railnetorg/railnet-sdk'
@@ -180,5 +181,18 @@ A deposit's id is known before the transaction is sent, from
 [`toQueryId`](/utilities/queryIdentity#toqueryid). A redeem's id is only known from the receipt. See
 [`getRedeemConduitCall`](/actions/getRedeemConduitCall#returns).
 
-Every helper here filters logs by their emitter first. A factory's transaction carries the logs of
-everything it deployed, and several Railnet events share an argument name.
+## extractQueries
+
+```ts
+import { extractQueries } from '@railnetorg/railnet-sdk'
+
+const [{ queryId, receiver, vehicle, query }] = extractQueries(receipt, conduit, chainId)
+```
+
+[`extractQueryIds`](#extractqueryids) with each query's vehicle and `Query` struct, from the
+QueryRegistry's `Created` event. A struct is kept when
+[`toQueryId`](/utilities/queryIdentity#toqueryid) of it under `chainId` equals the conduit's id.
+Throws when an id has none.
+
+Every other helper here filters logs by their emitter first. A factory's transaction carries the
+logs of everything it deployed, and several Railnet events share an argument name.

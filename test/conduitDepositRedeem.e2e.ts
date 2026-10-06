@@ -3,10 +3,10 @@ import { erc20Abi } from 'viem'
 import { getConduitPosition } from '../src/actions/conduit/getConduitPosition.js'
 import { getDepositConduitCall } from '../src/actions/conduit/getDepositConduitCall.js'
 import { getRedeemConduitCall } from '../src/actions/conduit/getRedeemConduitCall.js'
-import { extractQueryIds } from '../src/index.js'
+import { extractQueries, extractQueryIds, QueryMode } from '../src/index.js'
 import { randomSalt } from '../src/utils/salt.js'
 import { type createRailnetTestClient, testAccount } from './client.js'
-import { TEST_CONDUIT, USDC } from './constants.js'
+import { BASE_CHAIN_ID, TEST_CONDUIT, USDC } from './constants.js'
 import { setupAnvil, teardownAnvil } from './setup.js'
 
 let client: ReturnType<typeof createRailnetTestClient>
@@ -83,7 +83,13 @@ describe('conduit deposit and redeem', () => {
     })
     expect(redeemReceipt.status).toBe('success')
 
-    expect(extractQueryIds(redeemReceipt, TEST_CONDUIT)).toHaveLength(1)
+    const redeemed = extractQueries(redeemReceipt, TEST_CONDUIT, BASE_CHAIN_ID)
+    expect(redeemed).toHaveLength(1)
+    const [created] = redeemed
+    if (!created) throw new Error('the redeem created no query')
+    expect(created.query.mode).toBe(QueryMode.REDEEM)
+    expect(created.query.input.asset).toBe(deposit.vehicle)
+    expect(created.vehicle).toBe(deposit.vehicle)
 
     const after = await getConduitPosition(client, {
       conduit: TEST_CONDUIT,
