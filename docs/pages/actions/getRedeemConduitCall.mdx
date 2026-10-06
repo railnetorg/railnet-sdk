@@ -19,7 +19,7 @@ import { getRedeemConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 ```ts
 import { simulateContract, writeContract } from 'viem/actions'
-import { extractQueryIds, getRedeemConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
+import { extractQueries, getRedeemConduitCall, randomSalt } from '@railnetorg/railnet-sdk'
 
 const { call, querySalt } = await getRedeemConduitCall(publicClient, {
   conduit: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -33,7 +33,7 @@ const receipt = await waitForTransactionReceipt(publicClient, {
   hash: await writeContract(walletClient, request),
 })
 
-const [created] = extractQueryIds(receipt, conduit)
+const [{ queryId, query, vehicle }] = extractQueries(receipt, conduit, chainId)
 ```
 
 ## Returns
@@ -48,7 +48,7 @@ type GetRedeemConduitCallReturnType = {
 
 `querySalt` is `keccak256(abi.encode(sender, salt))`, the value the created query carries. There is
 no `queryId` yet; the conduit assembles a redeem's query at the share ratio of the including block.
-[`extractQueryIds`](/utilities/receiptHelpers#extractqueryids) reads it from the receipt.
+[`extractQueries`](/utilities/receiptHelpers#extractqueries) reads it from the receipt, with the struct.
 
 ## Parameters
 
