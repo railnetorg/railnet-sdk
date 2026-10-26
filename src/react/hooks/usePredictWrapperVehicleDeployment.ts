@@ -7,22 +7,30 @@ import {
   type PredictWrapperVehicleDeploymentParameters,
   predictWrapperVehicleDeploymentQueryOptions,
 } from '../query/predictWrapperVehicleDeployment.js'
+import type { QueryData, QueryOptionsParameter } from '../query/queryOptionsParameter.js'
 
-export type UsePredictWrapperVehicleDeploymentParameters =
-  PredictWrapperVehicleDeploymentParameters & {
-    /** Chain to read from. Defaults to the connected one. */
-    chainId?: number
-    enabled?: boolean
-  }
+export type UsePredictWrapperVehicleDeploymentParameters<
+  selectData = QueryData<typeof predictWrapperVehicleDeploymentQueryOptions>,
+> = PredictWrapperVehicleDeploymentParameters & {
+  /** Chain to read from. Defaults to the connected one. */
+  chainId?: number
+  enabled?: boolean
+  /** Forwarded to `useQuery`. */
+  queryOptions?: QueryOptionsParameter<
+    typeof predictWrapperVehicleDeploymentQueryOptions,
+    selectData
+  >
+}
 
-export function usePredictWrapperVehicleDeployment(
-  parameters: UsePredictWrapperVehicleDeploymentParameters,
-) {
-  const { enabled = true, chainId, ...queryParameters } = parameters
+export function usePredictWrapperVehicleDeployment<
+  selectData = QueryData<typeof predictWrapperVehicleDeploymentQueryOptions>,
+>(parameters: UsePredictWrapperVehicleDeploymentParameters<selectData>) {
+  const { enabled = true, chainId, queryOptions, ...queryParameters } = parameters
   const client = usePublicClient({ chainId })
   const options = predictWrapperVehicleDeploymentQueryOptions(client, queryParameters)
 
   const result = useQuery({
+    ...queryOptions,
     ...options,
     enabled,
   })

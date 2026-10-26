@@ -7,22 +7,30 @@ import {
   type PredictAaveV3VehicleDeploymentParameters,
   predictAaveV3VehicleDeploymentQueryOptions,
 } from '../query/predictAaveV3VehicleDeployment.js'
+import type { QueryData, QueryOptionsParameter } from '../query/queryOptionsParameter.js'
 
-export type UsePredictAaveV3VehicleDeploymentParameters =
-  PredictAaveV3VehicleDeploymentParameters & {
-    /** Chain to read from. Defaults to the connected one. */
-    chainId?: number
-    enabled?: boolean
-  }
+export type UsePredictAaveV3VehicleDeploymentParameters<
+  selectData = QueryData<typeof predictAaveV3VehicleDeploymentQueryOptions>,
+> = PredictAaveV3VehicleDeploymentParameters & {
+  /** Chain to read from. Defaults to the connected one. */
+  chainId?: number
+  enabled?: boolean
+  /** Forwarded to `useQuery`. */
+  queryOptions?: QueryOptionsParameter<
+    typeof predictAaveV3VehicleDeploymentQueryOptions,
+    selectData
+  >
+}
 
-export function usePredictAaveV3VehicleDeployment(
-  parameters: UsePredictAaveV3VehicleDeploymentParameters,
-) {
-  const { enabled = true, chainId, ...queryParameters } = parameters
+export function usePredictAaveV3VehicleDeployment<
+  selectData = QueryData<typeof predictAaveV3VehicleDeploymentQueryOptions>,
+>(parameters: UsePredictAaveV3VehicleDeploymentParameters<selectData>) {
+  const { enabled = true, chainId, queryOptions, ...queryParameters } = parameters
   const client = usePublicClient({ chainId })
   const options = predictAaveV3VehicleDeploymentQueryOptions(client, queryParameters)
 
   const result = useQuery({
+    ...queryOptions,
     ...options,
     enabled,
   })

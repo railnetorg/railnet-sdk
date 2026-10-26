@@ -78,6 +78,10 @@ const result = useConduitInfo({
 - **Type:** `boolean`
 - **Default:** `true`
 
+### queryOptions (optional)
+
+- **Type:** TanStack Query's `UseQueryOptions`, without `queryKey`, `queryFn` and `enabled`
+
 ```tsx
 const result = useConduitInfo({
   conduit: '0x...',

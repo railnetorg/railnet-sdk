@@ -5,19 +5,27 @@ import { usePublicClient } from 'wagmi'
 import type { EstimateConduitParameters } from '../../actions/conduit/estimateConduit.js'
 import { attachQueryKey } from '../query/attachQueryKey.js'
 import { estimateConduitQueryOptions } from '../query/estimateConduit.js'
+import type { QueryData, QueryOptionsParameter } from '../query/queryOptionsParameter.js'
 
-export type UseEstimateConduitParameters = EstimateConduitParameters & {
+export type UseEstimateConduitParameters<
+  selectData = QueryData<typeof estimateConduitQueryOptions>,
+> = EstimateConduitParameters & {
   /** Chain to read from. Defaults to the connected one. */
   chainId?: number
   enabled?: boolean
+  /** Forwarded to `useQuery`. */
+  queryOptions?: QueryOptionsParameter<typeof estimateConduitQueryOptions, selectData>
 }
 
-export function useEstimateConduit(parameters: UseEstimateConduitParameters) {
-  const { enabled = true, chainId, ...queryParameters } = parameters
+export function useEstimateConduit<selectData = QueryData<typeof estimateConduitQueryOptions>>(
+  parameters: UseEstimateConduitParameters<selectData>,
+) {
+  const { enabled = true, chainId, queryOptions, ...queryParameters } = parameters
   const client = usePublicClient({ chainId })
   const options = estimateConduitQueryOptions(client, queryParameters)
 
   const result = useQuery({
+    ...queryOptions,
     ...options,
     enabled,
   })

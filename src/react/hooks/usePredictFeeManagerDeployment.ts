@@ -7,21 +7,27 @@ import {
   type PredictFeeManagerDeploymentParameters,
   predictFeeManagerDeploymentQueryOptions,
 } from '../query/predictFeeManagerDeployment.js'
+import type { QueryData, QueryOptionsParameter } from '../query/queryOptionsParameter.js'
 
-export type UsePredictFeeManagerDeploymentParameters = PredictFeeManagerDeploymentParameters & {
+export type UsePredictFeeManagerDeploymentParameters<
+  selectData = QueryData<typeof predictFeeManagerDeploymentQueryOptions>,
+> = PredictFeeManagerDeploymentParameters & {
   /** Chain to read from. Defaults to the connected one. */
   chainId?: number
   enabled?: boolean
+  /** Forwarded to `useQuery`. */
+  queryOptions?: QueryOptionsParameter<typeof predictFeeManagerDeploymentQueryOptions, selectData>
 }
 
-export function usePredictFeeManagerDeployment(
-  parameters: UsePredictFeeManagerDeploymentParameters,
-) {
-  const { enabled = true, chainId, ...queryParameters } = parameters
+export function usePredictFeeManagerDeployment<
+  selectData = QueryData<typeof predictFeeManagerDeploymentQueryOptions>,
+>(parameters: UsePredictFeeManagerDeploymentParameters<selectData>) {
+  const { enabled = true, chainId, queryOptions, ...queryParameters } = parameters
   const client = usePublicClient({ chainId })
   const options = predictFeeManagerDeploymentQueryOptions(client, queryParameters)
 
   const result = useQuery({
+    ...queryOptions,
     ...options,
     enabled,
   })
