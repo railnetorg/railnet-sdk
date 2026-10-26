@@ -5,7 +5,7 @@ import * as wagmi from 'wagmi'
 import { VEHICLE_STEAM_DEPOSIT } from '../src/constants/roles.js'
 import { hasRoleQueryKey } from '../src/react/query/hasRole.js'
 
-const useQuery = mock((options: object) => ({ data: undefined, options }))
+const useQuery = mock((_options: object) => ({ data: undefined }))
 
 // The hooks only call `usePublicClient` and `useQuery`, so they run outside a React tree.
 mock.module('@tanstack/react-query', () => ({ ...tanstack, useQuery }))
@@ -21,7 +21,7 @@ const parameters = {
 }
 
 describe('queryOptions', () => {
-  it('reaches useQuery, behind the read key and the hook enabled', () => {
+  it('reaches useQuery without overriding the read key or enabled', () => {
     useHasRole({
       ...parameters,
       enabled: false,

@@ -15,7 +15,7 @@ export type UsePredictErc4626VehicleDeploymentParameters<
   /** Chain to read from. Defaults to the connected one. */
   chainId?: number
   enabled?: boolean
-  /** Forwarded to `useQuery`, such as `throwOnError`, `select` or `staleTime`. */
+  /** Forwarded to `useQuery`. */
   queryOptions?: QueryOptionsParameter<
     typeof predictErc4626VehicleDeploymentQueryOptions,
     selectData

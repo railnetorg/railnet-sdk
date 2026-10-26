@@ -14,7 +14,7 @@ export type UseIsTransferableParameters<selectData = QueryData<typeof isTransfer
     /** Chain to read from. Defaults to the connected one. */
     chainId?: number
     enabled?: boolean
-    /** Forwarded to `useQuery`, such as `throwOnError`, `select` or `staleTime`. */
+    /** Forwarded to `useQuery`. */
     queryOptions?: QueryOptionsParameter<typeof isTransferableQueryOptions, selectData>
   }
 

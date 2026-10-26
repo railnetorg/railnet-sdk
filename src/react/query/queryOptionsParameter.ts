@@ -10,10 +10,7 @@ export type QueryData<options extends ReadQueryOptions> = Awaited<
   ReturnType<Exclude<ReturnType<options>['queryFn'], SkipToken>>
 >
 
-/**
- * The `useQuery` options a read hook forwards. The read owns `queryKey` and `queryFn`, and the
- * hook's own `enabled` owns `enabled`.
- */
+/** `useQuery` options a hook forwards, except the `queryKey`, `queryFn` and `enabled` it sets. */
 export type QueryOptionsParameter<
   options extends ReadQueryOptions,
   selectData = QueryData<options>,

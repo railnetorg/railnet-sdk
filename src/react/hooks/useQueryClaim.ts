@@ -11,7 +11,7 @@ export type UseQueryClaimParameters<selectData = QueryData<typeof queryClaimQuer
     /** Chain to read from. Defaults to the connected one. */
     chainId?: number
     enabled?: boolean
-    /** Forwarded to `useQuery`, such as `throwOnError`, `select` or `staleTime`. */
+    /** Forwarded to `useQuery`. */
     queryOptions?: QueryOptionsParameter<typeof queryClaimQueryOptions, selectData>
   }
 
