@@ -7,19 +7,26 @@ import {
   type IsTransferableParameters,
   isTransferableQueryOptions,
 } from '../query/isTransferable.js'
+import type { QueryData, QueryOptionsParameter } from '../query/queryOptionsParameter.js'
 
-export type UseIsTransferableParameters = IsTransferableParameters & {
-  /** Chain to read from. Defaults to the connected one. */
-  chainId?: number
-  enabled?: boolean
-}
+export type UseIsTransferableParameters<selectData = QueryData<typeof isTransferableQueryOptions>> =
+  IsTransferableParameters & {
+    /** Chain to read from. Defaults to the connected one. */
+    chainId?: number
+    enabled?: boolean
+    /** Forwarded to `useQuery`, such as `throwOnError`, `select` or `staleTime`. */
+    queryOptions?: QueryOptionsParameter<typeof isTransferableQueryOptions, selectData>
+  }
 
-export function useIsTransferable(parameters: UseIsTransferableParameters) {
-  const { enabled = true, chainId, ...queryParameters } = parameters
+export function useIsTransferable<selectData = QueryData<typeof isTransferableQueryOptions>>(
+  parameters: UseIsTransferableParameters<selectData>,
+) {
+  const { enabled = true, chainId, queryOptions, ...queryParameters } = parameters
   const client = usePublicClient({ chainId })
   const options = isTransferableQueryOptions(client, queryParameters)
 
   const result = useQuery({
+    ...queryOptions,
     ...options,
     enabled,
   })

@@ -7,22 +7,30 @@ import {
   type PredictMorphoBlueVehicleDeploymentParameters,
   predictMorphoBlueVehicleDeploymentQueryOptions,
 } from '../query/predictMorphoBlueVehicleDeployment.js'
+import type { QueryData, QueryOptionsParameter } from '../query/queryOptionsParameter.js'
 
-export type UsePredictMorphoBlueVehicleDeploymentParameters =
-  PredictMorphoBlueVehicleDeploymentParameters & {
-    /** Chain to read from. Defaults to the connected one. */
-    chainId?: number
-    enabled?: boolean
-  }
+export type UsePredictMorphoBlueVehicleDeploymentParameters<
+  selectData = QueryData<typeof predictMorphoBlueVehicleDeploymentQueryOptions>,
+> = PredictMorphoBlueVehicleDeploymentParameters & {
+  /** Chain to read from. Defaults to the connected one. */
+  chainId?: number
+  enabled?: boolean
+  /** Forwarded to `useQuery`, such as `throwOnError`, `select` or `staleTime`. */
+  queryOptions?: QueryOptionsParameter<
+    typeof predictMorphoBlueVehicleDeploymentQueryOptions,
+    selectData
+  >
+}
 
-export function usePredictMorphoBlueVehicleDeployment(
-  parameters: UsePredictMorphoBlueVehicleDeploymentParameters,
-) {
-  const { enabled = true, chainId, ...queryParameters } = parameters
+export function usePredictMorphoBlueVehicleDeployment<
+  selectData = QueryData<typeof predictMorphoBlueVehicleDeploymentQueryOptions>,
+>(parameters: UsePredictMorphoBlueVehicleDeploymentParameters<selectData>) {
+  const { enabled = true, chainId, queryOptions, ...queryParameters } = parameters
   const client = usePublicClient({ chainId })
   const options = predictMorphoBlueVehicleDeploymentQueryOptions(client, queryParameters)
 
   const result = useQuery({
+    ...queryOptions,
     ...options,
     enabled,
   })
