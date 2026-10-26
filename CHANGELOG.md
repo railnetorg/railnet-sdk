@@ -1,5 +1,21 @@
 # @railnetorg/railnet-sdk
 
+## 0.12.0
+
+### Minor Changes
+
+- 979d625: Added a `queryOptions` parameter on every `/react` read hook, forwarded to TanStack Query's `useQuery`.
+  - Takes `UseQueryOptions` except `queryKey`, `queryFn` and `enabled`, which stay with the read and the hook.
+  - `select` types `data`.
+
+  ```ts
+  const { data, error } = useAccountListStatus({
+    accountList,
+    account,
+    queryOptions: { throwOnError: false },
+  });
+  ```
+
 ## 0.11.0
 
 ### Minor Changes
