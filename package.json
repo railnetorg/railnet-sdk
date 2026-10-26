@@ -22,7 +22,7 @@
     "@types/react": "^19.2.18",
     "@typescript/native-preview": "^7.0.0-dev.20260707.2",
     "@vocs/twoslash-rust": "^0.1.0",
-    "mermaid": "^11.17.2",
+    "mermaid": "^12.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "typescript": "^5.9",
