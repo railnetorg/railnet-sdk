@@ -1,0 +1,58 @@
+---
+description: Reads where a MultiVehicle's assets sit, idle, reserved and per active vehicle, at one block.
+---
+
+# getMultiVehiclePositions
+
+Reads a MultiVehicle's idle and reserved base assets and each active vehicle's holdings, every read
+pinned to the same block.
+
+The vehicles are the engine's `activeVehicles()`, the set `totalAssets()` values, not the
+authorization list: a vehicle unauthorized while a query is still in flight keeps its holdings here.
+
+It rejects if any read fails: there is no partial snapshot.
+
+## Import
+
+```ts twoslash
+import { getMultiVehiclePositions } from '@railnetorg/railnet-sdk'
+```
+
+## Usage
+
+```ts
+import { getMultiVehiclePositions } from '@railnetorg/railnet-sdk'
+
+const positions = await getMultiVehiclePositions(publicClient, { sectorAccountingEngine })
+```
+
+## Returns
+
+[`MultiVehiclePositions`](/types/MultiVehiclePositions)
+
+```ts
+type MultiVehiclePositions = {
+  sectorAccountingEngine: Address
+  asset: Address
+  available: bigint
+  reserved: bigint
+  vehicles: VehicleHoldings[]
+  blockNumber: bigint
+}
+```
+
+## Parameters
+
+### sectorAccountingEngine
+
+- **Type:** `Address`
+
+The SectorAccountingEngine of the MultiVehicle, from `extractMultiVehicleContracts`.
+
+### blockNumber (optional)
+
+- **Type:** `bigint`
+- **Default:** the current block
+
+Every read is pinned to this block, so a dispatch moving assets from AVAILABLE into a vehicle between
+two reads is never counted on both sides.
