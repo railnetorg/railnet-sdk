@@ -22,6 +22,8 @@ export type VehicleManagerLimits = {
 
 export type GetVehicleManagerLimitsParameters = {
   vehicleManager: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetVehicleManagerLimitsReturnType = VehicleManagerLimits
@@ -48,6 +50,7 @@ export async function getVehicleManagerLimits(
       { address: vehicleManager, abi: vehicleManagerAbi, functionName: 'maxTotalAssets' },
     ] as const,
     allowFailure: false,
+    blockNumber: parameters.blockNumber,
   })
 
   return {

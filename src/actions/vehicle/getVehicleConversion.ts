@@ -8,6 +8,8 @@ export type GetVehicleConversionParameters = {
   /** Only `value` is read. */
   asset: Asset
   sharesToAssets: boolean
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetVehicleConversionReturnType = Asset
@@ -37,6 +39,7 @@ export async function getVehicleConversion(
     abi: baseVehicleAbi,
     functionName: 'convert',
     args: [parameters.asset, parameters.sharesToAssets],
+    blockNumber: parameters.blockNumber,
   })
 
   return { asset: converted.asset, value: converted.value }

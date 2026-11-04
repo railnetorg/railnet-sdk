@@ -99,3 +99,10 @@ const amount = await getInitialDepositAmount(publicClient, {
   asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // [!code focus]
 })
 ```
+
+### blockNumber (optional)
+
+- **Type:** `bigint`
+- **Default:** the current block
+
+The block the read is served at, for a past state or to line it up with another read.

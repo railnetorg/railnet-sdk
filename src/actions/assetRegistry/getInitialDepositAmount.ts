@@ -5,6 +5,8 @@ import { assetRegistryAbi } from '../../abi/assetRegistry.js'
 export type GetInitialDepositAmountParameters = {
   assetRegistry: Address
   asset: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetInitialDepositAmountReturnType = bigint
@@ -35,5 +37,6 @@ export async function getInitialDepositAmount(
     abi: assetRegistryAbi,
     functionName: 'getInitialDepositAmount',
     args: [parameters.asset],
+    blockNumber: parameters.blockNumber,
   })
 }

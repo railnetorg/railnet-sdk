@@ -79,3 +79,10 @@ The AccountList the conduit was spawned with. It is fixed at spawn, with no sett
 
 `canTransfer` and `canForceRedeem` take a pair; this read does not include them.
 [`getIsTransferable`](/actions/getIsTransferable) answers for a transfer.
+
+### blockNumber (optional)
+
+- **Type:** `bigint`
+- **Default:** the current block
+
+The block the read is served at, for a past state or to line it up with another read.

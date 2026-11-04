@@ -64,6 +64,8 @@ export function buildCancelDefaultAdminTransferCall(parameters: DefaultAdminTran
 
 export type GetPendingDefaultAdminParameters = {
   accessControl: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetPendingDefaultAdminReturnType = {
@@ -91,6 +93,7 @@ export async function getPendingDefaultAdmin(
     address: parameters.accessControl,
     abi: externalAccessControlAbi,
     functionName: 'pendingDefaultAdmin',
+    blockNumber: parameters.blockNumber,
   })
 
   return { newAdmin, schedule }

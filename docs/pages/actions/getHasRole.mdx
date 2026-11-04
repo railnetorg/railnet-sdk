@@ -61,6 +61,13 @@ wrong scope reports `false` on a grant that exists.
 
 - **Type:** `Address`
 
+### blockNumber (optional)
+
+- **Type:** `bigint`
+- **Default:** the current block
+
+The block the read is served at, for a past state or to line it up with another read.
+
 ## React
 
 [`useHasRole`](/react/useHasRole) wraps the same read.

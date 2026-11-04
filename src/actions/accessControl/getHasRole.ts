@@ -8,6 +8,8 @@ export type GetHasRoleParameters = {
   /** Contract the role is scoped to, the one that performs the gated call. */
   scope: Address
   account: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetHasRoleReturnType = boolean
@@ -38,5 +40,6 @@ export async function getHasRole(
     abi: externalAccessControlAbi,
     functionName: 'hasRoleOrScopedRole',
     args: [role, scope, account],
+    blockNumber: parameters.blockNumber,
   })
 }

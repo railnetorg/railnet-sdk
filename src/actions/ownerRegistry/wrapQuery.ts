@@ -40,6 +40,8 @@ export type GetQueryClaimParameters = {
   ownerRegistry: Address
   conduit: Address
   queryId: Hex
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetQueryClaimReturnType = QueryClaim
@@ -66,6 +68,7 @@ export async function getQueryClaim(
       { ...call, functionName: 'getTokenIdByQuery' },
     ] as const,
     allowFailure: false,
+    blockNumber: parameters.blockNumber,
   })
 
   return { owner, isWrapped, tokenId }

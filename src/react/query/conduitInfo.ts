@@ -1,14 +1,13 @@
 import { type QueryOptions, skipToken } from '@tanstack/react-query'
-import type { Address, Client, ReadContractErrorType } from 'viem'
+import type { Client, ReadContractErrorType } from 'viem'
 import {
+  type GetConduitInfoParameters,
   type GetConduitInfoReturnType,
   getConduitInfo,
 } from '../../actions/conduit/getConduitInfo.js'
 import { normalizeQueryKeyParameters } from './key.js'
 
-export type ConduitInfoParameters = {
-  conduit: Address
-}
+export type ConduitInfoParameters = GetConduitInfoParameters
 
 /** Stable prefix, for `invalidateQueries` across every chain and every parameter set. */
 export const conduitInfoQueryPrefix = ['railnet', 'conduitInfo'] as const
@@ -30,7 +29,7 @@ export function conduitInfoQueryOptions(
   parameters: ConduitInfoParameters,
 ) {
   return {
-    queryFn: client ? () => getConduitInfo(client, { conduit: parameters.conduit }) : skipToken,
+    queryFn: client ? () => getConduitInfo(client, parameters) : skipToken,
     queryKey: conduitInfoQueryKey(client?.chain?.id, parameters),
   } as const satisfies QueryOptions<
     GetConduitInfoReturnType,

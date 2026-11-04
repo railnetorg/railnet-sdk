@@ -8,6 +8,8 @@ export type GetSectorBalanceParameters = {
   sector: Sector
   /** The base asset for an asset sector, or the sub-vehicle's own address for a share sector. */
   asset: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetSectorBalanceReturnType = bigint
@@ -35,5 +37,6 @@ export async function getSectorBalance(
     abi: sectorAccountingEngineAbi,
     functionName: 'getSectorBalance',
     args: [parameters.sector, parameters.asset],
+    blockNumber: parameters.blockNumber,
   })
 }
