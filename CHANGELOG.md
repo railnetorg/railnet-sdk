@@ -1,5 +1,25 @@
 # @railnetorg/railnet-sdk
 
+## 0.13.0
+
+### Minor Changes
+
+- c640de6: Added `getMultiVehiclePositions`, which reads a MultiVehicle's AVAILABLE and RESERVED base assets and each active vehicle's `vehicleHoldings`, every read pinned to one block.
+  - Iterates `activeVehicles()`, the set `totalAssets()` values, so a vehicle unauthorized with a query in flight keeps its holdings.
+  - Names the five `vehicleHoldings` returns (`sharesAfterUnlocks` … `assetsBeforeCreates`) in a `VehicleHoldings` type.
+  - `/react`: `useMultiVehiclePositions` and `multiVehiclePositionsQueryOptions`.
+
+  ```ts
+  const { available, reserved, vehicles, blockNumber } = await getMultiVehiclePositions(client, {
+    sectorAccountingEngine,
+  });
+  ```
+
+- 435181a: Added an optional `blockNumber` to every read of contract state, so reads can be lined up on one block or served from a past one.
+  - `estimateConduit`, `estimateVehicle`, `getAccountListStatus`, `getConduitInfo`, `getConduitInterceptions`, `getVehicleInterceptions`, `getHasRole`, `getInitialDepositAmount`, `getIsTransferable`, `getPendingDefaultAdmin`, `getQueryClaim`, `getQueryState`, `getSectorBalance`, `getVehicleConversion`, `getVehicleManagerLimits`.
+  - Not on immutable reads, `predict…Deployment`, `getDepositConduitCall`, `getRedeemConduitCall` or `simulateDispatchVehicle`.
+  - The `/react` hooks and query options take it too; a pinned read caches under its own key.
+
 ## 0.12.0
 
 ### Minor Changes
