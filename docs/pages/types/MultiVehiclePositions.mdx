@@ -1,0 +1,79 @@
+---
+description: Type definition for where a MultiVehicle's assets sit at one block.
+---
+
+# MultiVehiclePositions
+
+Where a MultiVehicle's assets sit at one block: idle, reserved, and each active vehicle's holdings.
+Returned by [`getMultiVehiclePositions`](/actions/getMultiVehiclePositions).
+
+## Import
+
+```ts twoslash
+import type { MultiVehiclePositions, VehicleHoldings } from '@railnetorg/railnet-sdk'
+```
+
+## Definition
+
+```ts
+type MultiVehiclePositions = {
+  sectorAccountingEngine: Address
+  asset: Address
+  available: bigint
+  reserved: bigint
+  vehicles: VehicleHoldings[]
+  blockNumber: bigint
+}
+
+type VehicleHoldings = {
+  vehicle: Address
+  sharesAfterUnlocks: bigint
+  sharesBeforeCreates: bigint
+  expectedSharesAfterUnlocks: bigint
+  expectedAssetsAfterUnlocks: bigint
+  assetsBeforeCreates: bigint
+}
+```
+
+## Properties
+
+### asset
+
+- **Type:** `Address`
+
+The MultiVehicle's base asset, the engine's `asset()`. `available`, `reserved` and the `*Assets*`
+holdings are in its units.
+
+### available
+
+- **Type:** `bigint`
+
+Base assets in the AVAILABLE sector, what `withdrawable()` returns.
+
+### reserved
+
+- **Type:** `bigint`
+
+Base assets in the RESERVED sector, earmarked by the operator: counted in `totalAssets()`, not
+withdrawable.
+
+### vehicles
+
+- **Type:** `VehicleHoldings[]`
+
+One entry per vehicle in `activeVehicles()`, the engine's `vehicleHoldings` with its returns named.
+Share amounts are in the vehicle's own shares.
+
+| Field | |
+| --- | --- |
+| `sharesAfterUnlocks` | Settled shares in the ALLOCATION sector |
+| `sharesBeforeCreates` | Shares staged in the vehicle's sector, waiting for a redeem query |
+| `expectedSharesAfterUnlocks` | Shares expected from in-flight deposit queries, on top of `sharesAfterUnlocks` |
+| `expectedAssetsAfterUnlocks` | Base assets expected from in-flight redeem queries |
+| `assetsBeforeCreates` | Base assets staged in the vehicle's sector, waiting for a deposit query |
+
+### blockNumber
+
+- **Type:** `bigint`
+
+The block every read was served at.
