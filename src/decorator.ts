@@ -18,6 +18,7 @@ import {
   getVehicleInterceptions,
 } from './actions/interceptions/getInterceptions.js'
 import { simulateDispatchVehicle } from './actions/multiVehicle/dispatchVehicle.js'
+import { getMultiVehiclePositions } from './actions/multiVehicle/getMultiVehiclePositions.js'
 import { getSectorBalance } from './actions/multiVehicle/getSectorBalance.js'
 import { getVehicleManagerLimits } from './actions/multiVehicle/getVehicleManagerLimits.js'
 import { predictMultiVehicleDeployment } from './actions/multiVehicle/spawnMultiVehicle.js'
@@ -56,6 +57,7 @@ export function railnetActions(client: Client) {
     getInitialDepositAmount: bind(getInitialDepositAmount),
     getMorphoBlueSingleton: bind(getMorphoBlueSingleton),
     getMorphoMarketAsset: bind(getMorphoMarketAsset),
+    getMultiVehiclePositions: bind(getMultiVehiclePositions),
     getPendingDefaultAdmin: bind(getPendingDefaultAdmin),
     getQueryClaim: bind(getQueryClaim),
     getQueryState: bind(getQueryState),

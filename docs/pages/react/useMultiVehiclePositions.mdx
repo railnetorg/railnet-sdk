@@ -1,0 +1,50 @@
+---
+description: Reads where a MultiVehicle's assets sit, idle, reserved and per active vehicle, at one block.
+---
+
+# useMultiVehiclePositions
+
+Reads a MultiVehicle's idle and reserved base assets and each active vehicle's holdings, at one
+block, as a TanStack Query result.
+
+## Import
+
+```ts
+import { useMultiVehiclePositions } from '@railnetorg/railnet-sdk/react'
+```
+
+## Usage
+
+```tsx
+import { useMultiVehiclePositions } from '@railnetorg/railnet-sdk/react'
+
+const { data: positions } = useMultiVehiclePositions({ sectorAccountingEngine })
+```
+
+## Returns
+
+A TanStack Query result over [`MultiVehiclePositions`](/types/MultiVehiclePositions), with its
+`queryKey` attached. See [`getMultiVehiclePositions`](/actions/getMultiVehiclePositions).
+
+## Parameters
+
+Everything [`getMultiVehiclePositions`](/actions/getMultiVehiclePositions) takes, plus:
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** the connected chain
+
+### enabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+### queryOptions (optional)
+
+- **Type:** TanStack Query's `UseQueryOptions`, without `queryKey`, `queryFn` and `enabled`
+
+## Query options
+
+[`multiVehiclePositionsQueryOptions`](/react/queryOptions) is this read as TanStack Query options,
+with `multiVehiclePositionsQueryKey` and `multiVehiclePositionsQueryPrefix` for invalidation.

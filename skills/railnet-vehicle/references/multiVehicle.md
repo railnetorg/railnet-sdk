@@ -198,6 +198,12 @@ destination's sector, settling into `SECTOR_ALLOCATION`.
 Returns a `bigint` in the asset's own units. A vehicle sector holding shares is read with the
 vehicle as `asset`.
 
+### `getMultiVehiclePositions(client, { sectorAccountingEngine, blockNumber? })`
+
+Returns `available` and `reserved` in the base asset, and per vehicle in `activeVehicles()` (the set
+`totalAssets()` values, not the authorization list) the five `vehicleHoldings` returns by name. Every
+read is pinned to one block, echoed as `blockNumber`.
+
 ---
 
 ## SubQueryEngine
