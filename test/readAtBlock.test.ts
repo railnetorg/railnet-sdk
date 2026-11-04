@@ -31,6 +31,7 @@ const STATE_READS: Record<string, object> = {
   getHasRole: { accessControl: ADDRESS, role: zeroHash, scope: ADDRESS, account: ADDRESS },
   getInitialDepositAmount: { assetRegistry: ADDRESS, asset: ADDRESS },
   getIsTransferable: { conduit: ADDRESS, from: ADDRESS, to: ADDRESS },
+  getMultiVehiclePositions: { sectorAccountingEngine: ADDRESS },
   getPendingDefaultAdmin: { accessControl: ADDRESS },
   getQueryClaim: { ownerRegistry: ADDRESS, conduit: ADDRESS, queryId: zeroHash },
   getQueryState: {
