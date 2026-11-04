@@ -65,6 +65,13 @@ The estimated asset and its amount, as a single [`Asset`](/types/Asset).
 
 - **Type:** [`EstimationType`](/types/Enums#estimationtype)
 
+### blockNumber (optional)
+
+- **Type:** `bigint`
+- **Default:** the current block
+
+The block the read is served at. A pinned read caches under its own key.
+
 ### chainId (optional)
 
 - **Type:** `number`

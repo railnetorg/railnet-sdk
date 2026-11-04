@@ -8,6 +8,8 @@ export type EstimateVehicleParameters = {
   asset: Asset
   mode: QueryMode
   estimationType: EstimationType
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type EstimateVehicleReturnType = Asset
@@ -38,6 +40,7 @@ export async function estimateVehicle(
     abi: baseVehicleAbi,
     functionName: 'estimate',
     args: [parameters.asset, parameters.mode, parameters.estimationType],
+    blockNumber: parameters.blockNumber,
   })
 
   return { asset: result.asset, value: result.value }

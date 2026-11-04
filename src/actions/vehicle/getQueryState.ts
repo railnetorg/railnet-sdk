@@ -6,6 +6,8 @@ import type { Query, QueryState } from '../../types.js'
 export type GetQueryStateParameters = {
   vehicle: Address
   query: Query
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetQueryStateReturnType = QueryState
@@ -25,5 +27,6 @@ export async function getQueryState(
     abi: baseVehicleAbi,
     functionName: 'state',
     args: [parameters.query],
+    blockNumber: parameters.blockNumber,
   })
 }

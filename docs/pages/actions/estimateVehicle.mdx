@@ -56,6 +56,13 @@ const estimation = await estimateVehicle(client, {
 
 - **Type:** [`EstimationType`](/types/Enums#estimationtype)
 
+### blockNumber (optional)
+
+- **Type:** `bigint`
+- **Default:** the current block
+
+The block the read is served at, for a past state or to line it up with another read.
+
 ## applySlippage
 
 Lowers an estimate by `bps` basis points. Throws unless `bps` is an integer between 0 and 10000.

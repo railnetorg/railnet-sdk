@@ -64,6 +64,10 @@ four vehicles) and
 `simulateDispatchVehicle`. Writes are call builders, not actions: the SDK builds them and never
 sends them — see railnet-conduit and railnet-vehicle skills.
 
+Every read of contract state takes an optional `blockNumber` (default: the current block), so
+reads can be lined up on one block. Immutable reads, `predict…Deployment`, the `get…ConduitCall`
+helpers and `simulateDispatchVehicle` do not.
+
 ### Handling reverts
 `getRailnetError(error)` walks whatever viem threw, returns the decoded custom error name, its
 arguments and, for the errors a caller can act on, what to do about it. It returns `null` when the

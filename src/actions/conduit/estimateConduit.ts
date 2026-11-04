@@ -8,6 +8,8 @@ export type EstimateConduitParameters = {
   asset: Asset
   mode: QueryMode
   estimationType: EstimationType
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type EstimateConduitReturnType = Asset
@@ -37,6 +39,7 @@ export async function estimateConduit(
     abi: conduitAbi,
     functionName: 'estimate',
     args: [parameters.asset, parameters.mode, parameters.estimationType],
+    blockNumber: parameters.blockNumber,
   })
 
   return { asset: result.asset, value: result.value }

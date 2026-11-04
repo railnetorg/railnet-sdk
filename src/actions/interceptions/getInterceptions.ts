@@ -8,6 +8,8 @@ export type GetInterceptionsReturnType = Interception[]
 
 export type GetConduitInterceptionsParameters = {
   conduit: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 /**
@@ -29,6 +31,7 @@ export async function getConduitInterceptions(
     address: parameters.conduit,
     abi: conduitAbi,
     functionName: 'interceptions',
+    blockNumber: parameters.blockNumber,
   })
 
   return stored.map((interception) => ({
@@ -39,6 +42,8 @@ export async function getConduitInterceptions(
 
 export type GetVehicleInterceptionsParameters = {
   vehicle: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 /**
@@ -60,6 +65,7 @@ export async function getVehicleInterceptions(
     address: parameters.vehicle,
     abi: baseVehicleAbi,
     functionName: 'interceptions',
+    blockNumber: parameters.blockNumber,
   })
 
   return stored.map((interception) => ({

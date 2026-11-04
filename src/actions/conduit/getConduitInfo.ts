@@ -16,6 +16,8 @@ export type ConduitInfo = {
 
 export type GetConduitInfoParameters = {
   conduit: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetConduitInfoReturnType = ConduitInfo
@@ -49,6 +51,7 @@ export async function getConduitInfo(
       { address: conduit, abi: conduitAbi, functionName: 'ready' },
     ] as const,
     allowFailure: false,
+    blockNumber: parameters.blockNumber,
   })
 
   return {

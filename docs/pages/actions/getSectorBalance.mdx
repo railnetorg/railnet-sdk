@@ -54,3 +54,10 @@ A static sector, or `vehicleSector(address)` for a sub-vehicle's own.
 
 The base asset for an asset sector, **the sub-vehicle's own address** for a share sector. The engine
 indexes a balance by both, so a vehicle sector holding shares is read with that vehicle as `asset`.
+
+### blockNumber (optional)
+
+- **Type:** `bigint`
+- **Default:** the current block
+
+The block the read is served at, for a past state or to line it up with another read.

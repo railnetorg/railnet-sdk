@@ -19,6 +19,8 @@ export type AccountListStatus = {
 export type GetAccountListStatusParameters = {
   accountList: Address
   account: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetAccountListStatusReturnType = AccountListStatus
@@ -53,6 +55,7 @@ export async function getAccountListStatus(
         { ...call, functionName: 'mode' },
       ] as const,
       allowFailure: false,
+      blockNumber: parameters.blockNumber,
     })
 
   return { canDeposit, canRedeem, canReceive, isAllowListed, isBlocked, isSanctioned, mode }

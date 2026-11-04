@@ -6,6 +6,8 @@ export type GetIsTransferableParameters = {
   conduit: Address
   from: Address
   to: Address
+  /** Defaults to the current block. */
+  blockNumber?: bigint
 }
 
 export type GetIsTransferableReturnType = boolean
@@ -30,5 +32,6 @@ export async function getIsTransferable(
     abi: conduitAbi,
     functionName: 'isTransferable',
     args: [parameters.from, parameters.to],
+    blockNumber: parameters.blockNumber,
   })
 }
