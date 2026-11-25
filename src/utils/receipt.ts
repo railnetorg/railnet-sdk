@@ -2,11 +2,14 @@ import type { Abi, Address, ContractEventName, Hex, TransactionReceipt } from 'v
 import { parseEventLogs } from 'viem'
 import { aaveV3VehicleFactoryAbi } from '../abi/aaveV3VehicleFactory.js'
 import { accessControlFactoryAbi } from '../abi/accessControlFactory.js'
+import { accountListFactoryAbi } from '../abi/accountListFactory.js'
 import { conduitAbi } from '../abi/conduit.js'
 import { conduitFactoryAbi } from '../abi/conduitFactory.js'
 import { erc4626VehicleFactoryAbi } from '../abi/erc4626VehicleFactory.js'
+import { feeManagerFactoryAbi } from '../abi/feeManagerFactory.js'
 import { morphoBlueVehicleFactoryAbi } from '../abi/morphoBlueVehicleFactory.js'
 import { multiVehicleFactoryAbi } from '../abi/multiVehicleFactory.js'
+import { ownerRegistryFactoryAbi } from '../abi/ownerRegistryFactory.js'
 import { queryRegistryAbi } from '../abi/queryRegistry.js'
 import { wrapperVehicleFactoryAbi } from '../abi/wrapperVehicleFactory.js'
 import { toQueryId } from '../actions/conduit/queryId.js'
@@ -46,6 +49,50 @@ export function extractAccessControlAddress(
   )
 
   return event?.args.eac ?? null
+}
+
+/**
+ * Extracts the deployed FeeManager address from a {@link buildSpawnFeeManagerCall} transaction receipt.
+ * @returns The deployed fee manager address, or `null` if the event is not found
+ */
+export function extractFeeManagerAddress(
+  receipt: TransactionReceipt,
+  factoryAddress: Address,
+): Address | null {
+  const [event] = eventsFrom(receipt, factoryAddress, feeManagerFactoryAbi, 'SpawnedFeeManager')
+
+  return event?.args.feeManager ?? null
+}
+
+/**
+ * Extracts the deployed AccountList address from a {@link buildSpawnAccountListCall} transaction receipt.
+ * @returns The deployed account list address, or `null` if the event is not found
+ */
+export function extractAccountListAddress(
+  receipt: TransactionReceipt,
+  factoryAddress: Address,
+): Address | null {
+  const [event] = eventsFrom(receipt, factoryAddress, accountListFactoryAbi, 'SpawnedAccountList')
+
+  return event?.args.accountList ?? null
+}
+
+/**
+ * Extracts the deployed OwnerRegistry address from a {@link buildSpawnOwnerRegistryCall} transaction receipt.
+ * @returns The deployed owner registry address, or `null` if the event is not found
+ */
+export function extractOwnerRegistryAddress(
+  receipt: TransactionReceipt,
+  factoryAddress: Address,
+): Address | null {
+  const [event] = eventsFrom(
+    receipt,
+    factoryAddress,
+    ownerRegistryFactoryAbi,
+    'SpawnedOwnerRegistry',
+  )
+
+  return event?.args.ownerRegistry ?? null
 }
 
 /**
