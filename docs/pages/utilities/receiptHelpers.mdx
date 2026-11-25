@@ -13,10 +13,13 @@ created.
 import {
   extractAaveV3VehicleAddress,
   extractAccessControlAddress,
+  extractAccountListAddress,
   extractConduitAddress,
   extractErc4626VehicleAddress,
+  extractFeeManagerAddress,
   extractMorphoBlueVehicleAddress,
   extractMultiVehicleContracts,
+  extractOwnerRegistryAddress,
   extractQueries,
   extractQueryIds,
   extractWrapperVehicleAddress,
@@ -63,6 +66,66 @@ Extracts the deployed access control address from a `buildSpawnAccessControlCall
 
 ```ts
 const accessControlAddress = extractAccessControlAddress(receipt, factoryAddress)
+```
+
+### Parameters
+
+#### receipt
+- **Type:** `TransactionReceipt`
+
+#### factoryAddress
+- **Type:** `Address`
+
+### Returns
+
+`Address | null`
+
+## extractFeeManagerAddress
+
+Extracts the deployed fee manager address from a `buildSpawnFeeManagerCall` transaction receipt.
+
+```ts
+const feeManagerAddress = extractFeeManagerAddress(receipt, factoryAddress)
+```
+
+### Parameters
+
+#### receipt
+- **Type:** `TransactionReceipt`
+
+#### factoryAddress
+- **Type:** `Address`
+
+### Returns
+
+`Address | null`
+
+## extractAccountListAddress
+
+Extracts the deployed account list address from a `buildSpawnAccountListCall` transaction receipt.
+
+```ts
+const accountListAddress = extractAccountListAddress(receipt, factoryAddress)
+```
+
+### Parameters
+
+#### receipt
+- **Type:** `TransactionReceipt`
+
+#### factoryAddress
+- **Type:** `Address`
+
+### Returns
+
+`Address | null`
+
+## extractOwnerRegistryAddress
+
+Extracts the deployed owner registry address from a `buildSpawnOwnerRegistryCall` transaction receipt.
+
+```ts
+const ownerRegistryAddress = extractOwnerRegistryAddress(receipt, factoryAddress)
 ```
 
 ### Parameters
