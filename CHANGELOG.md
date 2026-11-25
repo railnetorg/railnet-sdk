@@ -1,5 +1,11 @@
 # @railnetorg/railnet-sdk
 
+## 0.14.0
+
+### Minor Changes
+
+- 1953bfe: Added `extractFeeManagerAddress`, `extractAccountListAddress` and `extractOwnerRegistryAddress`, which read the address a module spawn deployed from its receipt, like `extractAccessControlAddress`.
+
 ## 0.13.0
 
 ### Minor Changes
