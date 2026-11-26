@@ -1,5 +1,11 @@
 # @railnetorg/railnet-sdk
 
+## 0.15.0
+
+### Minor Changes
+
+- 9b8395e: Added the `VEHICLE_PROGRESS_QUERY`, `VEHICLE_SET_DEPOSIT_DATA` and `CONDUIT_DONATE` role constants, and listed them in `ROLES`.
+
 ## 0.14.0
 
 ### Minor Changes
