@@ -40,6 +40,15 @@ const receipt = await waitForTransactionReceipt(client, { hash })
 const conduit = extractConduitAddress(receipt, conduitFactory)
 ```
 
+A transaction can carry several callers' spawns: a bundle of user operations, or a wrapper around a
+multisig execution. Every spawn helper takes an optional `deployer`, the account that called the
+factory, and then reads that account's spawn only. Without it, the first spawn in the receipt is
+returned.
+
+```ts
+const conduit = extractConduitAddress(receipt, conduitFactory, account.address)
+```
+
 ## extractConduitAddress
 
 Extracts the deployed conduit address from a `buildSpawnConduitCall` transaction receipt.
@@ -54,6 +63,9 @@ const conduitAddress = extractConduitAddress(receipt, factoryAddress)
 - **Type:** `TransactionReceipt`
 
 #### factoryAddress
+- **Type:** `Address`
+
+#### deployer (optional)
 - **Type:** `Address`
 
 ### Returns
@@ -76,6 +88,9 @@ const accessControlAddress = extractAccessControlAddress(receipt, factoryAddress
 #### factoryAddress
 - **Type:** `Address`
 
+#### deployer (optional)
+- **Type:** `Address`
+
 ### Returns
 
 `Address | null`
@@ -94,6 +109,9 @@ const feeManagerAddress = extractFeeManagerAddress(receipt, factoryAddress)
 - **Type:** `TransactionReceipt`
 
 #### factoryAddress
+- **Type:** `Address`
+
+#### deployer (optional)
 - **Type:** `Address`
 
 ### Returns
@@ -116,6 +134,9 @@ const accountListAddress = extractAccountListAddress(receipt, factoryAddress)
 #### factoryAddress
 - **Type:** `Address`
 
+#### deployer (optional)
+- **Type:** `Address`
+
 ### Returns
 
 `Address | null`
@@ -136,6 +157,9 @@ const ownerRegistryAddress = extractOwnerRegistryAddress(receipt, factoryAddress
 #### factoryAddress
 - **Type:** `Address`
 
+#### deployer (optional)
+- **Type:** `Address`
+
 ### Returns
 
 `Address | null`
@@ -154,6 +178,9 @@ const contracts = extractMultiVehicleContracts(receipt, factoryAddress)
 - **Type:** `TransactionReceipt`
 
 #### factoryAddress
+- **Type:** `Address`
+
+#### deployer (optional)
 - **Type:** `Address`
 
 ### Returns
@@ -187,6 +214,9 @@ const vehicleAddress = extractAaveV3VehicleAddress(receipt, factoryAddress)
 - **Type:** `TransactionReceipt`
 
 #### factoryAddress
+- **Type:** `Address`
+
+#### deployer (optional)
 - **Type:** `Address`
 
 ### Returns
