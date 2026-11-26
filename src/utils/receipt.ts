@@ -1,5 +1,5 @@
 import type { Abi, Address, ContractEventName, Hex, TransactionReceipt } from 'viem'
-import { parseEventLogs } from 'viem'
+import { isAddressEqual, parseEventLogs } from 'viem'
 import { aaveV3VehicleFactoryAbi } from '../abi/aaveV3VehicleFactory.js'
 import { accessControlFactoryAbi } from '../abi/accessControlFactory.js'
 import { accountListFactoryAbi } from '../abi/accountListFactory.js'
@@ -34,18 +34,40 @@ function eventsFrom<const abi extends Abi, eventName extends ContractEventName<a
 }
 
 /**
+ * A factory's spawn event in a receipt. A transaction can carry several callers' spawns (a bundle of
+ * user operations, a wrapper around a multisig execution), so pass `deployer`, the account that
+ * called the factory, to read that account's spawn and no one else's.
+ */
+function spawnEvent<const abi extends Abi, eventName extends ContractEventName<abi>>(
+  receipt: TransactionReceipt,
+  factoryAddress: Address,
+  abi: abi,
+  eventName: eventName,
+  deployer: Address | undefined,
+) {
+  const events = eventsFrom(receipt, factoryAddress, abi, eventName) as Array<
+    ReturnType<typeof eventsFrom<abi, eventName>>[number] & { args: { deployer: Address } }
+  >
+  return events.find(
+    (event) => deployer === undefined || isAddressEqual(event.args.deployer, deployer),
+  )
+}
+
+/**
  * Extracts the deployed ExternalAccessControl address from a {@link buildSpawnAccessControlCall} transaction receipt.
  * @returns The deployed EAC address, or `null` if the event is not found
  */
 export function extractAccessControlAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): Address | null {
-  const [event] = eventsFrom(
+  const event = spawnEvent(
     receipt,
     factoryAddress,
     accessControlFactoryAbi,
     'SpawnedExternalAccessControl',
+    deployer,
   )
 
   return event?.args.eac ?? null
@@ -58,8 +80,15 @@ export function extractAccessControlAddress(
 export function extractFeeManagerAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): Address | null {
-  const [event] = eventsFrom(receipt, factoryAddress, feeManagerFactoryAbi, 'SpawnedFeeManager')
+  const event = spawnEvent(
+    receipt,
+    factoryAddress,
+    feeManagerFactoryAbi,
+    'SpawnedFeeManager',
+    deployer,
+  )
 
   return event?.args.feeManager ?? null
 }
@@ -71,8 +100,15 @@ export function extractFeeManagerAddress(
 export function extractAccountListAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): Address | null {
-  const [event] = eventsFrom(receipt, factoryAddress, accountListFactoryAbi, 'SpawnedAccountList')
+  const event = spawnEvent(
+    receipt,
+    factoryAddress,
+    accountListFactoryAbi,
+    'SpawnedAccountList',
+    deployer,
+  )
 
   return event?.args.accountList ?? null
 }
@@ -84,12 +120,14 @@ export function extractAccountListAddress(
 export function extractOwnerRegistryAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): Address | null {
-  const [event] = eventsFrom(
+  const event = spawnEvent(
     receipt,
     factoryAddress,
     ownerRegistryFactoryAbi,
     'SpawnedOwnerRegistry',
+    deployer,
   )
 
   return event?.args.ownerRegistry ?? null
@@ -102,12 +140,14 @@ export function extractOwnerRegistryAddress(
 export function extractAaveV3VehicleAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): Address | null {
-  const [event] = eventsFrom(
+  const event = spawnEvent(
     receipt,
     factoryAddress,
     aaveV3VehicleFactoryAbi,
     'SpawnedAaveV3Vehicle',
+    deployer,
   )
 
   return event?.args.vehicle ?? null
@@ -120,12 +160,14 @@ export function extractAaveV3VehicleAddress(
 export function extractErc4626VehicleAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): Address | null {
-  const [event] = eventsFrom(
+  const event = spawnEvent(
     receipt,
     factoryAddress,
     erc4626VehicleFactoryAbi,
     'SpawnedERC4626Vehicle',
+    deployer,
   )
   return event?.args.vehicle ?? null
 }
@@ -137,12 +179,14 @@ export function extractErc4626VehicleAddress(
 export function extractMorphoBlueVehicleAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): Address | null {
-  const [event] = eventsFrom(
+  const event = spawnEvent(
     receipt,
     factoryAddress,
     morphoBlueVehicleFactoryAbi,
     'SpawnedMorphoBlueVehicle',
+    deployer,
   )
   return event?.args.vehicle ?? null
 }
@@ -154,12 +198,14 @@ export function extractMorphoBlueVehicleAddress(
 export function extractWrapperVehicleAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): Address | null {
-  const [event] = eventsFrom(
+  const event = spawnEvent(
     receipt,
     factoryAddress,
     wrapperVehicleFactoryAbi,
     'SpawnedWrapperVehicle',
+    deployer,
   )
   return event?.args.vehicle ?? null
 }
@@ -180,8 +226,15 @@ export type MultiVehicleContracts = {
 export function extractMultiVehicleContracts(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): MultiVehicleContracts | null {
-  const [event] = eventsFrom(receipt, factoryAddress, multiVehicleFactoryAbi, 'SpawnedMultiVehicle')
+  const event = spawnEvent(
+    receipt,
+    factoryAddress,
+    multiVehicleFactoryAbi,
+    'SpawnedMultiVehicle',
+    deployer,
+  )
   if (!event) {
     return null
   }
@@ -205,8 +258,9 @@ export function extractMultiVehicleContracts(
 export function extractConduitAddress(
   receipt: TransactionReceipt,
   factoryAddress: Address,
+  deployer?: Address,
 ): Address | null {
-  const [event] = eventsFrom(receipt, factoryAddress, conduitFactoryAbi, 'ConduitDeployed')
+  const event = spawnEvent(receipt, factoryAddress, conduitFactoryAbi, 'ConduitDeployed', deployer)
 
   return event?.args.conduit ?? null
 }
