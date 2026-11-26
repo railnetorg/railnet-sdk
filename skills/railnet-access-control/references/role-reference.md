@@ -68,6 +68,9 @@ All role constants are precomputed as `keccak256(toHex('ROLE_NAME'))`. Use the c
 - `CONDUIT_PROCESS`
 - `KEEPER_ON_REPORT`
 - `VEHICLE_PROCESS_QUEUE`
+- `VEHICLE_PROGRESS_QUERY`
+- `VEHICLE_SET_DEPOSIT_DATA`
+- `CONDUIT_DONATE`
 
 ## Enumerating roles
 
@@ -80,7 +83,7 @@ import { ROLES } from '@railnetorg/railnet-sdk'
 const options = ROLES.map((role) => ({ label: role.name, value: role.hash }))
 ```
 
-`DEFAULT_ADMIN_ROLE` is the zero hash, and is not in `ROLES`.
+`DEFAULT_ADMIN_ROLE` is the zero hash, and is the last entry of `ROLES`.
 
 `roleName(hash)` goes the other way, turning a hash back into its name or `null` when it is not a
 protocol role. Use it to render a `MissingRole(role, scope, caller)` revert legibly.
