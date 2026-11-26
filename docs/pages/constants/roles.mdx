@@ -4,7 +4,7 @@ description: Role constants for access control.
 
 # Roles
 
-The protocol's roles, as the `keccak256` hashes `Roles.sol` declares.
+The protocol's roles, as `keccak256` hashes of their names.
 
 ## Import
 
@@ -47,6 +47,8 @@ import { VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/rai
 | `VEHICLE_SET_INTERCEPTIONS` | Permission to set interceptions |
 | `VEHICLE_ALLOW` | Permission to allow operations on a vehicle |
 | `VEHICLE_EXEC` | Permission to execute arbitrary calls from a vehicle |
+| `VEHICLE_PROGRESS_QUERY` | Permission to progress a query on a vehicle for its owner |
+| `VEHICLE_SET_DEPOSIT_DATA` | Permission to set the attribution data a vehicle passes on deposit |
 
 ### Conduit
 
@@ -56,6 +58,7 @@ import { VEHICLE_STEAM_DEPOSIT, MULTI_VEHICLE_SET_QUEUES } from '@railnetorg/rai
 | `CONDUIT_FORCE_REDEEM` | Permission to force-redeem a holder's shares |
 | `CONDUIT_SET_INTERCEPTIONS` | Permission to set interceptions on a conduit |
 | `CONDUIT_SET_TRANSFER_ENABLED` | Permission to enable share transfers |
+| `CONDUIT_DONATE` | Permission to donate shares to a conduit's other holders |
 
 ### Fee Manager
 
