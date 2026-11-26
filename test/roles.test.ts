@@ -14,7 +14,7 @@ const SDK_ONLY = ['DEFAULT_ADMIN_ROLE']
 function parseRoles(source: string): Role[] {
   const code = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
   const declared = code.match(/\bconstant\b/g)?.length ?? 0
-  const parsed = [...code.matchAll(/\bconstant\s+(\w+)\s*=\s*keccak256\(\s*"(\w+)"\s*\)/g)].map(
+  const parsed = [...code.matchAll(/\bconstant\s+(\w+)\s*=\s*keccak256\(\s*"(\w+)"\s*\)\s*;/g)].map(
     ([, name, preimage]) => ({ name: name as string, hash: keccak256(toHex(preimage as string)) }),
   )
   // An empty source or a declaration of another shape must fail, never pass as "no difference".
@@ -130,6 +130,12 @@ describe('diffRoles', () => {
     expect(() =>
       diffRoles(`${sourceOf(registry)}\nbytes32 internal constant ODD = bytes32(0);`, registry),
     ).toThrow()
+  })
+
+  it('throws on a hashed role whose value is then changed', () => {
+    const [first] = ROLES
+    const source = `${sourceOf(rest)}\nbytes32 internal constant ${first.name} = keccak256("${first.name}") ^ bytes32(uint256(1));`
+    expect(() => diffRoles(source, registry)).toThrow()
   })
 })
 
