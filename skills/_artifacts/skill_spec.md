@@ -24,8 +24,8 @@ Three API layers:
 
 ## Chain Support
 
-`getAddresses` holds production deployments, which today means Ethereum (chain 1) alone. Staging
-runs on real mainnet chain ids, Ethereum and Base (8453), behind the separate
+`getAddresses` holds production deployments, on Ethereum (chain 1) and Base (8453). Staging
+runs on the same mainnet chain ids, behind the separate
 `@railnetorg/railnet-sdk/staging` entry point. A chain id does not identify the environment; the
 import path does.
 

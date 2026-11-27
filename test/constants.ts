@@ -1,5 +1,4 @@
 import type { Address } from 'viem'
-// Base runs the staging deployment: chain 8453 has no production one yet.
 import { addresses } from '../src/staging/index.js'
 
 export const BASE_CHAIN_ID = 8453

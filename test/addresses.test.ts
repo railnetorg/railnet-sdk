@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'bun:test'
-import { type Chain, createPublicClient, http, zeroAddress, zeroHash } from 'viem'
+import { type Address, type Chain, createPublicClient, http, zeroAddress, zeroHash } from 'viem'
 import { readContract } from 'viem/actions'
 import { base, mainnet } from 'viem/chains'
+import { aaveV3VehicleFactoryAbi } from '../src/abi/aaveV3VehicleFactory.js'
 import { conduitFactoryAbi } from '../src/abi/conduitFactory.js'
+import { erc4626VehicleFactoryAbi } from '../src/abi/erc4626VehicleFactory.js'
+import { morphoBlueVehicleFactoryAbi } from '../src/abi/morphoBlueVehicleFactory.js'
+import { multiVehicleFactoryAbi } from '../src/abi/multiVehicleFactory.js'
 import { getInitialDepositAmount } from '../src/actions/assetRegistry/getInitialDepositAmount.js'
 import { predictConduitDeployment } from '../src/actions/conduit/predictConduitDeployment.js'
 import type { ChainAddresses } from '../src/contracts/addresses.js'
@@ -32,6 +36,13 @@ const books: Book[] = [
     chain: mainnet,
     rpcUrl: process.env.MAINNET_RPC_URL,
     book: productionAddresses[1],
+    usdcAuthorized: true,
+  },
+  {
+    label: 'production on Base',
+    chain: base,
+    rpcUrl: process.env.BASE_RPC_URL,
+    book: productionAddresses[8453],
     usdcAuthorized: true,
   },
 ]
@@ -69,6 +80,109 @@ for (const { label, chain, rpcUrl, book, usdcAuthorized } of books) {
       })
 
       expect(assetRegistry).toBe(book.assetRegistry)
+    })
+
+    it('wires every shipped factory to the other contracts of its book', async () => {
+      const conduit = { address: book.conduitFactory, abi: conduitFactoryAbi } as const
+
+      const [coreFactory, eacFactory, accountListFactory, feeManagerFactory, ownerRegistryFactory] =
+        await Promise.all([
+          readContract(client, { ...conduit, functionName: 'CORE_FACTORY' }),
+          readContract(client, { ...conduit, functionName: 'ACCESS_CONTROL_FACTORY' }),
+          readContract(client, { ...conduit, functionName: 'ACCOUNT_LIST_FACTORY' }),
+          readContract(client, { ...conduit, functionName: 'FEE_MANAGER_FACTORY' }),
+          readContract(client, { ...conduit, functionName: 'OWNER_REGISTRY_FACTORY' }),
+        ])
+      expect({
+        coreFactory,
+        eacFactory,
+        accountListFactory,
+        feeManagerFactory,
+        ownerRegistryFactory,
+      }).toEqual({
+        coreFactory: book.coreFactory,
+        eacFactory: book.eacFactory,
+        accountListFactory: book.accountListFactory,
+        feeManagerFactory: book.feeManagerFactory,
+        ownerRegistryFactory: book.ownerRegistryFactory,
+      })
+
+      const vehicleWiring = await Promise.all([
+        Promise.all([
+          readContract(client, {
+            address: book.multiVehicleFactory,
+            abi: multiVehicleFactoryAbi,
+            functionName: 'CORE_FACTORY',
+          }),
+          readContract(client, {
+            address: book.multiVehicleFactory,
+            abi: multiVehicleFactoryAbi,
+            functionName: 'ASSET_REGISTRY',
+          }),
+          readContract(client, {
+            address: book.multiVehicleFactory,
+            abi: multiVehicleFactoryAbi,
+            functionName: 'MODULES_MANAGER_FACTORY',
+          }),
+        ]),
+        Promise.all([
+          readContract(client, {
+            address: book.aaveV3VehicleFactory,
+            abi: aaveV3VehicleFactoryAbi,
+            functionName: 'CORE_FACTORY',
+          }),
+          readContract(client, {
+            address: book.aaveV3VehicleFactory,
+            abi: aaveV3VehicleFactoryAbi,
+            functionName: 'ASSET_REGISTRY',
+          }),
+          readContract(client, {
+            address: book.aaveV3VehicleFactory,
+            abi: aaveV3VehicleFactoryAbi,
+            functionName: 'MODULES_MANAGER_FACTORY',
+          }),
+        ]),
+        Promise.all([
+          readContract(client, {
+            address: book.erc4626VehicleFactory,
+            abi: erc4626VehicleFactoryAbi,
+            functionName: 'CORE_FACTORY',
+          }),
+          readContract(client, {
+            address: book.erc4626VehicleFactory,
+            abi: erc4626VehicleFactoryAbi,
+            functionName: 'ASSET_REGISTRY',
+          }),
+          readContract(client, {
+            address: book.erc4626VehicleFactory,
+            abi: erc4626VehicleFactoryAbi,
+            functionName: 'MODULES_MANAGER_FACTORY',
+          }),
+        ]),
+        Promise.all([
+          readContract(client, {
+            address: book.morphoBlueVehicleFactory,
+            abi: morphoBlueVehicleFactoryAbi,
+            functionName: 'CORE_FACTORY',
+          }),
+          readContract(client, {
+            address: book.morphoBlueVehicleFactory,
+            abi: morphoBlueVehicleFactoryAbi,
+            functionName: 'ASSET_REGISTRY',
+          }),
+          readContract(client, {
+            address: book.morphoBlueVehicleFactory,
+            abi: morphoBlueVehicleFactoryAbi,
+            functionName: 'MODULES_MANAGER_FACTORY',
+          }),
+        ]),
+      ])
+      const expected: readonly Address[] = [
+        book.coreFactory,
+        book.assetRegistry,
+        book.modulesManagerFactory,
+      ]
+      expect(vehicleWiring.flat()).toEqual([...expected, ...expected, ...expected, ...expected])
     })
 
     // Dormant until a superseded generation is deprecated on chain.

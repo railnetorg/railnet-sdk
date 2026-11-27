@@ -2,7 +2,7 @@
 name: railnet-core
 description: >
   Set up railnet-sdk with viem clients, use the railnetActions decorator,
-  understand chain support (production: Ethereum 1; staging: 1 and 8453), contract addresses via
+  understand chain support (production and staging: 1 and 8453), contract addresses via
   getAddresses, ABIs (conduitAbi, conduitFactoryAbi,
   multiVehicleFactoryAbi, aaveV3VehicleFactoryAbi,
   accessControlFactoryAbi, externalAccessControlAbi,
@@ -89,8 +89,8 @@ try {
 ```
 
 ### Contract Address Lookup
-Retrieve factory and registry addresses. `getAddresses` holds production deployments, which
-today means Ethereum alone.
+Retrieve factory and registry addresses. `getAddresses` holds production deployments, on
+Ethereum and Base.
 
 ```typescript
 import { getAddresses } from '@railnetorg/railnet-sdk'
@@ -259,7 +259,7 @@ with the identity of the query it will create. See the conduit skill for the spe
 ### CRITICAL Reading the environment off the chain id
 
 `getAddresses` throws on a chain with no production deployment, and today that means every chain but
-Ethereum. Base has no production deployment yet. Guard with `isSupportedChain(chainId)`, which
+Ethereum and Base. Guard with `isSupportedChain(chainId)`, which
 narrows the type, rather than assuming a chain is there.
 
 ```typescript
@@ -272,7 +272,7 @@ const addresses = getAddresses(chainId)
 Staging runs on real mainnet chain ids: chain 1 is Ethereum and chain 8453 is Base mainnet, not a
 testnet. So a chain id cannot tell you which environment you are in. The import path can.
 `@railnetorg/railnet-sdk/staging` exports the same `getAddresses` and `isSupportedChain` over the
-staging tables, and it is where Base lives today.
+staging tables.
 
 Never mix the two in one code path. A staging address book with a production client sends real
 transactions to the wrong contracts.
