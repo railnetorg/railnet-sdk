@@ -68,6 +68,7 @@ See [`ChainAddresses`](/types/ChainAddresses).
 | Chain | Chain ID |
 | --- | --- |
 | Ethereum | `1` |
+| Base | `8453` |
 
 All addresses are defined in [`src/contracts/addresses.ts`](https://github.com/railnetorg/railnet-sdk/blob/main/src/contracts/addresses.ts).
 
@@ -85,5 +86,5 @@ if (isSupportedChain(chainId)) {
 
 ## Production only
 
-This entry point holds production deployments. Base has none yet, so `getAddresses(8453)` throws
-here. See [Staging deployments](/contracts/staging).
+This entry point holds production deployments, on Ethereum (`1`) and Base (`8453`). See
+[Staging deployments](/contracts/staging).

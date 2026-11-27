@@ -17,7 +17,7 @@ skills:
     path: 'skills/railnet-core/SKILL.md'
     description: >
       Set up railnet-sdk with viem clients, use the railnetActions decorator,
-      understand chain support (production: Ethereum 1; staging: 1 and 8453),
+      understand chain support (production and staging: 1 and 8453),
       contract addresses, ABIs, enums,
       and types. Load when installing railnet-sdk, creating a client, or
       importing SDK utilities.

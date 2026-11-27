@@ -106,9 +106,7 @@ chain ids, so `8453` means Base either way.
 | Chain | ID | `@railnetorg/railnet-sdk` | `@railnetorg/railnet-sdk/staging` |
 |---|---|---|---|
 | Ethereum | `1` | yes | yes |
-| Base | `8453` | not yet | yes |
-
-`getAddresses(8453)` throws from the root export: Base has no production deployment.
+| Base | `8453` | yes | yes |
 
 ## Contributing
 

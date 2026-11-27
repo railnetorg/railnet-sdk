@@ -23,10 +23,7 @@ export type ChainAddresses = {
   usdc: Address
 }
 
-/**
- * Production deployments. Base has none yet; its staging deployment is behind
- * `@railnetorg/railnet-sdk/staging`.
- */
+/** Production deployments. Staging ones are behind `@railnetorg/railnet-sdk/staging`. */
 export const addresses = {
   1: {
     startedAtBlock: 25882737n,
@@ -46,6 +43,25 @@ export const addresses = {
     queryRegistry: '0x69D9c06b318dAd03872a119Cb4a8db3600b21cE0',
     aavePoolAddressesProvider: '0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e',
     usdc: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  },
+  8453: {
+    startedAtBlock: 53542510n,
+    conduitFactory: '0xdf34405032fd393798Ac2e86f519CE23c2dDb1D8',
+    coreFactory: '0x1191334d565b76Ff0d8F6ffC64723e1424580289',
+    multiVehicleFactory: '0xb1Ea3dA7629822d4ECeE9B48bf811d70F6B559a0',
+    aaveV3VehicleFactory: '0x716Ae923b1926CA6Bbf6a667ed8F40A9b42b354A',
+    erc4626VehicleFactory: '0xAA70d5Fe2d9eb0c219CB468589bf4Bb4C9b392b5',
+    morphoBlueVehicleFactory: '0x1984649782FB357114f28c701C89a2E407216D9d',
+    eacFactory: '0x304a5d2F1eC3b1A24390CA817B004b411a99718e',
+    adminEac: '0xb31Cb80fc37A7b10241397767e9AB35FD648d6a7',
+    feeManagerFactory: '0x876b2Ce1ff5d26d1Df4456DFFBf0F68684336324',
+    modulesManagerFactory: '0x0700bEE41E336ae32BBC476DAA5ced0854367250',
+    accountListFactory: '0x22aE5772bCF616DFF1439aD54Acc9d1FF76876DE',
+    ownerRegistryFactory: '0x509409921702056D8b556468468A2b64712B9543',
+    assetRegistry: '0x1D7ec5f1497cEA05863a09dC29d6AD20053E50A8',
+    queryRegistry: '0x4bbA9e87bC85901Cf9A0deb5143427C4Ce4FA403',
+    aavePoolAddressesProvider: '0xe20fCBdBfFC4Dd138cE8b2E6FBb6CB49777ad64D',
+    usdc: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   },
 } as const satisfies Record<number, ChainAddresses>
 

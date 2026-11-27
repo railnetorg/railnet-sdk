@@ -9,13 +9,9 @@ import {
 } from '../src/staging/index.js'
 
 describe('production addresses', () => {
-  it('supports Ethereum', () => {
+  it('supports both Ethereum and Base', () => {
     expect(isSupportedChain(mainnet.id)).toBe(true)
-  })
-
-  it('does not support Base until its production deployment ships', () => {
-    expect(isSupportedChain(base.id)).toBe(false)
-    expect(() => getAddresses(base.id)).toThrowError(`Unsupported chain: ${base.id}`)
+    expect(isSupportedChain(base.id)).toBe(true)
   })
 
   it('returns addresses for every supported chain', () => {
@@ -25,7 +21,7 @@ describe('production addresses', () => {
   })
 
   it('names the supported chains in the error', () => {
-    expect(() => getAddresses(sepolia.id)).toThrowError(mainnet.id.toString())
+    expect(() => getAddresses(sepolia.id)).toThrowError(`Supported: ${mainnet.id}, ${base.id}`)
   })
 })
 
@@ -51,12 +47,14 @@ describe('staging addresses', () => {
 })
 
 describe('the two entry points are different deployments', () => {
-  it('ships a different Ethereum deployment in each', () => {
-    expect(getAddresses(mainnet.id).conduitFactory).not.toBe(
-      getStagingAddresses(mainnet.id).conduitFactory,
-    )
-    expect(getAddresses(mainnet.id).assetRegistry).not.toBe(
-      getStagingAddresses(mainnet.id).assetRegistry,
-    )
+  it('ships a different deployment in each, on Ethereum and on Base', () => {
+    for (const chainId of [mainnet.id, base.id]) {
+      const production = getAddresses(chainId)
+      const staging = getStagingAddresses(chainId)
+      const shared = Object.entries(production)
+        .filter(([key, value]) => staging[key as keyof typeof staging] === value)
+        .map(([key]) => key)
+      expect(shared).toEqual(['aavePoolAddressesProvider', 'usdc'])
+    }
   })
 })
